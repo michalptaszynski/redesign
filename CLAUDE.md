@@ -4,7 +4,8 @@ Przed zbudowaniem lub edycją jakiejkolwiek strony/sekcji w tym repo przeczytaj
 [`PAGE_BUILDING_GUIDELINE.md`](PAGE_BUILDING_GUIDELINE.md). Mapuje on intencję
 ("chcę sekcję X", "potrzebuję kroku konfiguratora do wyboru Y") na konkretny
 komponent, wariant przycisku, wzorzec karty i odstęp między sekcjami — na
-podstawie analizy `index.html`, `build-your-box.html` i `packaging.html`.
+podstawie analizy `index.html`, `build-your-box.html`, `packaging.html` i
+`sample-packs.html`.
 
 Trzymaj się kanonicznych rekomendacji z tego pliku (m.in. sekcja 8 — znane
 niespójności prototypu i ich zalecane rozwiązanie, np. rozmiar H2 czy domyślna
@@ -24,8 +25,8 @@ nawigacji edytujesz tylko w `nav-header.js` / `components.css` (sekcja "Top
 nav"), zmiana propaguje się automatycznie wszędzie. Ma dwa warianty:
 
 - **Pełna** (sticky bar + nav-wrapper z megamenu, search, CTA) — na
-  `index.html`, `packaging.html`, `build-your-box.html`. Placeholdery:
-  `<div id="ph-sticky-bar"></div>` i `<div id="ph-nav-wrapper"></div>`.
+  `index.html`, `packaging.html`, `build-your-box.html`, `sample-packs.html`.
+  Placeholdery: `<div id="ph-sticky-bar"></div>` i `<div id="ph-nav-wrapper"></div>`.
 - **Uproszczona** (samo wycentrowane logo, bez linków/megamenu) — na stronach
   typu "flow"/checkout, gdzie nawigacja ma nie rozpraszać, np. `get-a-quote.html`.
   Placeholder: `<div id="ph-nav-simple"></div>`.

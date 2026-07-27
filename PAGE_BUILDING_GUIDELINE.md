@@ -1,9 +1,10 @@
 # Packhelp Redesign — Guideline budowania stron
 
 Ten dokument opisuje, jakich sekcji i komponentów używać, w jakim kontekście, jak je ze
-sobą parować i jakie odstępy stosować między nimi. Powstał na podstawie analizy trzech
-gotowych stron: `index.html` (strona główna), `build-your-box.html` (konfigurator
-produktu) i `packaging.html` (katalog/shop kategorii).
+sobą parować i jakie odstępy stosować między nimi. Powstał na podstawie analizy stron:
+`index.html` (strona główna), `build-your-box.html` (konfigurator produktu),
+`packaging.html` (katalog/shop kategorii) i `sample-packs.html` (wybór próbek / cart-flow,
+patrz pkt 5.5).
 
 Cel: żeby przyszłe strony można było opisywać słownie ("zrób mi hero + sekcję FAQ +
 duży dark CTA na końcu"), a decyzje o tym, jakiego komponentu użyć, jakiego wariantu
@@ -261,7 +262,10 @@ zestawu i kończy tym samym zestawem:
      `nav.topbar` (linki + `.nav-megamenu` na hover + CTA para sm) + `.sticky-bar`
      (pkt 3 niżej). Placeholdery: `#ph-sticky-bar` + `#ph-nav-wrapper`. Używany na
      `index.html`, `packaging.html`, `build-your-box.html` — stron
-     marketingowych/katalogowych, gdzie pełna nawigacja ma sens.
+     marketingowych/katalogowych, gdzie pełna nawigacja ma sens. **Wyjątek:**
+     `sample-packs.html` też ma wariant pełny mimo że jest stroną cart-flow (Michal
+     wybrał to świadomie, nadpisując domyślną regułę niżej) — jeśli budujesz kolejną
+     stronę cart-flow, dopytaj zamiast zakładać automatycznie wariant uproszczony.
    - **Wariant uproszczony** — samo wycentrowane logo, bez linków/megamenu/koszyka
      (`.quote-topbar`). Placeholder: `#ph-nav-simple`. Używany na stronach typu
      "flow"/zadaniowych, gdzie nawigacja ma **nie rozpraszać** (np.
@@ -417,6 +421,56 @@ rozwinięte, jednokolumnowe, zawężone do połowy szerokości kontenera. Trzyma
 (nie dodawaj przypadkowo toggle/collapse — to świadomie stonowany, zawsze-widoczny blok
 tekstowy na końcu strony kategorii).
 
+### 5.5 Strona wyboru próbek / cart-flow (wzorzec: `sample-packs.html`)
+
+Odtwarza realny cart Packhelp (packhelp.co.uk/app/sample-packs) w stylistyce reszty
+redesignu, w `.container` (nie full-bleed poza nav/marquee/stopką, tak jak
+`packaging.html`). Layout: `.samples-grid` — dwie kolumny, lewo lista grup produktów w
+akordeonie, prawo **sticky** karta podsumowania (`.samples-summary-card`, ten sam typ
+komponentu co `.build-box-sticky-summary`/`.build-box-checkout` na konfiguratorze —
+zawsze widoczna cena/CTA obok długiej, przewijanej listy wyboru).
+
+**Grupa produktu = akordeon nagłówek + ciało:**
+- Nagłówek (`.sample-group-header`): avatar 80×80 (`.sample-group-thumb`, placeholder
+  szary dopóki nie ma prawdziwego zdjęcia) + tytuł + licznik wybranych
+  (`.sample-group-count`, ukryty dopóki `n === 0`) + chevron. Odstęp nad i pod tym
+  rzędem musi być **równy** (padding avatara = padding ciała akordeonu po otwarciu, oba
+  `--space-4`) — nie kopiuj `--space-5` do jednego z nich "bo tak było", to jest
+  świadomie dopasowana wartość.
+- Ciało: **segmentowany pill-tab** Print Sample / Size Sample — to jest wariant
+  `.toggle-switch` (pkt 6.3, tabela wierszy wyboru trybu) rozciągnięty na pełną
+  szerokość (`flex:1 1 0` na opcjach) zamiast domyślnego "hug content". Grupy bez
+  wariantów (np. Wine Product Box) po prostu pomijają tabs i renderują listę wprost —
+  nie twórz atrapy z jedną zakładką.
+- Pod tabs: `.sample-row-list` — wiersze z checkboxem (`.filter-checkbox`-owy wzorzec
+  z `packaging.html`, przeklejony bo jeszcze nie awansowany do `components.css`), limit
+  8 zaznaczeń pilnowany w JS (pozostałe disablowane, nie ukrywane).
+
+**Tryb Grid (przełącznik w `.site-settings-btn`, ten sam wzorzec "trybik w prawym
+dolnym rogu" co Compact mode na `build-your-box.html`, pkt 5.3):** zamienia
+`.sample-row-list` z pionowej listy w 3-kolumnowy grid kart zdjęciowych — checkbox
+przenosi się z końca wiersza na overlay w rogu zdjęcia. Włączany klasą `body.grid-mode`.
+**Pułapka specyficzności, jeśli dodajesz kolejny wariant trybu:** selektor w stylu
+`body.grid-mode .sample-row-list` ma wyższą specyficzność niż `.sample-tab-panel[hidden]
+{ display:none }`, więc bez `:not([hidden])` w selektorze trybu, ukryta zakładka i tak
+się pokaże w nowym trybie.
+
+**Podgląd na hover (avatar → większe zdjęcie):** renderowany jako **jeden wspólny
+element wpięty w `<body>`** (`.hover-preview`), pozycjonowany przez
+`getBoundingClientRect()` w JS przy `mouseenter`, a nie jako element zagnieżdżony
+wewnątrz avatara. Zagnieżdżony wariant wygląda dobrze dopóki nie trzeba przewinąć/
+otworzyć czegoś nadrzędnego z `overflow:hidden` (tu: zaokrąglona karta grupy +
+kontener akordeonu z animacją zwijania) — wtedy podgląd się przycina. Jeśli gdziekolwiek
+indziej potrzebny będzie hover-preview większy niż jego kontener (np. rozszerzenie
+`.filter-preview` na katalogu), rozważ ten sam wzorzec zamiast zagnieżdżania.
+
+**Akordeon zwijany przez `max-height` + `overflow:hidden` (transition), NIE przez
+sztuczkę `grid-template-rows: 0fr`** (używaną w `.faq-item` na `index.html`). Ta
+sztuczka zawodzi, gdy pierwsze dziecko zwijanej treści to nie-tekstowy flex/grid z
+własnym borderem/paddingiem (tu: pasek segmentowanych tabs) — automatyczny minimalny
+rozmiar grid itemu i tak nie pozwala mu spaść do zera. Zanim użyjesz `0fr` gdzie indziej,
+zweryfikuj realną wysokość zwiniętego stanu w devtoolsach zamiast zakładać, że zadziała.
+
 ---
 
 ## 7. Rytm odstępów między sekcjami — reguła ogólna
@@ -483,3 +537,4 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
 | "Krok konfiguratora z wyborem opcji" | Wybierz jeden z 4 wzorców wg pkt. 6.3 w zależności od tego, czy potrzebne jest zdjęcie, opis, czy sama ikona. |
 | "Strona katalogu/kategorii produktów" | breadcrumb → title-row → tiles karuzela podkategorii → filters bar → product grid (z okazjonalnymi `.promo-card`) → pkg-seo. |
 | "Filtr w katalogu" | `.filter-radio` gdy wykluczający się wybór, `.filter-checkbox` gdy wielokrotny, dodaj `.filter-preview` gdy pomaga zdjęcie poglądowe. |
+| "Strona wyboru próbek / cart z listą do zaznaczenia" | Wzorzec `sample-packs.html` (pkt 5.5): dwie kolumny (akordeon grup + sticky summary card), segmentowany `.toggle-switch` na pełną szerokość dla podkategorii wariantów, opcjonalny tryb Grid przez `.site-settings-btn`. |
