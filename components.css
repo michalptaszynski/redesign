@@ -376,7 +376,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-5);
-  pointer-events: auto;
+  pointer-events: none;
   opacity: 0;
   transform: translateY(-16px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -403,7 +403,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  pointer-events: auto;
+  pointer-events: none;
   opacity: 0;
   transform: translateY(-16px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -411,6 +411,7 @@
 
 .sticky-bar.is-pinned .sticky-links,
 .sticky-bar.is-pinned .sticky-cta {
+  pointer-events: auto;
   opacity: 1;
   transform: translateY(0);
 }

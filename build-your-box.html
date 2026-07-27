@@ -3118,6 +3118,25 @@
 
     updateAllHeaders();
   })();
+
+  // Pre-fills Width/Length/Height from ?width=&length=&height= (set by the packaging page's
+  // "Build any box type" quick-CTA banner) and replays a real `input` event on each so every
+  // listener already bound above (buffer recalc, 3D preview, accordion header) picks it up.
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var ids = { dimWidth: 'width', dimLength: 'length', dimHeight: 'height' };
+
+    Object.keys(ids).forEach(function (id) {
+      var num = parseFloat(params.get(ids[id]));
+      if (!num || num <= 0) { return; }
+
+      var el = document.getElementById(id);
+      if (!el) { return; }
+
+      el.value = num;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  })();
 </script>
 
 </body>
