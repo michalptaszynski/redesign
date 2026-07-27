@@ -34,3 +34,16 @@ nav"), zmiana propaguje się automatycznie wszędzie. Ma dwa warianty:
 Nowa strona dostaje jeden z tych wariantów (nigdy oba naraz, nigdy własny,
 ręcznie sklejony header) — wybór zależy od tego, czy strona jest
 marketingowa/katalogowa (pełna) czy zadaniowa/flow (uproszczona).
+
+**Pułapka `.sticky-bar` (pointer-events):** `.sticky-bar` (pełna nawigacja)
+jest zawsze wyrenderowany i JS-em pozycjonowany dokładnie na wysokości
+prawdziwego `.nav-row1` — nawet zanim użytkownik zescrolluje — tak żeby mógł
+płynnie "wtopić się" w widoczny sticky pasek po scrollu (`.is-pinned`).
+Dopóki nie jest przypięty, jest niewidoczny (`opacity: 0`), ale jego dzieci
+(`.sticky-links`, `.sticky-cta`) MUSZĄ mieć `pointer-events: none` w stanie
+bazowym i dopiero `.sticky-bar.is-pinned .sticky-links/.sticky-cta` włącza
+`pointer-events: auto` — inaczej niewidoczny link w `.sticky-links` (np.
+"Packaging") nakłada się na prawdziwe logo w `.nav-row1` i po cichu
+przechwytuje w nie kliknięcia (błąd znaleziony 2026-07-27: klik w logo na
+`packaging.html` nic nie robił). Każdy nowy element dodany do
+`STICKY_BAR_HTML` w `nav-header.js` musi trzymać się tego samego wzorca.
