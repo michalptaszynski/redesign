@@ -932,6 +932,62 @@
     color: var(--color-text-primary);
   }
 
+  /* ---------- QUICK BOX BANNER (build-any-box CTA, inline row in product grid) ---------- */
+  .quick-box-banner {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding: var(--space-8);
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-accent-subtle);
+    box-sizing: border-box;
+  }
+
+  .quick-box-banner-eyebrow {
+    margin: 0 0 var(--space-2);
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .quick-box-banner-heading {
+    margin: 0;
+    font-weight: 500;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .quick-box-banner-form {
+    display: flex;
+    flex: none;
+    align-items: flex-end;
+    gap: var(--space-3);
+  }
+
+  .quick-box-banner-form .dimension-field {
+    width: 6.5rem;
+  }
+
+  @media (max-width: 900px) {
+    .quick-box-banner {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .quick-box-banner-form {
+      flex-wrap: wrap;
+    }
+
+    .quick-box-banner-form .dimension-field {
+      width: auto;
+      flex: 1 1 6rem;
+    }
+  }
+
 
   /* ---------- FOOTER ---------- */
   .site-footer {
@@ -1969,6 +2025,28 @@
     var descToggle = document.getElementById('pkgDescToggle');
     var productGrid = document.getElementById('pkgProductGrid');
     var defaultProductGridHTML = productGrid.innerHTML;
+    var quickBoxBannerHTML =
+      '<div class="quick-box-banner">' +
+        '<div class="quick-box-banner-copy">' +
+          '<p class="quick-box-banner-eyebrow">Skip the catalog</p>' +
+          '<h3 class="quick-box-banner-heading">Build any box type</h3>' +
+        '</div>' +
+        '<form class="quick-box-banner-form" action="build-your-box.html">' +
+          '<label class="dimension-field">' +
+            '<span class="dimension-field-label">Width</span>' +
+            '<span class="dimension-input-wrap"><input type="number" class="dimension-input" name="width"><span class="dimension-unit">cm</span></span>' +
+          '</label>' +
+          '<label class="dimension-field">' +
+            '<span class="dimension-field-label">Length</span>' +
+            '<span class="dimension-input-wrap"><input type="number" class="dimension-input" name="length"><span class="dimension-unit">cm</span></span>' +
+          '</label>' +
+          '<label class="dimension-field">' +
+            '<span class="dimension-field-label">Height</span>' +
+            '<span class="dimension-input-wrap"><input type="number" class="dimension-input" name="height"><span class="dimension-unit">cm</span></span>' +
+          '</label>' +
+          '<button type="submit" class="btn-pill lg">Start now</button>' +
+        '</form>' +
+      '</div>';
 
     function renderProducts(products) {
       if (!products) {
@@ -1976,7 +2054,7 @@
         return;
       }
 
-      productGrid.innerHTML = products.map(function (product) {
+      var cardsHTML = products.map(function (product) {
         var moqBadge = product.moq
           ? '<span class="product-card-moq">' + product.moq + ' minimum</span>'
           : '';
@@ -1990,7 +2068,15 @@
           '<p class="product-card-customisation">' + product.type + '</p>' +
           '</div>' +
           '</div>';
-      }).join('');
+      });
+
+      if (cardsHTML.length > 4) {
+        cardsHTML.splice(4, 0, quickBoxBannerHTML);
+      } else {
+        cardsHTML.push(quickBoxBannerHTML);
+      }
+
+      productGrid.innerHTML = cardsHTML.join('');
 
       var cards = productGrid.querySelectorAll('.product-card');
       products.forEach(function (product, i) {

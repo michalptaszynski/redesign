@@ -1050,53 +1050,8 @@
     align-self: flex-start;
   }
 
-  .dimension-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-3);
-  }
-
-  .dimension-field {
-    display: block;
-    min-width: 0;
-    font-size: 0.8125rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
-  }
-
-  .dimension-field-label { display: block; margin-bottom: var(--space-2); }
-
-  .dimension-input-wrap {
-    display: flex;
-    align-items: center;
-    height: 48px;
-    padding: 0 var(--space-4);
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--radius-sm);
-    box-sizing: border-box;
-    transition: border-color .15s ease, box-shadow .15s ease;
-  }
-
-  .dimension-input-wrap:focus-within {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px var(--color-focus-ring);
-  }
-
-  .dimension-input {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    outline: none;
-    background: none;
-    font: inherit;
-    font-size: 0.9375rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-  }
-
-  .dimension-unit { flex: none; color: var(--color-text-muted); font-size: 0.9375rem; line-height: 1.32; letter-spacing: -0.02em; }
+  /* .dimension-grid/.dimension-field/.dimension-input-wrap/.dimension-input/.dimension-unit
+     now live in components.css — shared with packaging.html's quick-box banner */
 
   .dimension-buffer-note {
     max-height: 0;
