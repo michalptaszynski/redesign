@@ -1934,6 +1934,10 @@
     transition: transform 0.3s ease;
   }
 
+  .thumb-strip--industries .thumb-photo::before {
+    background-size: cover;
+  }
+
   .thumb-item:hover .thumb-photo::before {
     transform: scale(1.08);
   }
@@ -2902,6 +2906,7 @@
         strip.style.opacity = '0';
         setTimeout(function () {
           strip.innerHTML = itemsHtml(thumbLists[option.getAttribute('data-target')] || categories);
+          strip.classList.toggle('thumb-strip--industries', option.getAttribute('data-target') === 'industries');
           strip.style.opacity = '1';
         }, 200);
       });
