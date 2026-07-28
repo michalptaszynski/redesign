@@ -1912,6 +1912,8 @@
     flex-shrink: 0;
     min-width: 112px;
     max-width: 200px;
+    text-decoration: none;
+    cursor: pointer;
   }
 
   .thumb-photo {
@@ -2877,12 +2879,17 @@
 
     var thumbLists = { categories: categories, merchandise: merchandise, industries: industries };
 
-    function itemsHtml(list) {
+    function itemsHtml(list, linkTarget) {
       return list.map(function (item) {
         var label = item.label || item;
         var image = item.image;
         var style = image ? ' style="--thumb-img:url(\'' + image + '\')"' : '';
-        return '<div class="thumb-item"><div class="thumb-photo"' + style + '></div><span class="thumb-caption">' + label + '</span></div>';
+        var inner = '<div class="thumb-photo"' + style + '></div><span class="thumb-caption">' + label + '</span>';
+        if (linkTarget) {
+          var href = 'packaging.html?' + linkTarget + '=' + encodeURIComponent(label);
+          return '<a class="thumb-item" href="' + href + '">' + inner + '</a>';
+        }
+        return '<div class="thumb-item">' + inner + '</div>';
       }).join('');
     }
 
@@ -2905,8 +2912,9 @@
 
         strip.style.opacity = '0';
         setTimeout(function () {
-          strip.innerHTML = itemsHtml(thumbLists[option.getAttribute('data-target')] || categories);
-          strip.classList.toggle('thumb-strip--industries', option.getAttribute('data-target') === 'industries');
+          var target = option.getAttribute('data-target');
+          strip.innerHTML = itemsHtml(thumbLists[target] || categories, target === 'industries' ? 'industry' : null);
+          strip.classList.toggle('thumb-strip--industries', target === 'industries');
           strip.style.opacity = '1';
         }, 200);
       });

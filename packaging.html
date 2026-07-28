@@ -1194,12 +1194,13 @@
           <div class="filter-panel-options">
             <label class="filter-radio"><input type="radio" name="industry" data-any checked><span class="radio-dot"></span>Any</label>
             <label class="filter-radio" data-preview-img="industies-fashion.png"><input type="radio" name="industry"><span class="radio-dot"></span>Apparel &amp; Fashion</label>
-            <label class="filter-radio" data-preview-img="industies-beauty.png"><input type="radio" name="industry"><span class="radio-dot"></span>Health &amp; Beauty</label>
-            <label class="filter-radio" data-preview-img="industies-ecommerce.png"><input type="radio" name="industry"><span class="radio-dot"></span>E-commerce</label>
-            <label class="filter-radio" data-preview-img="04917e61ae687fdcb83a00a4edd3d6e7.jpg"><input type="radio" name="industry"><span class="radio-dot"></span>Marketing &amp; Events</label>
+            <label class="filter-radio" data-preview-img="https://cdn-pim.packhelp.com/assets/bf2296ab-7f81-4bf3-8ff2-6cd6011adfe7/1321531-health-beauty?w=1112&amp;h=800&amp;fit=min&amp;auto=format"><input type="radio" name="industry"><span class="radio-dot"></span>Health &amp; Beauty</label>
+            <label class="filter-radio" data-preview-img="industies-food.png"><input type="radio" name="industry"><span class="radio-dot"></span>Food &amp; Drinks</label>
+            <label class="filter-radio" data-preview-img="04917e61ae687fdcb83a00a4edd3d6e7.jpg"><input type="radio" name="industry"><span class="radio-dot"></span>Events</label>
             <label class="filter-radio" data-preview-img="industies-electronic.png"><input type="radio" name="industry"><span class="radio-dot"></span>Electronics</label>
-            <label class="filter-radio" data-preview-img="industies-food.png"><input type="radio" name="industry"><span class="radio-dot"></span>Gifts</label>
-            <label class="filter-radio" data-preview-img="industies-home.png"><input type="radio" name="industry"><span class="radio-dot"></span>Home &amp; Deco</label>
+            <label class="filter-radio" data-preview-img="industies-home.png"><input type="radio" name="industry"><span class="radio-dot"></span>Home &amp; D&eacute;cor</label>
+            <label class="filter-radio" data-preview-img="industies-ecommerce.png"><input type="radio" name="industry"><span class="radio-dot"></span>E-commerce</label>
+            <label class="filter-radio" data-preview-img="https://cdn-pim.packhelp.com/assets/eb8fcc72-fcd2-4164-899d-9830da2f0f6b/1415657-hobbies-gifts?w=1112&amp;h=800&amp;fit=min&amp;auto=format"><input type="radio" name="industry"><span class="radio-dot"></span>Gifting</label>
             <label class="filter-radio" data-preview-img="industies-health.png"><input type="radio" name="industry"><span class="radio-dot"></span>Logistics &amp; Fulfilment</label>
           </div>
           <div class="filter-preview"><img src="https://cdn-pim.packhelp.com/assets/2d1711ec-c078-4ed1-8dae-f4689e0dbc52/181212-b-6-c-9359-f-e-4-c-4-4-a-23-a-928-e-1-af-6410-a-4-cc-png?w=640&amp;fit=min&amp;auto=format" alt=""></div>
@@ -2230,6 +2231,23 @@
 
     filtersBar.classList.add('show-active-pills');
     renderActivePills();
+  })();
+</script>
+
+<script>
+  (function () {
+    var industryParam = new URLSearchParams(window.location.search).get('industry');
+    if (!industryParam) { return; }
+
+    var match = [...document.querySelectorAll('input[name="industry"]')].find(function (input) {
+      var label = input.closest('label');
+      return label && label.textContent.trim().toLowerCase() === industryParam.trim().toLowerCase();
+    });
+
+    if (match) {
+      match.checked = true;
+      match.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   })();
 </script>
 
