@@ -269,13 +269,45 @@ a 2rem tylko gdy sekcja ma dodatkowo ciężki wizualnie toolbar/karuzelę pod sp
 
 **Breadcrumb — zawsze bezpośrednio nad H1, nigdy jako osobna sekcja z własnym
 paddingiem.** To wzorzec **strony**, nie sekcji (więc nie ma badge/H2 — sam pasek
-`Packhelp / Kategoria / ...`, styl jak `.pkg-breadcrumb`/`.deals-breadcrumb`). Renderuj
-go jako pierwsze dziecko wewnątrz `<main>`, tuż przed blokiem H1+subheading, i **nie
-dawaj mu własnego `padding-left/right`** — dziedziczy poziomy padding po rodzicu
-(`.pkg-breadcrumb` na `packaging.html`, `.deals-breadcrumb` na `deals.html` obie tak
-robią). Używaj na każdej stronie katalogowej/produktowej, która ma realną hierarchię
-(Packhelp / Packaging / Boxes); pomiń na stronach marketingowych bez hierarchii (HP) i na
-uproszczonych flow (get-a-quote.html).
+`Packhelp / Kategoria / ...`). Renderuj go jako pierwsze dziecko wewnątrz `<main>`, tuż
+przed blokiem H1+subheading. Używaj na każdej stronie katalogowej/produktowej, która ma
+realną hierarchię (Packhelp / Packaging / Boxes) — obecnie: `packaging.html`,
+`industries.html`, `deals.html`, `sample-packs.html`. Pomiń na stronach marketingowych bez
+hierarchii (HP) i na uproszczonych flow (`get-a-quote.html`).
+
+**Kanoniczny odstęp — sprawdzony co do piksela na wszystkich czterech stronach
+powyżej:** nav → breadcrumb = `space-8` (32px), breadcrumb → H1 = `space-4` (16px). To
+jedyne dwie liczby, które mają się zgadzać — **sposób ich osiągnięcia zależy od tego, czy
+strona owija treść w padded `<main>`:**
+- **Bez padded wrappera** (breadcrumb jest bezpośrednim dzieckiem `.container`, tak jak na
+  `packaging.html`/`industries.html`): breadcrumb sam sobie deklaruje i top, i poziomy
+  padding — `padding: var(--space-8) var(--space-8) 0`.
+- **Z padded wrapperem** (`<main class="X-page">` ma już własny poziomy padding, tak jak
+  `.deals-page`/`.samples-page`): breadcrumb **nie dubluje** poziomego paddingu — dziedziczy
+  go z wrappera. Top-odstęp może wtedy siedzieć albo na samym wrapperze (`deals.html` —
+  `.deals-page` ma `padding-top: space-8`, `.deals-breadcrumb` nie ma własnego), albo na
+  breadcrumbie, jeśli wrapper z jakiegoś innego powodu musi mieć `padding-top: 0`
+  (`sample-packs.html` — `.samples-page` zostaje przy `0` żeby nie zaburzyć własnego rytmu
+  marquee/stopki, więc to `.samples-breadcrumb` dostaje `padding-top: space-8`). Gap
+  breadcrumb→H1 (16px) w obu wypadkach idzie jako `margin-bottom` na samym breadcrumbie, nie
+  jako `margin-top` na H1.
+- **Pułapka:** jeśli dublujesz poziomy padding (breadcrumb ma własny `padding-left/right`
+  ORAZ siedzi w padded wrapperze), breadcrumb wizualnie "wjedzie" głębiej niż reszta treści
+  strony pod nim — sprawdzaj to porównując rzeczywistą pozycję linku w breadcrumbie (nie
+  samego `<nav>`, bo jego padding jest wewnątrz jego własnego boxa i nie przesuwa
+  `getBoundingClientRect()`), a treści niżej.
+
+**Header strony (H1 + subheading) zawsze dostaje `.reveal`** — ten sam wjazd co reszta
+reveal-owanych sekcji na stronie: `opacity: 0; transform: translateY(-16px);
+transition: opacity 0.8s ease, transform 0.8s ease;`, a `.reveal.is-visible` zeruje
+transform i ustawia `opacity: 1`. Klasę `is-visible` dokłada wspólny
+`IntersectionObserver` (próg `0.1`–`0.15`, obserwuje wszystkie `.reveal` na stronie,
+`unobserve` po pierwszym zadziałaniu — animacja jest jednorazowa, nie odtwarza się przy
+ponownym scrollu). Rób to niezależnie od tego, czy strona używa reveal gdziekolwiek
+indziej. `sample-packs.html` przed tą poprawką w ogóle nie miał systemu reveal (ani CSS,
+ani `IntersectionObserver`) — trzeba było dodać go w całości tylko po to, żeby nagłówek
+wjeżdżał tak samo jak na `packaging.html`/`industries.html`/`deals.html`. Traktuj to jako
+stały wymóg dla każdej nowej strony z H1, nie opcję.
 
 ---
 

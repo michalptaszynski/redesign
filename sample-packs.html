@@ -85,13 +85,59 @@
     border-width: 1.5px;
   }
 
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html/
+     deals.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- breadcrumb (same recipe as deals.html's .deals-breadcrumb —
+     no own horizontal padding since it sits inside .samples-page, which
+     already supplies that; own top padding only, since .samples-page
+     itself stays at 0 top so it doesn't stack with the marquee section's
+     rhythm below). ---------- */
+  .samples-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) 0 0;
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .samples-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .samples-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .samples-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
   /* ---------- page shell ----------
      No bottom padding here — the marquee section right after it already
      supplies its own top padding, so this stays 0 to avoid stacking two
      gaps (which made the marquee's bottom-to-footer gap look smaller than
-     its top-to-content gap). */
+     its top-to-content gap). Top padding moved onto .samples-breadcrumb
+     itself (space-8, matching packaging.html/industries.html/deals.html's
+     nav→breadcrumb gap) — .samples-page no longer needs its own. */
   .samples-page {
-    padding: var(--space-10) var(--space-8) 0;
+    padding: 0 var(--space-8) 0;
   }
 
   .samples-intro {
@@ -699,7 +745,7 @@
   }
 
   @media (max-width: 700px) {
-    .samples-page { padding: var(--space-8) var(--space-5) 0; }
+    .samples-page { padding: 0 var(--space-5) 0; }
   }
 
   /* ---------- MARQUEE (same recipe as index.html) ---------- */
@@ -949,7 +995,13 @@
   <script src="nav-header.js"></script>
 
 <main class="samples-page">
-  <div class="samples-intro">
+  <nav class="samples-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <span class="current">Samples</span>
+  </nav>
+
+  <div class="samples-intro reveal">
     <h1 class="samples-heading">Pick up to 8 samples</h1>
     <p class="samples-subheading">Try before you buy — and get your money back with your first order. Select up to 8 samples and compare different types of packaging, materials and sizes. Usually shipped in <strong>3–5 days</strong>.</p>
   </div>
@@ -1114,6 +1166,20 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   onScroll();
+})();
+
+(function () {
+  var targets = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  targets.forEach(function (el) { observer.observe(el); });
 })();
 
 (function () {

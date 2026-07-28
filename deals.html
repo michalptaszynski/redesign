@@ -104,7 +104,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    margin: 0 0 var(--space-6);
+    margin: 0 0 var(--space-4);
     font-size: 0.8125rem;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -126,13 +126,14 @@
   }
 
   /* ---------- page shell ----------
-     Same rhythm as samples-page: space-10 top, space-8 sides. Bottom stays
-     small (space-8) because the deal-cta-section right after it is a
-     new-topic section and supplies its own space-40 top padding — together
-     that's the ~12rem "before a headed section" gap from the spacing rule,
-     not a double gap. */
+     Top padding matches packaging.html/industries.html's nav→breadcrumb
+     gap (space-8), so the breadcrumb starts at the same height across all
+     three catalog-style pages. Bottom stays the same space-8 because the
+     deal-cta-section right after it is a new-topic section and supplies
+     its own space-40 top padding — together that's the ~12rem "before a
+     headed section" gap from the spacing rule, not a double gap. */
   .deals-page {
-    padding: var(--space-10) var(--space-8) var(--space-8);
+    padding: var(--space-8) var(--space-8) var(--space-8);
   }
 
   .deals-intro {
@@ -675,7 +676,7 @@
     <span class="current">Deals</span>
   </nav>
 
-  <div class="deals-intro">
+  <div class="deals-intro reveal">
     <h1 class="deals-heading">Deals</h1>
     <p class="deals-subheading">Explore all active deals and limited-time offers — from bundle discounts to cashback on every order.</p>
   </div>
