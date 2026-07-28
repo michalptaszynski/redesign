@@ -336,91 +336,6 @@
     opacity: .6;
   }
 
-  /* ---------- FILTER SETTINGS GEAR ---------- */
-  .filter-settings-btn {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1000;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--color-bg-surface);
-    border: 1px solid rgba(0,0,0,.08);
-    box-shadow: 0 4px 16px rgba(0,0,0,.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--color-text-muted);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .filter-settings-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,.18);
-  }
-
-  .filter-settings-btn svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .filter-settings-panel {
-    position: fixed;
-    bottom: 92px;
-    right: 24px;
-    z-index: 1000;
-    width: 280px;
-    background: var(--color-bg-surface);
-    border-radius: var(--radius-md);
-    box-shadow: 0 8px 32px rgba(0,0,0,.18);
-    padding: var(--space-5);
-    box-sizing: border-box;
-    opacity: 0;
-    transform: translateY(12px);
-    pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-
-  .filter-settings-panel.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  .filter-settings-title {
-    margin: 0 0 var(--space-4);
-    font-size: 0.9375rem;
-    line-height: 1.16;
-    letter-spacing: -0.02em;
-    font-weight: 500;
-    color: var(--color-text-primary);
-  }
-
-  .filter-settings-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-  }
-
-  .filter-settings-label {
-    margin: 0;
-    font-size: 0.8125rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-  }
-
-  .filter-settings-desc {
-    margin: var(--space-1) 0 0;
-    font-size: 0.6875rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
-  }
-
   .filter-panel {
     position: absolute;
     top: calc(100% + var(--space-2));
@@ -1837,7 +1752,11 @@
       badge.addEventListener('click', function (e) {
         e.stopPropagation();
         inputs.forEach(function (input) {
-          input.checked = input.type === 'radio' && input.hasAttribute('data-any');
+          var shouldBeChecked = input.type === 'radio' && input.hasAttribute('data-any');
+          if (input.checked !== shouldBeChecked) {
+            input.checked = shouldBeChecked;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+          }
         });
         updateCount();
       });
@@ -2260,43 +2179,11 @@
   })();
 </script>
 
-<button id="filterSettingsBtn" class="filter-settings-btn" aria-label="Filter settings">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-</button>
-
-<div id="filterSettingsPanel" class="filter-settings-panel">
-  <p class="filter-settings-title">Filter display</p>
-  <div class="filter-settings-row">
-    <div>
-      <p class="filter-settings-label">Selected filters as pills</p>
-      <p class="filter-settings-desc">Show active filter values below the filter bar</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="toggleActiveFilterPills">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-</div>
-
 <script>
   (function () {
-    var btn = document.getElementById('filterSettingsBtn');
-    var panel = document.getElementById('filterSettingsPanel');
-    var toggle = document.getElementById('toggleActiveFilterPills');
     var filtersBar = document.querySelector('.pkg-filters-bar');
     var activeRow = document.getElementById('activeFilterPills');
     var filterInputs = document.querySelectorAll('.filter-panel input');
-
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      panel.classList.toggle('open');
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!panel.contains(e.target) && e.target !== btn) {
-        panel.classList.remove('open');
-      }
-    });
 
     function renderActivePills() {
       activeRow.innerHTML = '';
@@ -2341,18 +2228,8 @@
       input.addEventListener('change', renderActivePills);
     });
 
-    function applyPillsSetting(show) {
-      filtersBar.classList.toggle('show-active-pills', show);
-      toggle.checked = show;
-      if (show) { renderActivePills(); }
-    }
-
-    applyPillsSetting(localStorage.getItem('showActiveFilterPills') === '1');
-
-    toggle.addEventListener('change', function () {
-      applyPillsSetting(toggle.checked);
-      localStorage.setItem('showActiveFilterPills', toggle.checked ? '1' : '0');
-    });
+    filtersBar.classList.add('show-active-pills');
+    renderActivePills();
   })();
 </script>
 
