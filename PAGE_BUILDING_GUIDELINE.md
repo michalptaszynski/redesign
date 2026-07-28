@@ -3,8 +3,8 @@
 Ten dokument opisuje, jakich sekcji i komponentów używać, w jakim kontekście, jak je ze
 sobą parować i jakie odstępy stosować między nimi. Powstał na podstawie analizy stron:
 `index.html` (strona główna), `build-your-box.html` (konfigurator produktu),
-`packaging.html` (katalog/shop kategorii) i `sample-packs.html` (wybór próbek / cart-flow,
-patrz pkt 5.5).
+`packaging.html` (katalog/shop kategorii), `sample-packs.html` (wybór próbek / cart-flow,
+patrz pkt 5.5) i `deals.html` (karuzela promocji, patrz pkt 1.2).
 
 Cel: żeby przyszłe strony można było opisywać słownie ("zrób mi hero + sekcję FAQ +
 duży dark CTA na końcu"), a decyzje o tym, jakiego komponentu użyć, jakiego wariantu
@@ -71,6 +71,49 @@ Elementy:
 różnić i nie chcemy zmuszać jej do zawijania w wiersze. **Kiedy NIE używać:** siatka
 produktów o stałej, przewidywalnej liczbie kolumn — tam prawdziwy CSS grid
 (`.product-grid`, patrz pkt. 6.4).
+
+**Pozycja strzałek, gdy karty mają podpis pod spodem:** domyślnie `.scroll-carousel-nav`
+jest `top: 50%` względem `.scroll-carousel` — ale jeśli karty w środku to zdjęcie +
+tytuł/opis pod nim (`.category-item`, `.deals-carousel-item`), `.scroll-carousel`
+rozciąga się na wysokość **całego** elementu łącznie z tekstem, więc 50% wypadnie za
+nisko, częściowo na podpisie. Napraw to nadpisując `top` na sztywną wartość równą
+**połowie wysokości samego zdjęcia** (nie całej karty), przez selektor scope'owany do tej
+konkretnej sekcji — np. `.categories-section .scroll-carousel-nav { top: 160px; }` (160 =
+połowa 320px `.category-thumb`) albo `.deals-carousel .scroll-carousel-nav { top: 200px;
+}` (200 = połowa 400px `.deals-carousel-card`). Gdy karty w karuzeli nie mają podpisu pod
+spodem (np. `.cta-tiles`) — zwykłe `top: 50%` wystarcza, nic nie trzeba nadpisywać.
+
+**Strzałki znikają na krańcach scrolla, nie tylko chowają się "na wszelki wypadek":**
+poza samym `.has-overflow` (cały pasek strzałek renderuje się tylko, gdy treść faktycznie
+nie mieści się w widocznym obszarze), każda strzałka osobno dostaje `disabled` w zależności
+od aktualnej pozycji scrolla — `prev` gdy `scrollLeft === 0` (jesteś na początku, nie ma
+dokąd się cofnąć), `next` gdy `scrollLeft` osiągnie maksimum (jesteś na końcu, nie ma dokąd
+przewinąć dalej). Wyłączona strzałka kurczy się do zera (`transform: scale(0); opacity: 0`)
+zamiast po prostu wyszarzeć — więc efektywnie znika, a nie tylko traci klikalność. To
+liczone na bieżąco przy każdym scrollu (`updateNavState`), więc obie strzałki są widoczne
+tylko "w środku" trasy, nigdy na jej krańcu. Ten sam JS (`checkOverflow`/`updateNavState`)
+obsługuje już wszystkie karuzele na stronie niezależnie — nowa karuzela dostaje to za darmo,
+o ile ma poprawną strukturę `.scroll-carousel > .scroll-carousel-nav.prev + <track> +
+.scroll-carousel-nav.next`.
+
+**Przycisk CTA na karcie w karuzeli jest opcjonalny — nie każda karta go potrzebuje.**
+Gdy jest potrzebny, są dwa wzorce do wyboru zależnie od kontekstu, ale żaden nie jest
+obowiązkowy — część kart w karuzeli może w ogóle nie mieć przycisku, jeśli cała karta jest
+klikalna albo CTA nie ma sensu (np. karta czysto informacyjna):
+- **Hover-reveal nad zdjęciem** (`.product-card-btn` na Shopie): przycisk leży
+  `position: absolute` na dole zdjęcia, domyślnie `opacity: 0` +
+  `transform: translateY(100%)`, wjeżdża na hover karty. Używaj w gęstych siatkach
+  produktowych (kilkanaście+ kart naraz) — przycisk nie zaśmieca layoutu, dopóki
+  użytkownik faktycznie nie celuje w konkretną kartę.
+- **Zawsze widoczny, pod podpisem** (`.deals-carousel-btn` na `deals.html`): zwykły
+  `.btn-pill.sm.secondary` w normalnym flow, `margin-top` pod `.deals-carousel-desc`.
+  Używaj w rzadszych, "promocyjnych" karuzelach (kilka kart, każda to osobna oferta/
+  wiadomość) — tam CTA ma być czytelne od razu, bez zależności od hover (który i tak nie
+  istnieje na dotyku/mobile).
+
+Wybór wzorca (albo brak przycisku w ogóle) to decyzja per-sekcja, nie sztywna reguła —
+oceń gęstość kart i to, czy karta ma jedną jasną akcję, czy jest raczej nawigacyjna/
+poglądowa.
 
 ---
 
@@ -223,6 +266,16 @@ p.subheading             (opcjonalny opis, 1-2 zdania)
 nowych sekcji **przyjmij 3rem jako kanoniczny rozmiar H2** dla sekcji "pełnej" (jak FAQ),
 a 2rem tylko gdy sekcja ma dodatkowo ciężki wizualnie toolbar/karuzelę pod spodem
 (categories) i trzeba zostawić więcej wagi wizualnej dla treści niżej.
+
+**Breadcrumb — zawsze bezpośrednio nad H1, nigdy jako osobna sekcja z własnym
+paddingiem.** To wzorzec **strony**, nie sekcji (więc nie ma badge/H2 — sam pasek
+`Packhelp / Kategoria / ...`, styl jak `.pkg-breadcrumb`/`.deals-breadcrumb`). Renderuj
+go jako pierwsze dziecko wewnątrz `<main>`, tuż przed blokiem H1+subheading, i **nie
+dawaj mu własnego `padding-left/right`** — dziedziczy poziomy padding po rodzicu
+(`.pkg-breadcrumb` na `packaging.html`, `.deals-breadcrumb` na `deals.html` obie tak
+robią). Używaj na każdej stronie katalogowej/produktowej, która ma realną hierarchię
+(Packhelp / Packaging / Boxes); pomiń na stronach marketingowych bez hierarchii (HP) i na
+uproszczonych flow (get-a-quote.html).
 
 ---
 
