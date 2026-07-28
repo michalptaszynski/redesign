@@ -15,7 +15,7 @@ var STICKY_BAR_HTML = `
   <nav class="sticky-links" id="stickyLinks">
     <a href="packaging.html">Packaging</a>
     <a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a>
-    <a href="#">Industries</a>
+    <a href="industries.html">Industries</a>
   </nav>
 
   <div class="search-wrap" id="searchWrap">
@@ -57,7 +57,7 @@ var NAV_WRAPPER_HTML = `
     <ul class="nav-links desktop-only">
       <li class="nav-item-packaging"><a href="packaging.html">Packaging</a></li>
       <li><a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a></li>
-      <li><a href="#">Industries</a></li>
+      <li><a href="industries.html">Industries</a></li>
       <li><a href="sample-packs.html">Samples</a></li>
     </ul>
 
@@ -177,7 +177,7 @@ var NAV_WRAPPER_HTML = `
       </div>
     </div>
     <ul class="nav-links desktop-only">
-      <li><a href="#">Deals</a></li>
+      <li><a href="deals.html">Deals</a></li>
       <li><a href="#">Solutions</a></li>
       <li><a href="#">Inspirations</a></li>
       <li><a href="#">Contact</a></li>
