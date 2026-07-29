@@ -9,6 +9,44 @@
 <link rel="stylesheet" href="components.css">
 <style>
   /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
 
   /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
   .reveal {
@@ -28,7 +66,6 @@
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-8) var(--space-8) 0;
-    margin: 0 0 var(--space-4);
     font-size: 0.8125rem;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -98,13 +135,22 @@
   }
 
   .cs-title {
-    margin: 0;
+    margin: 0 0 var(--space-2);
     max-width: 46rem;
     font-weight: 500;
     font-size: clamp(2.25rem, 3.6vw, 3rem);
     line-height: 1.08;
     letter-spacing: -0.05em;
     color: var(--color-text-primary);
+  }
+
+  .cs-subheading {
+    max-width: 42rem;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
   }
 
   /* ---------- PHOTOS / VIDEO ---------- */
@@ -180,17 +226,18 @@
 
   .cs-col { grid-column: 3; }
   .cs-col + .cs-col { margin-top: var(--space-8); }
+  .cs-intro + .cs-col { margin-top: var(--space-6); }
 
-  .cs-lede {
+  .cs-col p.cs-lede {
     margin: 0 0 var(--space-4);
     font-weight: 500;
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
-    line-height: 1.24;
-    letter-spacing: -0.04em;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
     color: var(--color-text-primary);
   }
 
-  .cs-lede:last-child { margin-bottom: 0; }
+  .cs-col p.cs-lede:last-child { margin-bottom: 0; }
 
   .cs-heading {
     margin: 0 0 var(--space-4);
@@ -229,15 +276,16 @@
     margin: 0 0 var(--space-4);
   }
 
-  /* ---------- PULL QUOTE (breaks out of the reading column, full grid width) ---------- */
+  /* ---------- PULL QUOTE (bleeds ~160px left of the reading column, left-aligned) ---------- */
   .cs-quote-break {
-    grid-column: 1 / -1;
-    margin: var(--space-16) 0;
-    text-align: center;
+    grid-column: 3;
+    width: calc(100% + var(--space-40));
+    margin: var(--space-16) 0 var(--space-16) calc(-1 * var(--space-40));
+    text-align: left;
   }
 
   .cs-quote {
-    margin: 0 auto;
+    margin: 0;
     max-width: 46rem;
     font-weight: 500;
     font-size: clamp(1.75rem, 3vw, 2.5rem);
@@ -257,7 +305,7 @@
     .cs-layout { grid-template-columns: 1fr; }
     .cs-aside { grid-column: 1; margin-bottom: var(--space-8); }
     .cs-col { grid-column: 1; }
-    .cs-quote-break { grid-column: 1; margin: var(--space-8) 0; }
+    .cs-quote-break { grid-column: 1; width: 100%; margin: var(--space-8) 0; }
   }
 
   /* ---------- FINAL CTA (index.html pattern, minus the deco-square wordplay) ---------- */
@@ -444,6 +492,13 @@
 </head>
 <body>
 
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
 <div id="ph-sticky-bar"></div>
 
 <div class="container">
@@ -460,6 +515,7 @@
 
   <section class="cs-title-row reveal">
     <h1 class="cs-title">Designer Packaging: Oase</h1>
+    <p class="cs-subheading">Ever come across packaging that could be described as sexy? We have.</p>
   </section>
 
   <div class="cs-hero-media reveal">
@@ -486,8 +542,7 @@
       </div>
     </aside>
 
-    <div class="cs-col">
-      <p class="cs-lede">Ever come across packaging that could be described as sexy? We have.</p>
+    <div class="cs-col cs-intro">
       <p class="cs-lede">Meet OASE, a hair vitamins brand from The Netherlands, who created their own luxurious, custom packaging with the help of Packhelp.</p>
     </div>
 

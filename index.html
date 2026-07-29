@@ -2498,8 +2498,8 @@
     <div class="section-toolbar">
       <div class="toggle-switch" id="gearToggleSwitch">
         <div class="toggle-indicator" id="gearToggleIndicator"></div>
-        <button class="toggle-option active" data-target="onboarding">Onboarding packs</button>
-        <button class="toggle-option" data-target="restaurants">Restaurants</button>
+        <button class="toggle-option active" data-target="hr">HR</button>
+        <button class="toggle-option" data-target="marketing">Marketing &amp; PR</button>
         <button class="toggle-option" data-target="events">Events</button>
       </div>
       <button class="btn-pill secondary sm">See all merch<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
@@ -2513,20 +2513,8 @@
 
         <div class="category-item">
           <div class="category-thumb" style="--thumb-img:url('onboarding-apparel.png')"></div>
-          <h3 class="category-title">Apparel</h3>
+          <h3 class="category-title">Clothing</h3>
           <p class="category-desc">Hoodies and tees people wear on weekends.</p>
-        </div>
-
-        <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('onboarding-notebook.png')"></div>
-          <h3 class="category-title">Notebooks &amp; pens</h3>
-          <p class="category-desc">The desk, upgraded.</p>
-        </div>
-
-        <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('onboarding-bag.png')"></div>
-          <h3 class="category-title">Bags &amp; backpacks</h3>
-          <p class="category-desc">From tote to commuter.</p>
         </div>
 
         <div class="category-item">
@@ -2536,14 +2524,26 @@
         </div>
 
         <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('onboarding-treats.png')"></div>
-          <h3 class="category-title">Treats &amp; wellness</h3>
-          <p class="category-desc">The first-day smile.</p>
+          <div class="category-thumb" style="--thumb-img:url('onboarding-bag.png')"></div>
+          <h3 class="category-title">Bags</h3>
+          <p class="category-desc">From tote to commuter.</p>
+        </div>
+
+        <div class="category-item">
+          <div class="category-thumb"></div>
+          <h3 class="category-title">Home accessories</h3>
+          <p class="category-desc">Candles, plant pots, home décor.</p>
+        </div>
+
+        <div class="category-item">
+          <div class="category-thumb" style="--thumb-img:url('onboarding-notebook.png')"></div>
+          <h3 class="category-title">Office supplies</h3>
+          <p class="category-desc">The desk, upgraded.</p>
         </div>
 
         <div class="category-item">
           <div class="category-thumb" style="--thumb-img:url('316d75aaa2c7afdcd0cadda80f9efa3b.jpg')"></div>
-          <h3 class="category-title">Tech &amp; gadgets</h3>
+          <h3 class="category-title">Tech accessories</h3>
           <p class="category-desc">Power banks, chargers, cables.</p>
         </div>
 
@@ -2897,12 +2897,12 @@
       { label: 'Health & Beauty', image: 'assets/main-segment/industries/industries-health.avif' },
       { label: 'Food & Drinks', image: 'assets/main-segment/industries/industries-food.avif' },
       { label: 'Marketing & PR' },
-      { label: 'Events' },
+      { label: 'Events', image: 'assets/main-segment/industries/industries-events.webp' },
       { label: 'Electronics', image: 'assets/main-segment/industries/industries-electronics.avif' },
       { label: 'Home & Décor', image: 'assets/main-segment/industries/industries-home.avif' },
       { label: 'Logistics & Fulfilment' },
       { label: 'E-commerce', image: 'assets/main-segment/industries/industries-ecommerce.avif' },
-      { label: 'Retail' },
+      { label: 'Retail', image: 'assets/main-segment/industries/industries-retail.png' },
       { label: 'Gifting', image: 'assets/main-segment/industries/industries-gifting.avif' },
       { label: 'HR' }
     ];
@@ -2957,21 +2957,6 @@
   })();
 
   (function () {
-    var sharedItems = [
-      { title: 'Boxes', desc: 'Mailer, shipping, product, rigid.' },
-      { title: 'Tubes &amp; envelopes', desc: 'Tube boxes, mailing tubes, padded.' },
-      { title: 'Bags &amp; pouches', desc: 'Mailing, carrier, drawstring, zip.' },
-      { title: 'Containers', desc: 'Bottles and jars, label-ready.' },
-      { title: 'Food packaging', desc: 'Pizza boxes, cups, takeout.' },
-      { title: 'Accessories', desc: 'Tissue, fillers, tape, labels, stickers.' }
-    ];
-
-    function withImages(images) {
-      return sharedItems.map(function (item, i) {
-        return { title: item.title, desc: item.desc, image: images[i] };
-      });
-    }
-
     var packagingTabs = {
       ecommerce: [
         { title: 'Boxes', desc: 'Mailer, shipping, product, rigid.', image: 'assets/custom-packaging/ecommerce/ecommerce-boxes.avif' },
@@ -2994,7 +2979,15 @@
         { title: 'Food Packaging', desc: 'Pizza boxes, cups, takeout.', image: 'assets/custom-packaging/food/food-food.png' },
         { title: 'Bundles', desc: 'Boxes, tape and fillers, bundled.', image: null }
       ],
-      apparel: withImages(['assets/custom-packaging/apparel/apparel-boxes.jpg', 'assets/custom-packaging/apparel/apparel-tube.png', 'assets/custom-packaging/apparel/apparel-bags.avif', null, null, 'assets/custom-packaging/apparel/apparel-accessories.avif'])
+      apparel: [
+        { title: 'Boxes', desc: 'Mailer, shipping, product, rigid.', image: 'assets/custom-packaging/apparel/apparel-boxes.jpg' },
+        { title: 'Mailing Bags', desc: 'Poly mailers, paper mailers, courier.', image: 'assets/custom-packaging/apparel/apparel-mailing-bags.png' },
+        { title: 'Mailing Bags + Envelopes', desc: 'Poly mailers, padded envelopes.', image: null },
+        { title: 'Product Bags', desc: 'Zip bags, poly bags, individual.', image: 'assets/custom-packaging/apparel/apparel-product-bags.jpg' },
+        { title: 'Carrier Bags', desc: 'Handles, totes, retail carriers.', image: 'assets/custom-packaging/apparel/apparel-carrier-bags.avif' },
+        { title: 'Pouches', desc: 'Stand-up, zip, doypacks.', image: null },
+        { title: 'Accessories', desc: 'Tissue, fillers, tape, labels, stickers.', image: 'assets/custom-packaging/apparel/apparel-accessories.avif' }
+      ]
     };
 
     var switchEl = document.getElementById('industryToggleSwitch');
@@ -3036,32 +3029,27 @@
   })();
 
   (function () {
-    var items = [
-      { title: 'Apparel', desc: 'Hoodies and tees people wear on weekends.' },
-      { title: 'Notebooks &amp; pens', desc: 'The desk, upgraded.' },
-      { title: 'Bags &amp; backpacks', desc: 'From tote to commuter.' },
-      { title: 'Drinkware', desc: 'Bottles and mugs that stay on the desk.' },
-      { title: 'Treats &amp; wellness', desc: 'The first-day smile.' },
-      { title: 'Tech &amp; gadgets', desc: 'Power banks, chargers, cables.' }
-    ];
-
     var gearTabs = {
-      onboarding: [
-        'onboarding-apparel.png',
-        'onboarding-notebook.png',
-        'onboarding-bag.png',
-        'onboarding-drinkware.png',
-        'onboarding-treats.png',
-        '316d75aaa2c7afdcd0cadda80f9efa3b.jpg'
+      hr: [
+        { title: 'Clothing', desc: 'Hoodies and tees people wear on weekends.', image: 'onboarding-apparel.png' },
+        { title: 'Drinkware', desc: 'Bottles and mugs that stay on the desk.', image: 'onboarding-drinkware.png' },
+        { title: 'Bags', desc: 'From tote to commuter.', image: 'onboarding-bag.png' },
+        { title: 'Home accessories', desc: 'Candles, plant pots, home décor.', image: null },
+        { title: 'Office supplies', desc: 'The desk, upgraded.', image: 'onboarding-notebook.png' },
+        { title: 'Tech accessories', desc: 'Power banks, chargers, cables.', image: '316d75aaa2c7afdcd0cadda80f9efa3b.jpg' }
       ],
-      events: ['events-apparel.png', 'events-notebook.png', 'events-bag.png', 'events-drink.png', 'events-treats.png', null],
-      restaurants: [
-        'restaurants-apparel.png',
-        'restaurants-notebook.png',
-        'restaurants-bag.png',
-        'restaurants-drinkware.png',
-        'restaurants-treats.png',
-        'restaurants-gadget.png'
+      marketing: [
+        { title: 'Clothing', desc: 'Hoodies and tees people wear on weekends.', image: 'restaurants-apparel.png' },
+        { title: 'Drinkware', desc: 'Bottles and mugs that stay on the desk.', image: 'restaurants-drinkware.png' },
+        { title: 'Home accessories', desc: 'Candles, plant pots, home décor.', image: null },
+        { title: 'Office supplies', desc: 'The desk, upgraded.', image: 'restaurants-notebook.png' },
+        { title: 'Tech accessories', desc: 'Power banks, chargers, cables.', image: 'restaurants-gadget.png' }
+      ],
+      events: [
+        { title: 'Clothing', desc: 'Hoodies and tees people wear on weekends.', image: 'events-apparel.png' },
+        { title: 'Drinkware', desc: 'Bottles and mugs that stay on the desk.', image: 'events-drink.png' },
+        { title: 'Bags', desc: 'From tote to commuter.', image: 'events-bag.png' },
+        { title: 'Office supplies', desc: 'The desk, upgraded.', image: 'events-notebook.png' }
       ]
     };
 
@@ -3076,10 +3064,8 @@
     }
 
     function renderGrid(tabKey) {
-      var images = gearTabs[tabKey];
-      grid.innerHTML = items.map(function (item, i) {
-        var image = images[i];
-        var thumbStyle = image ? ' style="--thumb-img:url(\'' + image + '\')"' : '';
+      grid.innerHTML = gearTabs[tabKey].map(function (item) {
+        var thumbStyle = item.image ? ' style="--thumb-img:url(\'' + item.image + '\')"' : '';
         return '<div class="category-item">' +
           '<div class="category-thumb"' + thumbStyle + '></div>' +
           '<h3 class="category-title">' + item.title + '</h3>' +
