@@ -58,6 +58,7 @@ var NAV_WRAPPER_HTML = `
       <li class="nav-item-packaging"><a href="packaging.html">Packaging</a></li>
       <li><a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a></li>
       <li><a href="industries.html">Industries</a></li>
+      <li><a href="case-study-oase.html">Case studies</a></li>
       <li><a href="sample-packs.html">Samples</a></li>
     </ul>
 
