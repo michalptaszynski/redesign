@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Case study: Oase — Packhelp</title>
+<title>Case studies — Packhelp</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="components.css">
@@ -46,44 +46,6 @@
   .announcement-copy svg {
     width: 14px;
     height: 14px;
-  }
-
-  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
-  .reveal {
-    opacity: 0;
-    transform: translateY(-16px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-
-  .reveal.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
-  .pkg-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-8) var(--space-8) 0;
-    font-size: 0.8125rem;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
-  }
-
-  .pkg-breadcrumb a {
-    color: var(--color-text-muted);
-    text-decoration: none;
-  }
-
-  .pkg-breadcrumb a:hover {
-    text-decoration: underline;
-    color: var(--color-text-primary);
-  }
-
-  .pkg-breadcrumb .current {
-    color: var(--color-text-primary);
   }
 
   /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
@@ -129,118 +91,172 @@
     .sticky-bar { display: none; }
   }
 
-  /* ---------- CASE STUDY TITLE ---------- */
-  .cs-title-row {
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- IMAGE PLACEHOLDER (no real asset available for this slot) ---------- */
+  .ph-media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-muted);
+    color: var(--color-border-hover);
+    overflow: hidden;
+  }
+
+  .ph-media svg {
+    width: 15%;
+    max-width: 56px;
+    min-width: 28px;
+  }
+
+  .ph-media-label {
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- PAGE HEADER (industry-title-row-alt pattern: stacked H1 +
+     subheading + CTA, canonical space-4/space-8/space-12 rhythm) ---------- */
+  .cs-hub-title-row {
     padding: var(--space-4) var(--space-8) var(--space-12);
   }
 
-  .cs-title {
+  .cs-hub-title {
     margin: 0 0 var(--space-2);
-    max-width: 46rem;
+    max-width: 42rem;
     font-weight: 500;
-    font-size: clamp(2.25rem, 3.6vw, 3rem);
+    font-size: clamp(2rem, 3.6vw, 2.75rem);
     line-height: 1.08;
     letter-spacing: -0.05em;
     color: var(--color-text-primary);
   }
 
-  .cs-subheading {
-    max-width: 42rem;
-    margin: 0;
+  .cs-hub-title-desc {
+    max-width: 34rem;
+    margin: 0 0 var(--space-6);
     font-size: 0.9375rem;
     letter-spacing: -0.02em;
     line-height: 1.32;
     color: var(--color-text-muted);
   }
 
-  /* ---------- PHOTOS / VIDEO ---------- */
-  .cs-photo {
-    display: block;
+  /* ---------- HERO: gray tile (featured case study) + photo, side by side ---------- */
+  .cs-hub-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    padding: 0 var(--space-8) 0;
+  }
+
+  /* Photo-background card — same recipe as index.html's .cta-tile-gradient
+     testimonial slides: full-bleed photo, dark bottom gradient so white text
+     stays readable, copy pinned to the bottom. Heading matches .cta-tile-quote
+     exactly (1.25rem/450/1.32/-0.02em). */
+  .cs-hero-card {
+    position: relative;
+    height: 520px;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    text-decoration: none;
+  }
+
+  .cs-hero-card-bg {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    background: var(--color-bg-muted);
   }
 
-  .cs-hero-media {
-    margin: 0 var(--space-8);
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
+  .cs-hero-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,.75) 100%);
   }
 
-  @media (max-width: 700px) {
-    .cs-hero-media { aspect-ratio: 4 / 3; }
+  .cs-hero-card-content {
+    position: relative;
+    z-index: 2;
+    padding: var(--space-10);
   }
 
-  .cs-video-wrap {
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin: var(--space-8) 0;
-  }
-
-  .cs-video-wrap iframe {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-
-  /* ---------- MAIN LAYOUT ----------
-     Grid for the whole page body: meta sidebar (column 1), a flexible empty
-     gutter (column 2) that absorbs leftover space, and .cs-main (column 3,
-     capped at a readable width) right-flush against the container edge —
-     same position as the hero image above it. .cs-main is a SINGLE grid
-     item wrapping every section — its internal spacing is then sized only
-     by its own content, not by the sidebar's height (two separate grid
-     items sharing a row would size that row to the taller of the two,
-     pushing later content down even when the sidebar is shorter). Sana/
-     Polestar reference: the left side stays blank once the meta list ends,
-     it isn't sticky. */
-  .cs-layout {
-    display: grid;
-    grid-template-columns: 15rem 1fr minmax(0, 46rem);
-    align-items: start;
-    padding: var(--space-12) var(--space-8) 0;
-  }
-
-  .cs-aside {
-    grid-column: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-  }
-
-  /* Everything after the sidebar is ONE grid item (column 3) — keeping it a
-     single box means its internal vertical rhythm (margins between .cs-col
-     children) is sized purely by its own content, never by the sidebar's
-     height. Two separate grid items sharing a row would size that row to
-     the taller of the two regardless of align-items, pushing later content
-     down to match the sidebar even when the sidebar is shorter. */
-  .cs-main { grid-column: 3; }
-
-  .cs-meta-label {
-    margin: 0 0 var(--space-1);
-    font-size: 0.6875rem;
+  .cs-hero-card-heading {
+    margin: 0 0 var(--space-3);
+    max-width: 24rem;
+    font-weight: 450;
+    font-size: 1.25rem;
+    line-height: 1.32;
     letter-spacing: -0.02em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
+    color: var(--color-text-on-accent);
   }
 
-  .cs-meta-value {
-    margin: 0;
-    font-size: 0.9375rem;
-    font-weight: 500;
+  .cs-hero-card-desc {
+    margin: 0 0 var(--space-6);
+    max-width: 24rem;
+    font-size: 0.875rem;
+    line-height: 1.32;
     letter-spacing: -0.02em;
-    color: var(--color-text-primary);
+    color: rgba(255,255,255,.7);
   }
 
-  .cs-col + .cs-col { margin-top: var(--space-8); }
-  .cs-intro + .cs-col { margin-top: var(--space-20); }
+  @media (max-width: 800px) {
+    .cs-hub-hero { grid-template-columns: 1fr; }
+    .cs-hero-card { height: 420px; }
+  }
 
-  .cs-col p.cs-lede {
-    margin: 0 0 var(--space-4);
+  /* ---------- GRID: 3 case-study cards per row (same card recipe as the
+     homepage's .category-item scroll-carousel — photo tile + caption below —
+     just laid out as a static grid instead of horizontal scroll) ---------- */
+  .cs-grid-section {
+    padding: var(--space-40) var(--space-8) 0;
+  }
+
+  .cs-grid-heading {
+    margin: 0 0 var(--space-6);
     font-weight: 500;
     font-size: 2rem;
     line-height: 1.08;
@@ -248,77 +264,60 @@
     color: var(--color-text-primary);
   }
 
-  .cs-col p.cs-lede:last-child { margin-bottom: 0; }
-
-  .cs-heading {
-    margin: 0 0 var(--space-4);
-    font-weight: 500;
-    font-size: 1.5rem;
-    line-height: 1.16;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-  }
-
-  .cs-col p {
-    margin: 0 0 var(--space-4);
-    font-size: 1.0625rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-secondary);
-  }
-
-  .cs-col p:last-child { margin-bottom: 0; }
-
-  .cs-blockquote {
-    margin: var(--space-8) 0;
-    padding: var(--space-3) 0 var(--space-3) var(--space-6);
-    border-left: 2px solid var(--color-border-default);
-    font-size: 1.0625rem;
-    font-style: italic;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-primary);
-  }
-
-  .cs-media-photo {
-    aspect-ratio: 3 / 2;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin: var(--space-8) 0;
-  }
-
-  /* ---------- PULL QUOTE (bleeds ~160px left of the reading column, left-aligned) ---------- */
-  .cs-quote-break {
-    width: calc(100% + var(--space-40));
-    margin: var(--space-16) 0 var(--space-16) calc(-1 * var(--space-40));
-    text-align: left;
-  }
-
-  .cs-quote {
-    margin: 0;
-    max-width: 46rem;
-    font-weight: 500;
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
-    line-height: 1.24;
-    letter-spacing: -0.04em;
-    color: var(--color-text-primary);
-  }
-
-  .cs-quote-attribution {
-    margin: var(--space-6) 0 0;
-    font-size: 0.875rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-8) var(--space-6);
   }
 
   @media (max-width: 900px) {
-    .cs-layout { grid-template-columns: 1fr; }
-    .cs-aside { grid-column: 1; margin-bottom: var(--space-8); }
-    .cs-main { grid-column: 1; }
-    .cs-quote-break { width: 100%; margin: var(--space-8) 0; }
+    .cs-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
-  /* ---------- FINAL CTA (index.html pattern, minus the deco-square wordplay) ---------- */
+  @media (max-width: 600px) {
+    .cs-grid { grid-template-columns: 1fr; }
+  }
+
+  .cs-grid-item { display: block; text-decoration: none; }
+
+  .cs-grid-thumb {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--color-bg-muted);
+  }
+
+  .cs-grid-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .cs-grid-item:hover .cs-grid-thumb img {
+    transform: scale(1.08);
+  }
+
+  .cs-grid-title {
+    margin: var(--space-4) 0 var(--space-1);
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .cs-grid-meta {
+    margin: 0;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- FINAL CTA (same pattern as case-study-oase.html) ---------- */
   .final-cta-section {
     padding: var(--space-40) var(--space-8) var(--space-32);
     text-align: center;
@@ -334,15 +333,6 @@
     color: var(--color-text-primary);
   }
 
-  .final-cta-subheading {
-    max-width: 32rem;
-    margin: var(--space-6) auto 0;
-    font-size: 1.0625rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
-  }
-
   .final-cta-buttons {
     display: flex;
     align-items: center;
@@ -355,9 +345,10 @@
     .final-cta-buttons { flex-direction: column; align-items: stretch; }
   }
 
-  /* ---------- FINAL-CTA DECO SQUARE (index.html pattern — every closing
-     CTA heading gets one inline tilted photo that pops in on reveal and
-     pushes the surrounding words apart; see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  /* ---------- FINAL-CTA DECO SQUARE (index.html / case-study-oase.html
+     pattern — every closing CTA heading gets one inline tilted photo that
+     pops in on reveal and pushes the surrounding words apart; see
+     PAGE_BUILDING_GUIDELINE.md §5) ---------- */
   .final-deco-square {
     display: inline-block;
     position: relative;
@@ -381,7 +372,7 @@
     width: 64px;
     height: 64px;
     background-color: var(--gray-300);
-    background-image: url('assets/case-study/oase/OASE-Product-Shot-01-1024x675.jpg');
+    background-image: url('assets/case-study/oase/OASE-Setting-3-1024x683.jpg');
     background-size: cover;
     background-position: center;
     border-radius: var(--radius-sm);
@@ -404,7 +395,7 @@
     transform: translate(-50%, -50%) rotate(0deg) scale(1);
   }
 
-  /* ---------- FOOTER (duplicated per-page, same as industries.html/packaging.html) ---------- */
+  /* ---------- FOOTER (duplicated per-page, same as industries.html/case-study-oase.html) ---------- */
   .site-footer {
     position: relative;
     margin-top: var(--space-16);
@@ -567,119 +558,125 @@
   <nav class="pkg-breadcrumb">
     <a href="index.html">Packhelp</a>
     <span>/</span>
-    <a href="case-studies.html">Case studies</a>
-    <span>/</span>
-    <span class="current">Oase</span>
+    <span class="current">Case studies</span>
   </nav>
 
-  <section class="cs-title-row reveal">
-    <h1 class="cs-title">Designer Packaging: Oase</h1>
-    <p class="cs-subheading">Ever come across packaging that could be described as sexy? We have.</p>
+  <section class="cs-hub-title-row reveal">
+    <h1 class="cs-hub-title">Winning designs &amp; smarter packaging choices.</h1>
+    <p class="cs-hub-title-desc">See the details of our most successful collaborations.</p>
+    <a href="packaging.html" class="btn-pill lg">Explore products<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
   </section>
 
-  <div class="cs-hero-media reveal">
-    <img class="cs-photo" src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
-  </div>
-
-  <div class="cs-layout reveal">
-    <aside class="cs-aside">
-      <div>
-        <p class="cs-meta-label">Industry</p>
-        <p class="cs-meta-value">Health &amp; Beauty</p>
-      </div>
-      <div>
-        <p class="cs-meta-label">Product</p>
-        <p class="cs-meta-value">Vegan hair vitamins</p>
-      </div>
-      <div>
-        <p class="cs-meta-label">Founder</p>
-        <p class="cs-meta-value">Justin Regteschot</p>
-      </div>
-      <div>
-        <p class="cs-meta-label">Headquarters</p>
-        <p class="cs-meta-value">The Netherlands</p>
-      </div>
-    </aside>
-
-    <div class="cs-main">
-    <div class="cs-col cs-intro">
-      <p class="cs-lede">Meet OASE, a hair vitamins brand from The Netherlands, who created their own luxurious, custom packaging with the help of Packhelp.</p>
-    </div>
-
-    <div class="cs-col">
-      <h2 class="cs-heading">The Oase story</h2>
-      <p>OASE is a revolutionary, vegan hair supplement. Providing all the essential nutrients for healthier, longer and better-looking hair.</p>
-      <p>After running another e-commerce store for hair supplies, Oase founder Justin Regteschot noticed that people were mostly interested in finding solutions for hair loss, dandruff and damaged hair. He founded Oase Hair supplements to answer the call.</p>
-      <p class="cs-blockquote">&ldquo;I wanted to make the perfect supplement that would eliminate all these problems.&rdquo;</p>
-      <p>Oase&rsquo;s vitamins come in the form of soft, chewable blackcurrant flavour gummy sweets, that don&rsquo;t get stuck to your teeth. They&rsquo;re made of 100% natural ingredients.</p>
-      <p>Such a unique product needed to have packaging that helped them stand out. OASE turned to Packhelp.</p>
-    </div>
-
-    <div class="cs-col">
-      <h2 class="cs-heading">Designer packaging</h2>
-      <p>When Oase came to Packhelp, they were looking for packaging that encapsulated their brand image. As an online brand, this was crucial. The packaging they designed would be their first physical point of contact with customers.</p>
-      <p>Oase&rsquo;s unique product demanded some special attention. Packhelp sales and production teams were on hand to provide Oase with what they needed.</p>
-      <p>The collaboration of the two companies led to amazing results. A luxury rigid box showcasing Oase hair vitamins as a classy, desirable product.</p>
-
-      <div class="cs-media-photo">
-        <img class="cs-photo" src="assets/case-study/oase/OASE-Setting-3-1024x683.jpg" alt="OASE rigid boxes and bottle styled together">
+  <section class="cs-hub-hero reveal">
+    <div class="cs-hero-card">
+      <img class="cs-hero-card-bg" src="https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=1600" alt="Hemp Juice packaging">
+      <div class="cs-hero-card-content">
+        <h2 class="cs-hero-card-heading">Hemp Juice: A 25% drop in packaging costs with packaging designed from the ground up.</h2>
+        <p class="cs-hero-card-desc">Hemp Juice&rsquo;s packaging captures the diversity of nine different products, with a unique finish adding an extra depth to the complex and colourful design.</p>
+        <a href="#" class="btn-pill lg">Read more<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
       </div>
     </div>
 
-    <div class="cs-col">
-      <h2 class="cs-heading">Luxury packaging that&rsquo;s made-for-purpose</h2>
-      <p>Oase needed to design two types of high-end packaging; product packaging and shipping packaging.</p>
-    </div>
-
-    <div class="cs-quote-break">
-      <p class="cs-quote">&ldquo;I was lucky to find Packhelp, who made the perfect packaging for our bottles.&rdquo;</p>
-      <p class="cs-quote-attribution">Justin Regteschot, Founder, OASE</p>
-    </div>
-
-    <div class="cs-col">
-      <p>For shipping packaging, they opted for Packhelp&rsquo;s Eco White Mailer Boxes with a simple and minimalist design. The brand&rsquo;s logo is showcased on the top of the box in black water-based ink.</p>
-
-      <div class="cs-media-photo">
-        <img class="cs-photo" src="assets/case-study/oase/OASE-Product-Shot-02-1024x683.jpg" alt="Three OASE hair vitamin boxes">
+    <div class="cs-hero-card">
+      <img class="cs-hero-card-bg" src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
+      <div class="cs-hero-card-content">
+        <h2 class="cs-hero-card-heading">Designer Packaging: Oase</h2>
+        <p class="cs-hero-card-desc">Meet OASE, a hair vitamins brand from The Netherlands, who created their own luxurious, custom packaging with the help of Packhelp.</p>
+        <a href="case-study-oase.html" class="btn-pill lg">Read more<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
       </div>
-
-      <p>Upon opening the box, you find the brand&rsquo;s Instagram handle printed on the inside. It&rsquo;s a smart thing to do, persuading people to share their unboxing experience on social media.</p>
-      <p>Oase also include a thank you card for every customer. Small details that add to the overall customer experience.</p>
-      <p>Everything within the box is well designed - it&rsquo;s modern, with mellow tone colours. It&rsquo;s simplistic but effective.</p>
     </div>
+  </section>
 
-    <div class="cs-col">
-      <h2 class="cs-heading">Promoting the unboxing experience</h2>
-      <p>So good was the final product, that Packhelp even made a promotional video specifically to show off OASE and its packaging. Check out the unboxing video below:</p>
+  <section class="cs-grid-section reveal">
+    <h2 class="cs-grid-heading">All case studies</h2>
 
-      <div class="cs-video-wrap">
-        <iframe src="https://www.youtube.com/embed/_tSmGVPnrNY" title="OASE unboxing video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-      </div>
+    <div class="cs-grid">
+      <a class="cs-grid-item" href="case-study-oase.html">
+        <div class="cs-grid-thumb">
+          <img src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
+        </div>
+        <h3 class="cs-grid-title">Designer Packaging: Oase</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
 
-      <p>The hair vitamins come perfectly packed in tailor-made soft pink rigid boxes. Made from sturdy rigid cardboard. They are perfect to showcase products in a very elegant light.</p>
-      <p>Chalk paper lamination finishes were added to give it that soft and elegant feel to touch. In the soft pink colour, the box is soft, delicate, elegant, and strong &mdash; just like healthy hair should be.</p>
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=1200" alt="Hemp Juice packaging">
+        </div>
+        <h3 class="cs-grid-title">How Hemp Juice stayed true to its eco-mission and lowered packaging costs by 25%</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
 
-      <div class="cs-media-photo">
-        <img class="cs-photo" src="assets/case-study/oase/OASE-Product-Shot-01-1024x675.jpg" alt="Close-up of OASE bottle and embossed box">
-      </div>
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2025/08/06115844/PackHelp0615-copy-2.png?fit=clip&auto=format&w=1200" alt="Beztrosko packaging">
+        </div>
+        <h3 class="cs-grid-title">How Beztrosko used custom packaging to boost sales at a fair by almost 80%</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
 
-      <p>When it came to the design, Oase stays faithful to its branding by keeping it simple. The signature pink is on show, as is the brand&rsquo;s logo &mdash; front and centre. Printed with embossing, giving it a soft texture.</p>
-      <p>Oase elegantly added their unique product&rsquo;s features, with symbols representing vegan, halal, and Swiss technological manufacturing. Inside, the bottle is secured with a custom insert.</p>
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2025/01/04095358/ALH_0163-1.png?fit=clip&auto=format&w=1200" alt="Pao Gin packaging">
+        </div>
+        <h3 class="cs-grid-title">How Pao Gin elevated their brand with premium hot-stamped packaging</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/11/15141527/2_white-2.jpg?fit=clip&auto=format&w=1200" alt="Sord packaging">
+        </div>
+        <h3 class="cs-grid-title">Sord: packaging built around the brand</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/08/22093646/2024.10.30-hayb-43-edited02-1737x2048-1.png?fit=clip&auto=format&w=1200" alt="HAYB packaging">
+        </div>
+        <h3 class="cs-grid-title">From Bean to Box: HAYB's recipe for Advent calendar success</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/07/16162326/ALH_1853-scaled.jpg?fit=clip&auto=format&w=1200" alt="Ice packaging">
+        </div>
+        <h3 class="cs-grid-title">Ice: packaging that keeps its cool</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/06/12124619/douze10-12.png?fit=clip&auto=format&w=1200" alt="Douze packaging">
+        </div>
+        <h3 class="cs-grid-title">Douze: bringing their packaging to life with Packhelp</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2020/07/25150316/fullsizeoutput_35ce-scaled.jpeg?fit=clip&auto=format&w=1200" alt="Raylo packaging">
+        </div>
+        <h3 class="cs-grid-title">How Raylo decreased their packaging costs by 11% with Packhelp</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/18122953/Case_study-Xlash-photo-header.png?fit=clip&auto=format&w=1200" alt="Xlash España packaging">
+        </div>
+        <h3 class="cs-grid-title">How Xlash España made the switch to sustainable packaging and cut its costs by 16%</h3>
+        <p class="cs-grid-meta">5 min read</p>
+      </a>
     </div>
-
-    <div class="cs-col">
-      <h2 class="cs-heading">Conclusion</h2>
-      <p>Packhelp&rsquo;s collaboration with Oase resulted in some classy, sophisticated packaging that did exactly what Oase had hoped for. A unique design, for a unique product.</p>
-    </div>
-    </div>
-  </div>
+  </section>
 
   <section class="final-cta-section reveal">
-    <h2 class="final-cta-heading">Need packaging similar <span class="final-deco-square"></span> to Oase?</h2>
-    <p class="final-cta-subheading">Order custom rigid boxes for your brand.</p>
+    <h2 class="final-cta-heading">Simply better <span class="final-deco-square"></span> packaging.</h2>
     <div class="final-cta-buttons">
-      <a href="packaging.html" class="btn-pill lg">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-      <a href="get-a-quote.html" class="btn-pill lg secondary">Get a quote<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="get-a-quote.html" class="btn-pill lg">Find your ideal solution<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
     </div>
   </section>
 

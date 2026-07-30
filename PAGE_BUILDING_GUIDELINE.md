@@ -411,7 +411,24 @@ to powinien być świadomy wybór przy tworzeniu strony):
 - "chcę mocny, sprzedażowy blok z dowodami społecznymi" → **cta-section** (ciemna karta,
   jedyne miejsce na `outline-light`, jedyne miejsce na testimonial slider).
 - "chcę zamknąć stronę" → **final-cta-section** (zawsze wyśrodkowana, zawsze ten sam
-  duet przycisków co hero).
+  duet przycisków co hero). **Nagłówek zawsze dostaje `.final-deco-square`** — pigułkę
+  ze zdjęciem (tło `background-image`), schowaną (`width:0`) dopóki sekcja nie stanie
+  się `.is-visible` (ten sam `.reveal`/`IntersectionObserver`, patrz pkt 4), po czym
+  wjeżdża jako obrócone (-8deg) zdjęcie 64×64px wstawione w środku zdania, rozpychając
+  otaczające słowa — wzorzec z `index.html` ("Everything in the box. And the [zdjęcie]
+  box."), teraz obowiązkowy dla **każdej** final-cta-section, nie tylko HP. Wstaw span
+  między dwa słowa nagłówka, które da się sensownie rozdzielić (np. "similar ⟨img⟩ to"),
+  z dosłownymi spacjami po obu stronach w HTML. Zdjęcie w tle dobierz z realnych
+  assetów danej strony (na HP to cykl 5 zdjęć przez `@keyframes`, na stronach z jednym
+  bohaterem/produktem wystarczy jedno statyczne zdjęcie tego produktu/case study).
+  **Pułapka, w którą łatwo wpaść (błąd popełniony 2026-07-30 na
+  `case-study-oase.html`/`case-studies.html`):** całkowity odstęp lewo-prawo od zdjęcia
+  do sąsiednich słów to margines `.final-deco-square` (`--space-2`, 8px) **PLUS**
+  dosłowna spacja w tekście HTML — obie części razem, tak jak w oryginale na HP
+  (`the <span class="final-deco-square"></span> box`, nie `the<span
+  class="final-deco-square"></span>box`). Sam margines bez spacji w markupie daje
+  wyraźnie mniejszy odstęp niż na HP — zawsze sprawdzaj HTML pod kątem literalnej
+  spacji po obu stronach `<span>`, nie tylko CSS.
 - "chcę czysto dekoracyjny przerywnik rytmu" → **marquee-section** (tylko tekst
   powtarzany w pętli, zero treści informacyjnej).
 
@@ -617,7 +634,7 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
 | "Sekcja FAQ / obiekcje" | `faq-section`: 2 kolumny, lewo badge+H2+CTA para, prawo akordeon 5 pytań. |
 | "Pokaż funkcje produktu wizualnie" | `statement-section`: cytat/zdanie + bento-grid kafli obraz/wideo. |
 | "Mocny sprzedażowy blok z social proof" | `cta-section`: ciemna karta, USP lista, CTA para (primary+outline-light), karuzela dowodów/demo/testimonial. |
-| "Zamknij stronę" | `final-cta-section`: wyśrodkowane, ten sam duet CTA co hero. |
+| "Zamknij stronę" | `final-cta-section`: wyśrodkowane, ten sam duet CTA co hero, nagłówek zawsze z `.final-deco-square` (obrócone zdjęcie wjeżdżające na reveal, rozpychające słowa). |
 | "Przerywnik rytmu, czysto dekoracyjny" | `marquee-section`: scrollujący tekst w pętli, zero treści informacyjnej. |
 | "Krok konfiguratora z wyborem opcji" | Wybierz jeden z 4 wzorców wg pkt. 6.3 w zależności od tego, czy potrzebne jest zdjęcie, opis, czy sama ikona. |
 | "Strona katalogu/kategorii produktów" | breadcrumb → title-row → tiles karuzela podkategorii → filters bar → product grid (z okazjonalnymi `.promo-card`) → pkg-seo. |
