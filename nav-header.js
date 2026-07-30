@@ -181,7 +181,7 @@ var NAV_WRAPPER_HTML = `
       <li><a href="deals.html">Deals</a></li>
       <li><a href="#">Solutions</a></li>
       <li><a href="#">Inspirations</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="contact.html">Contact</a></li>
       <li><a href="get-a-quote.html" class="btn-pill sm secondary">Get a quote</a></li>
       <li><button class="btn-pill sm">
         <span class="cta-avatars sm">

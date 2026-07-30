@@ -182,70 +182,56 @@
   }
 
   /* ---------- HERO: gray tile (featured case study) + photo, side by side ---------- */
+  /* Split hero: plain image tile left, plain text column right (no card
+     background, no gradient/overlay text-on-photo treatment). */
   .cs-hub-hero {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
+    gap: var(--space-10);
+    align-items: center;
     padding: 0 var(--space-8) 0;
   }
 
-  /* Photo-background card — same recipe as index.html's .cta-tile-gradient
-     testimonial slides: full-bleed photo, dark bottom gradient so white text
-     stays readable, copy pinned to the bottom. Heading matches .cta-tile-quote
-     exactly (1.25rem/450/1.32/-0.02em). */
-  .cs-hero-card {
-    position: relative;
-    height: 520px;
+  .cs-hero-image {
+    height: 410px;
     border-radius: var(--radius-2xl);
     overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-    text-decoration: none;
   }
 
-  .cs-hero-card-bg {
-    position: absolute;
-    inset: 0;
+  .cs-hero-image img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .cs-hero-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,.75) 100%);
-  }
-
-  .cs-hero-card-content {
-    position: relative;
-    z-index: 2;
-    padding: var(--space-10);
-  }
-
-  .cs-hero-card-heading {
+  .cs-hero-heading {
     margin: 0 0 var(--space-3);
-    max-width: 24rem;
-    font-weight: 450;
-    font-size: 1.25rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    color: var(--color-text-on-accent);
+    font-weight: 500;
+    font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+    line-height: 1.16;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
   }
 
-  .cs-hero-card-desc {
-    margin: 0 0 var(--space-6);
-    max-width: 24rem;
-    font-size: 0.875rem;
+  .cs-hero-meta {
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .cs-hero-desc {
+    margin: 0;
+    max-width: 30rem;
+    font-size: 1.0625rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
-    color: rgba(255,255,255,.7);
+    color: var(--color-text-primary);
   }
 
   @media (max-width: 800px) {
     .cs-hub-hero { grid-template-columns: 1fr; }
-    .cs-hero-card { height: 420px; }
   }
 
   /* ---------- GRID: 3 case-study cards per row (same card recipe as the
@@ -568,22 +554,14 @@
   </section>
 
   <section class="cs-hub-hero reveal">
-    <div class="cs-hero-card">
-      <img class="cs-hero-card-bg" src="https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=1600" alt="Hemp Juice packaging">
-      <div class="cs-hero-card-content">
-        <h2 class="cs-hero-card-heading">Hemp Juice: A 25% drop in packaging costs with packaging designed from the ground up.</h2>
-        <p class="cs-hero-card-desc">Hemp Juice&rsquo;s packaging captures the diversity of nine different products, with a unique finish adding an extra depth to the complex and colourful design.</p>
-        <a href="#" class="btn-pill lg">Read more<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-      </div>
+    <div class="cs-hero-image">
+      <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/25150950/Packhelp_23.10.20203075-1-scaled.jpg?fit=clip&auto=format&w=1600" alt="Hemp Juice packaging">
     </div>
 
-    <div class="cs-hero-card">
-      <img class="cs-hero-card-bg" src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
-      <div class="cs-hero-card-content">
-        <h2 class="cs-hero-card-heading">Designer Packaging: Oase</h2>
-        <p class="cs-hero-card-desc">Meet OASE, a hair vitamins brand from The Netherlands, who created their own luxurious, custom packaging with the help of Packhelp.</p>
-        <a href="case-study-oase.html" class="btn-pill lg">Read more<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-      </div>
+    <div>
+      <h2 class="cs-hero-heading">Hemp Juice: A 25% drop in packaging costs with packaging designed from the ground up.</h2>
+      <p class="cs-hero-meta">5 min read</p>
+      <p class="cs-hero-desc">Hemp Juice&rsquo;s packaging captures the diversity of nine different products, with a unique finish adding an extra depth to the complex and colourful design.</p>
     </div>
   </section>
 
@@ -599,7 +577,7 @@
         <p class="cs-grid-meta">5 min read</p>
       </a>
 
-      <a class="cs-grid-item" href="#">
+      <a class="cs-grid-item" href="case-study-hemp-juice.html">
         <div class="cs-grid-thumb">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=1200" alt="Hemp Juice packaging">
         </div>
