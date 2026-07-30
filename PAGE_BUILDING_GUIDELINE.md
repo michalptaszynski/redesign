@@ -432,6 +432,51 @@ to powinien być świadomy wybór przy tworzeniu strony):
 - "chcę czysto dekoracyjny przerywnik rytmu" → **marquee-section** (tylko tekst
   powtarzany w pętli, zero treści informacyjnej).
 
+### 5.2.1 Dane per-tab w thumb-strip i categories-section (HP)
+
+Trzy miejsca na HP mają toggle przełączający siatkę kafli przez JS: thumb-strip po
+hero (`Categories`/`Merchandise`/`Industries`), categories-section niżej
+(`E-commerce`/`Health & Beauty`/`Food & Drinks`/`Apparel & Fashion`) i "Kits & branded
+merch" (`HR`/`Marketing & PR`/`Events`).
+
+**Każdy tab ma własną, niezależną listę kategorii** — `{ title, desc, image }` w
+categories-section/Kits (albo `{ label, image }` bez `desc` w thumb-strip). Nie
+zakładaj wspólnej listy kategorii współdzielonej między tabami przez indeks tablicy
+(`items[i]` + `images[tab][i]`) — to był pierwotny wzorzec i został świadomie
+zarzucony (2026-07-29/30), bo różne branże/działy mają różne zestawy kategorii, różnej
+długości i w różnej kolejności (np. Health & Beauty ma 4 kategorie, Food & Drinks 5,
+Apparel & Fashion 7 — każda zdefiniowana explicite w obiekcie tabów, bez wspólnego
+`sharedItems`).
+
+**Domyślny/aktywny tab renderuje się przy starcie ze statycznego HTML w sekcji**, nie z
+JS (JS dopisuje siatkę dopiero przy kliknięciu w toggle). Zmieniając listę kategorii
+domyślnego taba (`categories` w thumb-strip, `ecommerce` w categories-section, `hr` w
+Kits & branded merch) **zaktualizuj oba miejsca** — statyczny markup i odpowiadający
+wpis w JS-owym obiekcie tabów — inaczej pierwsze wejście na stronę i przełączenie tabów
+tam i z powrotem pokażą różną zawartość.
+
+**Konwencja folderów assetów per branża/segment:**
+- `assets/custom-packaging/<industry>/<industry>-<category-slug>.<ext>` — zdjęcia dla
+  tabów E-commerce/Health & Beauty/Food & Drinks/Apparel & Fashion w categories-section
+  (np. `assets/custom-packaging/apparel/apparel-mailing-bags.png`).
+- `assets/main-segment/<packaging|merchandise|industries>/<segment>-<category-slug>.<ext>`
+  — zdjęcia dla thumb-strip pod hero. Pliki bywają przenoszone/reorganizowane między
+  podfolderami przez użytkownika w trakcie pracy — zawsze zweryfikuj rzeczywistą
+  ścieżkę (`find`/`ls`) zamiast ufać ścieżce użytej poprzednio w kodzie.
+- `assets/merch/<hr|restaurants|events>/<segment>-<category-slug>.<ext>` — zdjęcia dla
+  "Kits & branded merch". Uwaga: klucze tabów w JS to `hr`/`marketing`/`events`, ale
+  folder dla `marketing` nazywa się `restaurants` (dziedziczone z wcześniejszej wersji
+  sekcji) — nazwa folderu ≠ nazwa taba, zawsze sprawdzaj w JS które `gearTabs.<klucz>`
+  odpowiada któremu przyciskowi.
+
+**Brakujący asset = kafel bez zdjęcia, nigdy placeholder/fallback z innej kategorii.**
+Gdy kategoria nie ma jeszcze zdjęcia, zostaw `image: null` (albo pomiń klucz `image`
+w obiekcie `{ label }`) — inline `--thumb-img` się wtedy nie renderuje i kafel zostaje
+jednolicie szary z CSS. Nie podstawiaj przypadkowego zdjęcia z innej kategorii/folderu
+tylko po to, żeby kafel nie wyglądał na pusty — to jawna instrukcja tego projektu,
+powtarzana konsekwentnie przy każdym batchu zdjęć (E-commerce, Health & Beauty, Food &
+Drinks, Apparel & Fashion, Industries, Kits & branded merch).
+
 ### 5.3 Strona konfiguratora produktu (wzorzec: `build-your-box.html`)
 
 Zupełnie inny szkielet niż landing — **brak stopki**, dwukolumnowy layout na całą
