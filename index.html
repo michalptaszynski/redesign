@@ -1595,7 +1595,7 @@
   }
 
   .section-badge {
-    display: none;
+    display: inline-block;
     margin: 0 0 var(--space-3);
     padding: var(--space-1) var(--space-3);
     background: var(--color-bg-muted-hover);
@@ -1611,19 +1611,12 @@
   }
 
   .cta-content .section-badge {
-    background: var(--color-bg-inverse);
-    color: rgba(255,255,255,.7);
-    border: 1px solid rgba(255,255,255,.12);
-  }
-
-  body.show-badge .cta-content .section-badge {
     display: block;
     width: fit-content;
     margin-left: max(0px, calc((100% - 44rem) / 2));
-  }
-
-  body.show-badge .section-badge {
-    display: inline-block;
+    background: var(--color-bg-inverse);
+    color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.12);
   }
 
   body.short-hero .hero-visual {
@@ -2085,14 +2078,6 @@
   }
 
   /* .site-toggle lives in components.css */
-
-  body.hide-captions .categories-subheading {
-    display: none;
-  }
-
-  body.hide-captions .categories-heading {
-    margin-bottom: var(--space-2);
-  }
 
   /* ---------- FOOTER ---------- */
   .site-footer {
@@ -3277,26 +3262,6 @@
   <p class="site-settings-title">Page customization</p>
   <div class="site-settings-row">
     <div>
-      <p class="site-settings-label">Show captions</p>
-      <p class="site-settings-desc">Subheading copy under section titles</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="toggleCaptions" checked>
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-row">
-    <div>
-      <p class="site-settings-label">Custom packaging badge</p>
-      <p class="site-settings-desc">Small badge above "Whatever you make, we pack it."</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="toggleBadge">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-row">
-    <div>
       <p class="site-settings-label">Short hero</p>
       <p class="site-settings-desc">Hero image height: 460px</p>
     </div>
@@ -3321,7 +3286,6 @@
   (function () {
     var btn = document.getElementById('siteSettingsBtn');
     var panel = document.getElementById('siteSettingsPanel');
-    var toggle = document.getElementById('toggleCaptions');
 
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -3332,33 +3296,6 @@
       if (!panel.contains(e.target) && e.target !== btn) {
         panel.classList.remove('open');
       }
-    });
-
-    function applyCaptions(show) {
-      document.body.classList.toggle('hide-captions', !show);
-      toggle.checked = show;
-    }
-
-    var saved = localStorage.getItem('hideCaptions');
-    applyCaptions(saved !== '1');
-
-    toggle.addEventListener('change', function () {
-      applyCaptions(toggle.checked);
-      localStorage.setItem('hideCaptions', toggle.checked ? '0' : '1');
-    });
-
-    var badgeToggle = document.getElementById('toggleBadge');
-
-    function applyBadge(show) {
-      document.body.classList.toggle('show-badge', show);
-      badgeToggle.checked = show;
-    }
-
-    applyBadge(localStorage.getItem('showBadge') === '1');
-
-    badgeToggle.addEventListener('change', function () {
-      applyBadge(badgeToggle.checked);
-      localStorage.setItem('showBadge', badgeToggle.checked ? '1' : '0');
     });
 
     var shortHeroToggle = document.getElementById('toggleShortHero');

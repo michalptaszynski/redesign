@@ -233,7 +233,7 @@ faktycznie potrzebuje wybić się kolorem, czy wystarczy mu przestrzeń wokół.
 | `.btn-pill.secondary` | obrys/transparent, tekst ciemny | Drugorzędna akcja **na jasnym tle**, zawsze w parze z primary (patrz pkt. 4). |
 | `.btn-pill.outline-light` | obrys biały, tekst biały | Drugorzędna akcja **tylko na ciemnym/kolorowym tle** (używane wyłącznie w `cta-section`). Nie mieszać z `.secondary` — `.secondary` na ciemnym tle byłby nieczytelny. |
 | `.btn-arrow` (hover) | strzałka wysuwająca się z prawej na `:hover` | Domyślny mikro-ruch na `.btn-pill` — dodawaj, gdy przycisk prowadzi "dalej" (nie na przyciskach typu "Sign up"/formularze). |
-| `.section-badge` | mały pill z etykietą sekcji (np. "Why Packhelp") | Poprzedza H2 w sekcjach z własnym nagłówkiem (patrz pkt. 4). **Uwaga:** w prototypie jest domyślnie `display:none` (odkrywany tylko przez dev-panel) — w docelowej wersji produkcyjnej ma być **zawsze widoczny**, nie chowany. |
+| `.section-badge` | mały pill z etykietą sekcji (np. "Why Packhelp") | Poprzedza H2 w sekcjach z własnym nagłówkiem (patrz pkt. 4). Domyślnie zawsze widoczny (dev-panel toggle usunięty 2026-07-31). |
 | `.nav-badge-new` | mały pill "New" | Oznaczanie nowych pozycji w nawigacji (np. "Merchandise New"). Nie używać poza nawigacją. |
 | `.icon-btn` | ikona 20×20, bez tła | Koszyk, akcje ikonowe w topbarze. |
 | `.search-wrap` | pigułka z ikoną + input | Wyszukiwarka w topbarze/sticky-bar. |
@@ -652,8 +652,10 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
 
 - `.faq-heading` (3rem) vs `.categories-heading` (2rem) — ten sam poziom hierarchii
   (H2 sekcji), różny rozmiar. Patrz rekomendacja w pkt. 4.
-- `.section-badge` jest domyślnie `display:none` w całym prototypie (odkrywany tylko
-  przez dev-panel ustawień) — w wersji docelowej ma być zawsze widoczny.
+- **[Naprawione]** `.section-badge` był domyślnie `display:none`, odkrywany tylko
+  przez dev-panel ustawień (toggle "Custom packaging badge"). Teraz zawsze widoczny —
+  toggle usunięty z panelu razem z "Show captions" (2026-07-31), oba stały się
+  domyślnym, stałym zachowaniem strony.
 - Jedno miejsce z twardym `style="margin-top: 2rem"` zamiast tokenu — w
   `statement-section` na HP.
 - `#siteContent`/`.container` w `index.html` nie mają jawnie domkniętego `</div>` przed
