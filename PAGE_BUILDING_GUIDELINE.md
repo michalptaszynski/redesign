@@ -735,6 +735,15 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
   stopką (wizualnie nieszkodliwe, ale porządkować przy przepisywaniu na komponenty).
 - `.categories-grid` nazwą sugeruje CSS grid, a jest flex + overflow-x — nie kieruj się
   nazwą klasy przy kopiowaniu wzorca, tylko rzeczywistym mechanizmem (patrz pkt. 1.2).
+- **[Naprawione]** `.site-footer`'s szara linia-dywider ma być full-bleed (pełna
+  szerokość viewportu, nie szerokość `.container`) na każdej stronie — kanoniczny
+  wzorzec to `.site-footer { position: relative; }` + `.site-footer::before { content:"";
+  position:absolute; top:0; left:50%; width:100vw; transform:translateX(-50%);
+  border-top:1px solid var(--color-border-default); }`, NIE `border-top` bezpośrednio
+  na `.site-footer` (to renderuje się ograniczone do szerokości `.container`, bo footer
+  sam w sobie nie jest full-bleed). `press.html` i `impressum.html` miały tę drugą,
+  błędną wersję — naprawione 2026-07-31. Kopiuj dywider zawsze z już poprawnej strony
+  (np. `contact.html`), nigdy z gołego `border-top`.
 - **[Naprawione]** Nawigacja/topbar potrafiła dryfować między stronami — kopiowana
   ręcznie w 4 miejscach (w tym uproszczony header na `get-a-quote.html`), m.in.
   przycisk "Get a quote" był na `packaging.html` i `build-your-box.html` martwym
