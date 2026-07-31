@@ -1127,6 +1127,72 @@
     transform: translateY(0);
   }
 
+  .statement-video-placeholder {
+    display: none;
+    margin-top: var(--space-12);
+  }
+
+  body.video-section-mode .statement-grid {
+    display: none;
+  }
+
+  body.video-section-mode .statement-video-placeholder {
+    display: block;
+  }
+
+  .statement-video-mock {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 640px;
+    box-sizing: border-box;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-accent-subtle);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1400px;
+  }
+
+  .statement-video-inner {
+    position: relative;
+    z-index: 1;
+    width: 77%;
+    aspect-ratio: 1792 / 1080;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    transform-style: preserve-3d;
+    transform: rotateX(4deg) rotateY(4deg);
+    will-change: transform;
+  }
+
+  .statement-video-placeholder.is-settled .statement-video-inner {
+    animation: statementVideoBreathe 10s ease-in-out infinite;
+  }
+
+  @keyframes statementVideoBreathe {
+    0%   { transform: rotateX(4deg)  rotateY(4deg); }
+    25%  { transform: rotateX(4deg)  rotateY(-4deg); }
+    50%  { transform: rotateX(-4deg) rotateY(-4deg); }
+    75%  { transform: rotateX(-4deg) rotateY(4deg); }
+    100% { transform: rotateX(4deg)  rotateY(4deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .statement-video-placeholder.is-settled .statement-video-inner {
+      animation: none;
+      transform: rotateX(2deg) rotateY(2deg);
+    }
+  }
+
+  .statement-video-inner video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
   .statement-row {
     display: grid;
     grid-template-columns: 58fr 42fr;
@@ -1779,12 +1845,10 @@
     width: 320px;
   }
 
+  /* .media-card-visual (components.css) provides position/radius/overflow/
+     background — this just adds the page-specific height. */
   .category-thumb {
-    position: relative;
     height: 320px;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background-color: var(--color-bg-muted);
   }
 
   .category-thumb::before {
@@ -1801,22 +1865,8 @@
     transform: scale(1.08);
   }
 
-  .category-title {
-    margin: var(--space-4) 0 var(--space-1);
-    font-size: 0.9375rem;
-    line-height: 1.16;
-    letter-spacing: -0.02em;
-    font-weight: 500;
-    color: var(--color-text-primary);
-  }
-
-  .category-desc {
-    margin: 0;
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
-  }
+  /* .category-title/.category-desc now live in components.css as
+     .media-card-title/.media-card-desc (byte-identical rules, §3.1). */
 
   .toggle-switch {
     position: relative;
@@ -2267,6 +2317,7 @@
 <div class="container">
   <div id="ph-nav-wrapper"></div>
   <script src="nav-header.js"></script>
+  <script src="font-toggle.js"></script>
 
   <section class="hero">
     <div class="hero-grid">
@@ -2497,39 +2548,39 @@
       <div class="categories-grid" id="gearGrid">
 
         <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('onboarding-apparel.png')"></div>
-          <h3 class="category-title">Clothing</h3>
-          <p class="category-desc">Hoodies and tees people wear on weekends.</p>
+          <div class="category-thumb media-card-visual" style="--thumb-img:url('onboarding-apparel.png')"></div>
+          <h3 class="media-card-title">Clothing</h3>
+          <p class="media-card-desc">Hoodies and tees people wear on weekends.</p>
         </div>
 
         <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('onboarding-drinkware.png')"></div>
-          <h3 class="category-title">Drinkware</h3>
-          <p class="category-desc">Bottles and mugs that stay on the desk.</p>
+          <div class="category-thumb media-card-visual" style="--thumb-img:url('onboarding-drinkware.png')"></div>
+          <h3 class="media-card-title">Drinkware</h3>
+          <p class="media-card-desc">Bottles and mugs that stay on the desk.</p>
         </div>
 
         <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('onboarding-bag.png')"></div>
-          <h3 class="category-title">Bags</h3>
-          <p class="category-desc">From tote to commuter.</p>
+          <div class="category-thumb media-card-visual" style="--thumb-img:url('onboarding-bag.png')"></div>
+          <h3 class="media-card-title">Bags</h3>
+          <p class="media-card-desc">From tote to commuter.</p>
         </div>
 
         <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('assets/merch/hr/hr-home.webp')"></div>
-          <h3 class="category-title">Home accessories</h3>
-          <p class="category-desc">Candles, plant pots, home décor.</p>
+          <div class="category-thumb media-card-visual" style="--thumb-img:url('assets/merch/hr/hr-home.webp')"></div>
+          <h3 class="media-card-title">Home accessories</h3>
+          <p class="media-card-desc">Candles, plant pots, home décor.</p>
         </div>
 
         <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('onboarding-notebook.png')"></div>
-          <h3 class="category-title">Office supplies</h3>
-          <p class="category-desc">The desk, upgraded.</p>
+          <div class="category-thumb media-card-visual" style="--thumb-img:url('onboarding-notebook.png')"></div>
+          <h3 class="media-card-title">Office supplies</h3>
+          <p class="media-card-desc">The desk, upgraded.</p>
         </div>
 
         <div class="category-item">
-          <div class="category-thumb" style="--thumb-img:url('316d75aaa2c7afdcd0cadda80f9efa3b.jpg')"></div>
-          <h3 class="category-title">Tech accessories</h3>
-          <p class="category-desc">Power banks, chargers, cables.</p>
+          <div class="category-thumb media-card-visual" style="--thumb-img:url('316d75aaa2c7afdcd0cadda80f9efa3b.jpg')"></div>
+          <h3 class="media-card-title">Tech accessories</h3>
+          <p class="media-card-desc">Power banks, chargers, cables.</p>
         </div>
 
       </div>
@@ -2617,6 +2668,14 @@
             <img class="statement-tile-live3d-overlay-left" src="editor-live-preview-2.png" alt="">
             <img class="statement-tile-live3d-overlay" src="editor-live-preview-1.png" alt="">
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="statement-video-placeholder">
+      <div class="statement-video-mock">
+        <div class="statement-video-inner">
+          <video src="editor-anim-web.mp4" autoplay muted loop playsinline></video>
         </div>
       </div>
     </div>
@@ -2871,21 +2930,21 @@
       { label: 'Travel accessories', image: 'assets/main-segment/merchandise/merchandise-travel.avif' },
       { label: 'Tech accessories', image: 'assets/main-segment/merchandise/merchandise-tech.avif' },
       { label: 'Drinkware', image: 'assets/main-segment/merchandise/merchandise-drinkware.avif' },
-      { label: 'Foodware' },
+      { label: 'Foodware', image: 'assets/main-segment/merchandise/merchandise-foodware.png' },
       { label: 'Home accessories', image: 'assets/main-segment/merchandise/merchandise-home.avif' },
       { label: 'Bags', image: 'assets/main-segment/merchandise/merchandise-bags.avif' },
-      { label: 'Merchandise packaging' },
+      { label: 'Merchandise packaging', image: 'assets/main-segment/merchandise/merchandise-merch.png' },
       { label: 'Sets', image: 'assets/main-segment/merchandise/merchandise-sets.avif' }
     ];
     var industries = [
       { label: 'Apparel & Fashion', image: 'assets/main-segment/industries/industries-apparel.avif' },
       { label: 'Health & Beauty', image: 'assets/main-segment/industries/industries-health.avif' },
       { label: 'Food & Drinks', image: 'assets/main-segment/industries/industries-food.avif' },
-      { label: 'Marketing & PR' },
+      { label: 'Marketing & PR', image: 'assets/main-segment/industries/industries-pr.webp' },
       { label: 'Events', image: 'assets/main-segment/industries/industries-events.webp' },
       { label: 'Electronics', image: 'assets/main-segment/industries/industries-electronics.avif' },
       { label: 'Home & Décor', image: 'assets/main-segment/industries/industries-home.avif' },
-      { label: 'Logistics & Fulfilment' },
+      { label: 'Logistics & Fulfilment', image: 'assets/main-segment/industries/industries-logistics.png' },
       { label: 'E-commerce', image: 'assets/main-segment/industries/industries-ecommerce.avif' },
       { label: 'Retail', image: 'assets/main-segment/industries/industries-retail.png' },
       { label: 'Gifting', image: 'assets/main-segment/industries/industries-gifting.avif' },
@@ -2989,9 +3048,9 @@
       grid.innerHTML = packagingTabs[tabKey].map(function (item) {
         var thumbStyle = item.image ? ' style="--thumb-img:url(\'' + item.image + '\')"' : '';
         return '<div class="category-item">' +
-          '<div class="category-thumb"' + thumbStyle + '></div>' +
-          '<h3 class="category-title">' + item.title + '</h3>' +
-          '<p class="category-desc">' + item.desc + '</p>' +
+          '<div class="category-thumb media-card-visual"' + thumbStyle + '></div>' +
+          '<h3 class="media-card-title">' + item.title + '</h3>' +
+          '<p class="media-card-desc">' + item.desc + '</p>' +
           '</div>';
       }).join('');
     }
@@ -3052,9 +3111,9 @@
       grid.innerHTML = gearTabs[tabKey].map(function (item) {
         var thumbStyle = item.image ? ' style="--thumb-img:url(\'' + item.image + '\')"' : '';
         return '<div class="category-item">' +
-          '<div class="category-thumb"' + thumbStyle + '></div>' +
-          '<h3 class="category-title">' + item.title + '</h3>' +
-          '<p class="category-desc">' + item.desc + '</p>' +
+          '<div class="category-thumb media-card-visual"' + thumbStyle + '></div>' +
+          '<h3 class="media-card-title">' + item.title + '</h3>' +
+          '<p class="media-card-desc">' + item.desc + '</p>' +
           '</div>';
       }).join('');
     }
@@ -3254,6 +3313,39 @@
 
 </script>
 
+<script>
+  (function () {
+    var wrap = document.querySelector('.statement-video-placeholder');
+    var inner = document.querySelector('.statement-video-inner');
+    if (!wrap || !inner) return;
+
+    var settled = false;
+
+    function settle() {
+      if (settled) return;
+      settled = true;
+      wrap.classList.add('is-settled');
+      observer.unobserve(wrap);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) settle();
+      });
+    }, { threshold: 0.15 });
+
+    observer.observe(wrap);
+
+    window.checkVideoSettle = function () {
+      if (settled || wrap.offsetParent === null) return;
+      var rect = wrap.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var visible = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
+      if (visible / rect.height >= 0.15) settle();
+    };
+  })();
+</script>
+
 <button id="siteSettingsBtn" class="site-settings-btn" aria-label="Site settings">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
 </button>
@@ -3277,6 +3369,26 @@
     </div>
     <label class="site-toggle">
       <input type="checkbox" id="toggleHeroCentered">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Video section</p>
+      <p class="site-settings-desc">Swap the editor feature grid for a single video placeholder</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleVideoSection">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row" style="margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--color-border-default);">
+    <div>
+      <p class="site-settings-label">HP</p>
+      <p class="site-settings-desc">Instrument Serif on headings only</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleFontSerif">
       <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
     </label>
   </div>
@@ -3324,6 +3436,27 @@
     heroCenteredToggle.addEventListener('change', function () {
       applyHeroCentered(heroCenteredToggle.checked);
       localStorage.setItem('heroCentered', heroCenteredToggle.checked ? '1' : '0');
+    });
+
+    var videoSectionToggle = document.getElementById('toggleVideoSection');
+
+    function applyVideoSection(active) {
+      document.body.classList.toggle('video-section-mode', active);
+      videoSectionToggle.checked = active;
+    }
+
+    applyVideoSection(localStorage.getItem('videoSection') === '1');
+
+    videoSectionToggle.addEventListener('change', function () {
+      applyVideoSection(videoSectionToggle.checked);
+      localStorage.setItem('videoSection', videoSectionToggle.checked ? '1' : '0');
+      if (window.checkVideoSettle) window.checkVideoSettle();
+    });
+
+    var fontSerifToggle = document.getElementById('toggleFontSerif');
+    fontSerifToggle.checked = window.PHFontToggle.isActive();
+    fontSerifToggle.addEventListener('change', function () {
+      window.PHFontToggle.set(fontSerifToggle.checked);
     });
   })();
 </script>
