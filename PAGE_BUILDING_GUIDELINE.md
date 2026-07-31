@@ -244,6 +244,74 @@ faktycznie potrzebuje wybić się kolorem, czy wystarczy mu przestrzeń wokół.
 
 ---
 
+### 3.1 `.media-card` — karta z wizualem prowadzącym gdzieś dalej
+
+Powtarzający się kształt karty na całej stronie: **wizual (zdjęcie/wideo) + tytuł +
+opcjonalny opis + opcjonalny CTA**, gdzie zdjęcie *jest* treścią (patrz pkt. 2.5), nie
+dekoracją. Wypromowany do `components.css` jako `.media-card-visual/-title/-desc/-cta`
+(+ `-badge`) po tym, jak ten sam kształt pojawił się pod trzema różnymi, page-specific
+nazwami — `.deals-carousel-card` (`deals.html`), `.category-item`/`.category-thumb`
+(`index.html`), `.cs-grid-item` (`case-studies.html`) — i po raz czwarty jako
+`.related-card` na `contact.html`, co przekroczyło próg z pkt. 3 (3. wystąpienie =
+kandydat do `components.css`). Nowe użycia mają celować w te współdzielone klasy, nie w
+kolejną własną nazwę/wariant.
+
+**Struktura — zagnieżdżenie, nie płaska lista slotów:**
+```
+.media-card                 (cała karta — <a> jeśli klikalna w całości, <div> jeśli CTA jest osobnym linkiem)
+  .media-card-visual         (zdjęcie/wideo — kwadrat lub zbliżony, zaokrąglone rogi)
+    .media-card-badge        (RZADKI wyjątek — patrz niżej; leży NA zdjęciu, jest jego dzieckiem)
+  .media-card-title           (siostra .media-card-visual, nie jej dziecko — POD zdjęciem)
+  .media-card-desc            (opcjonalna, jedna linijka — sprzedażowe zdanie ALBO meta typu "5 min read", ta sama rola wizualna)
+  .media-card-cta             (opcjonalny osobny przycisk — pomiń, jeśli cała karta jest linkiem)
+```
+Praktyczny test przy dodawaniu czegoś nowego: jeśli ma leżeć *na fotografii* → dziecko
+`.media-card-visual`. Jeśli ma leżeć *pod fotografią*, jako osobna linia tekstu → siostra
+`.media-card-visual`.
+
+**`.media-card-badge` jest domyślnie wyłączony — to nie jest slot do swobodnego użycia.**
+Dziś jedynym uzasadnionym użytkownikiem jest Deals (kod promocyjny + %), gdzie wycentrowany
+overlay ma sens kompozycyjnie. Nie dodawaj go do nowych kart tylko dlatego, że komponent na
+to pozwala — wycentrowany badge na zdjęciu produktu w większości przypadków po prostu
+zasłoni to, co miało być widoczne. Dodaj go tylko gdy ktoś wprost prosi o coś w rodzaju
+promo/etykiety, i tylko jeśli realnie nie zakrywa produktu.
+
+**Kontener to osobna decyzja, nie część komponentu:** `.scroll-carousel` (pkt. 1.2) gdy
+elementów jest dużo/do przewijania, zwykły statyczny CSS grid gdy zestaw jest mały i
+skończony (np. 3 kafle jak w Related links na `contact.html`). Karta wygląda identycznie w
+obu kontenerach.
+
+**Checklist rozpoznawania — kiedy sięgać po `.media-card`, a kiedy po zwykłą listę
+tekstowych linków (jak kolumny w stopce, `.footer-col`):**
+1. Czy każda pozycja to konkretna "rzecz" rozpoznawalna po zdjęciu (produkt, deal,
+   artykuł, kategoria)? Jeśli nie (np. "Terms of service", "Privacy policy") → zwykła
+   lista linków tekstowych, nie `.media-card`.
+2. Czy istnieje (albo sensownie mogłoby istnieć) prawdziwe zdjęcie/wideo per pozycja?
+   Jeśli trzeba by zmyślać placeholder, bo nie ma czego pokazać — to znak, że jednak
+   powinna być lista tekstowa (błąd popełniony na `contact.html`: gradientowe
+   placeholdery-blob dla Help/Impressum/Press, gdzie nie było prawdziwych zdjęć).
+3. Ile pozycji i jak mają być przeglądane? → decyduje wybór kontenera, patrz wyżej.
+4. Osobny CTA czy cała karta jako link? Oceń per użycie, brak sztywnej reguły.
+(Badge **nie** jest punktem tej checklisty — to osobny, rzadki wyjątek opisany wyżej, nie
+domyślna opcja do rozważenia przy każdej nowej karcie.)
+
+**Przykład zastosowania checklisty — "sekcja z najczęściej sprzedawanymi produktami":**
+(1) produkty = rzeczy rozpoznawalne po zdjęciu → `.media-card`; (2) realne zdjęcia
+istnieją w CDN → visual = prawdziwe foto, bez badge; (3) dużo pozycji → `.scroll-carousel`
+jak `.category-item` na HP, mało (3-4) → statyczny rząd bez scrolla; (4) prawdopodobnie
+cała karta jako link, jak `.category-item`, chyba że ktoś wprost poprosi o osobny
+przycisk.
+
+**Status:** wypromowane do `components.css` (`.media-card-visual/-title/-desc/-cta/-badge`).
+`deals.html`, `index.html` (obie sekcje categories, w tym oba generatory JS per-tab),
+`case-studies.html` i `contact.html` używają już wspólnych klas dla title/desc/CTA/badge —
+page-specific klasy (`.deals-carousel-card`, `.category-thumb`, `.cs-grid-thumb`,
+`.related-card-visual`) zostały obok, tylko dla sizingu (wysokość/aspect-ratio) i
+per-page hover-zoom, który celowo nie jest częścią współdzielonej reguły (Deals go nie
+ma, HP i case-studies mają, każde swoim mechanizmem — `::before` vs `<img>`).
+
+---
+
 ## 4. Wzorzec nagłówka sekcji: badge + H2 + subheading (+ CTA)
 
 Powtarza się w: FAQ, categories ×2 (HP), final-cta (HP), warianty w cta-section (ciemna
@@ -687,3 +755,4 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
 | "Strona katalogu/kategorii produktów" | breadcrumb → title-row → tiles karuzela podkategorii → filters bar → product grid (z okazjonalnymi `.promo-card`) → pkg-seo. |
 | "Filtr w katalogu" | `.filter-radio` gdy wykluczający się wybór, `.filter-checkbox` gdy wielokrotny, dodaj `.filter-preview` gdy pomaga zdjęcie poglądowe. |
 | "Strona wyboru próbek / cart z listą do zaznaczenia" | Wzorzec `sample-packs.html` (pkt 5.5): dwie kolumny (akordeon grup + sticky summary card), segmentowany `.toggle-switch` na pełną szerokość dla podkategorii wariantów, opcjonalny tryb Grid przez `.site-settings-btn`. |
+| "Sekcja linkująca do kilku produktów/podstron" (np. "pokaż najczęściej sprzedawane produkty", "dodaj sekcję linkującą do X, Y, Z") | `.media-card` (pkt 3.1) — ale najpierw sprawdź checklistę: jeśli pozycje mają realne zdjęcia → karty w `.scroll-carousel` (dużo pozycji) albo statycznym gridzie (mało); jeśli to strony bez sensownego zdjęcia (np. regulaminy, polityki) → zwykła tekstowa lista linków, nie karty. Bez badge, chyba że ktoś wprost o niego poprosi. |

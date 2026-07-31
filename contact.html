@@ -448,11 +448,10 @@
     .related-grid { grid-template-columns: 1fr; }
   }
 
+  /* .media-card-visual (components.css) provides position/radius/overflow —
+     this just adds the page-specific height + tint background. */
   .related-card-visual {
-    position: relative;
     height: 320px;
-    border-radius: var(--radius-md);
-    overflow: hidden;
     background: #D9E6FD;
   }
 
@@ -483,13 +482,6 @@
 
   .related-card-visual--3 .related-blob-a { top: -60px; right: -160px; transform: rotate(96deg); }
   .related-card-visual--3 .related-blob-b { bottom: -320px; left: -180px; transform: rotate(-30deg); }
-
-  .related-card-visual-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   /* ---------- HELP TILE COMPOSER (index.html's .cta-tile-composer pattern,
      recolored for a light tile instead of the dark video background it's
@@ -571,26 +563,8 @@
     white-space: nowrap;
   }
 
-  .related-title {
-    margin: var(--space-4) 0 var(--space-1);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.16;
-    color: var(--color-text-primary);
-  }
-
-  .related-desc {
-    margin: 0;
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
-  }
-
-  .related-btn {
-    margin-top: var(--space-3);
-  }
+  /* .related-title/.related-desc/.related-btn now live in components.css as
+     .media-card-title/.media-card-desc/.media-card-cta (§3.1). */
 
   /* ---------- FOOTER (duplicated per-page, same as case-studies.html/industries.html) ---------- */
   .site-footer {
@@ -751,6 +725,49 @@
 <div class="container">
   <div id="ph-nav-wrapper"></div>
   <script src="nav-header.js"></script>
+  <script src="font-toggle.js"></script>
+
+<button id="siteSettingsBtn" class="site-settings-btn" aria-label="Page settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<div id="siteSettingsPanel" class="site-settings-panel">
+  <p class="site-settings-title">Page customization</p>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">HP</p>
+      <p class="site-settings-desc">Instrument Serif on headings only</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleFontSerif">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('siteSettingsBtn');
+    var panel = document.getElementById('siteSettingsPanel');
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!panel.contains(e.target) && e.target !== btn) {
+        panel.classList.remove('open');
+      }
+    });
+
+    var fontSerifToggle = document.getElementById('toggleFontSerif');
+    fontSerifToggle.checked = window.PHFontToggle.isActive();
+    fontSerifToggle.addEventListener('change', function () {
+      window.PHFontToggle.set(fontSerifToggle.checked);
+    });
+  })();
+</script>
 
   <nav class="pkg-breadcrumb">
     <a href="index.html">Packhelp</a>
@@ -898,7 +915,7 @@
 
     <div class="related-grid">
       <div class="related-card">
-        <div class="related-card-visual related-card-visual--1">
+        <div class="related-card-visual related-card-visual--1 media-card-visual">
           <div class="related-blob related-blob-b"></div>
           <div class="related-blob related-blob-a"></div>
           <div class="help-composer">
@@ -908,29 +925,29 @@
             </span>
           </div>
         </div>
-        <h3 class="related-title">Help</h3>
-        <p class="related-desc">Guides, FAQs and answers to common questions about your order.</p>
-        <a href="#" class="btn-pill sm secondary related-btn">Visit help center</a>
+        <h3 class="media-card-title">Help</h3>
+        <p class="media-card-desc">Guides, FAQs and answers to common questions about your order.</p>
+        <a href="#" class="btn-pill sm secondary media-card-cta">Visit help center</a>
       </div>
 
       <div class="related-card">
-        <div class="related-card-visual related-card-visual--2">
-          <img class="related-card-visual-img" src="https://packhelp.co.uk/_astro/impressum-bg.B3c_ElvL.png" alt="">
+        <div class="related-card-visual related-card-visual--2 media-card-visual">
+          <img src="https://packhelp.co.uk/_astro/impressum-bg.B3c_ElvL.png" alt="">
         </div>
-        <h3 class="related-title">Impressum</h3>
-        <p class="related-desc">Company details, registration and legal information.</p>
-        <a href="#" class="btn-pill sm secondary related-btn">View impressum</a>
+        <h3 class="media-card-title">Impressum</h3>
+        <p class="media-card-desc">Company details, registration and legal information.</p>
+        <a href="#" class="btn-pill sm secondary media-card-cta">View impressum</a>
       </div>
 
       <div class="related-card">
-        <div class="related-card-visual related-card-visual--3">
+        <div class="related-card-visual related-card-visual--3 media-card-visual">
           <div class="related-blob related-blob-b"></div>
           <div class="related-blob related-blob-a"></div>
           <p class="related-visual-label">For journalists</p>
         </div>
-        <h3 class="related-title">Press</h3>
-        <p class="related-desc">News, media resources and brand assets for journalists.</p>
-        <a href="#" class="btn-pill sm secondary related-btn">Visit press page</a>
+        <h3 class="media-card-title">Press</h3>
+        <p class="media-card-desc">News, media resources and brand assets for journalists.</p>
+        <a href="#" class="btn-pill sm secondary media-card-cta">Visit press page</a>
       </div>
     </div>
   </section>

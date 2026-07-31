@@ -627,3 +627,238 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
 }
 
 /* .logo (height/width/flex) is the shared rule above — no override needed here */
+
+/* ---------- Media card: photo/video-led card (visual + title + optional
+   desc + optional CTA) — see PAGE_BUILDING_GUIDELINE.md §3.1 for the slot
+   contract and the recognition checklist. Promoted here after appearing
+   identically on deals.html (.deals-carousel-*), index.html (.category-*)
+   and case-studies.html (.cs-grid-*): the 4th occurrence was contact.html's
+   .related-*, which crossed the "3 occurrences → components.css" threshold
+   from §3. Page-specific class names (.category-thumb, .deals-carousel-card,
+   etc.) are kept ALONGSIDE these shared ones for sizing (height/aspect-ratio)
+   and any per-page hover-zoom behavior, which stay intentionally
+   page-specific — not every media-card zooms its image on hover. */
+.media-card-visual {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--color-bg-muted);
+}
+
+.media-card-visual img,
+.media-card-visual video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.media-card-title {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.media-card-desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-muted);
+}
+
+.media-card-cta {
+  margin-top: var(--space-3);
+}
+
+/* Badge overlay — rare, opt-in (see guideline: never add "just because the
+   component supports it"). Today's only legitimate user is Deals (promo
+   code + %); the centered overlay only works because Deals' photos have
+   visual room for it. */
+.media-card-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - var(--space-6));
+  padding: 6px 6px 6px var(--space-4);
+  border-radius: var(--radius-full);
+  background: rgba(30, 30, 40, .32);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  white-space: nowrap;
+  border: none;
+  font-family: inherit;
+}
+
+.media-card-badge[data-code] {
+  cursor: pointer;
+}
+
+.media-card-badge-copied {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(20, 20, 30, .85);
+  color: var(--white);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.media-card-badge.copied .media-card-badge-copied {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.media-card-badge-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.media-card-badge-pill {
+  flex: none;
+  padding: 6px var(--space-3);
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,.24);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--white);
+}
+
+/* ---- Font toggle ("HP" row, font-toggle.js) ----
+   Swaps DISPLAY-SIZE headings only to Instrument Serif — h1/h2 plus the
+   paragraph-based hero/final-CTA copy (PAGE_BUILDING_GUIDELINE.md 2.4:
+   statement-section running-text and final-cta-section copy sit in the
+   same "duże nagłówki" tier as H1/H2 despite not being heading tags).
+   Deliberately NOT h3-h6: audited every h3-h6 in the codebase (media-card
+   titles, product-card-name, category-title, build-box-field-label, etc.)
+   and every single one renders at 13-20px — small component/card labels
+   like "Boxes" in the category strip, not visual headings — so blanket
+   h1-h6 was wrong (feedback 2026-07-30: "male jak np. Boxes nie"). If a
+   future h3-h6 is genuinely display-size, add its class here rather than
+   re-adding the tag selector. */
+html.font-toggle-serif h1,
+html.font-toggle-serif h2,
+html.font-toggle-serif .statement,
+html.font-toggle-serif .cta-text,
+html.font-toggle-serif .cs-lede,
+html.font-toggle-serif .cs-quote {
+  font-family: "Instrument Serif", serif;
+}
+
+/* ---- Settings panel shell ("site-settings-*") ----
+   Gear button (bottom-right, fixed) + popover panel of toggle rows, shared
+   shape across every page. Pages that already authored their own copy of
+   this shell inline (index.html, build-your-box.html, sample-packs.html)
+   keep it there — their inline <style> loads after this file, so any value
+   they redeclare wins and nothing here changes their rendering. This
+   definition exists for pages that don't have a settings panel yet, so a
+   new toggle row (e.g. the "HP" font row) always has a home instead of
+   floating on its own. */
+.site-settings-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.site-settings-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
+}
+
+.site-settings-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.site-settings-panel {
+  position: fixed;
+  bottom: 92px;
+  right: 24px;
+  z-index: 1000;
+  width: 280px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+  padding: var(--space-5);
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.site-settings-panel.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.site-settings-title {
+  margin: 0 0 var(--space-4);
+  font-size: 0.9375rem;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.site-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.site-settings-row + .site-settings-row {
+  margin-top: var(--space-4);
+}
+
+.site-settings-label {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.site-settings-desc {
+  margin: var(--space-1) 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}

@@ -266,41 +266,15 @@
 
   .cs-grid-item { display: block; text-decoration: none; }
 
+  /* .media-card-visual (components.css) provides position/radius/overflow/
+     background — this just adds the page-specific aspect-ratio. Title/meta
+     now live in components.css too as .media-card-title/-desc (§3.1). */
   .cs-grid-thumb {
-    position: relative;
     aspect-ratio: 4 / 3;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background-color: var(--color-bg-muted);
-  }
-
-  .cs-grid-thumb img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
   }
 
   .cs-grid-item:hover .cs-grid-thumb img {
     transform: scale(1.08);
-  }
-
-  .cs-grid-title {
-    margin: var(--space-4) 0 var(--space-1);
-    font-size: 0.9375rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    font-weight: 500;
-    color: var(--color-text-primary);
-  }
-
-  .cs-grid-meta {
-    margin: 0;
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
   }
 
   /* ---------- FINAL CTA (same pattern as case-study-oase.html) ---------- */
@@ -540,6 +514,49 @@
 <div class="container">
   <div id="ph-nav-wrapper"></div>
   <script src="nav-header.js"></script>
+  <script src="font-toggle.js"></script>
+
+<button id="siteSettingsBtn" class="site-settings-btn" aria-label="Page settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<div id="siteSettingsPanel" class="site-settings-panel">
+  <p class="site-settings-title">Page customization</p>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">HP</p>
+      <p class="site-settings-desc">Instrument Serif on headings only</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleFontSerif">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('siteSettingsBtn');
+    var panel = document.getElementById('siteSettingsPanel');
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!panel.contains(e.target) && e.target !== btn) {
+        panel.classList.remove('open');
+      }
+    });
+
+    var fontSerifToggle = document.getElementById('toggleFontSerif');
+    fontSerifToggle.checked = window.PHFontToggle.isActive();
+    fontSerifToggle.addEventListener('change', function () {
+      window.PHFontToggle.set(fontSerifToggle.checked);
+    });
+  })();
+</script>
 
   <nav class="pkg-breadcrumb">
     <a href="index.html">Packhelp</a>
@@ -570,83 +587,83 @@
 
     <div class="cs-grid">
       <a class="cs-grid-item" href="case-study-oase.html">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
         </div>
-        <h3 class="cs-grid-title">Designer Packaging: Oase</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">Designer Packaging: Oase</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="case-study-hemp-juice.html">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=1200" alt="Hemp Juice packaging">
         </div>
-        <h3 class="cs-grid-title">How Hemp Juice stayed true to its eco-mission and lowered packaging costs by 25%</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">How Hemp Juice stayed true to its eco-mission and lowered packaging costs by 25%</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2025/08/06115844/PackHelp0615-copy-2.png?fit=clip&auto=format&w=1200" alt="Beztrosko packaging">
         </div>
-        <h3 class="cs-grid-title">How Beztrosko used custom packaging to boost sales at a fair by almost 80%</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">How Beztrosko used custom packaging to boost sales at a fair by almost 80%</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2025/01/04095358/ALH_0163-1.png?fit=clip&auto=format&w=1200" alt="Pao Gin packaging">
         </div>
-        <h3 class="cs-grid-title">How Pao Gin elevated their brand with premium hot-stamped packaging</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">How Pao Gin elevated their brand with premium hot-stamped packaging</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/11/15141527/2_white-2.jpg?fit=clip&auto=format&w=1200" alt="Sord packaging">
         </div>
-        <h3 class="cs-grid-title">Sord: packaging built around the brand</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">Sord: packaging built around the brand</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/08/22093646/2024.10.30-hayb-43-edited02-1737x2048-1.png?fit=clip&auto=format&w=1200" alt="HAYB packaging">
         </div>
-        <h3 class="cs-grid-title">From Bean to Box: HAYB's recipe for Advent calendar success</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">From Bean to Box: HAYB's recipe for Advent calendar success</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/07/16162326/ALH_1853-scaled.jpg?fit=clip&auto=format&w=1200" alt="Ice packaging">
         </div>
-        <h3 class="cs-grid-title">Ice: packaging that keeps its cool</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">Ice: packaging that keeps its cool</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/06/12124619/douze10-12.png?fit=clip&auto=format&w=1200" alt="Douze packaging">
         </div>
-        <h3 class="cs-grid-title">Douze: bringing their packaging to life with Packhelp</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">Douze: bringing their packaging to life with Packhelp</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2020/07/25150316/fullsizeoutput_35ce-scaled.jpeg?fit=clip&auto=format&w=1200" alt="Raylo packaging">
         </div>
-        <h3 class="cs-grid-title">How Raylo decreased their packaging costs by 11% with Packhelp</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">How Raylo decreased their packaging costs by 11% with Packhelp</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
 
       <a class="cs-grid-item" href="#">
-        <div class="cs-grid-thumb">
+        <div class="cs-grid-thumb media-card-visual">
           <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/18122953/Case_study-Xlash-photo-header.png?fit=clip&auto=format&w=1200" alt="Xlash España packaging">
         </div>
-        <h3 class="cs-grid-title">How Xlash España made the switch to sustainable packaging and cut its costs by 16%</h3>
-        <p class="cs-grid-meta">5 min read</p>
+        <h3 class="media-card-title">How Xlash España made the switch to sustainable packaging and cut its costs by 16%</h3>
+        <p class="media-card-desc">5 min read</p>
       </a>
     </div>
   </section>
