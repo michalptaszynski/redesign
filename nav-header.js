@@ -27,9 +27,9 @@ var STICKY_BAR_HTML = `
     <a href="get-a-quote.html" class="btn-pill sm secondary">Get a quote</a>
     <button class="btn-pill sm">
       <span class="cta-avatars sm">
-        <span class="cta-avatar"><img src="expert-01.png" alt=""></span>
-        <span class="cta-avatar"><img src="expert-02.png" alt=""></span>
-        <span class="cta-avatar"><img src="expert-03.png" alt=""></span>
+        <span class="cta-avatar"><img src="assets/expert-01.png" alt=""></span>
+        <span class="cta-avatar"><img src="assets/expert-02.png" alt=""></span>
+        <span class="cta-avatar"><img src="assets/expert-03.png" alt=""></span>
       </span>
       Book an expert call
     </button>
@@ -41,12 +41,12 @@ var NAV_WRAPPER_HTML = `
 <div class="nav-wrapper">
     <div class="nav-row1">
       <a href="index.html" aria-label="Packhelp" style="display:flex;">
-        <img class="logo" src="logo-packhelp.1iheyVke.svg" alt="Packhelp">
+        <img class="logo" src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp">
       </a>
 
       <div style="display:flex; align-items:center; gap:1rem;">
         <a href="#" class="signin-link">Sign In</a>
-        <span class="flag-badge"><img src="gb.svg" alt="GB"></span>
+        <span class="flag-badge"><img src="assets/gb.svg" alt="GB"></span>
         <button class="icon-btn" aria-label="Cart">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>
         </button>
@@ -185,9 +185,9 @@ var NAV_WRAPPER_HTML = `
       <li><a href="get-a-quote.html" class="btn-pill sm secondary">Get a quote</a></li>
       <li><button class="btn-pill sm">
         <span class="cta-avatars sm">
-          <span class="cta-avatar"><img src="expert-01.png" alt=""></span>
-          <span class="cta-avatar"><img src="expert-02.png" alt=""></span>
-          <span class="cta-avatar"><img src="expert-03.png" alt=""></span>
+          <span class="cta-avatar"><img src="assets/expert-01.png" alt=""></span>
+          <span class="cta-avatar"><img src="assets/expert-02.png" alt=""></span>
+          <span class="cta-avatar"><img src="assets/expert-03.png" alt=""></span>
         </span>
         Book an expert call
       </button></li>
@@ -199,7 +199,7 @@ var NAV_WRAPPER_HTML = `
 var NAV_SIMPLE_HTML = `
 <header class="quote-topbar">
   <a href="index.html" aria-label="Packhelp" style="display:flex;">
-    <img class="logo" src="logo-packhelp.1iheyVke.svg" alt="Packhelp">
+    <img class="logo" src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp">
   </a>
 </header>
 `;
