@@ -15,6 +15,11 @@ Fundamenty tokenów (`tokens.css`, `base.css`) i decyzje architektoniczne (dlacz
 jest w repo, a nie osobnym pakietem) są już opisane w pamięci projektu — tu skupiam się
 na warstwie wyżej: **kiedy używać czego**.
 
+Dla warstwy "jak to wygląda w kodzie" (gotowy, wycięty z realnych stron markup do
+kopiowania) patrz [`COMPONENT_SNIPPETS.md`](COMPONENT_SNIPPETS.md) — numeracja sekcji
+tam odpowiada numeracji tutaj. Dla mapy stron (co już zbudowane, co ma odpowiednik na
+packhelp.co.uk, co jest nową koncepcją redesignu) patrz [`SITEMAP.md`](SITEMAP.md).
+
 ---
 
 ## 1. Fundamenty, które trzeba znać

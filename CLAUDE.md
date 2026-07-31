@@ -47,3 +47,37 @@ bazowym i dopiero `.sticky-bar.is-pinned .sticky-links/.sticky-cta` włącza
 przechwytuje w nie kliknięcia (błąd znaleziony 2026-07-27: klik w logo na
 `packaging.html` nic nie robił). Każdy nowy element dodany do
 `STICKY_BAR_HTML` w `nav-header.js` musi trzymać się tego samego wzorca.
+
+## Budowanie nowych stron z samego promptu — ustalone zasady (2026-07-31)
+
+- **Autonomia:** buduj i pokazuj efekt. Nie pytaj o plan sekcji z góry. Dopytaj
+  tylko, gdy realizacja złamałaby jawną zasadę z `PAGE_BUILDING_GUIDELINE.md`
+  (np. druga ciemna sekcja, nowy kolor akcentu, komponent bez precedensu w
+  guideline).
+- **Źródło copy:** dla treści (nagłówki, opisy, CTA) najpierw szukaj
+  odpowiadającej sekcji/strony na **packhelp.co.uk** i adaptuj realny tekst do
+  nowego layoutu. Jeśli strona/sekcja nie ma odpowiednika na live sajcie
+  (nowa koncepcja spoza obecnego serwisu) — wymyśl copy sam, trzymając się
+  `VOICE_GUIDELINE.md` (ton, wzorce nagłówków/CTA wyciągnięte z realnego
+  copy w repo).
+- **Linki wychodzące przy adaptowanej treści:** jeśli strona-źródło na
+  packhelp.co.uk linkuje na zewnątrz (np. lista wzmianek prasowych,
+  publikacje, źródła), dociągnij **prawdziwe URL-e** tych linków, nie
+  zostawiaj `href="#"`. Traktuj to jak zasadę dla brakujących zdjęć (pkt 2.5
+  guideline: brak asseta = brak fallbacku, nigdy przypadkowe podstawienie) —
+  tu odpowiednikiem jest: brak realnego URL-a = link pominięty albo jawnie
+  oznaczony jako placeholder, nigdy martwy `#` udający działający link
+  (błąd złapany 2026-07-31 na `press.html`: 31 wzmianek prasowych miało
+  `href="#"`, dopóki użytkownik nie zauważył). Linki zewnętrzne dostają
+  `target="_blank" rel="noopener"`.
+- **Zasięg/sitemap:** docelowa mapa stron opiera się na strukturze
+  packhelp.co.uk (patrz `SITEMAP.md`), ale repo świadomie wychodzi poza nią —
+  nowe strony bez odpowiednika na live sajcie są oczekiwane i normalne,
+  traktuj brak dopasowania jako sygnał "wymyśl", nie jako błąd.
+- **Biblioteka snippetów:** `COMPONENT_SNIPPETS.md` zawiera gotowe,
+  kanoniczne bloki HTML per komponent (przycinane z realnych stron) — kopiuj
+  i adaptuj stamtąd zamiast rekonstruować markup z opisu w guideline za
+  każdym razem.
+- **QA przed "gotowe":** przejdź `QA_CHECKLIST.md` (breakpointy, nav/sticky-bar,
+  scroll-carousel, tokeny, weryfikacja wizualna) zanim zgłosisz stronę jako
+  skończoną — to nie jest opcjonalne dla nietrywialnych zmian layoutu.
