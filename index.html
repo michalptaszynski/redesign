@@ -587,52 +587,45 @@
     transform: translateX(-50%);
     display: flex;
     align-items: stretch;
-    padding: var(--space-12) var(--space-8) var(--space-24);
+    padding: var(--space-24) var(--space-8) var(--space-24);
     box-sizing: border-box;
   }
 
   .hero-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     align-items: stretch;
     gap: var(--space-12);
     width: 100%;
-    max-width: 1216px;
+    max-width: 76rem;
     margin: 0 auto;
+    text-align: center;
   }
 
   .hero-left {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
     min-width: 0;
-    padding-right: var(--space-6);
     box-sizing: border-box;
     overflow: hidden;
   }
 
   h1.headline {
     margin: 0;
-    font-weight: 450;
-    font-size: 3rem;
-    line-height: 1.08;
+    max-width: none;
+    font-weight: 500;
+    font-size: 4.5rem;
+    line-height: 1.04;
     letter-spacing: -0.06em;
     color: var(--color-text-primary);
-  }
-
-  .hero-subheading {
-    margin: var(--space-4) 0 0;
-    font-size: 0.9375rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
   }
 
   .cta-row {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     width: 100%;
     margin-top: var(--space-5);
   }
@@ -640,69 +633,9 @@
   .hero-cta-buttons {
     display: flex;
     align-items: center;
+    justify-content: center;
     flex-wrap: wrap;
     gap: var(--space-3);
-  }
-
-  .hero-right {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-4);
-    min-width: 0;
-  }
-
-  .hero-visual {
-    position: relative;
-    width: 600px;
-    max-width: 100%;
-    height: 600px;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    background-color: var(--color-bg-muted);
-    background-image: var(--hero-img);
-    background-position: var(--hero-position, right center);
-    background-size: var(--hero-size, auto 100%);
-    background-repeat: no-repeat;
-  }
-
-  .hero-visual video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  .hero-visual.is-video video {
-    opacity: 1;
-  }
-
-  .hero-dots {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .hero-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: var(--radius-full);
-    background: rgba(0,0,0,.15);
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    transition: width 0.35s cubic-bezier(.4,0,.2,1), background-color 0.35s ease;
-  }
-
-  .hero-dot.active {
-    width: 18px;
-    border-radius: var(--radius-full);
-    background: var(--color-text-primary);
   }
 
   .cta-tile-slides {
@@ -771,80 +704,13 @@
     background: var(--color-bg-surface);
   }
 
-  .trust-line {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: var(--space-3);
-    margin-top: var(--space-8);
-    font-size: 0.8125rem;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
-  }
-
-  .trust-logos-outer {
-    position: relative;
-    width: 100%;
-    margin-top: var(--space-4);
-    overflow: hidden;
-  }
-
-  .trust-logos-outer::before,
-  .trust-logos-outer::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 48px;
-    z-index: 2;
-    pointer-events: none;
-  }
-
-  .trust-logos-outer::before {
-    left: 0;
-    background: linear-gradient(90deg, var(--color-bg-page) 0%, transparent 100%);
-  }
-
-  .trust-logos-outer::after {
-    right: 0;
-    background: linear-gradient(270deg, var(--color-bg-page) 0%, transparent 100%);
-  }
-
-  .trust-logos-track {
-    display: flex;
-    width: max-content;
-    animation: trust-logos-scroll 20s linear infinite;
-  }
-
-  .trust-logos {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    gap: var(--space-7);
-    padding-right: var(--space-7);
-  }
-
-  .trust-logos img {
-    height: 40px;
-    width: 40px;
-    object-fit: contain;
-    opacity: 0.55;
-    filter: grayscale(100%);
-    transition: opacity 0.2s ease;
-  }
-
-  @keyframes trust-logos-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  .trust-logos img:hover {
-    opacity: 0.9;
-  }
-
   .hero-logos-static {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-top: 40px;
   }
 
   .hero-logos-label {
@@ -891,27 +757,10 @@
     margin-left: 0;
   }
 
-  .trust-bold {
-    font-weight: 500;
-    color: var(--color-text-primary);
-  }
-
   @media (max-width: 900px) {
-    .hero-grid { grid-template-columns: 1fr; }
-    h1.headline { font-size: 2rem; line-height: 1.08; letter-spacing: -0.05em; }
     .nav-links.desktop-only { display: none; }
     .nav-megamenu { display: none; }
     .sticky-bar { display: none; }
-
-    .hero-visual {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1 / 1;
-    }
-
-    body.short-hero .hero-visual {
-      height: auto;
-    }
   }
 
   /* ---------- THUMB STRIP ---------- */
@@ -1614,15 +1463,9 @@
   .hero-deco-square {
     display: inline-block;
     position: relative;
-    width: 0;
+    width: 56px;
     height: 0;
     vertical-align: middle;
-    margin: 0;
-    transition: width 0.6s cubic-bezier(.34,1.56,.64,1), margin 0.6s cubic-bezier(.34,1.56,.64,1);
-  }
-
-  body.hero-centered .hero-deco-square {
-    width: 56px;
     margin: 0 0.5rem;
   }
 
@@ -1637,16 +1480,11 @@
     background-size: cover;
     background-position: center;
     border-radius: var(--radius-sm);
-    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
-    transition: transform 0.6s cubic-bezier(.34,1.56,.64,1);
-  }
-
-  body.hero-centered .hero-deco-square::before {
     transform: translate(-50%, -50%) rotate(-8deg) scale(1);
     animation: final-deco-cycle 2.5s steps(1) infinite;
   }
 
-  body.hero-centered .hero-deco-square:nth-of-type(2)::before {
+  .hero-deco-square:nth-of-type(2)::before {
     animation: hero-deco-cycle-2 2.5s steps(1) infinite;
     animation-delay: 1.25s;
   }
@@ -1685,68 +1523,8 @@
     border: 1px solid rgba(255,255,255,.12);
   }
 
-  body.short-hero .hero-visual {
-    height: 460px;
-  }
-
-  body.hero-centered .hero-right {
-    display: none;
-  }
-
-  body.hero-centered .hero-grid {
-    grid-template-columns: 1fr;
-    max-width: 76rem;
-    text-align: center;
-  }
-
-  body.hero-centered .hero-left {
-    align-items: center;
-    padding-right: 0;
-  }
-
-  body.hero-centered h1.headline {
-    max-width: none;
-    font-size: 4.5rem;
-    font-weight: 500;
-    line-height: 1.04;
-    letter-spacing: -0.06em;
-  }
-
-  body.hero-centered .hero-subheading {
-    display: none;
-  }
-
-  body.hero-centered .cta-row {
-    align-items: center;
-  }
-
-  body.hero-centered .hero-cta-buttons {
-    justify-content: center;
-  }
-
-  body.hero-centered .trust-line {
-    display: none;
-  }
-
-  body.hero-centered .trust-logos-outer {
-    display: none;
-  }
-
-  body.hero-centered .hero-logos-static {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 40px;
-    margin-top: 40px;
-  }
-
-  body.hero-centered .hero {
-    padding-top: var(--space-24);
-  }
-
   @media (max-width: 700px) {
-    body.hero-centered h1.headline {
+    h1.headline {
       font-size: 2.5rem;
       letter-spacing: -0.05em;
       line-height: 1.08;
@@ -2323,39 +2101,11 @@
     <div class="hero-grid">
       <div class="hero-left">
         <h1 class="headline">Custom <span class="hero-deco-square"></span> packaging, made to measure. And everything <span class="hero-deco-square"></span> inside it.</h1>
-        <p class="hero-subheading">Explore, design and order branded products your customers will love.</p>
         <div class="cta-row">
           <div class="hero-cta-buttons">
             <a href="packaging.html" class="btn-pill lg">Shop now<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
             <a href="get-a-quote.html" class="btn-pill lg secondary">Get a quote<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
             <a href="build-your-box.html" class="hero-inline-link">or Build your box</a>
-          </div>
-          <div class="trust-line">
-            <span><span class="trust-bold">Trusted by 125 300</span> global companies</span>
-          </div>
-          <div class="trust-logos-outer">
-            <div class="trust-logos-track">
-              <div class="trust-logos">
-                <img src="https://img.logo.dev/hm.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="H&amp;M">
-                <img src="https://img.logo.dev/backmarket.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="Back Market">
-                <img src="https://img.logo.dev/hims.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="hims">
-                <img src="https://img.logo.dev/ubereats.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="Uber Eats">
-                <img src="https://img.logo.dev/heinz.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="Heinz">
-                <img src="https://img.logo.dev/vinted.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="Vinted">
-                <img src="https://img.logo.dev/glossier.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="Glossier">
-                <img src="https://img.logo.dev/oatly.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="Oatly">
-              </div>
-              <div class="trust-logos" aria-hidden="true">
-                <img src="https://img.logo.dev/hm.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-                <img src="https://img.logo.dev/backmarket.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-                <img src="https://img.logo.dev/hims.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-                <img src="https://img.logo.dev/ubereats.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-                <img src="https://img.logo.dev/heinz.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-                <img src="https://img.logo.dev/vinted.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-                <img src="https://img.logo.dev/glossier.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-                <img src="https://img.logo.dev/oatly.com?token=pk_FonKU4KMQo6h0do32M2s_g&size=80&format=png" alt="">
-              </div>
-            </div>
           </div>
           <div class="hero-logos-static">
             <span class="hero-logos-label">Trusted by 125 300 companies</span>
@@ -2368,18 +2118,6 @@
             <img src="logotypes/logo-vinted.svg" alt="Vinted">
             <img src="logotypes/logo-aesop.svg" alt="Aesop">
           </div>
-        </div>
-      </div>
-
-      <div class="hero-right">
-        <div class="hero-visual" id="heroVisual" style="--hero-img:url('hero.png'); --hero-size:auto 100%; --hero-position:right center;">
-          <video id="heroVideo" src="hero.mp4" muted loop playsinline></video>
-        </div>
-        <div class="hero-dots" id="heroDots">
-          <button class="hero-dot active" data-index="0" aria-label="Slide 1"></button>
-          <button class="hero-dot" data-index="1" aria-label="Slide 2"></button>
-          <button class="hero-dot" data-index="2" aria-label="Slide 3"></button>
-          <button class="hero-dot" data-index="3" aria-label="Slide 4"></button>
         </div>
       </div>
     </div>
@@ -2838,14 +2576,14 @@
               <li><a href="#">Help</a></li>
               <li><a href="#">Return policy</a></li>
               <li><a href="#">Impressum</a></li>
-              <li><a href="#">Press</a></li>
+              <li><a href="press.html">Press</a></li>
             </ul>
           </div>
 
           <div class="footer-col">
             <p class="footer-col-title">Company</p>
             <ul>
-              <li><a href="#">Press</a></li>
+              <li><a href="press.html">Press</a></li>
             </ul>
           </div>
         </div>
@@ -3263,54 +3001,6 @@
     arrowObserver.observe(pill);
   })();
 
-  (function () {
-    var images = ['hero.png', 'hero2.png', 'hero3.png', null];
-    var sizes = ['auto 100%', 'auto 100%', 'auto 100%', 'auto 100%'];
-    var positions = ['right center', 'center center', 'center center', 'center center'];
-    var durations = [3000, 3000, 3000, 15000];
-    var visual = document.getElementById('heroVisual');
-    var video = document.getElementById('heroVideo');
-    var dotsWrap = document.getElementById('heroDots');
-    if (!visual || !dotsWrap) { return; }
-    var dots = dotsWrap.querySelectorAll('.hero-dot');
-    var index = 0;
-    var timer;
-
-    function show(i) {
-      index = (i + images.length) % images.length;
-      var isVideo = images[index] === null;
-      visual.classList.toggle('is-video', isVideo);
-      if (isVideo) {
-        if (video) { video.currentTime = 0; video.play(); }
-      } else {
-        if (video) { video.pause(); }
-        visual.style.setProperty('--hero-img', "url('" + images[index] + "')");
-        visual.style.setProperty('--hero-size', sizes[index]);
-        visual.style.setProperty('--hero-position', positions[index]);
-      }
-      dots.forEach(function (dot, d) { dot.classList.toggle('active', d === index); });
-    }
-
-    function restartTimer() {
-      clearTimeout(timer);
-      timer = setTimeout(function () { show(index + 1); restartTimer(); }, durations[index]);
-    }
-
-    dots.forEach(function (dot) {
-      dot.addEventListener('click', function () {
-        show(parseInt(dot.dataset.index, 10));
-        restartTimer();
-      });
-    });
-
-    window.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowRight') { show(index + 1); restartTimer(); }
-      if (e.key === 'ArrowLeft') { show(index - 1); restartTimer(); }
-    });
-
-    restartTimer();
-  })();
-
 </script>
 
 <script>
@@ -3354,26 +3044,6 @@
   <p class="site-settings-title">Page customization</p>
   <div class="site-settings-row">
     <div>
-      <p class="site-settings-label">Short hero</p>
-      <p class="site-settings-desc">Hero image height: 460px</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="toggleShortHero">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-row">
-    <div>
-      <p class="site-settings-label">Centered hero</p>
-      <p class="site-settings-desc">No hero image, layout like "Everything in the box."</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="toggleHeroCentered">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-row">
-    <div>
       <p class="site-settings-label">Video section</p>
       <p class="site-settings-desc">Swap the editor feature grid for a single video placeholder</p>
     </div>
@@ -3408,34 +3078,6 @@
       if (!panel.contains(e.target) && e.target !== btn) {
         panel.classList.remove('open');
       }
-    });
-
-    var shortHeroToggle = document.getElementById('toggleShortHero');
-
-    function applyShortHero(active) {
-      document.body.classList.toggle('short-hero', active);
-      shortHeroToggle.checked = active;
-    }
-
-    applyShortHero(localStorage.getItem('shortHero') === '1');
-
-    shortHeroToggle.addEventListener('change', function () {
-      applyShortHero(shortHeroToggle.checked);
-      localStorage.setItem('shortHero', shortHeroToggle.checked ? '1' : '0');
-    });
-
-    var heroCenteredToggle = document.getElementById('toggleHeroCentered');
-
-    function applyHeroCentered(active) {
-      document.body.classList.toggle('hero-centered', active);
-      heroCenteredToggle.checked = active;
-    }
-
-    applyHeroCentered(localStorage.getItem('heroCentered') === '1');
-
-    heroCenteredToggle.addEventListener('change', function () {
-      applyHeroCentered(heroCenteredToggle.checked);
-      localStorage.setItem('heroCentered', heroCenteredToggle.checked ? '1' : '0');
     });
 
     var videoSectionToggle = document.getElementById('toggleVideoSection');
