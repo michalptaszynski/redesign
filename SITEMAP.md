@@ -29,6 +29,7 @@ konsoliduje/upraszcza).
 | `build-your-box.html` | — | **New concept**, patrz sekcja 3 |
 | `industries.html` | `/packaging/?industry=X` (filtr, nie osobna strona) | **New concept**, patrz sekcja 3 |
 | `press.html` | `/press/` | Press kit, wzmianki medialne wg lat, fakty firmowe (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
+| `impressum.html` | `/impressum/` | Dane firmy, adres, kontakt, godziny pracy — proste karty label/value, bez zdjęć (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
 
 ## 2. Planned — realne strony/sekcje z packhelp.co.uk, jeszcze nie zbudowane
 
@@ -85,7 +86,7 @@ podanym URL zamiast wymyślać od zera.
 - Wholesale Packaging — `/large-companies/` (alias)
 - Sign In — `/auth/login/`
 - Pozostałe case studies: Kuyichi, Psi Bufet, Your KAYA, Fluus, XLASH
-- Prawne: Terms of Service, Privacy Policy, Whistleblowing Policy, Impressum
+- Prawne: Terms of Service, Privacy Policy, Whistleblowing Policy
 
 ## 3. New concept — strony redesignu bez odpowiednika na live sajcie
 
