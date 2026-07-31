@@ -745,27 +745,6 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
   color: var(--white);
 }
 
-/* ---- Font toggle ("HP" row, font-toggle.js) ----
-   Swaps DISPLAY-SIZE headings only to Instrument Serif — h1/h2 plus the
-   paragraph-based hero/final-CTA copy (PAGE_BUILDING_GUIDELINE.md 2.4:
-   statement-section running-text and final-cta-section copy sit in the
-   same "duże nagłówki" tier as H1/H2 despite not being heading tags).
-   Deliberately NOT h3-h6: audited every h3-h6 in the codebase (media-card
-   titles, product-card-name, category-title, build-box-field-label, etc.)
-   and every single one renders at 13-20px — small component/card labels
-   like "Boxes" in the category strip, not visual headings — so blanket
-   h1-h6 was wrong (feedback 2026-07-30: "male jak np. Boxes nie"). If a
-   future h3-h6 is genuinely display-size, add its class here rather than
-   re-adding the tag selector. */
-html.font-toggle-serif h1,
-html.font-toggle-serif h2,
-html.font-toggle-serif .statement,
-html.font-toggle-serif .cta-text,
-html.font-toggle-serif .cs-lede,
-html.font-toggle-serif .cs-quote {
-  font-family: "Instrument Serif", serif;
-}
-
 /* ---- Settings panel shell ("site-settings-*") ----
    Gear button (bottom-right, fixed) + popover panel of toggle rows, shared
    shape across every page. Pages that already authored their own copy of

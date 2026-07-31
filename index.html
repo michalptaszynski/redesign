@@ -2095,7 +2095,6 @@
 <div class="container">
   <div id="ph-nav-wrapper"></div>
   <script src="nav-header.js"></script>
-  <script src="font-toggle.js"></script>
 
   <section class="hero">
     <div class="hero-grid">
@@ -3058,17 +3057,7 @@
       <p class="site-settings-desc">Swap the editor feature grid for a single video placeholder</p>
     </div>
     <label class="site-toggle">
-      <input type="checkbox" id="toggleVideoSection">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-row" style="margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--color-border-default);">
-    <div>
-      <p class="site-settings-label">HP</p>
-      <p class="site-settings-desc">Instrument Serif on headings only</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="toggleFontSerif">
+      <input type="checkbox" id="toggleVideoSection" checked>
       <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
     </label>
   </div>
@@ -3097,18 +3086,12 @@
       videoSectionToggle.checked = active;
     }
 
-    applyVideoSection(localStorage.getItem('videoSection') === '1');
+    applyVideoSection(localStorage.getItem('videoSection') !== '0');
 
     videoSectionToggle.addEventListener('change', function () {
       applyVideoSection(videoSectionToggle.checked);
       localStorage.setItem('videoSection', videoSectionToggle.checked ? '1' : '0');
       if (window.checkVideoSettle) window.checkVideoSettle();
-    });
-
-    var fontSerifToggle = document.getElementById('toggleFontSerif');
-    fontSerifToggle.checked = window.PHFontToggle.isActive();
-    fontSerifToggle.addEventListener('change', function () {
-      window.PHFontToggle.set(fontSerifToggle.checked);
     });
   })();
 </script>
