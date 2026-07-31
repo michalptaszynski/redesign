@@ -751,6 +751,22 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
   wydzielenie do jednego komponentu `nav-header.js` z dwoma wariantami — pełnym i
   uproszczonym (patrz pkt 5.1.2). Nawigacja jest teraz jednym źródłem prawdy: nigdy
   nie buduj jej od nowa ani nie kopiuj markupu z powrotem inline do strony.
+- **Pułapka audytu "gdzie jest używany ten plik":** obrócone dekoracyjne kafle
+  (`.deco-square`, `.final-deco-square`, `.hero-deco-square`, `.deal-deco-square`)
+  trzymają swoje zdjęcia w `@keyframes` (`background-image: url(...)` per klatka) albo
+  w inline `style="--deco-img:url('...')"` — **nie** w `<img src>`. Zwykłe szukanie
+  "czy ten plik jest gdzieś użyty" po `<img>`/`src=` je pomija i fałszywie oznacza jako
+  martwe. Błąd złapany 2026-07-31: reorganizacja assetów skasowała pliki root-level,
+  a te 4 komponenty (na `index.html` i `deals.html`) zostały z odwołaniami do
+  nieistniejących ścieżek, bo audyt sprawdzał tylko `<img>`. Przy każdym audycie użycia
+  assetów grepuj też `url(` i `--.*-img:`, nie tylko `src=`.
+- Powtórzony wzorzec "baner z CTA do pomocy/kontaktu" — muted rounded card, flex
+  `space-between`, tekst (tytuł 1.25rem/500 + opis muted) po lewej, para przycisków
+  (patrz pkt 5) po prawej, kolapsuje do kolumny na 700px. Istnieje jako
+  `.press-kit-card` (`press.html`) i `.impressum-kit-card` (`impressum.html`) —
+  bajt-w-bajt ten sam CSS, inny prefiks klasy. To już 2. wystąpienie (próg promocji do
+  `components.css` to 3., patrz pkt 3) — następna strona, która potrzebuje takiego
+  bannera, powinna dostać wspólną klasę zamiast trzeciej kopii pod nową nazwą.
 
 ---
 

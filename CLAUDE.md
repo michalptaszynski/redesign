@@ -81,3 +81,53 @@ przechwytuje w nie kliknięcia (błąd znaleziony 2026-07-27: klik w logo na
 - **QA przed "gotowe":** przejdź `QA_CHECKLIST.md` (breakpointy, nav/sticky-bar,
   scroll-carousel, tokeny, weryfikacja wizualna) zanim zgłosisz stronę jako
   skończoną — to nie jest opcjonalne dla nietrywialnych zmian layoutu.
+
+## Assety — wszystko medialne żyje pod `assets/` (2026-07-31)
+
+Każdy plik `.png/.jpg/.jpeg/.avif/.webp/.svg/.mp4` żyje wyłącznie pod `assets/`,
+nigdy luzem w korzeniu repo ani w osobnych top-level folderach (`figma-assets/`,
+`build/`, `logotypes/` — to historyczne lokalizacje, już scalone). Podfoldery wg
+przeznaczenia: `custom-packaging/{ecommerce,food,health-beauty,apparel}/` (tab
+"Whatever you make, we pack it."), `main-segment/{packaging,merchandise,
+industries}/` (pasek pod hero), `merch/{hr,restaurants,events}/` (tab "Kits &
+branded merch"), `enterprise/` (sekcja "At any scale"), `editor/` (sekcja o
+edytorze), `case-study/`, `contact/`, `build/`, `figma-assets/`, `logotypes/`.
+Dodając nowy obrazek/wideo: wrzuć go w pasujący podfolder `assets/`, nigdy do
+korzenia repo — inaczej wraca dokładnie ten sam bałagan, który sprzątaliśmy
+2026-07-31 (ponad 150 plików rozproszonych po korzeniu i trzech osobnych
+folderach top-level).
+
+## Praca równoległa w tym repo
+
+To repo bywa edytowane przez więcej niż jedną sesję/agenta naraz (np. w tle
+działający autonomiczny page-building system). Zanim zrobisz commit:
+- Zawsze `git status` i `git log --oneline -5` najpierw — jeśli widzisz commity
+  albo niescommitowane zmiany, których nie jesteś autorem, **nie wciągaj ich**
+  do własnego commita bez sprawdzenia, czy są kompletne (np. usunięte pliki bez
+  jeszcze istniejącej nowej lokalizacji = w trakcie, nie gotowe).
+- Commituj i pchaj tylko to, co faktycznie Twoje/zweryfikowane — jeśli working
+  tree ma dodatkowe niescommitowane zmiany od kogoś innego, zostaw je, chyba że
+  użytkownik wprost poprosi o wszystko naraz i po weryfikacji, że nic nie jest
+  zepsute (patrz sekcja niżej — zawsze sprawdź brakujące referencje przed
+  commitem cudzych zmian).
+- Po każdej większej zmianie w assetach/ścieżkach zrób pełny skan repo pod
+  kątem martwych referencji (patrz sekcja "Jak testować" niżej) — commity tej
+  drugiej sesji regularnie zostawiały zepsute odwołania (usunięty plik bez
+  nowej lokalizacji), które inaczej trafiłyby na produkcję.
+
+## Jak testować lokalnie
+
+`index.html` ma password-gate (`#passwordGate`/`#siteContent`) — hasło to
+`shipbox42`, albo w konsoli/testach: `sessionStorage.setItem('phGateOk', '1')`
+przed załadowaniem strony, żeby go ominąć (persystuje przez sesję).
+
+Do weryfikacji, że coś faktycznie się renderuje (nie tylko że kod source
+wygląda dobrze): `python3 -m http.server` w katalogu repo + Playwright
+(`npm install playwright --no-save` w scratchpadzie, `npx playwright install
+chromium`) żeby sprawdzić computed style / realne pozycje elementów w
+headless-browserze. To jedyny sposób, jakim złapałem prawdziwą przyczynę buga
+z footer-dividerem (czysto tekstowa analiza CSS/matematyki `left:50%;
+width:100vw; transform:translateX(-50%)` dawała błędny wniosek — dopiero
+realny render pokazał, gdzie faktycznie leży różnica). Statyczny grep po
+`src=`/`url(` wystarcza do znalezienia *brakujących plików*, ale nie do
+diagnozowania *dlaczego* coś wygląda źle wizualnie.
