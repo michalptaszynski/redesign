@@ -604,7 +604,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 96px var(--space-8);
+    padding: var(--space-20) var(--space-8);
   }
 
   .build-box-step:first-child {
@@ -1414,6 +1414,72 @@
     .build-box-sticky-summary { display: none; }
   }
 
+  /* ---------- "more options" hint pill (shown only while the first step is in view) ---------- */
+  .build-box-more-options {
+    position: fixed;
+    bottom: var(--space-6);
+    left: 0;
+    z-index: 55;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 2rem;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-default);
+    background: var(--color-bg-surface);
+    box-shadow: 0 4px 16px rgba(0,0,0,.10);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    opacity: 0;
+    transform: translate(-50%, 8px);
+    pointer-events: none;
+    transition: opacity .3s ease, transform .2s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .build-box-more-options.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+  }
+
+  .build-box-more-options:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-muted-hover);
+  }
+
+  .build-box-more-options.visible:hover {
+    transform: translate(-50%, -2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.14);
+  }
+
+  .build-box-more-options.visible:active {
+    transform: translate(-50%, 0);
+    box-shadow: 0 2px 8px rgba(0,0,0,.10);
+  }
+
+  .build-box-more-options:focus-visible {
+    outline: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,.10), 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .build-box-more-options svg {
+    width: 14px;
+    height: 14px;
+    animation: build-box-more-options-bounce 1.6s ease-in-out infinite;
+  }
+
+  @keyframes build-box-more-options-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+  }
+
+  @media (max-width: 900px) {
+    .build-box-more-options { left: 50%; }
+  }
+
   /* ---------- final checkout card ---------- */
   .build-box-checkout {
     padding: 96px var(--space-8) var(--space-16);
@@ -1535,7 +1601,7 @@
     .build-box-page { grid-template-columns: 1fr; padding: var(--space-4); gap: var(--space-4); }
     .build-box-visual { position: static; height: 60vh; min-height: 360px; top: 0; }
     .build-box-step { min-height: 0; padding: var(--space-8) var(--space-2); }
-    .build-box-config-col { gap: var(--space-8); }
+    .build-box-config-col { gap: var(--space-7); }
     .build-box-dots { display: none; }
   }
 </style>
@@ -1586,6 +1652,11 @@
       <a href="#" class="btn-pill lg">Add to cart</a>
     </div>
   </div>
+
+  <button class="build-box-more-options" id="moreOptionsBtn" type="button">
+    <span>More options</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <defs>
@@ -2309,6 +2380,34 @@
   })();
 
   (function () {
+    var btn = document.getElementById('moreOptionsBtn');
+    var configCol = document.querySelector('.build-box-config-col');
+    var firstStep = document.getElementById('stepBoxType');
+    var nextStep = document.getElementById('stepConstruction');
+    if (!btn || !configCol || !firstStep || !nextStep) { return; }
+
+    var isDesktop = window.matchMedia('(min-width: 901px)');
+
+    function positionBtn() {
+      if (!isDesktop.matches) { btn.style.left = ''; return; }
+      var rect = configCol.getBoundingClientRect();
+      btn.style.left = (rect.left + rect.width / 2) + 'px';
+    }
+
+    var firstStepObserver = new IntersectionObserver(function (entries) {
+      btn.classList.toggle('visible', entries[0].isIntersecting);
+    }, { threshold: 0.01, rootMargin: '-45% 0px -45% 0px' });
+    firstStepObserver.observe(firstStep);
+
+    btn.addEventListener('click', function () {
+      slowScrollToCenter(nextStep, 1100);
+    });
+
+    window.addEventListener('resize', positionBtn);
+    positionBtn();
+  })();
+
+  (function () {
     var visual = document.querySelector('.build-box-visual');
     var page = document.querySelector('.build-box-page');
     if (!visual || !page) { return; }
@@ -2351,38 +2450,21 @@
   }
 
   (function () {
-    var steps = Array.prototype.slice.call(document.querySelectorAll('.build-box-step'));
-
-    function scrollToNextStep(fromStep) {
-      var idx = steps.indexOf(fromStep);
-      if (idx > -1 && idx < steps.length - 1) {
-        slowScrollToCenter(steps[idx + 1], 1100);
-      }
-    }
-
-    function initSelectableGroup(selector, advanceOnSelect) {
+    function initSelectableGroup(selector) {
       document.querySelectorAll(selector).forEach(function (group) {
         var cards = group.querySelectorAll(':scope > button');
         cards.forEach(function (card) {
           card.addEventListener('click', function () {
-            var wasActive = card.classList.contains('active');
             cards.forEach(function (c) { c.classList.remove('active'); });
             card.classList.add('active');
-
-            if (advanceOnSelect && !wasActive) {
-              var step = card.closest('.build-box-step');
-              if (step) {
-                setTimeout(function () { scrollToNextStep(step); }, 300);
-              }
-            }
           });
         });
       });
     }
 
-    initSelectableGroup('.box-type-grid', true);
-    initSelectableGroup('.construction-grid', true);
-    initSelectableGroup('.material-card-grid', true);
+    initSelectableGroup('.box-type-grid');
+    initSelectableGroup('.construction-grid');
+    initSelectableGroup('.material-card-grid');
   })();
 
   (function () {
