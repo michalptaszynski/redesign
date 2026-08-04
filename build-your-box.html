@@ -2457,7 +2457,7 @@
     function step(timestamp) {
       if (!startTime) { startTime = timestamp; }
       var progress = Math.min((timestamp - startTime) / duration, 1);
-      window.scrollTo(0, startY + diff * easeInOutQuad(progress));
+      window.scrollTo({ top: startY + diff * easeInOutQuad(progress), left: 0, behavior: 'instant' });
       if (progress < 1) { requestAnimationFrame(step); }
     }
 
