@@ -860,6 +860,21 @@
     color: var(--color-text-muted);
   }
 
+  .box-type-card-tag {
+    display: inline-flex;
+    align-items: center;
+    margin-left: var(--space-1);
+    padding: 0.1875rem 0.5rem;
+    border-radius: var(--radius-full);
+    background: var(--gray-300);
+    color: var(--color-text-muted);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    vertical-align: middle;
+  }
+
   .box-type-card.active {
     background: var(--color-bg-surface);
     box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
@@ -1769,28 +1784,28 @@
           <button class="box-type-card active" data-box-type="folding">
             <span class="box-type-card-thumb"><img src="assets/build/folding-box.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Folding Box</span>
+              <span class="box-type-card-label">Folding Box<span class="box-type-card-tag">For retail</span></span>
               <span class="box-type-card-desc">Flat-packed box that folds from one die-cut sheet.</span>
             </span>
           </button>
           <button class="box-type-card">
             <span class="box-type-card-thumb"><img src="assets/build/rigid-box.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Rigid Box</span>
+              <span class="box-type-card-label">Rigid Box<span class="box-type-card-tag">For retail</span></span>
               <span class="box-type-card-desc">Sturdy, non-collapsible box for premium packaging.</span>
             </span>
           </button>
           <button class="box-type-card">
             <span class="box-type-card-thumb"><img src="assets/build/mialer-box.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Mailer Box</span>
+              <span class="box-type-card-label">Mailer Box<span class="box-type-card-tag">For shipping</span></span>
               <span class="box-type-card-desc">Self-locking box with an attached lid for shipping.</span>
             </span>
           </button>
           <button class="box-type-card">
             <span class="box-type-card-thumb"><img src="assets/build/shipping-box.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Shipping Box</span>
+              <span class="box-type-card-label">Shipping Box<span class="box-type-card-tag">For shipping</span></span>
               <span class="box-type-card-desc">Corrugated box built for transport and storage.</span>
             </span>
           </button>
