@@ -383,7 +383,7 @@
 }
 
 .sticky-links a {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
@@ -417,7 +417,7 @@
 }
 
 .signin-link {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
@@ -565,7 +565,7 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1;
   letter-spacing: -0.02em;
 }
