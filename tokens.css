@@ -13,6 +13,7 @@
 
 :root {
   /* ---- primitives: blue ---- */
+  --blue-50:  #EDF3FF; /* Powder Blue Light */
   --blue-100: #D6E6FF; /* Powder Blue */
   --blue-600: #2757FF; /* PH Blue — brand blue */
   --blue-700: #0B38D5; /* Dark Blue (CTA primary hover) — brand blue, pressed/hover */
@@ -30,6 +31,10 @@
   /* ---- primitives: red ---- */
   --red-500: #8A140C; /* Red */
 
+  /* ---- primitives: olive ---- */
+  --olive-100: #E5E9D6; /* Olive Light */
+  --olive-600: #5C6B3F; /* Olive */
+
   /* ---- primitives: yellow ---- */
   --yellow-light: #F7F2BE; /* Yellow light */
 
@@ -45,6 +50,8 @@
   --color-bg-muted:         var(--gray-100);
   --color-bg-muted-hover:   var(--gray-200);
   --color-bg-accent-subtle: var(--blue-100); /* light blue tint: announcement bar, marquee, gradients */
+  --color-bg-accent-faint:  var(--blue-50); /* faintest blue tint: active tab/icon bg, chat bubble, chip */
+  --color-bg-olive-subtle:  var(--olive-100); /* light olive tint: announcement bar / promo tile alt palette */
   --color-bg-inverse:       var(--rich-blue); /* dark surfaces, e.g. the CTA mockup card */
   --color-bg-notice:        var(--yellow-light); /* pale yellow note/callout background */
 
@@ -95,4 +102,5 @@
 
   /* ---- layout ---- */
   --max-w: 1280px;
+  --max-w-lg: 1664px; /* wider desktop breakpoint — nav internals (globally) and packaging.html's page container */
 }
