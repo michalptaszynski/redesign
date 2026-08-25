@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lock in your Q4 packaging — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+
+  /* ---------- shared page rhythm ---------- */
+  .q4-container {
+    max-width: 76rem; /* 1216px — same content width as index.html's .hero-grid / .faq-grid */
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .q4-section {
+    padding: var(--space-16) 0;
+  }
+
+  /* ---------- TRUSTED BY (headline + count-up stats row) ---------- */
+  .q4-trust-section {
+    padding: var(--space-16) 0;
+  }
+
+  .q4-trust-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+  }
+
+  .q4-trust-intro {
+    flex: 1 1 320px;
+    max-width: 26rem;
+  }
+
+  .q4-trust-heading {
+    margin: 0;
+    font-weight: 400;
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+  }
+
+  .q4-trust-logos {
+    margin-top: var(--space-5);
+    max-width: 360px;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+  }
+
+  .q4-trust-logos-track {
+    display: flex;
+    width: max-content;
+    animation: q4-trust-logos-scroll 16s linear infinite;
+  }
+
+  .q4-trust-logos-content {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  @keyframes q4-trust-logos-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .q4-trust-logos-content img {
+    flex: none;
+    height: 14px;
+    margin-right: var(--space-5);
+    width: auto;
+    opacity: 0.55;
+  }
+
+  .q4-trust-highlight {
+    background: none;
+  }
+
+  .q4-trust-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8) var(--space-10);
+  }
+
+  .q4-trust-stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .q4-trust-stat-num {
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+  }
+
+  .q4-trust-stat-label {
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .q4-trust-grid { flex-direction: column; align-items: flex-start; }
+    .q4-trust-stats { gap: var(--space-6) var(--space-8); }
+  }
+
+  /* ---------- HERO: "scattered cards" (Luma-style) ---------- */
+  .q4-luma-hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #FFFFFF;
+  }
+
+  .q4-luma-hero::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 22vh;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 85%);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .q4-luma-cardfield {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .q4-luma-card {
+    position: absolute;
+    border-radius: 16px;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), transform 450ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .q4-luma-card.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .q4-luma-card-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    background: var(--color-bg-muted);
+    overflow: hidden;
+  }
+
+  .q4-luma-card-inner img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .q4-luma-content {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: var(--space-16) var(--space-5);
+  }
+
+  .q4-luma-h1,
+  .q4-luma-subhead,
+  .q4-luma-cta {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .q4-luma-content.is-visible .q4-luma-h1,
+  .q4-luma-content.is-visible .q4-luma-subhead,
+  .q4-luma-content.is-visible .q4-luma-cta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .q4-luma-h1 { transition-delay: 60ms; }
+  .q4-luma-subhead { transition-delay: 120ms; }
+  .q4-luma-cta { transition-delay: 180ms; }
+
+  .q4-luma-h1 {
+    margin: 0;
+    font-size: clamp(38px, 5.4vw, 68px);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-luma-h1 .accent { color: var(--color-text-primary); }
+
+  .q4-luma-subhead {
+    margin: 20px auto 0;
+    max-width: 480px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  .btn-pill.q4-luma-cta {
+    margin-top: 28px;
+    transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1), background-color .15s ease;
+  }
+
+  .q4-luma-mobile-cluster { display: none; }
+
+  /* ≥1280px: full ring, no overrides needed */
+
+  /* 1024–1280px: pull the ring inward slightly, drop the 3 smallest cards */
+  @media (max-width: 1280px) {
+    .q4-luma-cardfield { transform: scale(0.92); }
+    .q4-luma-card.q4-drop-1280 { display: none; }
+  }
+
+  /* 640–1024px: keep 8–10 cards, shrink ~25%, tighten ring */
+  @media (max-width: 1024px) {
+    .q4-luma-cardfield { transform: scale(0.75); }
+    .q4-luma-card.q4-drop-1280,
+    .q4-luma-card.q4-drop-1024 { display: none; }
+  }
+
+  /* <640px: hide the ring, show a small overlapping pile below the link instead */
+  @media (max-width: 640px) {
+    .q4-luma-hero { min-height: auto; }
+    .q4-luma-hero::after { display: none; }
+    .q4-luma-cardfield { display: none; }
+    .q4-luma-content { min-height: auto; justify-content: flex-start; padding-top: var(--space-20); padding-bottom: var(--space-16); }
+    .q4-luma-mobile-cluster {
+      display: flex;
+      justify-content: center;
+      margin-top: var(--space-10);
+    }
+    .q4-luma-mobile-cluster .q4-luma-card {
+      position: relative;
+      opacity: 1;
+      transition: none;
+    }
+    .q4-luma-mobile-cluster .q4-luma-card + .q4-luma-card { margin-left: -20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-luma-card,
+    .q4-luma-h1,
+    .q4-luma-subhead,
+    .q4-luma-cta {
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  /* ---------- section header: same component as index.html's categories-section (badge+H2+subheading, matching gaps) ---------- */
+  .q4-section-badge {
+    display: inline-block;
+    margin: 0 0 var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-bg-muted-hover);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    border-radius: var(--radius-full);
+  }
+
+  .q4-section h2 {
+    margin: 0 0 var(--space-1);
+    font-weight: 500;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-section p.q4-lead {
+    margin: 0 0 var(--space-6);
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .q4-bold-line {
+    margin: 0 0 var(--space-6);
+    font-weight: 500;
+    font-size: 1.1875rem;
+    line-height: 1.3;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-cta-wrap { text-align: center; }
+  .q4-cta-wrap .btn-pill { margin: 0 auto; }
+
+  .q4-micro {
+    margin: var(--space-3) 0 0;
+    font-size: 0.8125rem;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .q4-partner .q4-cta-wrap { text-align: left; }
+  .q4-partner .q4-cta-wrap .btn-pill { width: 100%; margin: 0; }
+  .q4-partner .q4-micro { text-align: left; }
+
+  /* ---------- THE RISK (gray tiles, horizontal scroll when narrow) ---------- */
+  .q4-risk-cards {
+    display: flex;
+    gap: var(--space-3);
+    margin: 0 calc(-1 * var(--space-5)) 0;
+    padding: 0 var(--space-5);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--space-5);
+    scroll-padding-right: var(--space-5);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .q4-risk-cards::-webkit-scrollbar { display: none; }
+
+  .q4-risk-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 0 0 78vw;
+    max-width: 320px;
+    min-height: 11rem;
+    padding: var(--space-6);
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    scroll-snap-align: start;
+  }
+
+  .q4-risk-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: var(--space-5);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+  }
+  .q4-risk-icon svg { width: 20px; height: 20px; }
+
+  .q4-risk-num {
+    display: block;
+    margin: 0 0 var(--space-2);
+    font-weight: 500;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-risk-card p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- marquee bar (same component as index.html's marquee-section) ---------- */
+  .q4-marquee-outer {
+    position: relative;
+    width: 104vw;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    margin: var(--space-8) 0;
+    height: 48px;
+    background: var(--color-bg-accent-subtle);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .q4-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: q4-marquee-scroll 22s linear infinite;
+  }
+
+  .q4-marquee-content {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .q4-marquee-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: 0 var(--space-7);
+    white-space: nowrap;
+  }
+
+  .q4-marquee-text {
+    font-size: 0.9375rem;
+    line-height: 1;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-marquee-text-light {
+    font-size: 0.9375rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-marquee-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--color-text-primary);
+    flex: none;
+  }
+
+  @keyframes q4-marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---------- ONE PARTNER BENTO GRID (photos + stat tiles mixed) ---------- */
+  .q4-bento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    grid-template-areas:
+      "beauty      beauty"
+      "stat318     apparel"
+      "food        apparel"
+      "supplements supplements"
+      "retail      stat11291"
+      "electronics electronics";
+    margin: var(--space-6) 0 var(--space-10);
+  }
+
+  .q4-bento-photo {
+    position: relative;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-muted);
+  }
+
+  .q4-bento-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .q4-bento-full { aspect-ratio: 16 / 7; }
+
+  .q4-bento-tall {
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  .q4-cat-label {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    letter-spacing: -0.01em;
+    color: var(--color-text-secondary);
+  }
+
+  .q4-bento-stat {
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--space-5);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-md);
+  }
+
+  .q4-bento-stat.q4-bento-cta {
+    aspect-ratio: auto;
+  }
+
+  .q4-stat-card-num {
+    display: block;
+    font-weight: 500;
+    font-size: 1.75rem;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-stat-card-desc {
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .q4-bento-statement {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.1875rem;
+    line-height: 1.3;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- SUPPORT (same scroll-carousel component as deals.html's deals-carousel) ---------- */
+  .scroll-carousel {
+    position: relative;
+  }
+
+  .scroll-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .scroll-carousel-nav.prev { left: var(--space-4); }
+  .scroll-carousel-nav.next { right: var(--space-4); }
+  .q4-support-carousel .scroll-carousel-nav { top: 200px; }
+
+  .scroll-carousel-nav svg { width: 20px; height: 20px; }
+
+  .scroll-carousel-nav::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav { display: flex; }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .q4-support-track {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    padding-left: calc((100vw - min(100vw, 76rem)) / 2 + 2rem);
+    padding-right: calc((100vw - min(100vw, 76rem)) / 2 + 2rem);
+  }
+
+  .q4-support-item {
+    flex: 0 0 auto;
+    width: 320px;
+  }
+
+  .q4-support-visual { height: 400px; }
+
+  .q4-support-intro { margin-bottom: var(--space-14); }
+
+  /* highlight card: same blob background as the brief-form card, full item height, no caption below */
+  .q4-support-highlight-visual {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-accent-subtle);
+    height: 100%;
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .q4-support-highlight-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .q4-support-highlight-num {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: 500;
+    font-size: 2rem;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-support-highlight-content p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- FAQ + BRIEF FORM (two columns: same faq-item accordion as index.html's "Why Packhelp", form card with Press-tile blob background) ---------- */
+  .q4-faq-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+
+  .faq-accordions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .faq-item {
+    border-radius: var(--radius-md);
+    background: var(--color-bg-muted);
+    overflow: hidden;
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-5) var(--space-6);
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 0.9375rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .faq-chevron {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.25s ease;
+  }
+
+  .faq-item.open .faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s ease;
+  }
+
+  .faq-answer-inner {
+    overflow: hidden;
+  }
+
+  .faq-answer p {
+    margin: 0;
+    padding: 0 var(--space-6) var(--space-5);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-primary);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .faq-item.open .faq-answer {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-item.open .faq-answer p {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.15s;
+  }
+
+  /* form card — same blob-background treatment as contact.html's Press tile */
+  .q4-brief-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-2xl);
+    background: #D9E6FD;
+    padding: 8px;
+  }
+
+  .q4-brief-blob {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .q4-brief-blob-a {
+    top: -140px;
+    left: -90px;
+    width: 460px;
+    height: 460px;
+    background: linear-gradient(180deg, #D9E6FD 0%, #2757FF 100%, #7061A3 100%);
+    filter: blur(50px);
+    transform: rotate(-172.637deg);
+  }
+
+  .q4-brief-blob-b {
+    bottom: -260px;
+    right: -220px;
+    width: 629px;
+    height: 629px;
+    background: linear-gradient(180deg, #B4CBF4 0%, rgba(111, 132, 255, 0.46) 100%);
+    filter: blur(100px);
+    transform: rotate(-172.637deg);
+  }
+
+  .q4-brief-form-inner {
+    position: relative;
+    z-index: 2;
+    background: var(--color-bg-surface);
+    border-radius: calc(var(--radius-2xl) - 8px);
+    padding: var(--space-10) var(--space-8);
+  }
+
+  .q4-brief-form-inner h3 {
+    margin: 0 0 var(--space-3);
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+    text-align: center;
+  }
+
+  .q4-brief-form-inner .q4-lead {
+    margin: 0 0 var(--space-6);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .q4-field {
+    margin-bottom: var(--space-4);
+  }
+
+  .q4-field label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-field input,
+  .q4-field select {
+    display: block;
+    width: 100%;
+    height: 48px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+    background: var(--color-bg-surface);
+    font: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .q4-field textarea {
+    display: block;
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+    background: var(--color-bg-surface);
+    font: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    transition: border-color .15s ease, box-shadow .15s ease;
+    min-height: 5rem;
+    resize: vertical;
+  }
+
+  .q4-field input::placeholder,
+  .q4-field textarea::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .q4-field input:hover,
+  .q4-field select:hover,
+  .q4-field textarea:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  .q4-field input:focus,
+  .q4-field select:focus,
+  .q4-field textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .q4-field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-4) center;
+    background-size: 16px;
+    padding-right: var(--space-10);
+  }
+
+  .btn-pill.q4-form-submit { width: 100%; margin-top: var(--space-2); }
+
+  @media (max-width: 900px) {
+    .q4-faq-grid { grid-template-columns: 1fr; gap: var(--space-10); }
+  }
+
+  /* ---------- FINAL CTA (same pattern as index.html's final-cta-section) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 60rem;
+    font-weight: 500;
+    font-size: 5rem;
+    line-height: 1.04;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-heading { font-size: 2.5rem; line-height: 1.08; letter-spacing: -0.05em; }
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- desktop widening ---------- */
+  @media (min-width: 700px) {
+    .q4-container { padding: 0 var(--space-8); }
+    .q4-section { padding: var(--space-24) 0; }
+  }
+
+  @media (min-width: 1024px) {
+    /* one-partner bento: denser 3-col asymmetric grid */
+    .q4-bento {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-areas:
+        "beauty      beauty      apparel"
+        "stat318     food        apparel"
+        "supplements supplements supplements"
+        "retail      stat11291   electronics";
+    }
+
+    /* the risk: enough room for a static 3-col row, no scroll needed */
+    .q4-risk-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin: 0;
+      padding: 0;
+      overflow-x: visible;
+      scroll-snap-type: none;
+    }
+    .q4-risk-card {
+      flex: none;
+      max-width: none;
+      min-height: 13rem;
+    }
+  }
+
+  /* ---------- sticky bottom bar (same floating pill-bar recipe as get-a-quote's .quote-footer-bar / nav-header's pinned .sticky-bar) ---------- */
+  body { padding-bottom: 88px; }
+
+  .q4-sticky-bar {
+    position: fixed;
+    left: var(--space-5);
+    right: var(--space-5);
+    bottom: var(--space-5);
+    z-index: 50;
+    padding: var(--space-2);
+    background: rgba(255, 255, 255, .80);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+    opacity: 0;
+    transform: translateY(24px);
+    pointer-events: none;
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+
+  .q4-sticky-bar.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .q4-sticky-bar .btn-pill { width: 100%; margin: 0; }
+
+  @media (min-width: 700px) {
+    .q4-sticky-bar { left: 50%; right: auto; width: fit-content; transform: translateX(-50%) translateY(24px); }
+    .q4-sticky-bar.is-visible { transform: translateX(-50%) translateY(0); }
+    .q4-sticky-bar .btn-pill { width: auto; padding: 0 var(--space-8); }
+  }
+</style>
+</head>
+<body>
+
+<div id="ph-nav-simple"></div>
+<script src="nav-header.js"></script>
+
+<main>
+
+  <!-- ============ HERO: scattered cards (Luma-style) ============ -->
+  <section class="q4-luma-hero">
+
+    <div class="q4-luma-cardfield" aria-hidden="true">
+      <div class="q4-luma-card" style="left:2%; top:10%; width:150px; height:150px; --rot:-5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/f05ac528-3532-42c1-842a-8e7e6a9228bb/10645342-packhelp-16-123884?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card q4-drop-1024" style="left:9%; top:34%; width:190px; height:238px; --rot:4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/db5780cf-4bec-4da1-948f-b579b0876868/8419042-packhelp-28526-b-1?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:1%; top:60%; width:110px; height:110px; --rot:-3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/fefd0ec2-74f6-40fd-809b-4c19277b5211/10475161-christmas-2?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:11%; top:80%; width:150px; height:150px; --rot:6deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/bd170354-9351-4183-8a91-464e2aef4ddf/9992344-packhelp-26-28-05-2021-7458?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:-4%; top:-2%; width:110px; height:138px; --rot:-7deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/0b87c926-da10-4a97-ac4c-b68735b900de/10118352-christmas-happy-socks?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card q4-drop-1280" style="left:86%; top:6%; width:110px; height:110px; --rot:5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/c3218c06-7d23-4a9e-ab7d-e555f59f3576/9833259-packhelp-27-08-2021-12715?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card q4-drop-1024" style="left:94%; top:27%; width:150px; height:188px; --rot:-4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/bfaf9c9e-eca8-4a5f-98b5-c421549bbf3f/9300197-packhelp-packshot-10270?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:79%; top:48%; width:190px; height:190px; --rot:3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/557ed2d0-0b15-4ec6-889f-7661cfdc2aed/9265672-packhelp-23-10-20201690?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card q4-drop-1280" style="left:90%; top:70%; width:110px; height:110px; --rot:-6deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/af21426d-e9b9-4642-8260-c7d483c4a089/9147158-packhelp-26-28-05-2021-7344?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:83%; top:90%; width:150px; height:150px; --rot:7deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/de710a5e-8159-44dd-b133-d06c01513797/9100125-packhelp-26-28-05-2021-7449?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:35%; top:-3%; width:110px; height:138px; --rot:-3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/ba83b262-1d70-4b3f-904a-3afff32ba027/9097126-packhelp-26-28-05-2021-7395?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card q4-drop-1024" style="left:56%; top:4%; width:150px; height:150px; --rot:5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/1541c860-9ad7-4dc4-92dd-2879c231a1e4/9084792-packhelp-packshot-10227?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:40%; top:89%; width:150px; height:150px; --rot:-5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/60e6fe48-dce4-468b-a186-7665d07e9a08/8813556-packhelp-10-081102?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card" style="left:60%; top:86%; width:110px; height:138px; --rot:4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/1816a593-6a9d-4779-89dd-d81d87ffddfc/8737906-packhelp-26-11-16680?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+      <div class="q4-luma-card q4-drop-1280" style="left:19%; top:17%; width:110px; height:110px; --rot:-2deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/33f5efb4-0ab3-47cc-afdc-1721a23bcb3c/8645088-packhelp-10-081219?w=400&auto=format,compress&fit=crop" alt=""></div></div>
+    </div>
+
+    <div class="q4-luma-content">
+      <h1 class="q4-luma-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
+      <p class="q4-luma-subhead">Lock in December&rsquo;s packaging now, from one supplier, with a guaranteed delivery date</p>
+      <a href="#" class="btn-pill lg q4-luma-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+
+      <div class="q4-luma-mobile-cluster" aria-hidden="true">
+        <div class="q4-luma-card" style="width:72px; height:72px; --rot:-5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/f05ac528-3532-42c1-842a-8e7e6a9228bb/10645342-packhelp-16-123884?w=200&auto=format,compress&fit=crop" alt=""></div></div>
+        <div class="q4-luma-card" style="width:72px; height:90px; --rot:4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/db5780cf-4bec-4da1-948f-b579b0876868/8419042-packhelp-28526-b-1?w=200&auto=format,compress&fit=crop" alt=""></div></div>
+        <div class="q4-luma-card" style="width:72px; height:72px; --rot:-3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/fefd0ec2-74f6-40fd-809b-4c19277b5211/10475161-christmas-2?w=200&auto=format,compress&fit=crop" alt=""></div></div>
+        <div class="q4-luma-card" style="width:72px; height:72px; --rot:6deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/bd170354-9351-4183-8a91-464e2aef4ddf/9992344-packhelp-26-28-05-2021-7458?w=200&auto=format,compress&fit=crop" alt=""></div></div>
+        <div class="q4-luma-card" style="width:72px; height:90px; --rot:-7deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/0b87c926-da10-4a97-ac4c-b68735b900de/10118352-christmas-happy-socks?w=200&auto=format,compress&fit=crop" alt=""></div></div>
+        <div class="q4-luma-card" style="width:72px; height:72px; --rot:5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/c3218c06-7d23-4a9e-ab7d-e555f59f3576/9833259-packhelp-27-08-2021-12715?w=200&auto=format,compress&fit=crop" alt=""></div></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ TRUSTED BY ============ -->
+  <section class="q4-trust-section">
+    <div class="q4-container">
+      <div class="q4-trust-grid">
+        <div class="q4-trust-intro">
+          <h2 class="q4-trust-heading">They already benefit from <span class="q4-trust-highlight">Packhelp</span> services</h2>
+          <div class="q4-trust-logos">
+            <div class="q4-trust-logos-track">
+              <div class="q4-trust-logos-content">
+                <img src="assets/logotypes/logo-backmarket.svg" alt="Back Market">
+                <img src="assets/logotypes/logo-hims.svg" alt="hims">
+                <img src="assets/logotypes/logo-hm.svg" alt="H&amp;M">
+                <img src="assets/logotypes/logo-loreal.svg" alt="L'Oréal">
+                <img src="assets/logotypes/logo-oatly.svg" alt="Oatly">
+                <img src="assets/logotypes/logo-vinted.svg" alt="Vinted">
+                <img src="assets/logotypes/logo-aesop.svg" alt="Aesop">
+              </div>
+              <div class="q4-trust-logos-content" aria-hidden="true">
+                <img src="assets/logotypes/logo-backmarket.svg" alt="">
+                <img src="assets/logotypes/logo-hims.svg" alt="">
+                <img src="assets/logotypes/logo-hm.svg" alt="">
+                <img src="assets/logotypes/logo-loreal.svg" alt="">
+                <img src="assets/logotypes/logo-oatly.svg" alt="">
+                <img src="assets/logotypes/logo-vinted.svg" alt="">
+                <img src="assets/logotypes/logo-aesop.svg" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="q4-trust-stats">
+          <div class="q4-trust-stat">
+            <span class="q4-trust-stat-num">150M+</span>
+            <span class="q4-trust-stat-label">units produced</span>
+          </div>
+          <div class="q4-trust-stat">
+            <span class="q4-trust-stat-num">100,000+</span>
+            <span class="q4-trust-stat-label">companies</span>
+          </div>
+          <div class="q4-trust-stat">
+            <span class="q4-trust-stat-num">EU + UK</span>
+            <span class="q4-trust-stat-label">delivery network</span>
+          </div>
+          <div class="q4-trust-stat">
+            <span class="q4-trust-stat-num">Guaranteed</span>
+            <span class="q4-trust-stat-label">delivery date</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE RISK ============ -->
+  <section class="q4-section">
+    <div class="q4-container">
+      <span class="q4-section-badge">The risk</span>
+      <h2>Q4 packaging problems usually start months before Q4</h2>
+      <p class="q4-lead">When something falls behind it&rsquo;s never <em>&ldquo;just late.&rdquo;</em></p>
+
+      <div class="q4-risk-cards">
+        <div class="q4-risk-card">
+          <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <span class="q4-risk-num">01</span>
+          <p>Rushed production and emergency freight, at whatever premium keeps things moving.</p>
+        </div>
+        <div class="q4-risk-card">
+          <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+          <span class="q4-risk-num">02</span>
+          <p>Plain boxes bought on short notice, replacing packaging your brand spent months building.</p>
+        </div>
+        <div class="q4-risk-card">
+          <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <span class="q4-risk-num">03</span>
+          <p>Your best-sellers shipping unbranded in the one month your brand is in front of more customers than ever.</p>
+        </div>
+      </div>
+
+      <div class="q4-marquee-outer">
+        <div class="q4-marquee-track">
+          <div class="q4-marquee-content">
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+          </div>
+          <div class="q4-marquee-content" aria-hidden="true">
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ONE PARTNER ============ -->
+  <section class="q4-section q4-partner">
+    <div class="q4-container">
+      <span class="q4-section-badge">One partner</span>
+      <h2>Put your packaging in better hands</h2>
+      <p class="q4-lead">One partner across your entire range means one point of contact, one team to coordinate the details, and fewer timelines to keep track of.</p>
+
+      <div class="q4-bento">
+        <div class="q4-bento-photo q4-bento-full" style="grid-area:beauty"><span class="q4-cat-label">Beauty · rigid magnetic box + tissue</span></div>
+
+        <div class="q4-bento-stat" style="grid-area:stat318; justify-content:flex-start;">
+          <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside — all under one roof.</p>
+        </div>
+
+        <div class="q4-bento-photo q4-bento-tall" style="grid-area:apparel"><span class="q4-cat-label">Apparel · mailer</span></div>
+
+        <div class="q4-bento-photo" style="grid-area:food"><span class="q4-cat-label">Food · pouch</span></div>
+
+        <div class="q4-bento-photo q4-bento-full" style="grid-area:supplements"><span class="q4-cat-label">Supplements · carton</span></div>
+
+        <div class="q4-bento-photo" style="grid-area:retail"><span class="q4-cat-label">Retail · carrier bag</span></div>
+
+        <div class="q4-bento-stat" style="grid-area:stat11291">
+          <span class="q4-stat-card-num">11,291</span>
+          <span class="q4-stat-card-desc">variants to build your exact range</span>
+        </div>
+
+        <div class="q4-bento-stat q4-bento-cta" style="grid-area:electronics">
+          <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
+          <div>
+            <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+            <p class="q4-micro">Takes 30 seconds. No design files needed yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SUPPORT ============ -->
+  <section class="q4-section">
+    <div class="q4-container q4-support-intro">
+      <span class="q4-section-badge">Support</span>
+      <h2>More support whenever you need it</h2>
+    </div>
+
+    <div class="scroll-carousel q4-support-carousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+      <div class="q4-support-track">
+
+        <div class="q4-support-item">
+          <div class="q4-support-highlight-visual">
+            <div class="q4-support-highlight-content">
+              <span class="q4-support-highlight-num">&euro;500</span>
+              <p>in credit on every Q4 order, toward the services that make packaging easier to plan, produce and deliver.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="q4-support-item">
+          <div class="q4-support-visual media-card-visual"></div>
+          <h3 class="media-card-title">Sampling &amp; prototyping</h3>
+          <p class="media-card-desc">See and test the real packaging before committing to the full run.</p>
+        </div>
+
+        <div class="q4-support-item">
+          <div class="q4-support-visual media-card-visual"></div>
+          <h3 class="media-card-title">Warehousing &amp; call-off</h3>
+          <p class="media-card-desc">Order more for a better unit cost. We store your packaging and release stock when you need it.</p>
+        </div>
+
+        <div class="q4-support-item">
+          <div class="q4-support-visual media-card-visual"></div>
+          <h3 class="media-card-title">Guaranteed delivery date</h3>
+          <p class="media-card-desc">Know when your packaging arrives before production starts, so your Q4 plan has a date you can work around.</p>
+        </div>
+
+        <div class="q4-support-item">
+          <div class="q4-support-visual media-card-visual"></div>
+          <h3 class="media-card-title">Expert consultation</h3>
+          <p class="media-card-desc">Input from specialists who understand formats, materials, production and fulfilment.</p>
+        </div>
+
+      </div>
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ FAQ + BRIEF FORM ============ -->
+  <section class="q4-section">
+    <div class="q4-container">
+      <div class="q4-faq-grid">
+
+        <div class="q4-faq-left">
+          <span class="q4-section-badge">FAQ</span>
+          <h2>Answers before you even ask</h2>
+
+          <div class="faq-accordions">
+            <div class="faq-item">
+              <button class="faq-question">When should we order for December delivery?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="faq-answer"><div class="faq-answer-inner"><p>Timing depends on format, quantity and delivery market. As a rule of thumb, briefs placed by mid-September comfortably hit a late-November dock date. We&rsquo;ll review your requirements and confirm a realistic delivery date before you commit.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question">What happens if our packaging is at risk of missing the date?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="faq-answer"><div class="faq-answer-inner"><p>Your dedicated project manager tracks the timeline and flags issues early. If a delivery is at risk, the team works with you on the fastest available solution.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question">Can you store our packaging for us?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="faq-answer"><div class="faq-answer-inner"><p>Yes. Order higher volumes to secure better unit costs, then have stock stored and released as you need it.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question">Can you deliver across the EU and UK?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="faq-answer"><div class="faq-answer-inner"><p>Yes &mdash; including to multiple delivery locations.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question">What if we don&rsquo;t have final artwork yet?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="faq-answer"><div class="faq-answer-inner"><p>That&rsquo;s fine. Start the conversation without finished design files; we work through the requirements first and handle the next steps from there.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question">Can you help us choose the right packaging formats?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="faq-answer"><div class="faq-answer-inner"><p>Yes. Your packaging specialist can advise on formats, materials, quantities and ways to optimise the overall setup.</p></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="q4-faq-right">
+          <div class="q4-brief-card">
+            <div class="q4-brief-blob q4-brief-blob-b"></div>
+            <div class="q4-brief-blob q4-brief-blob-a"></div>
+            <div class="q4-brief-form-inner">
+              <h3>Tell us what you need and we&rsquo;ll make it happen</h3>
+              <p class="q4-lead">You don&rsquo;t need a finished brief. Tell us what you&rsquo;re planning for Q4 and a packaging specialist will get back to you within one working day with next steps and a realistic delivery timeline.</p>
+              <form onsubmit="event.preventDefault();">
+                <div class="q4-field">
+                  <label for="q4Company">Company</label>
+                  <input id="q4Company" type="text" placeholder="Your company" required>
+                </div>
+                <div class="q4-field">
+                  <label for="q4Name">Full name</label>
+                  <input id="q4Name" type="text" placeholder="First and last name" required>
+                </div>
+                <div class="q4-field">
+                  <label for="q4Email">Work email</label>
+                  <input id="q4Email" type="email" placeholder="you@company.com" required>
+                </div>
+                <div class="q4-field">
+                  <label for="q4Market">Delivery market</label>
+                  <select id="q4Market">
+                    <option>United Kingdom</option>
+                    <option>Ireland</option>
+                    <option>Germany</option>
+                    <option>France</option>
+                    <option>Poland</option>
+                    <option>Netherlands</option>
+                    <option>Other EU market</option>
+                  </select>
+                </div>
+                <div class="q4-field">
+                  <label for="q4Volume">Q4 volume</label>
+                  <select id="q4Volume">
+                    <option>Under 10,000 units</option>
+                    <option>10,000&ndash;50,000 units</option>
+                    <option>50,000&ndash;200,000 units</option>
+                    <option>200,000+ units</option>
+                  </select>
+                </div>
+                <div class="q4-field">
+                  <label for="q4DockBy">On our dock by</label>
+                  <input id="q4DockBy" type="text" placeholder="e.g. 7 November">
+                </div>
+                <div class="q4-field">
+                  <label for="q4Details">Tell us what you have in mind</label>
+                  <textarea id="q4Details" placeholder="Formats, rough quantities, anything already designed"></textarea>
+                </div>
+                <button type="submit" class="btn-pill lg q4-form-submit">Request your quote</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="final-cta-section">
+    <h2 class="final-cta-heading">Your Q4 forecast is already taking shape.</h2>
+    <p class="final-cta-subheading">Now, your packaging is getting there too. Send the brief now, get your delivery date, and take one more thing off your Q4 to-do list.</p>
+    <div class="final-cta-buttons">
+      <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+</main>
+
+<div class="q4-sticky-bar">
+  <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+</div>
+
+<script>
+  (function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var content = document.querySelector('.q4-luma-content');
+    var cards = document.querySelectorAll('.q4-luma-cardfield .q4-luma-card');
+    if (!content) return;
+
+    if (reduce) {
+      content.classList.add('is-visible');
+      cards.forEach(function (c) { c.classList.add('is-visible'); });
+      return;
+    }
+
+    cards.forEach(function (card, i) {
+      card.style.transitionDelay = (250 + i * 45) + 'ms';
+    });
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        content.classList.add('is-visible');
+        cards.forEach(function (c) { c.classList.add('is-visible'); });
+      });
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    var hero = document.querySelector('.q4-luma-hero');
+    var stickyBar = document.querySelector('.q4-sticky-bar');
+    if (!hero || !stickyBar) return;
+
+    if (!window.IntersectionObserver) {
+      stickyBar.classList.add('is-visible');
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        stickyBar.classList.toggle('is-visible', !entry.isIntersecting);
+      });
+    });
+    observer.observe(hero);
+  })();
+</script>
+
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    item.querySelector('.faq-question').addEventListener('click', function () {
+      item.classList.toggle('open');
+    });
+  });
+</script>
+
+<script>
+  (function () {
+    var carousels = document.querySelectorAll('.scroll-carousel');
+
+    Array.prototype.forEach.call(carousels, function (carousel) {
+      var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
+      var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
+      var track = null;
+
+      for (var i = 0; i < carousel.children.length; i++) {
+        var child = carousel.children[i];
+        if (child !== prevBtn && child !== nextBtn) {
+          track = child;
+          break;
+        }
+      }
+
+      if (!prevBtn || !nextBtn || !track) {
+        return;
+      }
+
+      function updateNavState() {
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        prevBtn.disabled = track.scrollLeft <= 0;
+        nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+      }
+
+      function checkOverflow() {
+        var overflowing = track.scrollWidth > track.clientWidth + 1;
+        carousel.classList.toggle('has-overflow', overflowing);
+        updateNavState();
+      }
+
+      prevBtn.addEventListener('click', function () {
+        track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      nextBtn.addEventListener('click', function () {
+        track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      track.addEventListener('scroll', updateNavState);
+      window.addEventListener('resize', checkOverflow);
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(checkOverflow).observe(track);
+      } else {
+        checkOverflow();
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

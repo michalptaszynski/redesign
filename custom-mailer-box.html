@@ -1,0 +1,2086 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Custom Mailer Box — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/case-study pages) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- IMAGE PLACEHOLDER (no real asset — case-study-hemp-juice.html pattern) ---------- */
+  .ph-media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-muted);
+    color: var(--color-border-hover);
+  }
+
+  .ph-media svg {
+    width: 15%;
+    max-width: 56px;
+    min-width: 28px;
+  }
+
+  .ph-media-label {
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- SECTION BADGE + HEADING ATOM ---------- */
+  .section-badge {
+    display: inline-block;
+    margin: 0 0 var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-bg-muted-hover);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    border-radius: var(--radius-full);
+  }
+
+  /* ---------- PRODUCT HERO ---------- */
+  .pdp-hero {
+    padding: var(--space-8) var(--space-8) var(--space-16);
+  }
+
+  .pdp-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+
+  .pdp-gallery-main {
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .pdp-gallery-main .ph-media svg { max-width: 96px; }
+
+  .pdp-gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .pdp-gallery-thumbs .ph-media {
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+  }
+
+  .pdp-title {
+    margin: 0 0 var(--space-4);
+    font-weight: 450;
+    font-size: 2.75rem;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-lead {
+    margin: 0 0 var(--space-8);
+    max-width: 34rem;
+    font-size: 1.0625rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  .pdp-usps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .pdp-usp {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  .pdp-usp img { width: 20px; height: 20px; flex: none; }
+
+  .pdp-option-group {
+    margin-bottom: var(--space-8);
+  }
+
+  .pdp-option-label {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-3);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-option-label span {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  /* material-card-grid / material-card reused from build-your-box.html */
+  .material-card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+    max-width: none;
+  }
+
+  .material-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: var(--color-bg-muted);
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .material-card-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+
+  .material-card-text {
+    padding: var(--space-2) var(--space-3) var(--space-3);
+  }
+
+  .material-card-label {
+    display: block;
+    color: var(--color-text-primary);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .material-card.active {
+    background: var(--color-bg-surface);
+    box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
+  }
+
+  /* lightweight pill toggle for print coverage / production time */
+  .pdp-pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .pdp-pill {
+    padding: var(--space-2) var(--space-5);
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+  }
+
+  .pdp-pill.active {
+    background: var(--color-text-primary);
+    color: var(--color-text-on-accent);
+  }
+
+  /* box-type-grid / quantity-card reused from build-your-box.html */
+  .box-type-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .box-type-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: var(--color-bg-muted);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .box-type-card.active {
+    background: var(--color-bg-surface);
+    box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
+  }
+
+  .quantity-card {
+    justify-content: space-between;
+  }
+
+  .quantity-card-qty {
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .quantity-card-prices {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-6);
+  }
+
+  .quantity-card-unit {
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .quantity-card-total {
+    font-size: 0.9375rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+  }
+
+  @media (max-width: 900px) {
+    .pdp-hero-grid { grid-template-columns: 1fr; gap: var(--space-8); }
+    .material-card-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ---------- TABS: Specification / Product description / Options / Popular questions ---------- */
+  .pdp-tabs-section {
+    padding: var(--space-16) var(--space-8) var(--space-8);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .pdp-tabs {
+    display: flex;
+    gap: var(--space-8);
+    margin-bottom: var(--space-10);
+    border-bottom: 1px solid var(--color-border-default);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .pdp-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pdp-tab {
+    flex: none;
+  }
+
+  .pdp-tab {
+    padding: var(--space-2) 0 var(--space-4);
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: none;
+    font: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+  }
+
+  .pdp-tab:hover {
+    color: var(--color-text-primary);
+  }
+
+  .pdp-tab.active {
+    color: var(--color-text-primary);
+    border-bottom-color: var(--color-text-primary);
+  }
+
+  .pdp-tab-panel[hidden] {
+    display: none;
+  }
+
+  /* ---------- SPECIFICATION TAB ---------- */
+  .pdp-spec-table {
+    max-width: 760px;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .pdp-spec-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: var(--space-6);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--color-border-default);
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+  }
+
+  .pdp-spec-row dt {
+    color: var(--color-text-muted);
+  }
+
+  .pdp-spec-row dd {
+    margin: 0;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-spec-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .pdp-spec-tag {
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  @media (max-width: 700px) {
+    .pdp-spec-row { grid-template-columns: 1fr; gap: var(--space-1); }
+  }
+
+  .pdp-spec-row--extra {
+    display: none;
+  }
+
+  .pdp-tab-panel.is-expanded .pdp-spec-row--extra {
+    display: grid;
+  }
+
+  @media (max-width: 700px) {
+    .pdp-tab-panel.is-expanded .pdp-spec-row--extra { display: block; }
+  }
+
+  .pdp-spec-eco-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    max-width: 760px;
+    margin-top: var(--space-6);
+  }
+
+  .pdp-eco-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  .pdp-eco-badge svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: var(--color-accent);
+  }
+
+  .pdp-spec-show-more {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-8);
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .pdp-spec-show-more svg {
+    width: 16px;
+    height: 16px;
+    transition: transform .2s ease;
+  }
+
+  .pdp-tab-panel.is-expanded .pdp-spec-show-more svg {
+    transform: rotate(180deg);
+  }
+
+  /* ---------- PRODUCT DESCRIPTION TAB ---------- */
+  .pdp-features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-10) var(--space-16);
+    max-width: var(--max-w);
+    margin: 0 auto;
+  }
+
+  .pdp-feature-heading {
+    margin: 0 0 var(--space-3);
+    font-size: 1.375rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-feature-text {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  .pdp-feature--wide {
+    grid-column: 1 / -1;
+    max-width: 40rem;
+  }
+
+  @media (max-width: 800px) {
+    .pdp-features-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- SHOWCASE GALLERY ---------- */
+  .pdp-showcase-section {
+    padding: var(--space-16) var(--space-8);
+  }
+
+  .pdp-showcase-heading {
+    margin: 0 0 var(--space-8);
+    font-weight: 450;
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-showcase-grid {
+    display: flex;
+    gap: var(--space-5);
+  }
+
+  .pdp-showcase-item {
+    flex: 0 0 auto;
+    width: 220px;
+  }
+
+  .pdp-showcase-item .ph-media {
+    aspect-ratio: 3 / 4;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-3);
+  }
+
+  .pdp-showcase-item p {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  /* scroll-carousel container, reused from packaging.html */
+  .scroll-carousel {
+    position: relative;
+  }
+
+  .scroll-carousel-nav {
+    position: absolute;
+    top: 88px;
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .scroll-carousel-nav.prev { left: var(--space-4); }
+  .scroll-carousel-nav.next { right: var(--space-4); }
+  .scroll-carousel-nav svg { width: 20px; height: 20px; }
+
+  .scroll-carousel-nav::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav { display: flex; }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .scroll-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 140px;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .scroll-fade.left { left: -8px; background: linear-gradient(90deg, var(--color-bg-page) 0%, transparent 100%); }
+  .scroll-fade.right { right: -8px; background: linear-gradient(270deg, var(--color-bg-page) 0%, transparent 100%); }
+  .scroll-carousel.has-overflow .scroll-fade { opacity: 1; }
+  .scroll-carousel.has-overflow:has(.scroll-carousel-nav.prev[disabled]) .scroll-fade.left { opacity: 0; }
+  .scroll-carousel.has-overflow:has(.scroll-carousel-nav.next[disabled]) .scroll-fade.right { opacity: 0; }
+
+  .pdp-showcase-grid { overflow-x: auto; scrollbar-width: none; }
+  .pdp-showcase-grid::-webkit-scrollbar { display: none; }
+
+  /* ---------- POPULAR QUESTIONS TAB (index.html faq-item pattern) ---------- */
+  .faq-accordions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 760px;
+  }
+
+  .faq-item {
+    border-radius: var(--radius-md);
+    background: var(--color-bg-muted);
+    overflow: hidden;
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-5) var(--space-6);
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 0.9375rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .faq-chevron {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.25s ease;
+  }
+
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s ease;
+  }
+
+  .faq-answer-inner { overflow: hidden; }
+
+  .faq-answer p {
+    margin: 0;
+    padding: 0 var(--space-6) var(--space-5);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .faq-item.open .faq-answer { grid-template-rows: 1fr; }
+
+  .faq-item.open .faq-answer p {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.15s;
+  }
+
+  /* ---------- OPTIONS TAB ---------- */
+  .pdp-options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-10) var(--space-16);
+  }
+
+  .pdp-option-detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .pdp-option-detail-heading {
+    margin: 0;
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border-default);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-option-detail-name {
+    margin: 0 0 2px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .pdp-option-detail-desc {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  @media (max-width: 800px) {
+    .pdp-options-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- EDITOR SECTION (exact statement-section copy from index.html — not in components.css) ---------- */
+  .statement-section {
+    padding: var(--space-8) var(--space-8) var(--space-24);
+  }
+
+  .statement {
+    flex-shrink: 0;
+    max-width: 80%;
+    margin: var(--space-6) 0 0;
+    text-align: left;
+    font-weight: 450;
+    font-size: 3rem;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  .statement-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-12);
+  }
+
+  .statement-grid.reveal {
+    opacity: 0;
+    transform: translateY(80px);
+    transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+  }
+
+  .statement-grid.reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .statement-row {
+    display: grid;
+    grid-template-columns: 58fr 42fr;
+    gap: var(--space-4);
+  }
+
+  .statement-row-reverse {
+    grid-template-columns: 42fr 58fr;
+  }
+
+  @media (max-width: 700px) {
+    .statement-row,
+    .statement-row-reverse {
+      grid-template-columns: 1fr;
+    }
+
+    .statement-tile {
+      height: clamp(280px, 70vw, 420px);
+    }
+
+    .statement-tile-image {
+      max-width: 45%;
+    }
+
+    .statement-tile-image-branding-wrap {
+      right: 8%;
+      width: min(336px, 34%);
+    }
+
+    .statement-tile-image-brand2 {
+      bottom: 24px;
+      right: 40%;
+      max-width: 24%;
+    }
+
+    .statement-tile-image-material {
+      max-width: min(220px, 55%);
+    }
+
+    .statement-tile-image-custom-wrap {
+      width: min(149px, 55%);
+    }
+
+    .statement-tile-custom-overlay {
+      width: min(149px, 55%);
+    }
+
+    .statement-tile-custom-overlay img {
+      width: 205px;
+    }
+  }
+
+  .statement-tile {
+    position: relative;
+    height: clamp(280px, calc(30vw + 100px), 480px);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-muted-hover);
+    box-sizing: border-box;
+    padding: var(--space-6);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .statement-tile-d {
+    background: var(--color-bg-muted);
+  }
+
+  .statement-tile-text {
+    flex: 0 0 auto;
+    display: none; /* TEMP: text captions hidden for now, per request 2026-08-04 */
+  }
+
+  .statement-tile-media {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    margin: 0 -1.5rem -1.5rem;
+  }
+
+  .statement-tile-title {
+    margin: 0 0 var(--space-2);
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    line-height: 1.16;
+    font-weight: 450;
+    color: var(--color-text-primary);
+  }
+
+  .statement-tile-desc {
+    margin: 0;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .statement-tile-image {
+    position: absolute;
+    left: 50%;
+    bottom: -33%;
+    transform: translateX(-50%);
+    max-width: 80%;
+    max-height: 65%;
+  }
+
+  .statement-tile-image-branding-wrap {
+    position: absolute;
+    bottom: 0;
+    right: 12%;
+    width: min(336px, 54%);
+    max-height: 100%;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1) 0.15s, transform 0.9s cubic-bezier(.16,1,.3,1) 0.15s;
+  }
+
+  .statement-tile-image-branding-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 336 / 363;
+  }
+
+  .statement-grid.is-visible .statement-tile-image-branding-wrap {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .statement-tile-image-brand2 {
+    position: absolute;
+    bottom: 32px;
+    right: 49%;
+    max-width: 40%;
+    max-height: 45%;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1) 0.3s, transform 0.9s cubic-bezier(.16,1,.3,1) 0.3s;
+  }
+
+  .statement-grid.is-visible .statement-tile-image-brand2 {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .statement-tile-image-custom-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(24px);
+    width: min(204px, 75%);
+    max-height: 100%;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1) 0.15s, transform 0.9s cubic-bezier(.16,1,.3,1) 0.15s;
+  }
+
+  .statement-tile-image-custom-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 408 / 680;
+  }
+
+  .statement-grid.is-visible .statement-tile-image-custom-wrap {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .statement-tile-custom-overlay {
+    position: absolute;
+    z-index: 3;
+    bottom: 0;
+    left: 50%;
+    width: min(204px, 75%);
+    aspect-ratio: 408 / 680;
+    transform: translateX(-50%) translateY(24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1) 0.15s, transform 0.9s cubic-bezier(.16,1,.3,1) 0.15s;
+  }
+
+  .statement-grid.is-visible .statement-tile-custom-overlay {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .statement-tile-custom-overlay img {
+    width: 280px;
+    max-width: none;
+    height: auto;
+  }
+
+  .statement-tile-image-material {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(24px);
+    max-width: min(360px, 80%);
+    max-height: 100%;
+    opacity: 0;
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1) 0.15s, transform 0.9s cubic-bezier(.16,1,.3,1) 0.15s;
+  }
+
+  .statement-grid.is-visible .statement-tile-image-material {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .statement-tile-live3d-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.15);
+  }
+
+  .statement-tile-live3d-overlay {
+    display: block;
+    position: absolute;
+    bottom: 16%;
+    right: 8%;
+    width: min(96px, 22%);
+    height: auto;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1) 0.15s, transform 0.9s cubic-bezier(.16,1,.3,1) 0.15s;
+  }
+
+  .statement-tile-live3d-overlay-left {
+    display: block;
+    position: absolute;
+    bottom: 5%;
+    left: 8%;
+    width: min(96px, 22%);
+    height: auto;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1) 0.3s, transform 0.9s cubic-bezier(.16,1,.3,1) 0.3s;
+  }
+
+  .statement-grid.is-visible .statement-tile-live3d-overlay,
+  .statement-grid.is-visible .statement-tile-live3d-overlay-left {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .deco-square {
+    display: inline-block;
+    position: relative;
+    width: 64px;
+    height: 0;
+    vertical-align: middle;
+    margin: 0 var(--space-2);
+  }
+
+  .deco-square:hover {
+    z-index: 9999;
+  }
+
+  .statement-section:has(.deco-square:hover) {
+    transform: none;
+  }
+
+  .deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-image: var(--deco-img);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  @media (max-width: 700px) {
+    .statement { font-size: 1.5rem; line-height: 1.32; letter-spacing: -0.02em; }
+    .statement-section > .btn-pill.lg { width: 100%; }
+  }
+
+  /* ---------- CROSS-SELL CAROUSELS ---------- */
+  .pdp-carousel-section {
+    padding: var(--space-12) var(--space-8);
+  }
+
+  .pdp-carousel-heading {
+    margin: 0 0 var(--space-6);
+    font-weight: 450;
+    font-size: 1.75rem;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+  }
+
+  .product-grid.product-carousel-track {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-5);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .product-carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .product-carousel-track .product-card {
+    flex: 0 0 260px;
+  }
+
+  .pdp-carousel-section .scroll-carousel-nav {
+    top: 130px;
+  }
+
+  /* ---------- FINAL BANNER (green closing CTA, real site copy) ---------- */
+  .pdp-final-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    padding: var(--space-10) var(--space-10);
+    background: #1F8A4C;
+    border-radius: var(--radius-lg);
+    margin: var(--space-8) var(--space-8) var(--space-16);
+  }
+
+  .pdp-final-banner-heading {
+    margin: 0;
+    max-width: 32rem;
+    font-weight: 450;
+    font-size: 1.75rem;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
+    color: var(--color-text-on-accent);
+  }
+
+  .pdp-final-banner-btn {
+    flex: none;
+    background: var(--color-text-on-accent);
+    color: #1F8A4C;
+  }
+
+  .pdp-final-banner-btn:hover {
+    background: var(--color-bg-muted);
+  }
+
+  @media (max-width: 700px) {
+    .pdp-final-banner { flex-direction: column; align-items: flex-start; }
+    .pdp-final-banner-btn { width: 100%; height: auto; padding: var(--space-3) var(--space-6); white-space: normal; text-align: center; line-height: 1.3; }
+  }
+
+  /* ---------- PRODUCT CARD (packaging.html pattern, reused in carousels + showcase) ---------- */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6) var(--space-5);
+  }
+
+  @media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .product-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-4); } }
+
+  .product-card { display: block; min-width: 0; color: inherit; text-decoration: none; }
+
+  .product-card-media {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--space-3);
+  }
+
+  .product-card-moq {
+    position: absolute;
+    left: var(--space-4);
+    bottom: var(--space-4);
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    z-index: 1;
+  }
+
+  .product-card-name {
+    margin: 0 0 2px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .product-card-customisation {
+    margin: 0;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .product-card-btn {
+    position: absolute;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: var(--space-3);
+    opacity: 0;
+    transform: translateY(100%);
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+    z-index: 1;
+  }
+
+  .product-card:hover .product-card-btn {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* ---------- FOOTER (shared across pages) ---------- */
+  .site-footer {
+    padding: var(--space-16) 0 0;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: var(--space-16);
+    padding: 0 var(--space-8) var(--space-16);
+  }
+
+  .footer-logo { display: inline-block; margin-bottom: var(--space-6); }
+  .footer-logo img { height: 28px; }
+
+  .footer-newsletter-copy {
+    margin: 0 0 var(--space-4);
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+    max-width: 26rem;
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .footer-badges { display: flex; gap: var(--space-3); }
+  .footer-badge img { height: 40px; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-8);
+    flex-wrap: wrap;
+  }
+
+  .footer-col-group { display: flex; gap: var(--space-8); }
+
+  .footer-col-title {
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+
+  .footer-col a {
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom { border-top: 1px solid var(--color-border-default); padding: var(--space-6) var(--space-8); }
+
+  .footer-bottom-inner {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 900px) {
+    .footer-inner { grid-template-columns: 1fr; }
+    .footer-links { flex-direction: column; }
+    .footer-col-group { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="packaging.html">Packaging</a>
+    <span>/</span>
+    <a href="packaging.html">Boxes</a>
+    <span>/</span>
+    <span class="current">Custom Mailer Box</span>
+  </nav>
+
+  <!-- ============ PRODUCT HERO ============ -->
+  <section class="pdp-hero reveal">
+    <div class="pdp-hero-grid">
+      <div class="pdp-gallery">
+        <div class="pdp-gallery-main ph-media">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+          <span class="ph-media-label">Custom Mailer Box — Kraft, one-colour print</span>
+        </div>
+        <div class="pdp-gallery-thumbs">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+        </div>
+      </div>
+
+      <div class="pdp-info">
+        <h1 class="pdp-title">Custom Mailer Box</h1>
+        <p class="pdp-lead">Elevate your brand with our customisable mailer boxes. Choose from a variety of sizes, materials, and print options to make a lasting impression on your customers, while ensuring safe delivery of your products.</p>
+
+        <div class="pdp-usps">
+          <span class="pdp-usp"><img src="https://cdn-pim.packhelp.com/assets/c5700275-dcc3-4e28-98ba-270fef8761a8/2053-3-d-editor.svg" alt="">3D editor</span>
+          <span class="pdp-usp"><img src="https://cdn-pim.packhelp.com/assets/f3d9997f-47e0-4f93-a3ed-3e3106c0cfb6/813-eco-friendly.svg" alt="">Eco-friendly</span>
+          <span class="pdp-usp"><img src="https://cdn-pim.packhelp.com/assets/d81e5cf0-15fb-4770-8330-b8425215b3c8/995-wallet.svg" alt="">Loyalty program</span>
+        </div>
+
+        <div class="pdp-option-group">
+          <p class="pdp-option-label">Material colour <span id="materialColourValue">— Brown</span></p>
+          <div class="material-card-grid" id="materialColourGroup">
+            <button class="material-card active" data-value="Brown">
+              <span class="material-card-image ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>
+              <span class="material-card-text"><span class="material-card-label">Brown</span></span>
+            </button>
+            <button class="material-card" data-value="White">
+              <span class="material-card-image ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>
+              <span class="material-card-text"><span class="material-card-label">White</span></span>
+            </button>
+            <button class="material-card" data-value="Premium White">
+              <span class="material-card-image ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>
+              <span class="material-card-text"><span class="material-card-label">Premium White</span></span>
+            </button>
+            <button class="material-card" data-value="Black">
+              <span class="material-card-image ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>
+              <span class="material-card-text"><span class="material-card-label">Black</span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pdp-option-group">
+          <p class="pdp-option-label">Print coverage</p>
+          <div class="pdp-pill-group">
+            <button class="pdp-pill active">Outside</button>
+            <button class="pdp-pill">Outside + Inside</button>
+          </div>
+        </div>
+
+        <div class="pdp-option-group">
+          <p class="pdp-option-label">Production time</p>
+          <div class="pdp-pill-group">
+            <button class="pdp-pill active">Standard</button>
+            <button class="pdp-pill">Express</button>
+          </div>
+        </div>
+
+        <div class="pdp-option-group">
+          <p class="pdp-option-label">Quantity</p>
+          <div class="box-type-grid">
+            <button class="box-type-card quantity-card active">
+              <span class="quantity-card-qty">30</span>
+              <span class="quantity-card-prices"><span class="quantity-card-unit">£1.50/piece</span><span class="quantity-card-total">£45.00</span></span>
+            </button>
+            <button class="box-type-card quantity-card">
+              <span class="quantity-card-qty">120</span>
+              <span class="quantity-card-prices"><span class="quantity-card-unit">£0.72/piece</span><span class="quantity-card-total">£86.40</span></span>
+            </button>
+            <button class="box-type-card quantity-card">
+              <span class="quantity-card-qty">500</span>
+              <span class="quantity-card-prices"><span class="quantity-card-unit">£0.38/piece</span><span class="quantity-card-total">£192.00</span></span>
+            </button>
+            <button class="box-type-card quantity-card">
+              <span class="quantity-card-qty">2000</span>
+              <span class="quantity-card-prices"><span class="quantity-card-unit">£0.32/piece</span><span class="quantity-card-total">£648.00</span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pdp-cta-row">
+          <a href="build-your-box.html" class="btn-pill lg">Customise in 3D editor<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          <a href="sample-packs.html" class="btn-pill lg secondary">Order free samples<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TABS: Specification / Product description / Options / Popular questions ============ -->
+  <section class="pdp-tabs-section reveal">
+    <div class="pdp-tabs" role="tablist">
+      <button class="pdp-tab active" type="button" role="tab" aria-selected="true" data-tab="specification">Specification</button>
+      <button class="pdp-tab" type="button" role="tab" aria-selected="false" data-tab="description">Product description</button>
+      <button class="pdp-tab" type="button" role="tab" aria-selected="false" data-tab="options">Options</button>
+      <button class="pdp-tab" type="button" role="tab" aria-selected="false" data-tab="faq">Popular questions</button>
+    </div>
+
+    <div class="pdp-tab-panel" id="pdp-tab-specification" role="tabpanel">
+      <dl class="pdp-spec-table">
+        <div class="pdp-spec-row"><dt>Data for current product configuration</dt><dd>Custom Mailer Box 3 × 3 × 1 in</dd></div>
+        <div class="pdp-spec-row"><dt>Material</dt><dd>Corrugated cardboard</dd></div>
+        <div class="pdp-spec-row"><dt>Material colour</dt><dd>Brown</dd></div>
+        <div class="pdp-spec-row"><dt>Print colour mode</dt><dd>Black</dd></div>
+        <div class="pdp-spec-row"><dt>Print coverage</dt><dd>Outside</dd></div>
+        <div class="pdp-spec-row"><dt>Foil</dt><dd>None</dd></div>
+        <div class="pdp-spec-row"><dt>Adhesive strip</dt><dd>None</dd></div>
+        <div class="pdp-spec-row"><dt>Production time</dt><dd>Standard</dd></div>
+        <div class="pdp-spec-row"><dt>Raw material</dt><dd>Corrugated cardboard, E flute</dd></div>
+        <div class="pdp-spec-row pdp-spec-row--extra">
+          <dt>Parcel size</dt>
+          <dd class="pdp-spec-tags">
+            <span class="pdp-spec-tag">InPost Size XS</span>
+            <span class="pdp-spec-tag">Royal Mail Size Small</span>
+            <span class="pdp-spec-tag">DPD Size S</span>
+            <span class="pdp-spec-tag">Pocztex Size S</span>
+            <span class="pdp-spec-tag">Vinted GO up to 0.5 kg</span>
+            <span class="pdp-spec-tag">DHL BOX 24/7 Size XS</span>
+          </dd>
+        </div>
+        <div class="pdp-spec-row pdp-spec-row--extra"><dt>Box size</dt><dd>Small</dd></div>
+        <div class="pdp-spec-row pdp-spec-row--extra"><dt>Weight</dt><dd>0.02 kg</dd></div>
+        <div class="pdp-spec-row pdp-spec-row--extra"><dt>Dimensional tolerance</dt><dd>±2–4mm</dd></div>
+        <div class="pdp-spec-row pdp-spec-row--extra"><dt>Variant SKU</dt><dd>ph-450-6311</dd></div>
+      </dl>
+
+      <div class="pdp-spec-eco-row">
+        <span class="pdp-eco-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Biodegradable material</span>
+        <span class="pdp-eco-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Made in Europe</span>
+        <span class="pdp-eco-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Plastic free</span>
+        <span class="pdp-eco-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Recyclable</span>
+        <span class="pdp-eco-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Recycled content</span>
+        <span class="pdp-eco-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Responsible sourcing</span>
+      </div>
+
+      <button class="pdp-spec-show-more" type="button" data-label-more="Show more" data-label-less="Show less">Show more<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    </div>
+
+    <div class="pdp-tab-panel" id="pdp-tab-description" role="tabpanel" hidden>
+      <div class="pdp-features-grid">
+        <div class="pdp-feature pdp-feature--wide">
+          <h3 class="pdp-feature-heading">Protect your products with sturdy construction</h3>
+          <p class="pdp-feature-text">The Custom Mailer Box is built with one job in mind: keeping what's inside safe. Choose from three types of corrugated cardboard — standard, bleached or coated — each available in weights from 358 gsm to 510 gsm, so you can match rigidity and strength to your specific products and keep them secure through transport and storage. Precision manufacturing with a dimensional tolerance of ±2–4mm means every box fits exactly as designed.</p>
+        </div>
+        <div class="pdp-feature">
+          <h3 class="pdp-feature-heading">Fit every shipment, every time</h3>
+          <p class="pdp-feature-text">Whether you're shipping small accessories or bulkier items, the Custom Mailer Box comes in small, medium and large sizes, so you can match the box to the contents. Every variant fits standard courier and parcel-locker size brackets — InPost, DPD, Royal Mail, DHL — which keeps logistics simple and shipping costs down.</p>
+        </div>
+        <div class="pdp-feature">
+          <h3 class="pdp-feature-heading">Create standout designs with full print coverage</h3>
+          <p class="pdp-feature-text">Print options range from a clean one-colour design, through white ink, to full-colour artwork in muted, saturated or premium tones. Decide whether to print outside only, inside only, or both — giving you full creative control to build a consistent brand experience visible from the moment the box is opened.</p>
+        </div>
+        <div class="pdp-feature">
+          <h3 class="pdp-feature-heading">Choose your finish and functionality</h3>
+          <p class="pdp-feature-text">Round off the look with a matte or gloss foil finish that reinforces the surface as well as the aesthetic. Add a single or double self-adhesive strip to streamline packing and opening — especially useful for return shipments.</p>
+        </div>
+        <div class="pdp-feature">
+          <h3 class="pdp-feature-heading">Build recognition from the very first touch</h3>
+          <p class="pdp-feature-text">With full personalisation, your mailer box becomes a business card for your brand — creating a memorable unboxing moment and building customer loyalty.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdp-tab-panel" id="pdp-tab-options" role="tabpanel" hidden>
+      <div class="pdp-options-grid">
+        <div class="pdp-option-detail-group">
+          <h3 class="pdp-option-detail-heading">Material colour</h3>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Brown</p><p class="pdp-option-detail-desc">The product is available in brown.</p></div>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">White</p><p class="pdp-option-detail-desc">This product is available in white.</p></div>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Premium White</p><p class="pdp-option-detail-desc">Premium White paper, characterised as GC1, is a high-quality paper that is white on both sides. This gives it a clean and refined look, enhancing the perceived value of the product it encases. The uniform white surface is ideal for high-resolution printing, making it perfect for luxury items or products that require vibrant and detailed graphics.</p></div>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Black</p><p class="pdp-option-detail-desc">This product is available in black.</p></div>
+        </div>
+        <div class="pdp-option-detail-group">
+          <h3 class="pdp-option-detail-heading">Print colour mode</h3>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">One colour</p><p class="pdp-option-detail-desc">Printing in a single CMYK colour keeps costs down and works well for minimalist designs, or whenever you don't need multicolour detail.</p></div>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Full colour</p><p class="pdp-option-detail-desc">This product can be printed in a full range of colours.</p></div>
+        </div>
+        <div class="pdp-option-detail-group">
+          <h3 class="pdp-option-detail-heading">Print coverage</h3>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Outside</p><p class="pdp-option-detail-desc">In the case of this product, the print is made on its outside.</p></div>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Outside + Inside</p><p class="pdp-option-detail-desc">For this product, the print is made on the outside and inside.</p></div>
+        </div>
+        <div class="pdp-option-detail-group">
+          <h3 class="pdp-option-detail-heading">Adhesive strip</h3>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">None</p><p class="pdp-option-detail-desc">No adhesive strip — seal the box with tape of your choice.</p></div>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Standard adhesion</p><p class="pdp-option-detail-desc">A reliable all-purpose adhesive for everyday labelling needs. Standard adhesion works well on most smooth surfaces and is a solid choice for packaging, retail, and logistics.</p></div>
+        </div>
+        <div class="pdp-option-detail-group">
+          <h3 class="pdp-option-detail-heading">Production time</h3>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Standard</p><p class="pdp-option-detail-desc">Our default production time, balancing cost and speed.</p></div>
+          <div class="pdp-option-detail"><p class="pdp-option-detail-name">Express</p><p class="pdp-option-detail-desc">Express production time.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdp-tab-panel" id="pdp-tab-faq" role="tabpanel" hidden>
+      <div class="faq-accordions">
+        <div class="faq-item">
+          <button class="faq-question">Can I print on the inside of a mailer box?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — you can print on the inside of the box as well. Use our online editor to create your design and check the available print options: outside only is available on every variant; inside only is available on every variant except saturated full-colour print; outside + inside is available on most variants, and for premium full-colour only when the base material is white on both sides, which guarantees the best print quality.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Does the price include the cost of my design (logo and graphics)?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — the price includes printing your design, including logo and graphics, though it varies depending on the print option you choose. Additional finishes such as hot-stamping, embossing/debossing and UV varnish will be available soon. If you can't find exactly what you need, reach out via chat — we're happy to help.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Can Custom Mailer Boxes be used to ship products?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — our Custom Mailer Boxes are built for safe transport and shipping. They're durable and available in a range of sizes, so you can match them to a wide variety of products. Optional adhesive strips give you a secure close for both outbound shipping and returns. For extra unboxing impact, add a courier poly mailer as an outer layer.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Can I order a Custom Mailer Box in a custom size?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — we offer the most popular standard sizes on the market, but you can also design any custom size directly in our online editor or using a die-line. To order a custom size, open the editor and choose the first option in the size selector. Note: custom sizes may come with higher minimum order quantities.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Are Custom Mailer Boxes eco-friendly?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — Custom Mailer Boxes without additional finishes are eco-friendly. Made partly from recycled cardboard, they're biodegradable and recyclable. If you add finishes such as UV varnish or foil, their environmental profile may change depending on the option chosen.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">What standard sizes are recommended for packing clothing?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Our Custom Mailer Boxes can be tailored to fashion brands, creating packaging that reflects your style and elevates the customer's unboxing experience. For bulkier garments like hoodies, trousers or jackets, we recommend size F79 (36.4 × 31.4 × 12.5 cm); for smaller items, size F71 (35 × 26 × 10 cm) works well. It's always worth measuring your products first, and ordering a sample pack if you're unsure about sizing.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">What standard sizes are recommended for packing shoes?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Size F79 (36.4 × 31.4 × 12.5 cm) was designed with fashion brands in mind and works well for standard footwear. We always recommend measuring your products before packing — especially men's or tall boots — to make sure the size fits. For extra confidence, order our sample pack and check the dimensions yourself.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Does the print technique change depending on order size?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — the print technique is matched to order size and design to keep production efficient. For smaller runs of white print on kraft material, we use UV printing; for larger volumes, we switch to flexographic printing. The main difference is colour saturation — UV printing delivers intense white and high saturation, while flexography gives softer, more muted tones, especially on natural brown cardboard.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EDITOR SECTION (exact statement-section from index.html) ============ -->
+  <section class="statement-section reveal">
+    <p class="statement">The world's easiest way to design<span class="deco-square" style="--deco-img:url('assets/main-segment/packaging/packaging-boxes.avif')"></span>custom packaging. Paper, size<span class="deco-square" style="--deco-img:url('assets/custom-packaging/ecommerce/ecommerce-bags.avif')"></span>brand colour, your logo, a live 3D preview. Everything you need to go from a blank box<span class="deco-square" style="--deco-img:url('assets/custom-packaging/food/food-pouches.jpg')"></span>to a shelf-ready package, in one editor.</p>
+
+    <a href="build-your-box.html" class="btn-pill lg" style="margin-top: 2rem;">Open the editor<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+
+    <div class="statement-grid reveal">
+      <div class="statement-row">
+        <div class="statement-tile statement-tile-a">
+          <div class="statement-tile-text">
+            <h3 class="statement-tile-title">Your branding</h3>
+            <p class="statement-tile-desc">Customize colours, patterns and shapes</p>
+          </div>
+          <div class="statement-tile-media">
+            <img class="statement-tile-image" src="assets/editor/blur.png?v=2" alt="">
+            <div class="statement-tile-image-branding-wrap">
+              <img src="assets/editor/branding-1.png?v=2" alt="">
+            </div>
+            <img class="statement-tile-image-brand2" src="assets/editor/branding-2.png" alt="">
+          </div>
+        </div>
+        <div class="statement-tile statement-tile-b">
+          <div class="statement-tile-text">
+            <h3 class="statement-tile-title">Custom sizing</h3>
+            <p class="statement-tile-desc">Resize and reshape to your individual needs</p>
+          </div>
+          <div class="statement-tile-media">
+            <div class="statement-tile-image-custom-wrap">
+              <img src="assets/editor/custom1.png" alt="">
+            </div>
+            <div class="statement-tile-custom-overlay" style="transition-delay: 0.2s">
+              <img src="assets/editor/custom0.png" alt="Height 12 cm, Length 9 cm, Width 17 cm">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="statement-row statement-row-reverse">
+        <div class="statement-tile statement-tile-c">
+          <div class="statement-tile-text">
+            <h3 class="statement-tile-title">Material variety</h3>
+            <p class="statement-tile-desc">Choose from hundreds of variants of corrugated, cardstock and rigid packaging</p>
+          </div>
+          <div class="statement-tile-media">
+            <img class="statement-tile-image-material" src="assets/editor/material.png" alt="">
+          </div>
+        </div>
+        <div class="statement-tile statement-tile-d">
+          <div class="statement-tile-text">
+            <h3 class="statement-tile-title">Live 3D preview</h3>
+            <p class="statement-tile-desc">See packaging appear in real time in 3D</p>
+          </div>
+          <div class="statement-tile-media">
+            <video class="statement-tile-live3d-video" src="assets/editor/box-rotation.mp4" autoplay muted loop playsinline></video>
+            <img class="statement-tile-live3d-overlay-left" src="assets/editor/editor-live-preview-2.png" alt="">
+            <img class="statement-tile-live3d-overlay" src="assets/editor/editor-live-preview-1.png" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CROSS-SELL CAROUSELS ============ -->
+  <section class="pdp-carousel-section reveal">
+    <h2 class="pdp-carousel-heading">See alternatives</h2>
+    <div class="scroll-carousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+      <div class="product-grid product-carousel-track">
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">30 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Plain Mailer Box</h3>
+          <p class="product-card-customisation">Plain · Eco choice 🌱</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">120 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Mailer Box with Hot Stamping</h3>
+          <p class="product-card-customisation">Custom · New</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">100 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Classic Poly Mailer</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">30 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Sleeved Mailer Box</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">30 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Expandable Kraft Mailer</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">100 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Bio Poly Mailer</h3>
+          <p class="product-card-customisation">Custom · Eco choice 🌱</p>
+        </div>
+      </div>
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <section class="pdp-carousel-section reveal">
+    <h2 class="pdp-carousel-heading">New products</h2>
+    <div class="scroll-carousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+      <div class="product-grid product-carousel-track">
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">5 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Custom Unisex Heavyweight Cotton T-Shirt</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">5 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Custom Recycled Stainless Steel Double Wall Bottle 500ml</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">5 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Custom Unisex Cotton Hoodie</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">30 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Custom A5 Notebook With Hard Cover</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">30 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Custom 6-Panel Washed Cotton Baseball Cap</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">5 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Custom Wireless Powerbank 8000mAh 15W</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+      </div>
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <section class="pdp-carousel-section reveal">
+    <h2 class="pdp-carousel-heading">Others also bought</h2>
+    <div class="scroll-carousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+      <div class="product-grid product-carousel-track">
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">240 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Inlays for Mailer Box</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">1 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Shredded Paper Filler</h3>
+          <p class="product-card-customisation">Plain</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">30 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Tissue Paper</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">36 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Kraft Tape</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">250 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Labels</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+        <div class="product-card">
+          <div class="product-card-media ph-media"><span class="product-card-moq">30 minimum</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><a href="#" class="btn-pill sm product-card-btn">More info</a></div>
+          <h3 class="product-card-name">Thank You Card</h3>
+          <p class="product-card-customisation">Custom</p>
+        </div>
+      </div>
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============ SHOWCASE GALLERY ============ -->
+  <section class="pdp-showcase-section reveal">
+    <span class="section-badge">Inspiration</span>
+    <h2 class="pdp-showcase-heading">Design. Impress. Deliver.</h2>
+    <div class="scroll-carousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+      <div class="pdp-showcase-grid">
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>Bold, playful prints that make your packaging unforgettable</p>
+        </div>
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>Surprise customers with uplifting messages inside every box</p>
+        </div>
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>A plain exterior with a surprise inside</p>
+        </div>
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>Nature-inspired prints that tell your brand's story at first glance</p>
+        </div>
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>Bright, creative boxes that spark curiosity and joy</p>
+        </div>
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>Full of energy, joyful packaging that makes customers smile</p>
+        </div>
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>Sleek monochrome design for a timeless, stylish look</p>
+        </div>
+        <div class="pdp-showcase-item">
+          <div class="ph-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <p>Elegant packaging that inspires confidence from the first look</p>
+        </div>
+      </div>
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ FINAL BANNER ============ -->
+  <section class="pdp-final-banner reveal">
+    <h2 class="pdp-final-banner-heading">You've just found your last packaging partner</h2>
+    <a href="index.html" class="btn-pill lg pdp-final-banner-btn">Join our community of packaging lovers<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="contact.html">Contact us</a></li>
+              <li><a href="get-a-quote.html">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2026</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var navRow1 = document.querySelector('.nav-row1');
+    var stickyBar = document.getElementById('stickyBar');
+    if (!navRow1 || !stickyBar) return;
+
+    function onScroll() {
+      var rect = navRow1.getBoundingClientRect();
+      var pinned = rect.bottom <= 0;
+      stickyBar.classList.toggle('is-pinned', pinned);
+
+      var minTop = 12;
+      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+
+  (function () {
+    var faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(function (item) {
+      item.querySelector('.faq-question').addEventListener('click', function () {
+        item.classList.toggle('open');
+      });
+    });
+  })();
+
+  (function () {
+    var tabs = document.querySelectorAll('.pdp-tab');
+    var panels = document.querySelectorAll('.pdp-tab-panel');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        var target = tab.getAttribute('data-tab');
+        panels.forEach(function (panel) {
+          panel.hidden = panel.id !== 'pdp-tab-' + target;
+        });
+      });
+    });
+  })();
+
+  (function () {
+    var btn = document.querySelector('.pdp-spec-show-more');
+    if (!btn) { return; }
+    var panel = btn.closest('.pdp-tab-panel');
+    btn.addEventListener('click', function () {
+      var expanded = panel.classList.toggle('is-expanded');
+      btn.firstChild.textContent = expanded ? btn.getAttribute('data-label-less') : btn.getAttribute('data-label-more');
+    });
+  })();
+
+  (function () {
+    function initSelectableGroup(selector) {
+      document.querySelectorAll(selector).forEach(function (group) {
+        var cards = group.querySelectorAll(':scope > button');
+        cards.forEach(function (card) {
+          card.addEventListener('click', function () {
+            cards.forEach(function (c) { c.classList.remove('active'); });
+            card.classList.add('active');
+          });
+        });
+      });
+    }
+
+    initSelectableGroup('.material-card-grid');
+    initSelectableGroup('.pdp-pill-group');
+    initSelectableGroup('.box-type-grid');
+
+    var materialGroup = document.getElementById('materialColourGroup');
+    var materialValue = document.getElementById('materialColourValue');
+    if (materialGroup && materialValue) {
+      materialGroup.addEventListener('click', function (e) {
+        var card = e.target.closest('.material-card');
+        if (!card) return;
+        materialValue.textContent = '— ' + card.getAttribute('data-value');
+      });
+    }
+  })();
+
+  (function () {
+    var carousels = document.querySelectorAll('.scroll-carousel');
+
+    Array.prototype.forEach.call(carousels, function (carousel) {
+      var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
+      var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
+      var track = null;
+
+      for (var i = 0; i < carousel.children.length; i++) {
+        var child = carousel.children[i];
+        if (child !== prevBtn && child !== nextBtn && !child.classList.contains('scroll-fade')) {
+          track = child;
+          break;
+        }
+      }
+
+      if (!prevBtn || !nextBtn || !track) { return; }
+
+      function updateNavState() {
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        prevBtn.disabled = track.scrollLeft <= 0;
+        nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+      }
+
+      function checkOverflow() {
+        var overflowing = track.scrollWidth > track.clientWidth + 1;
+        carousel.classList.toggle('has-overflow', overflowing);
+        updateNavState();
+      }
+
+      prevBtn.addEventListener('click', function () {
+        track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      nextBtn.addEventListener('click', function () {
+        track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      track.addEventListener('scroll', updateNavState);
+      window.addEventListener('resize', checkOverflow);
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(checkOverflow).observe(track);
+      } else {
+        checkOverflow();
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

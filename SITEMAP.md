@@ -30,6 +30,7 @@ konsoliduje/upraszcza).
 | `industries.html` | `/packaging/?industry=X` (filtr, nie osobna strona) | **New concept**, patrz sekcja 3 |
 | `press.html` | `/press/` | Press kit, wzmianki medialne wg lat, fakty firmowe (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
 | `impressum.html` | `/impressum/` | Dane firmy, adres, kontakt, godziny pracy — proste karty label/value, bez zdjęć (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
+| `custom-mailer-box.html` | `/p/custom-mailer-box/custom/` | Pierwsza strona produktowa (PDP) w repo — hero z opcjami (material-card swatches, print/production pills, quantity ladder z build-your-box.html), specyfikacja, rich description, showcase gallery, FAQ (8 realnych pytań), cross-sell. Copy wyciągnięte z żywego `packhelp.com/en-us/p/custom-mailer-box/custom/` (przez jina.ai reader — packhelp.co.uk geo-redirectuje na PL mirror przy zapytaniach z tej sieci) + PL JSON (`zapakuj.to`, ProductPageApp astro-island props) przetłumaczony dla brakujących sekcji (FAQ, rich description). Wszystkie zdjęcia to `.ph-media` placeholdery na wyraźną prośbę użytkownika, mimo że realne CDN URL-e były dostępne. CTA-y kierują do `build-your-box.html` (konfigurator) zamiast duplikować jego logikę (zbudowane 2026-08-03). |
 
 ## 2. Planned — realne strony/sekcje z packhelp.co.uk, jeszcze nie zbudowane
 
@@ -100,6 +101,21 @@ podanym URL zamiast wymyślać od zera.
   Marketing & PR, Retail). Redesign konsoliduje to w dedykowany hub — przy
   rozbudowie tej strony trzymaj się tej listy branż jako źródła prawdy dla
   nazw/kolejności.
+- **`q4-packaging.html`** — kampanijny landing page "lock in Q4/Black
+  Friday–Christmas packaging now", zbudowany na bazie zewnętrznego
+  mobile-first wireframe (Claude artifact) dostarczonego przez użytkownika,
+  przełożony na nasz design system. Nie ma odpowiednika na packhelp.co.uk —
+  jednorazowy brief/lead-gen flow, nie katalogowa podstrona. Nawigacja:
+  wariant uproszczony (`#ph-nav-simple`), bez breadcrumb, bez pełnej
+  `.site-footer` (własna, lekka stopka logo+tagline+godziny+CTA, ten sam
+  wzorzec co `get-a-quote.html`/`build-your-box.html` dla stron
+  zadaniowych). Jedyna ciemna sekcja na stronie to case study Lovato
+  Candles (pkt 2.1 guideline — "dokładnie jedna sekcja z ciemnym tłem");
+  oryginalny wireframe miał też nasyconą niebieską kartę-callout w sekcji
+  ryzyka, przełożoną na jasny `--color-bg-accent-subtle`, żeby nie złamać
+  tej zasady. Layout celowo wąski (`max-width: 720px`) nawet na desktopie —
+  strona zoptymalizowana pod mobile (95% ruchu wg brief), nie pod pełną
+  szerokość 1280px.
 
 ## 4. Jak z tego korzystać przy nowym prompcie
 
