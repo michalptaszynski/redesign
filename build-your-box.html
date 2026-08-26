@@ -311,37 +311,6 @@
   .b3d-top    { top: 50%; left: 50%; width: var(--w); height: var(--d); margin: calc(var(--d) / -2) 0 0 calc(var(--w) / -2); transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); filter: brightness(1.18); transition: opacity .15s ease; }
   .b3d-bottom { top: 50%; left: 50%; width: var(--w); height: var(--d); margin: calc(var(--d) / -2) 0 0 calc(var(--w) / -2); transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); filter: brightness(.68); }
 
-  /* "Size of my product" mode: the W/L/H inputs become the *product* (inner) box, and the outer
-     (external) box auto-grows to product + a buffer added on every side. The inner box is a plain
-     gray cuboid — same 6-face geometry as the outer body, just built from --iw/--ih/--id instead of
-     --w/--h/--d, sharing the same center so it always sits correctly nested inside the outer box
-     regardless of proportions. Both custom-prop sets are computed together in updateSize() (JS). */
-  .b3d-inner-body { display: none; }
-  #box3dModel.product-size-mode .b3d-inner-body { display: block; }
-
-  .b3d-inner-face {
-    position: absolute;
-    box-sizing: border-box;
-    border: 1px solid rgba(0,0,0,.15);
-    background: #9A9A9A;
-  }
-  .b3d-inner-front  { top: 50%; left: 50%; width: var(--iw); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--iw) / -2); transform: translateZ(calc(var(--id) / 2)); filter: brightness(1.12); }
-  .b3d-inner-back   { top: 50%; left: 50%; width: var(--iw); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--iw) / -2); transform: rotateY(180deg) translateZ(calc(var(--id) / 2)); filter: brightness(.82); }
-  .b3d-inner-right  { top: 50%; left: 50%; width: var(--id); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--id) / -2); transform: rotateY(90deg) translateZ(calc(var(--iw) / 2)); filter: brightness(.94); }
-  .b3d-inner-left   { top: 50%; left: 50%; width: var(--id); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--id) / -2); transform: rotateY(-90deg) translateZ(calc(var(--iw) / 2)); filter: brightness(.74); }
-  .b3d-inner-top    { top: 50%; left: 50%; width: var(--iw); height: var(--id); margin: calc(var(--id) / -2) 0 0 calc(var(--iw) / -2); transform: rotateX(90deg) translateZ(calc(var(--ih) / 2)); filter: brightness(1.22); }
-  .b3d-inner-bottom { top: 50%; left: 50%; width: var(--iw); height: var(--id); margin: calc(var(--id) / -2) 0 0 calc(var(--iw) / -2); transform: rotateX(-90deg) translateZ(calc(var(--ih) / 2)); filter: brightness(.68); }
-
-  /* the outer (external) walls go translucent in this mode so the inner product box shows through */
-  #box3dModel.product-size-mode .b3d-front,
-  #box3dModel.product-size-mode .b3d-back,
-  #box3dModel.product-size-mode .b3d-left,
-  #box3dModel.product-size-mode .b3d-right,
-  #box3dModel.product-size-mode .b3d-top,
-  #box3dModel.product-size-mode .b3d-bottom {
-    opacity: .32;
-  }
-
   #box3dModel[data-construction="gable"] .b3d-top { display: none; }
   /* the 4 flaps below exist only to animate the open state; while closed, the flat .b3d-top above is
      what's actually shown (see the .b3d-flap-hinge opacity rule) */
@@ -1068,45 +1037,179 @@
   /* .dimension-grid/.dimension-field/.dimension-input-wrap/.dimension-input/.dimension-unit
      now live in components.css — shared with packaging.html's quick-box banner */
 
-  .dimension-buffer-note {
-    max-height: 0;
-    margin-top: 0;
-    padding: 0 var(--space-4);
-    border-radius: 12px;
-    background: var(--color-bg-notice);
-    opacity: 0;
+  /* ---------- Dimensions: preset-size select, alternate to the 3-input custom grid above.
+     Which one shows is driven by the "Custom Size"/"Standard Size" segment at the top of the
+     Dimensions step (#sizeToggleSwitch) toggling this body class. */
+  .dimension-preset-wrap { display: none; position: relative; }
+
+  body.dims-preset-mode .dimension-grid { display: none; }
+  body.dims-preset-mode .dimension-preset-wrap { display: block; }
+
+  /* same bordered-field look as .dimension-input-wrap (48px, radius-sm, focus ring); a <button>
+     standing in for a native select, since choosing a preset opens the right-side drawer below
+     instead of a native dropdown */
+  .dimension-preset-select {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 40px 0 var(--space-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    font: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .dimension-preset-select.placeholder { color: var(--color-text-muted); }
+
+  .dimension-preset-select:hover { border-color: var(--color-border-hover); }
+
+  .dimension-preset-select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .dimension-preset-chevron {
+    position: absolute;
+    top: 50%;
+    right: var(--space-4);
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  /* ---------- Dimensions preset panel: swaps in for the *whole right-hand config column* while
+     picking a standard size, instead of a modal drawer overlaying the page — so the left 3D
+     preview stays fully visible/interactive the whole time. #dimensionPresetTrigger's click
+     toggles .showing-size-panel on .build-box-config-col, which hides every other direct child
+     (all the .build-box-step sections plus the checkout card) and reveals this panel instead — it
+     lives as a sibling directly under .build-box-config-col (not nested in #stepSize), since
+     #stepSize itself gets hidden too.
+     Positioned `fixed` (top/left/width/height set as inline styles by the JS below, mirroring
+     .build-box-visual's own current box exactly) rather than `sticky`, and deliberately without
+     scrolling the page on open: sticky's position depends on where the (now-collapsed, since every
+     other step just got hidden) column happens to sit relative to the current scroll offset, which
+     can leave part of the panel — including the "Save & close" footer — outside the viewport. A
+     scroll-independent `fixed` box side-steps that entirely, so the footer stays visible no matter
+     where the page was scrolled when the panel opened. */
+  .dimension-preset-panel {
+    display: none;
+    position: fixed;
+    z-index: 5;
+    flex-direction: column;
+    box-sizing: border-box;
+    background: var(--color-bg-surface);
+    border-radius: var(--radius-2xl);
     overflow: hidden;
-    transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s ease, margin-top .4s cubic-bezier(.4,0,.2,1), padding-top .4s cubic-bezier(.4,0,.2,1), padding-bottom .4s cubic-bezier(.4,0,.2,1);
   }
 
-  .dimension-buffer-note.visible {
-    max-height: 220px;
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    padding-bottom: var(--space-4);
-    opacity: 1;
-    transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s ease .1s, margin-top .4s cubic-bezier(.4,0,.2,1), padding-top .4s cubic-bezier(.4,0,.2,1), padding-bottom .4s cubic-bezier(.4,0,.2,1);
-  }
+  .build-box-config-col.showing-size-panel > *:not(.dimension-preset-panel) { display: none; }
+  .build-box-config-col.showing-size-panel .dimension-preset-panel { display: flex; }
 
-  .dimension-buffer-text {
-    margin: 0 0 var(--space-3);
-    font-size: 13px;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-primary);
-  }
-
-  .dimension-buffer-control {
+  .dimension-preset-panel-header {
     display: flex;
+    flex: none;
     align-items: center;
-    gap: var(--space-2);
+    padding: var(--space-6) var(--space-6) 0;
   }
 
-  .dimension-buffer-label {
-    font-size: 13px;
+  .dimension-preset-panel-title {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    font-weight: 450;
+    color: var(--color-text-primary);
+  }
+
+  .dimension-preset-panel-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-6);
+    /* extra bottom clearance so the last rows scroll fully clear of the fixed
+       .dimension-preset-panel-footer bar overlaid on top of this list, same as the page's own
+       .build-box-checkout-card scrolling underneath .build-box-sticky-summary */
+    padding-bottom: var(--space-20);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .dimension-preset-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  }
+
+  .dimension-preset-option:hover { background: var(--color-bg-muted-hover); }
+
+  .dimension-preset-option.selected {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
+  .dimension-preset-option-label {
+    font-size: 0.9375rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-primary);
+  }
+
+  .dimension-preset-option-inside {
+    display: none;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .dimension-preset-option.selected .dimension-preset-option-inside { display: block; }
+
+  /* same fixed bottom-bar recipe as .build-box-sticky-summary (position/left/width set inline by
+     the JS below, mirrored from the same .build-box-config-col rect the panel itself uses) — so
+     "Save & close" sits on that identical field, and the list above scrolls underneath it rather
+     than being pushed up by an in-flow footer row. */
+  .dimension-preset-panel-footer {
+    position: fixed;
+    bottom: 0;
+    z-index: 60;
+    box-sizing: border-box;
+    display: flex;
+    padding: var(--space-4) var(--space-6);
+    background: rgba(255, 255, 255, 0.80);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .dimension-preset-panel-footer .btn-pill {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
   }
 
   .build-box-zoom.sm {
@@ -1618,6 +1721,10 @@
     .build-box-step { min-height: 0; padding: var(--space-8) var(--space-2); }
     .build-box-config-col { gap: var(--space-7); }
     .build-box-dots { display: none; }
+    /* full-screen takeover on mobile (no side-by-side preview to protect at this width) —
+       !important since the JS below sets top/left/width/height as inline styles */
+    .dimension-preset-panel { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: auto !important; height: auto !important; border-radius: 0; }
+    .dimension-preset-panel-footer { left: 0 !important; right: 0 !important; width: auto !important; border-radius: 0; }
   }
 </style>
 </head>
@@ -1733,14 +1840,6 @@
               <div class="b3d-roof-end b3d-roof-end-left"></div>
               <div class="b3d-roof-end b3d-roof-end-right"></div>
             </div>
-            <div class="b3d-group b3d-inner-body">
-              <div class="b3d-inner-face b3d-inner-front"></div>
-              <div class="b3d-inner-face b3d-inner-back"></div>
-              <div class="b3d-inner-face b3d-inner-left"></div>
-              <div class="b3d-inner-face b3d-inner-right"></div>
-              <div class="b3d-inner-face b3d-inner-top"></div>
-              <div class="b3d-inner-face b3d-inner-bottom"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -1855,11 +1954,11 @@
         </button>
         <div class="build-box-step-content">
         <h3 class="build-box-field-label">Dimensions</h3>
-        <p class="build-box-field-desc">Enter external size or your product's size — we'll calculate the rest</p>
+        <p class="build-box-field-desc">Enter a custom size, or pick from our standard box sizes</p>
         <div class="toggle-switch" id="sizeToggleSwitch">
           <div class="toggle-indicator" id="sizeToggleIndicator"></div>
-          <button class="toggle-option active">External size</button>
-          <button class="toggle-option">Size of my product</button>
+          <button class="toggle-option active" data-value="custom">Custom Size</button>
+          <button class="toggle-option" data-value="standard">Standard Size</button>
         </div>
         <div class="dimension-grid">
           <label class="dimension-field">
@@ -1876,16 +1975,14 @@
           </label>
         </div>
 
-        <div class="dimension-buffer-note" id="dimensionBufferNote">
-          <p class="dimension-buffer-text">We automatically add a <span id="bufferMmText">5</span> mm buffer on all sides to ensure your product fits. External size of the box: W <span id="extW">8.5</span> cm x L <span id="extL">8.5</span> cm x h <span id="extH">12.5</span> cm</p>
-          <div class="dimension-buffer-control">
-            <span class="dimension-buffer-label">Buffer size:</span>
-            <div class="build-box-zoom sm" id="bufferStepper">
-              <button class="icon-btn" id="bufferMinus" aria-label="Decrease buffer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
-              <span id="bufferValue">5 mm</span>
-              <button class="icon-btn" id="bufferPlus" aria-label="Increase buffer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-            </div>
-          </div>
+        <!-- alt to the grid above: a trigger for the preset-size panel (#dimensionPresetPanel, a
+             sibling of every .build-box-step at the end of .build-box-config-col), shown instead
+             when "Standard Size" is active -->
+        <div class="dimension-preset-wrap" id="dimensionPresetWrap">
+          <button type="button" class="dimension-preset-select placeholder" id="dimensionPresetTrigger">
+            <span id="dimensionPresetTriggerLabel">Choose a size…</span>
+          </button>
+          <svg class="dimension-preset-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </div>
         </div>
       </section>
@@ -2211,6 +2308,116 @@
           <button class="btn-pill lg muted">Skip design for now</button>
         </div>
       </div>
+
+      <!-- Preset-size panel: a sibling of the .build-box-step sections above (not nested inside
+           #stepSize, which gets hidden along with everything else while this is open — see the
+           .showing-size-panel CSS rule). Opened by #dimensionPresetTrigger inside #stepSize. -->
+      <div class="dimension-preset-panel" id="dimensionPresetPanel">
+        <div class="dimension-preset-panel-header">
+          <h2 class="dimension-preset-panel-title">Size</h2>
+        </div>
+        <div class="dimension-preset-panel-list" id="dimensionPresetList">
+          <button type="button" class="dimension-preset-option" data-code="P15" data-w="3" data-l="3" data-h="9">
+            <span class="dimension-preset-option-label">P15 (3 cm x 3 cm x 9 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P15i" data-w="5" data-l="5" data-h="5">
+            <span class="dimension-preset-option-label">P15i (5 cm x 5 cm x 5 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P18" data-w="3.5" data-l="3.5" data-h="11">
+            <span class="dimension-preset-option-label">P18 (3.5 cm x 3.5 cm x 11 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P18i" data-w="6" data-l="6" data-h="6">
+            <span class="dimension-preset-option-label">P18i (6 cm x 6 cm x 6 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P18ii" data-w="7" data-l="3" data-h="8">
+            <span class="dimension-preset-option-label">P18ii (7 cm x 3 cm x 8 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P20" data-w="5" data-l="5" data-h="10">
+            <span class="dimension-preset-option-label">P20 (5 cm x 5 cm x 10 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P21" data-w="4" data-l="4" data-h="13">
+            <span class="dimension-preset-option-label">P21 (4 cm x 4 cm x 13 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P21i" data-w="7" data-l="7" data-h="7">
+            <span class="dimension-preset-option-label">P21i (7 cm x 7 cm x 7 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P24" data-w="7" data-l="5" data-h="12">
+            <span class="dimension-preset-option-label">P24 (7 cm x 5 cm x 12 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P24i" data-w="4" data-l="4" data-h="16">
+            <span class="dimension-preset-option-label">P24i (4 cm x 4 cm x 16 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P24ii" data-w="5" data-l="5" data-h="14">
+            <span class="dimension-preset-option-label">P24ii (5 cm x 5 cm x 14 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P24iii" data-w="8" data-l="8" data-h="8">
+            <span class="dimension-preset-option-label">P24iii (8 cm x 8 cm x 8 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P25" data-w="7" data-l="7" data-h="11">
+            <span class="dimension-preset-option-label">P25 (7 cm x 7 cm x 11 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P26" data-w="8" data-l="8" data-h="10">
+            <span class="dimension-preset-option-label">P26 (8 cm x 8 cm x 10 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P28i" data-w="6" data-l="6" data-h="16">
+            <span class="dimension-preset-option-label">P28i (6 cm x 6 cm x 16 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P29" data-w="9" data-l="6" data-h="14">
+            <span class="dimension-preset-option-label">P29 (9 cm x 6 cm x 14 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P30" data-w="10" data-l="10" data-h="10">
+            <span class="dimension-preset-option-label">P30 (10 cm x 10 cm x 10 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P34" data-w="18" data-l="8" data-h="8">
+            <span class="dimension-preset-option-label">P34 (18 cm x 8 cm x 8 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P35" data-w="10" data-l="10" data-h="15">
+            <span class="dimension-preset-option-label">P35 (10 cm x 10 cm x 15 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P36" data-w="12" data-l="12" data-h="12">
+            <span class="dimension-preset-option-label">P36 (12 cm x 12 cm x 12 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P39" data-w="13" data-l="13" data-h="13">
+            <span class="dimension-preset-option-label">P39 (13 cm x 13 cm x 13 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P40i" data-w="10" data-l="10" data-h="20">
+            <span class="dimension-preset-option-label">P40i (10 cm x 10 cm x 20 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P43" data-w="18" data-l="3" data-h="22">
+            <span class="dimension-preset-option-label">P43 (18 cm x 3 cm x 22 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-code="P45i" data-w="15" data-l="15" data-h="15">
+            <span class="dimension-preset-option-label">P45i (15 cm x 15 cm x 15 cm)</span>
+            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
+          </button>
+        </div>
+        <div class="dimension-preset-panel-footer">
+          <button type="button" class="btn-pill lg" id="dimensionPresetSave">Save &amp; close</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2274,73 +2481,27 @@
     });
   })();
 
+  // "Custom Size" / "Standard Size" segment at the top of the Dimensions step: which one's active
+  // drives the dims-preset-mode body class (see CSS), swapping the 3-input grid for the preset-size
+  // drawer trigger below it — same body-class-toggle pattern packaging.html uses for its own
+  // gear-panel-driven variants, just triggered from this step's own primary control instead.
   (function () {
     var sizeToggle = document.getElementById('sizeToggleSwitch');
-    var note = document.getElementById('dimensionBufferNote');
-    var widthInput = document.getElementById('dimWidth');
-    var lengthInput = document.getElementById('dimLength');
-    var heightInput = document.getElementById('dimHeight');
-    var bufferValueEl = document.getElementById('bufferValue');
-    var bufferMmText = document.getElementById('bufferMmText');
-    var extW = document.getElementById('extW');
-    var extL = document.getElementById('extL');
-    var extH = document.getElementById('extH');
-    var bufferMinus = document.getElementById('bufferMinus');
-    var bufferPlus = document.getElementById('bufferPlus');
-    if (!sizeToggle || !note || !widthInput || !lengthInput || !heightInput || !bufferMinus || !bufferPlus) { return; }
+    if (!sizeToggle) { return; }
 
-    var bufferMm = 5;
-
-    function isProductSize() {
+    function isStandardSize() {
       var options = sizeToggle.querySelectorAll('.toggle-option');
       return !!(options[1] && options[1].classList.contains('active'));
     }
 
-    // Tells the box3d IIFE (a separate script block) whether the inputs are currently product size
-    // or external size, and the current buffer — same decoupled-via-custom-event pattern as zoom.
-    function dispatchProductSize() {
-      document.dispatchEvent(new CustomEvent('box3d:productsize', {
-        detail: { active: isProductSize(), bufferCm: bufferMm / 10 }
-      }));
-    }
-
-    function recalc() {
-      // buffer is added on *every* side, so each dimension grows by 2x the buffer, not 1x
-      var bufferCm2 = (bufferMm / 10) * 2;
-      var w = parseFloat(widthInput.value) || 0;
-      var l = parseFloat(lengthInput.value) || 0;
-      var h = parseFloat(heightInput.value) || 0;
-      extW.textContent = (w + bufferCm2).toFixed(1);
-      extL.textContent = (l + bufferCm2).toFixed(1);
-      extH.textContent = (h + bufferCm2).toFixed(1);
-      bufferValueEl.textContent = bufferMm + ' mm';
-      bufferMmText.textContent = bufferMm;
-      dispatchProductSize();
-    }
-
     function updateVisibility() {
-      note.classList.toggle('visible', isProductSize());
-      dispatchProductSize();
+      document.body.classList.toggle('dims-preset-mode', isStandardSize());
     }
 
     sizeToggle.querySelectorAll('.toggle-option').forEach(function (opt) {
       opt.addEventListener('click', updateVisibility);
     });
 
-    [widthInput, lengthInput, heightInput].forEach(function (input) {
-      input.addEventListener('input', recalc);
-    });
-
-    bufferMinus.addEventListener('click', function () {
-      bufferMm = Math.max(0, bufferMm - 1);
-      recalc();
-    });
-    bufferPlus.addEventListener('click', function () {
-      bufferMm = Math.min(20, bufferMm + 1);
-      recalc();
-    });
-
-    recalc();
     updateVisibility();
   })();
 
@@ -2642,23 +2803,12 @@
     var dragging = false;
     var lastX, lastY;
     var zoomPct = 100;
-    var productSizeMode = false;
-    var bufferCm = 0.5;
 
     // The zoom toolbar control lives in its own IIFE (it's shared UI, not box-3d-specific state) and
     // reaches this one via a custom event rather than a direct function reference, so the two stay
     // decoupled regardless of script order.
     document.addEventListener('box3d:zoom', function (e) {
       zoomPct = e.detail.pct;
-      updateSize();
-    });
-
-    // Same decoupling pattern for the "External size"/"Size of my product" toggle + Buffer size
-    // stepper, which live in the size-toggle IIFE further down the page.
-    document.addEventListener('box3d:productsize', function (e) {
-      productSizeMode = e.detail.active;
-      bufferCm = e.detail.bufferCm;
-      model.classList.toggle('product-size-mode', productSizeMode);
       updateSize();
     });
 
@@ -2787,27 +2937,14 @@
       var l = parseFloat(lengthInput.value) || 1;
       var h = parseFloat(heightInput.value) || 1;
 
-      // In "Size of my product" mode the inputs are the *product* (inner box); the real/external
-      // box is the product plus a buffer added on every side (2x per dimension: once on each side).
-      var outerW = w, outerL = l, outerH = h;
-      if (productSizeMode) {
-        outerW = w + bufferCm * 2;
-        outerL = l + bufferCm * 2;
-        outerH = h + bufferCm * 2;
-      }
-
-      var scale = (FIT / Math.max(outerW, outerL, outerH)) * (zoomPct / 100);
-      wPx = outerW * scale;
-      dPx = outerL * scale;
-      hPx = outerH * scale;
+      var scale = (FIT / Math.max(w, l, h)) * (zoomPct / 100);
+      wPx = w * scale;
+      dPx = l * scale;
+      hPx = h * scale;
 
       stage.style.setProperty('--w', wPx + 'px');
       stage.style.setProperty('--d', dPx + 'px');
       stage.style.setProperty('--h', hPx + 'px');
-
-      stage.style.setProperty('--iw', (w * scale) + 'px');
-      stage.style.setProperty('--id', (l * scale) + 'px');
-      stage.style.setProperty('--ih', (h * scale) + 'px');
 
       var rise = wPx * ROOF_RISE_RATIO;
       var halfD = dPx / 2;
@@ -3137,6 +3274,118 @@
 
     compactToggle.addEventListener('change', function () {
       document.body.classList.toggle('compact-mode', compactToggle.checked);
+    });
+  })();
+
+  // Preset-size panel: the trigger button (shown in "Standard Size" mode — see the
+  // sizeToggleSwitch IIFE above) swaps out the whole .build-box-config-col for #dimensionPresetPanel
+  // (via the .showing-size-panel class), listing every P-code, no "Custom size" row — instead of a
+  // modal drawer, so the left 3D preview never gets covered. Picking a row drives the same
+  // dimWidth/dimLength/dimHeight inputs the custom grid uses, replaying a real `input` event on
+  // each — same trick as the ?width=&length=&height= prefill below — so the 3D preview and
+  // accordion header both pick it up for free. The picked row also shows its own "Inside"
+  // (product) size, computed from a fixed 5mm-per-side buffer (BUFFER_CM below).
+  (function () {
+    var configCol = document.querySelector('.build-box-config-col');
+    var visual = document.querySelector('.build-box-visual');
+    var trigger = document.getElementById('dimensionPresetTrigger');
+    var triggerLabel = document.getElementById('dimensionPresetTriggerLabel');
+    var panel = document.getElementById('dimensionPresetPanel');
+    var footer = document.querySelector('.dimension-preset-panel-footer');
+    var saveBtn = document.getElementById('dimensionPresetSave');
+    var optionEls = Array.prototype.slice.call(document.querySelectorAll('.dimension-preset-option'));
+    var widthInput = document.getElementById('dimWidth');
+    var lengthInput = document.getElementById('dimLength');
+    var heightInput = document.getElementById('dimHeight');
+    if (!configCol || !visual || !trigger || !panel || !footer || !widthInput || !lengthInput || !heightInput || !optionEls.length) { return; }
+
+    // The panel is `position: fixed`, so it needs its box set explicitly — mirror
+    // .build-box-visual's current box (same left/width via .build-box-config-col's own rect, same
+    // top/bottom via .build-box-visual's), so it lines up as a matching right-hand column and —
+    // being `fixed`, not `sticky` — never depends on scroll position at all, which is what keeps
+    // the "Save & close" footer guaranteed visible without ever scrolling the page. The top gets
+    // nudged down (bottom stays put) when the site nav's pinned .sticky-bar is currently opaque —
+    // .build-box-visual's own empty top padding hides the same overlap harmlessly, but the panel
+    // has real title text right at its top edge, so it needs to actually dodge the bar.
+    // The footer bar shares the same left/width — same trick .build-box-sticky-summary itself uses
+    // (see the "positionBar" IIFE further down) to line its own fixed bar up with this column.
+    function syncPanelBox() {
+      if (window.innerWidth <= 900) { return; } // mobile CSS takes over with !important
+      var configRect = configCol.getBoundingClientRect();
+      var visualRect = visual.getBoundingClientRect();
+      var top = visualRect.top;
+      var stickyBar = document.getElementById('stickyBar');
+      if (stickyBar && stickyBar.classList.contains('is-pinned')) {
+        top = Math.max(top, stickyBar.getBoundingClientRect().bottom);
+      }
+      panel.style.left = configRect.left + 'px';
+      panel.style.width = configRect.width + 'px';
+      panel.style.top = top + 'px';
+      panel.style.height = (visualRect.bottom - top) + 'px';
+      footer.style.left = configRect.left + 'px';
+      footer.style.width = configRect.width + 'px';
+    }
+
+    var BUFFER_CM = 0.5; // fixed 5mm-per-side buffer used only for the "Inside" preview below
+
+    function formatNum(n) {
+      var rounded = Math.round(n * 10) / 10;
+      return rounded % 1 === 0 ? String(rounded) : String(rounded.toFixed(1));
+    }
+
+    function updateInsideNote(optionEl) {
+      var bufferCm2 = BUFFER_CM * 2;
+      var w = parseFloat(optionEl.getAttribute('data-w'));
+      var l = parseFloat(optionEl.getAttribute('data-l'));
+      var h = parseFloat(optionEl.getAttribute('data-h'));
+      var insideVal = optionEl.querySelector('.dimension-preset-option-inside-value');
+      if (!insideVal) { return; }
+      insideVal.textContent = formatNum(Math.max(0, w - bufferCm2)) + ' x ' + formatNum(Math.max(0, l - bufferCm2)) + ' x ' + formatNum(Math.max(0, h - bufferCm2)) + ' cm';
+    }
+
+    function selectOption(optionEl) {
+      optionEls.forEach(function (el) { el.classList.remove('selected'); });
+      optionEl.classList.add('selected');
+      updateInsideNote(optionEl);
+
+      var code = optionEl.getAttribute('data-code');
+      var w = optionEl.getAttribute('data-w');
+      var l = optionEl.getAttribute('data-l');
+      var h = optionEl.getAttribute('data-h');
+      triggerLabel.textContent = code + ' — ' + w + ' × ' + l + ' × ' + h + ' cm';
+      trigger.classList.remove('placeholder');
+
+      widthInput.value = w;
+      lengthInput.value = l;
+      heightInput.value = h;
+      [widthInput, lengthInput, heightInput].forEach(function (input) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
+
+    optionEls.forEach(function (optionEl) {
+      optionEl.addEventListener('click', function () { selectOption(optionEl); });
+    });
+
+    function openPanel() {
+      configCol.classList.add('showing-size-panel');
+      syncPanelBox();
+      window.addEventListener('scroll', syncPanelBox, { passive: true });
+      window.addEventListener('resize', syncPanelBox);
+      var selected = document.querySelector('.dimension-preset-option.selected');
+      if (selected) { updateInsideNote(selected); }
+    }
+
+    function closePanel() {
+      configCol.classList.remove('showing-size-panel');
+      window.removeEventListener('scroll', syncPanelBox);
+      window.removeEventListener('resize', syncPanelBox);
+    }
+
+    trigger.addEventListener('click', openPanel);
+    if (saveBtn) { saveBtn.addEventListener('click', closePanel); }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && configCol.classList.contains('showing-size-panel')) { closePanel(); }
     });
   })();
 
