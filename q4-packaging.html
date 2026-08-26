@@ -111,6 +111,11 @@
 
   @media (max-width: 900px) {
     .q4-trust-grid { flex-direction: column; align-items: flex-start; }
+    /* flex-basis is direction-relative: 320px meant "min-width" in the row
+       layout, but becomes "min-height" once flex-direction switches to
+       column here — without resetting it, .q4-trust-intro was inflating to
+       a 320px-tall box, shoving .q4-trust-stats far down below it. */
+    .q4-trust-intro { flex-basis: auto; }
     .q4-trust-stats { gap: var(--space-6) var(--space-8); }
   }
 
@@ -183,6 +188,7 @@
     padding: var(--space-16) var(--space-5);
   }
 
+  .q4-luma-badge,
   .q4-luma-h1,
   .q4-luma-subhead,
   .q4-luma-cta {
@@ -191,6 +197,7 @@
     transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  .q4-luma-content.is-visible .q4-luma-badge,
   .q4-luma-content.is-visible .q4-luma-h1,
   .q4-luma-content.is-visible .q4-luma-subhead,
   .q4-luma-content.is-visible .q4-luma-cta {
@@ -198,20 +205,29 @@
     transform: translateY(0);
   }
 
+  .q4-luma-badge { transition-delay: 0ms; }
   .q4-luma-h1 { transition-delay: 60ms; }
   .q4-luma-subhead { transition-delay: 120ms; }
   .q4-luma-cta { transition-delay: 180ms; }
 
+  .q4-luma-badge {
+    margin: 0 0 var(--space-5);
+    max-width: 480px;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
   .q4-luma-h1 {
     margin: 0;
-    font-size: clamp(38px, 5.4vw, 68px);
+    font-size: clamp(25px, 5.4vw, 68px);
     font-weight: 500;
     line-height: 1.05;
     letter-spacing: -0.05em;
     color: var(--color-text-primary);
   }
 
-  .q4-luma-h1 .accent { color: var(--color-text-primary); }
+  .q4-luma-h1 .accent { color: var(--color-text-primary); white-space: nowrap; }
 
   .q4-luma-subhead {
     margin: 20px auto 0;
@@ -273,6 +289,170 @@
     }
   }
 
+  /* ---------- HERO ALT: MARQUEE (toggle-only alternative to .q4-luma-hero) ----------
+     Token mapping used throughout this block (project has no shadcn-style
+     --background/--foreground/--primary/--secondary/--accent/--border/--radius
+     custom properties, so every one of those from the brief maps to the closest
+     existing Packhelp token):
+       --background          -> var(--color-bg-surface)   (white)
+       --foreground           -> var(--color-text-primary) (rich-blue)
+       --muted-foreground     -> var(--color-text-muted)   (gray-500)
+       --accent / --primary   -> var(--color-accent)       (PH blue)
+       --primary-foreground   -> var(--color-text-on-accent) (white)
+       --secondary            -> var(--color-bg-muted)     (gray-100)
+       --secondary-foreground -> var(--color-text-secondary) (gray-600)
+       --border               -> var(--color-border-default) (gray-300)
+       --radius (cards)       -> var(--radius-lg)
+       shadow token            -> the one elevation value already reused
+                                   sitewide for resting card lift
+                                   (.site-settings-btn / hover-lift pattern):
+                                   0 4px 16px rgba(0,0,0,.15)
+     Card gap: brief asked for "~36px" — not on the 4px spacing scale (jumps
+     32 -> 40), so rounded down to the nearer existing step, var(--space-8). */
+  .q4-marquee-hero {
+    display: none;
+    position: relative;
+    height: 100svh;
+    overflow: hidden;
+    background: var(--color-bg-surface);
+  }
+
+  body.q4-marquee-hero-mode .q4-marquee-hero { display: block; }
+  body.q4-marquee-hero-mode .q4-luma-hero { display: none; }
+
+  .q4-mh-content {
+    position: relative;
+    z-index: 4;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 620px;
+    margin: -240px auto 0;
+    padding: var(--space-8) var(--space-6) 0;
+  }
+
+  /* reuses the original hero's text classes verbatim (same copy, same look) —
+     their fade-in-on-load transition is scoped to .q4-luma-content.is-visible,
+     which this second instance never gets, so force them shown here instead. */
+  .q4-mh-content .q4-luma-badge,
+  .q4-mh-content .q4-luma-h1,
+  .q4-mh-content .q4-luma-subhead,
+  .q4-mh-content .q4-luma-cta {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* ---------- HERO ALT wheel carousel ----------
+     One giant circle: `.q4-mh-wheel` is a zero-size hub positioned far below
+     the visible clip area; each `.q4-mh-wheel-card` is placed on the rim via
+     `rotate(angle) translateY(-R)` (the classic "clock hand" technique), which
+     both positions AND tangent-rotates it in one transform — no per-card tilt,
+     no JS position math. Rotating the hub by 360deg sweeps every card through
+     the full circle; because R is huge, only a shallow ~20-28deg sliver near
+     the top ever shows, reading as a gentle dome. Card count/angle-step/
+     duration are computed once in JS (see script below) from CARD_W/GAP/R/SPEED
+     and written back as custom properties, so CSS never hand-waves the numbers. */
+  .q4-mh-marquee {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 15px;
+    z-index: 2;
+    overflow: hidden;
+    /* full card height, no crop — plus a buffer for how far the arc dips
+       below the apex across the visible width, plus breathing room */
+    height: calc(290px * 4 / 3 + var(--space-8) * 2 + 180px);
+  }
+
+  .q4-mh-wheel {
+    position: absolute;
+    left: 50%;
+    top: calc((290px * 4 / 3 + var(--space-8) * 2 + 180px) / 2 + var(--q4-wheel-r, 4200px));
+    width: 0;
+    height: 0;
+    animation: q4-mh-wheel-spin var(--q4-wheel-duration, 297s) linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes q4-mh-wheel-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .q4-mh-wheel-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 290px;
+    aspect-ratio: 3 / 4;
+    margin-left: -145px;
+    margin-top: calc(-0.5 * 290px * 4 / 3);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+    overflow: hidden;
+    transform: rotate(var(--a, 0deg)) translateY(var(--q4-wheel-r-neg, -4200px));
+    will-change: transform;
+  }
+
+  .q4-mh-wheel-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* `scale` shrinks the whole rim (hub, radius, cards) uniformly around the
+     hub's own point, but the hub's `top` offset is a layout value, untouched
+     by that scale — so it has to be re-derived per breakpoint (half the new,
+     shorter clip height, plus the now-shrunk radius) or the whole arc lands
+     off the bottom of the visible strip. */
+  @media (max-width: 1100px) and (min-width: 641px) {
+    .q4-mh-wheel {
+      scale: 0.69;
+      top: calc((200px * 4 / 3 + var(--space-8) * 2 + 40px) / 2 + 0.69 * var(--q4-wheel-r, 4200px));
+    }
+    .q4-mh-marquee { height: calc(200px * 4 / 3 + var(--space-8) * 2 + 40px); }
+  }
+
+  @media (max-width: 640px) {
+    .q4-mh-wheel {
+      scale: 0.552;
+      top: calc((160px * 4 / 3 + var(--space-6) * 2 + 60px) / 2 + 0.552 * var(--q4-wheel-r, 4200px));
+    }
+    .q4-mh-marquee { height: calc(160px * 4 / 3 + var(--space-6) * 2 + 60px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-mh-wheel { animation: none; }
+    .q4-mh-wheel-card { animation: none; }
+  }
+
+  /* ---------- SCROLL REVEAL (same mechanism as index.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* .q4-case-section's own transform:translateX(-50%) (the 100vw full-bleed
+     centering trick) would otherwise get clobbered by .reveal's translateY —
+     same fix as index.html's .categories-section.reveal override. */
+  .q4-case-section.reveal {
+    transform: translateX(-50%) translateY(-16px);
+  }
+
+  .q4-case-section.reveal.is-visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* ---------- section header: same component as index.html's categories-section (badge+H2+subheading, matching gaps) ---------- */
   .q4-section-badge {
     display: inline-block;
@@ -326,6 +506,210 @@
   .q4-partner .q4-cta-wrap { text-align: left; }
   .q4-partner .q4-cta-wrap .btn-pill { width: 100%; margin: 0; }
   .q4-partner .q4-micro { text-align: left; }
+
+  /* ---------- FILLED TEXT (word-by-word scroll-linked color reveal) ----------
+     Alternate take on the "Running out / Even right now" statements, toggled
+     against the fanned card row via the page-settings gear (bottom-left).
+     Each word is its own span; color is interpolated per word based on scroll
+     progress, so the reveal follows natural reading order through the wrapped
+     lines instead of a rectangular left-to-right wipe. */
+  .q4-fill-section {
+    display: none;
+    padding: var(--space-24) 0;
+  }
+
+  body.q4-filled-text-mode .q4-fill-section { display: block; }
+  body.q4-filled-text-mode .q4-fan-section { display: none; }
+
+  .q4-fill-text {
+    max-width: 55rem;
+    margin: 0;
+    text-align: left;
+    font-weight: 500;
+    font-size: clamp(28px, 3.4vw, 44px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 700px) {
+    .q4-fill-text { line-height: 1.32; }
+  }
+
+  .q4-fill-word {
+    color: var(--color-border-default);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-fill-word { color: var(--color-text-primary) !important; }
+  }
+
+  /* ---- page settings (bottom-left gear + panel) ----
+     Same shell as the site-wide .site-settings-btn/.site-settings-panel
+     (components.css), just anchored bottom-left instead of bottom-right so it
+     doesn't clash with that shared component on pages that also have it.
+     Reuses .site-toggle*/.site-settings-title/row/label/desc as-is. */
+  .q4-settings-btn {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 1000;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-bg-surface);
+    border: 1px solid rgba(0, 0, 0, .08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .q4-settings-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
+  }
+
+  .q4-settings-btn svg { width: 24px; height: 24px; }
+
+  .q4-settings-panel {
+    position: fixed;
+    bottom: 92px;
+    left: 24px;
+    z-index: 1000;
+    width: 280px;
+    background: var(--color-bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+    padding: var(--space-5);
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .q4-settings-panel.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* ---------- FANNED CARD ROW ----------
+     Outer .q4-fan-card owns the one-shot entrance transform (off-canvas -> rest,
+     with spring overshoot) and the settled rotation. Inner .q4-fan-card-inner owns
+     only the hover "part to make room" offset. Kept on separate elements so the two
+     transforms never collide in a single `transform` value — hovering a card mid
+     entrance can't cancel its spring. */
+  .q4-fan-section {
+    overflow: hidden;
+  }
+
+  .q4-fan-cards {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    overflow-y: visible;
+    padding: var(--space-8) 0;
+  }
+
+  .q4-fan-card {
+    position: relative;
+    flex: 0 0 auto;
+    width: 262px; /* 5 cards at ~15% overlap ≈ .q4-container's content width (1216px - 2×--space-8) */
+    height: 313px; /* ~80px shorter than the 2:3-ratio 393px */
+    z-index: 1;
+    transform: translateX(75vw) rotate(0deg);
+    transition: transform 620ms cubic-bezier(.34, 1.56, .64, 1);
+  }
+
+  .q4-fan-card:not(:first-child) { margin-left: calc(-1 * var(--space-10)); }
+
+  .q4-fan-card:nth-child(1) { z-index: 1; transition-delay: 0ms; }
+  .q4-fan-card:nth-child(2) { z-index: 2; transition-delay: 175ms; }
+  .q4-fan-card:nth-child(3) { z-index: 3; transition-delay: 350ms; }
+  .q4-fan-card:nth-child(4) { z-index: 4; transition-delay: 525ms; }
+  .q4-fan-card:nth-child(5) { z-index: 5; transition-delay: 700ms; }
+
+  .q4-fan-section.is-visible .q4-fan-card {
+    transform: translateX(0) rotate(var(--fan-r, 0deg));
+  }
+
+  /* once the entrance has fully played out, swap to a non-staggered transition
+     so hover responds immediately instead of waiting out the entrance
+     delay/spring on every card. Same spring/duration as the inner layer's
+     hover offset so position, rotation and scale resolve together. */
+  .q4-fan-section.settled .q4-fan-card {
+    transition: transform 450ms cubic-bezier(.34, 1.56, .64, 1);
+  }
+
+  .q4-fan-section.settled .q4-fan-card:hover {
+    transform: translateX(0) rotate(0deg) scale(1.08);
+    transform-origin: center;
+    z-index: 10;
+  }
+
+  .q4-fan-card-inner {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    transform: translateX(var(--hover-x, 0px));
+    transition: transform 450ms cubic-bezier(.34, 1.56, .64, 1);
+  }
+
+  .q4-fan-card-media {
+    background: var(--color-bg-muted);
+  }
+
+  .q4-fan-card-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .q4-fan-card-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    padding: var(--space-5);
+  }
+
+  .q4-fan-card-tint   { background: var(--color-bg-accent-subtle); }
+  .q4-fan-card-inverse { background: var(--color-bg-inverse); }
+
+  .q4-fan-statement {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.1875rem;
+    line-height: 1.3;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-fan-card-inverse .q4-fan-statement { color: var(--color-text-on-accent); }
+
+  @media (max-width: 640px) {
+    .q4-fan-cards {
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      scroll-padding-left: var(--space-8);
+      padding: var(--space-8) var(--space-8);
+    }
+    .q4-fan-card { scroll-snap-align: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-fan-card { transition: none !important; }
+    .q4-fan-card-inner { transition: none; }
+  }
 
   /* ---------- THE RISK (gray tiles, horizontal scroll when narrow) ---------- */
   .q4-risk-cards {
@@ -513,6 +897,86 @@
 
   .q4-bento-stat.q4-bento-cta {
     aspect-ratio: auto;
+    /* at >=1024px this tile shares a grid row with square photo/stat tiles,
+       so it stretches (grid's default align-items) to match their height,
+       matching the neighbour tile exactly. justify-content:space-between is
+       inherited from .q4-bento-stat on purpose: heading pinned to the top,
+       button+caption pinned to the bottom of that stretched height. */
+    gap: var(--space-10);
+  }
+
+  /* ---- One partner: Pinterest grid (alt layout, toggle-controlled) ----
+     Equal-width columns via CSS multi-column, tile heights stay natural
+     (masonry), captions sit below the tile instead of overlaid on it. */
+  .q4-bento-pinterest { display: none; }
+  body.q4-pinterest-mode .q4-bento { display: none; }
+  body.q4-pinterest-mode .q4-bento-pinterest { display: block; }
+
+  .q4-bento-pinterest {
+    column-count: 2;
+    column-gap: var(--space-5);
+    margin-top: var(--space-8);
+  }
+
+  @media (min-width: 700px) {
+    .q4-bento-pinterest { column-count: 3; }
+  }
+
+  @media (min-width: 1200px) {
+    .q4-bento-pinterest { column-count: 4; }
+  }
+
+  .q4-pin-tile {
+    display: inline-block;
+    width: 100%;
+    break-inside: avoid;
+    margin: 0 0 var(--space-5);
+  }
+
+  .q4-pin-media {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-muted);
+    overflow: hidden;
+  }
+
+  .q4-pin-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .q4-pin-caption {
+    margin: var(--space-3) 0 0;
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    color: var(--color-text-secondary);
+  }
+
+  .q4-pin-tile .q4-bento-stat {
+    aspect-ratio: auto;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    gap: var(--space-5);
+  }
+
+  .q4-pin-tile .q4-bento-stat.q4-bento-cta {
+    gap: var(--space-8);
+  }
+
+  /* a plain-width masonry column is often narrower than the CTA button's
+     natural (nowrap) size, so let it wrap onto two lines here instead of
+     spanning the whole grid — keeps this tile matching its neighbours. */
+  .q4-pin-tile .q4-bento-cta .btn-pill {
+    width: 100%;
+    height: auto;
+    min-height: var(--space-12);
+    padding: var(--space-3) var(--space-5);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
   }
 
   .q4-stat-card-num {
@@ -536,6 +1000,145 @@
     line-height: 1.3;
     letter-spacing: -0.03em;
     color: var(--color-text-primary);
+  }
+
+  /* ---------- CASE STUDY: LOVATO CANDLES (the page's one dark section, same
+     treatment as index.html's "At any scale" .cta-card — inverse bg, on-accent
+     text, subtle bordered badge) ---------- */
+  .q4-case-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0;
+    box-sizing: border-box;
+    margin-bottom: var(--space-8);
+  }
+
+  /* the visual card is a separate absolutely-positioned layer (inset by a
+     fixed 32px/12px margin from the section edge) so its presence never
+     shifts the text's own containing-block math — .q4-container below
+     centers against the plain 100vw section exactly like it does everywhere
+     else on the page, keeping the heading's left edge aligned with other
+     sections at every viewport width, not just wide ones where the
+     centering slack happens to cancel a padding-based gutter out. */
+  .q4-case-card {
+    position: absolute;
+    inset: var(--space-8) var(--space-3);
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: var(--radius-2xl);
+    background: var(--color-bg-accent-subtle);
+    z-index: 0;
+  }
+
+  /* same soft-light blobs + grain as index.html's .cta-card, recoloured to
+     white so the halo reads as a soft highlight against the light blue
+     instead of the dark smudge the original navy/gray blobs would leave. */
+  .q4-case-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.5;
+    will-change: transform;
+    mix-blend-mode: soft-light;
+    z-index: 0;
+  }
+
+  .q4-case-blob-1 {
+    width: 42vw;
+    height: 42vw;
+    background: #fff;
+    top: 10%;
+    left: 8%;
+    animation: q4CaseFloat1 18s ease-in-out infinite;
+  }
+
+  .q4-case-blob-2 {
+    width: 38vw;
+    height: 38vw;
+    background: #fff;
+    top: 30%;
+    right: 5%;
+    animation: q4CaseFloat2 22s ease-in-out infinite;
+  }
+
+  .q4-case-blob-3 {
+    width: 34vw;
+    height: 34vw;
+    background: #fff;
+    bottom: 5%;
+    left: 30%;
+    animation: q4CaseFloat3 26s ease-in-out infinite;
+  }
+
+  @keyframes q4CaseFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(6vw, 8vh) scale(1.1); }
+    66%      { transform: translate(-4vw, 4vh) scale(0.95); }
+  }
+
+  @keyframes q4CaseFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-8vw, -6vh) scale(1.08); }
+  }
+
+  @keyframes q4CaseFloat3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40%      { transform: translate(5vw, -5vh) scale(1.05); }
+    70%      { transform: translate(-6vw, 3vh) scale(0.92); }
+  }
+
+  .q4-case-grain {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .q4-case-section > .q4-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  .q4-case-content {
+    /* card's own visual padding (space-20) plus the outer margin already
+       spent on .q4-case-card's inset (space-8), so the text sits the same
+       80px in from the card edge as it did before the bg layer was split
+       out into its own absolutely-positioned element. */
+    padding: calc(var(--space-8) + var(--space-20)) 0;
+  }
+
+  .q4-case-badge {
+    display: inline-block;
+    margin: 0 0 var(--space-5);
+    padding: var(--space-1) var(--space-3);
+    background: rgba(255, 255, 255, .6);
+    color: var(--color-text-secondary);
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-case-blob { animation: none; }
+  }
+
+  .q4-case-heading {
+    margin: 0;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  @media (max-width: 700px) {
+    .q4-case-content { padding: calc(var(--space-8) + var(--space-12)) 0; }
+    .q4-case-heading { font-size: 1.5rem; }
   }
 
   /* ---------- SUPPORT (same scroll-carousel component as deals.html's deals-carousel) ---------- */
@@ -630,14 +1233,6 @@
     font-weight: 500;
     font-size: 2rem;
     letter-spacing: -0.03em;
-    color: var(--color-text-primary);
-  }
-
-  .q4-support-highlight-content p {
-    margin: 0;
-    font-size: 0.9375rem;
-    line-height: 1.45;
-    letter-spacing: -0.02em;
     color: var(--color-text-primary);
   }
 
@@ -901,7 +1496,7 @@
 
   @media (max-width: 700px) {
     .final-cta-heading { font-size: 2.5rem; line-height: 1.08; letter-spacing: -0.05em; }
-    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+    .final-cta-buttons { flex-direction: column; align-items: center; }
   }
 
   /* ---------- desktop widening ---------- */
@@ -1002,6 +1597,7 @@
     </div>
 
     <div class="q4-luma-content">
+      <span class="q4-luma-badge">For brands shipping their biggest volume between Black Friday and Christmas</span>
       <h1 class="q4-luma-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
       <p class="q4-luma-subhead">Lock in December&rsquo;s packaging now, from one supplier, with a guaranteed delivery date</p>
       <a href="#" class="btn-pill lg q4-luma-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
@@ -1018,8 +1614,23 @@
 
   </section>
 
+  <!-- ============ HERO ALT: MARQUEE (toggle-only, off by default) ============ -->
+  <section class="q4-marquee-hero">
+
+    <div class="q4-mh-content">
+      <span class="q4-luma-badge">For brands shipping their biggest volume between Black Friday and Christmas</span>
+      <h1 class="q4-luma-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
+      <p class="q4-luma-subhead">Lock in December&rsquo;s packaging now, from one supplier, with a guaranteed delivery date</p>
+      <a href="#" class="btn-pill lg q4-luma-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+
+    <div class="q4-mh-marquee" aria-hidden="true">
+      <div class="q4-mh-wheel"></div>
+    </div>
+  </section>
+
   <!-- ============ TRUSTED BY ============ -->
-  <section class="q4-trust-section">
+  <section class="q4-trust-section reveal">
     <div class="q4-container">
       <div class="q4-trust-grid">
         <div class="q4-trust-intro">
@@ -1070,8 +1681,65 @@
     </div>
   </section>
 
+  <!-- ============ FILLED TEXT ============ -->
+  <section class="q4-fill-section">
+    <div class="q4-container">
+      <p class="q4-fill-text">Running out of branded packaging in the middle of a sales peak is an easily avoidable brand risk. Even right now, there&rsquo;s an ops lead somewhere with a Q4 forecast in front of them but no packaging order placed.</p>
+    </div>
+  </section>
+
+  <!-- ============ FANNED CARD ROW ============ -->
+  <section class="q4-fan-section">
+    <div class="q4-fan-cards">
+      <div class="q4-fan-card" data-rotate="-4" aria-hidden="true">
+        <div class="q4-fan-card-inner q4-fan-card-media"><img src="assets/q4/cards01.png" alt=""></div>
+      </div>
+
+      <div class="q4-fan-card" data-rotate="3">
+        <div class="q4-fan-card-inner q4-fan-card-text q4-fan-card-tint">
+          <p class="q4-fan-statement">Running out of branded packaging in the middle of a sales peak is an easily avoidable brand risk.</p>
+        </div>
+      </div>
+
+      <div class="q4-fan-card" data-rotate="-3" aria-hidden="true">
+        <div class="q4-fan-card-inner q4-fan-card-media"></div>
+      </div>
+
+      <div class="q4-fan-card" data-rotate="4">
+        <div class="q4-fan-card-inner q4-fan-card-text q4-fan-card-inverse">
+          <p class="q4-fan-statement">Even right now, there&rsquo;s an ops lead somewhere with a Q4 forecast in front of them but no packaging order placed.</p>
+        </div>
+      </div>
+
+      <div class="q4-fan-card" data-rotate="-2" aria-hidden="true">
+        <div class="q4-fan-card-inner q4-fan-card-media"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="q4-marquee-outer">
+    <div class="q4-marquee-track">
+      <div class="q4-marquee-content">
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+      </div>
+      <div class="q4-marquee-content" aria-hidden="true">
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+        <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ THE RISK ============ -->
-  <section class="q4-section">
+  <section class="q4-section reveal">
     <div class="q4-container">
       <span class="q4-section-badge">The risk</span>
       <h2>Q4 packaging problems usually start months before Q4</h2>
@@ -1094,32 +1762,11 @@
           <p>Your best-sellers shipping unbranded in the one month your brand is in front of more customers than ever.</p>
         </div>
       </div>
-
-      <div class="q4-marquee-outer">
-        <div class="q4-marquee-track">
-          <div class="q4-marquee-content">
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-          </div>
-          <div class="q4-marquee-content" aria-hidden="true">
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-            <span class="q4-marquee-item"><span class="q4-marquee-phrase"><span class="q4-marquee-text-light">One missed deadline can turn a strong Q4 into</span> <span class="q4-marquee-text">an expensive scramble.</span></span><svg class="q4-marquee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
   <!-- ============ ONE PARTNER ============ -->
-  <section class="q4-section q4-partner">
+  <section class="q4-section q4-partner reveal">
     <div class="q4-container">
       <span class="q4-section-badge">One partner</span>
       <h2>Put your packaging in better hands</h2>
@@ -1132,13 +1779,13 @@
           <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside — all under one roof.</p>
         </div>
 
-        <div class="q4-bento-photo q4-bento-tall" style="grid-area:apparel"><span class="q4-cat-label">Apparel · mailer</span></div>
+        <div class="q4-bento-photo q4-bento-tall" style="grid-area:apparel"><img src="assets/q4/onepartner/onepartner03.jpeg" alt="Branded stand-up food pouches"><span class="q4-cat-label">Food · pouch</span></div>
 
-        <div class="q4-bento-photo" style="grid-area:food"><span class="q4-cat-label">Food · pouch</span></div>
+        <div class="q4-bento-photo" style="grid-area:food"><span class="q4-cat-label">Apparel · mailer</span></div>
 
         <div class="q4-bento-photo q4-bento-full" style="grid-area:supplements"><span class="q4-cat-label">Supplements · carton</span></div>
 
-        <div class="q4-bento-photo" style="grid-area:retail"><span class="q4-cat-label">Retail · carrier bag</span></div>
+        <div class="q4-bento-photo" style="grid-area:retail"><img src="assets/q4/onepartner/onepartner05.png" alt="Branded canvas tote bags"><span class="q4-cat-label">Retail · carrier bag</span></div>
 
         <div class="q4-bento-stat" style="grid-area:stat11291">
           <span class="q4-stat-card-num">11,291</span>
@@ -1153,11 +1800,89 @@
           </div>
         </div>
       </div>
+
+      <div class="q4-bento-pinterest">
+        <div class="q4-pin-tile">
+          <div class="q4-pin-media" style="aspect-ratio:4/5; background:var(--color-bg-muted)"></div>
+          <p class="q4-pin-caption">Beauty · rigid magnetic box + tissue</p>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-bento-stat" style="aspect-ratio:auto">
+            <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside — all under one roof.</p>
+          </div>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-pin-media" style="aspect-ratio:16/9"><img src="assets/q4/onepartner/onepartner06.jpeg" alt="Branded shipping box with printed void fill"></div>
+          <p class="q4-pin-caption">Electronics · shipping box + void fill</p>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-pin-media" style="aspect-ratio:3/4"><img src="assets/q4/onepartner/onepartner03.jpeg" alt="Branded stand-up food pouches"></div>
+          <p class="q4-pin-caption">Food · pouch</p>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-pin-media" style="aspect-ratio:1/1; background:var(--color-bg-muted)"></div>
+          <p class="q4-pin-caption">Apparel · mailer</p>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-pin-media" style="aspect-ratio:5/4; background:var(--color-bg-muted)"></div>
+          <p class="q4-pin-caption">Supplements · carton</p>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/q4/onepartner/onepartner05.png" alt="Branded canvas tote bags"></div>
+          <p class="q4-pin-caption">Retail · carrier bag</p>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-bento-stat" style="aspect-ratio:auto">
+            <span class="q4-stat-card-num">318</span>
+            <span class="q4-stat-card-desc">custom packaging products</span>
+          </div>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-bento-stat" style="aspect-ratio:auto">
+            <span class="q4-stat-card-num">11,291</span>
+            <span class="q4-stat-card-desc">variants to build your exact range</span>
+          </div>
+        </div>
+
+        <div class="q4-pin-tile">
+          <div class="q4-bento-stat q4-bento-cta" style="aspect-ratio:auto">
+            <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
+            <div>
+              <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+              <p class="q4-micro">Takes 30 seconds. No design files needed yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CASE STUDY: LOVATO CANDLES ============ -->
+  <section class="q4-case-section reveal">
+    <div class="q4-case-card" aria-hidden="true">
+      <div class="q4-case-blob q4-case-blob-1"></div>
+      <div class="q4-case-blob q4-case-blob-2"></div>
+      <div class="q4-case-blob q4-case-blob-3"></div>
+      <div class="q4-case-grain"></div>
+    </div>
+    <div class="q4-container">
+      <div class="q4-case-content">
+        <span class="q4-case-badge">Case study &middot; Lovato Candles</span>
+        <h2 class="q4-case-heading">What happens when the right packaging partner handles your needs? How Packhelp &amp; Lovato Candles achieved a shocking <span class="q4-case-stat-num" data-count-from="41" data-count-to="67">67%</span> lower average packaging unit costs while keeping up with their incredible growth.</h2>
+      </div>
     </div>
   </section>
 
   <!-- ============ SUPPORT ============ -->
-  <section class="q4-section">
+  <section class="q4-section reveal">
     <div class="q4-container q4-support-intro">
       <span class="q4-section-badge">Support</span>
       <h2>More support whenever you need it</h2>
@@ -1173,31 +1898,31 @@
           <div class="q4-support-highlight-visual">
             <div class="q4-support-highlight-content">
               <span class="q4-support-highlight-num">&euro;500</span>
-              <p>in credit on every Q4 order, toward the services that make packaging easier to plan, produce and deliver.</p>
+              <p class="q4-bento-statement">in credit on every Q4 order, toward the services that make packaging easier to plan, produce and deliver.</p>
             </div>
           </div>
         </div>
 
         <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"></div>
+          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support01.jpg" alt="Product box samples with branded tape and packaging accessories" loading="lazy" decoding="async"></div>
           <h3 class="media-card-title">Sampling &amp; prototyping</h3>
           <p class="media-card-desc">See and test the real packaging before committing to the full run.</p>
         </div>
 
         <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"></div>
+          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support02.png" alt="Stack of branded shipping boxes" loading="lazy" decoding="async"></div>
           <h3 class="media-card-title">Warehousing &amp; call-off</h3>
           <p class="media-card-desc">Order more for a better unit cost. We store your packaging and release stock when you need it.</p>
         </div>
 
         <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"></div>
+          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support03.jpg" alt="Boxes loaded on a warehouse trolley, ready for delivery" loading="lazy" decoding="async"></div>
           <h3 class="media-card-title">Guaranteed delivery date</h3>
           <p class="media-card-desc">Know when your packaging arrives before production starts, so your Q4 plan has a date you can work around.</p>
         </div>
 
         <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"></div>
+          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support04.png" alt="Person holding a stack of branded packaging boxes" loading="lazy" decoding="async"></div>
           <h3 class="media-card-title">Expert consultation</h3>
           <p class="media-card-desc">Input from specialists who understand formats, materials, production and fulfilment.</p>
         </div>
@@ -1210,7 +1935,7 @@
   </section>
 
   <!-- ============ FAQ + BRIEF FORM ============ -->
-  <section class="q4-section">
+  <section class="q4-section reveal">
     <div class="q4-container">
       <div class="q4-faq-grid">
 
@@ -1306,7 +2031,7 @@
   </section>
 
   <!-- ============ FINAL CTA ============ -->
-  <section class="final-cta-section">
+  <section class="final-cta-section reveal">
     <h2 class="final-cta-heading">Your Q4 forecast is already taking shape.</h2>
     <p class="final-cta-subheading">Now, your packaging is getting there too. Send the brief now, get your delivery date, and take one more thing off your Q4 to-do list.</p>
     <div class="final-cta-buttons">
@@ -1348,24 +2073,121 @@
 
 <script>
   (function () {
-    var hero = document.querySelector('.q4-luma-hero');
+    var heroLuma = document.querySelector('.q4-luma-hero');
+    var heroMarquee = document.querySelector('.q4-marquee-hero');
     var stickyBar = document.querySelector('.q4-sticky-bar');
-    if (!hero || !stickyBar) return;
+    var finalCta = document.querySelector('.final-cta-section');
+    if (!heroLuma || !stickyBar) return;
 
     if (!window.IntersectionObserver) {
       stickyBar.classList.add('is-visible');
       return;
     }
 
+    // Two alternate heroes share this page (toggled via the settings panel);
+    // only the currently-displayed one should decide whether the sticky bar
+    // shows — the hidden one (display:none) never reports as intersecting,
+    // which would otherwise make the bar appear immediately. The final CTA
+    // section has its own full-size "Get started" button, so the sticky bar
+    // hides there too instead of floating over a duplicate CTA.
+    var state = { luma: true, marquee: true, finalCta: false };
+
+    function activeKey() {
+      return document.body.classList.contains('q4-marquee-hero-mode') ? 'marquee' : 'luma';
+    }
+
+    function update() {
+      stickyBar.classList.toggle('is-visible', !state[activeKey()] && !state.finalCta);
+    }
+
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        stickyBar.classList.toggle('is-visible', !entry.isIntersecting);
+        if (entry.target === heroLuma) state.luma = entry.isIntersecting;
+        if (entry.target === heroMarquee) state.marquee = entry.isIntersecting;
+        if (entry.target === finalCta) state.finalCta = entry.isIntersecting;
       });
+      update();
     });
-    observer.observe(hero);
+    observer.observe(heroLuma);
+    if (heroMarquee) observer.observe(heroMarquee);
+    if (finalCta) observer.observe(finalCta);
+
+    new MutationObserver(update).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   })();
 </script>
 
+
+<script>
+  (function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var section = document.querySelector('.q4-fan-section');
+    var cardEls = section ? section.querySelectorAll('.q4-fan-card') : [];
+    if (!section || !cardEls.length) return;
+
+    var CARD_W = 262; // must match .q4-fan-card width
+    // Falloff by distance from the hovered card — halves at each step, not a
+    // rigid block — so the row reads as a deck parting rather than two slabs.
+    var HOVER_FALLOFF = [0.65, 0.32, 0.16, 0.08];
+
+    var cards = Array.prototype.map.call(cardEls, function (el) {
+      el.style.setProperty('--fan-r', (parseFloat(el.getAttribute('data-rotate')) || 0) + 'deg');
+      return { el: el, inner: el.querySelector('.q4-fan-card-inner') };
+    });
+
+    var settled = false;
+
+    // Hover: neighbours part to make room, each by its own distance-based offset.
+    // Lives on the inner layer (see CSS) so it never touches the outer's entrance
+    // transform. Gated on `settled` so a stray hover mid-entrance can't half-apply
+    // the effect before the outer's own hover rule (also gated on `settled`) is
+    // active.
+    cards.forEach(function (hovered, i) {
+      hovered.el.addEventListener('mouseenter', function () {
+        if (!settled) return;
+        cards.forEach(function (c, j) {
+          if (j === i) { c.inner.style.setProperty('--hover-x', '0px'); return; }
+          var dist = Math.abs(j - i);
+          var mult = HOVER_FALLOFF[dist - 1] || 0;
+          var sign = j < i ? -1 : 1;
+          c.inner.style.setProperty('--hover-x', (sign * mult * CARD_W).toFixed(2) + 'px');
+        });
+      });
+      hovered.el.addEventListener('mouseleave', function () {
+        cards.forEach(function (c) { c.inner.style.setProperty('--hover-x', '0px'); });
+      });
+    });
+
+    if (reduce) {
+      section.classList.add('is-visible', 'settled');
+      settled = true;
+      return;
+    }
+
+    // One-shot entrance: trigger once when the section enters the viewport, then
+    // hold — no scroll-scrub, no replay on re-entry.
+    function trigger() {
+      section.classList.add('is-visible');
+      window.setTimeout(function () {
+        section.classList.add('settled');
+        settled = true;
+      }, 1400); // last card's delay (700ms) + its spring duration (620ms), padded
+    }
+
+    if (!window.IntersectionObserver) {
+      trigger();
+    } else {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            trigger();
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+      observer.observe(section);
+    }
+  })();
+</script>
 
 <script>
   document.querySelectorAll('.faq-item').forEach(function (item) {
@@ -1373,6 +2195,78 @@
       item.classList.toggle('open');
     });
   });
+</script>
+
+<script>
+  // Scroll reveal — same mechanism as index.html: each .reveal section fades
+  // and slides up once when it first enters the viewport, then holds.
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    if (!targets.length) return;
+
+    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      targets.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+<script>
+  // Case study stat: counts up from data-count-from to data-count-to once
+  // the section scrolls into view, then holds at the final value.
+  (function () {
+    var el = document.querySelector('.q4-case-stat-num');
+    if (!el) return;
+
+    var from = parseInt(el.getAttribute('data-count-from'), 10);
+    var to = parseInt(el.getAttribute('data-count-to'), 10);
+    var DURATION = 1200;
+
+    function setValue(n) {
+      el.textContent = n + '%';
+    }
+
+    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setValue(to);
+      return;
+    }
+
+    setValue(from);
+
+    function animate() {
+      var start = null;
+      function step(timestamp) {
+        if (start === null) start = timestamp;
+        var progress = Math.min((timestamp - start) / DURATION, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        setValue(Math.round(from + (to - from) * eased));
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animate();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    observer.observe(document.querySelector('.q4-case-section'));
+  })();
 </script>
 
 <script>
@@ -1425,6 +2319,284 @@
         checkOverflow();
       }
     });
+  })();
+</script>
+
+<button id="q4SettingsBtn" class="q4-settings-btn" aria-label="Page settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<div id="q4SettingsPanel" class="q4-settings-panel">
+  <p class="site-settings-title">Page customization</p>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Filled text</p>
+      <p class="site-settings-desc">Swap the fanned card row for a scroll-filled statement</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="q4ToggleFilledText" checked>
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Marquee hero</p>
+      <p class="site-settings-desc">Swap the scattered-card hero for the auto-scrolling photo marquee</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="q4ToggleMarqueeHero">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Pinterest grid</p>
+      <p class="site-settings-desc">Swap the One partner bento for an equal-width masonry grid</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="q4TogglePinterest">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('q4SettingsBtn');
+    var panel = document.getElementById('q4SettingsPanel');
+    if (!btn || !panel) return;
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+      if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
+    });
+
+    var toggle = document.getElementById('q4ToggleFilledText');
+    function applyFilledText(active) {
+      document.body.classList.toggle('q4-filled-text-mode', active);
+      toggle.checked = active;
+    }
+    applyFilledText(localStorage.getItem('q4FilledText') !== '0');
+    toggle.addEventListener('change', function () {
+      applyFilledText(toggle.checked);
+      localStorage.setItem('q4FilledText', toggle.checked ? '1' : '0');
+    });
+
+    var heroToggle = document.getElementById('q4ToggleMarqueeHero');
+    function applyMarqueeHero(active) {
+      document.body.classList.toggle('q4-marquee-hero-mode', active);
+      heroToggle.checked = active;
+    }
+    applyMarqueeHero(localStorage.getItem('q4MarqueeHero') === '1');
+    heroToggle.addEventListener('change', function () {
+      applyMarqueeHero(heroToggle.checked);
+      localStorage.setItem('q4MarqueeHero', heroToggle.checked ? '1' : '0');
+    });
+
+    var pinToggle = document.getElementById('q4TogglePinterest');
+    function applyPinterest(active) {
+      document.body.classList.toggle('q4-pinterest-mode', active);
+      pinToggle.checked = active;
+    }
+    applyPinterest(localStorage.getItem('q4Pinterest') === '1');
+    pinToggle.addEventListener('change', function () {
+      applyPinterest(pinToggle.checked);
+      localStorage.setItem('q4Pinterest', pinToggle.checked ? '1' : '0');
+    });
+  })();
+</script>
+
+<script>
+  // Wheel carousel: builds the rim once (card count / angle-step / duration are
+  // derived from CARD_W/GAP/R/SPEED so the CSS never hard-codes a guessed
+  // number), then leaves everything to the two CSS animations declared above —
+  // no per-frame JS, no resize handler, so nothing can reset mid-spin.
+  (function () {
+    var wheel = document.querySelector('.q4-mh-wheel');
+    if (!wheel) return;
+
+    var IMAGES = [
+      'https://cdn-pim.packhelp.com/assets/f05ac528-3532-42c1-842a-8e7e6a9228bb/10645342-packhelp-16-123884?w=600&auto=format,compress&fit=crop',
+      'https://cdn-pim.packhelp.com/assets/db5780cf-4bec-4da1-948f-b579b0876868/8419042-packhelp-28526-b-1?w=600&auto=format,compress&fit=crop',
+      'https://cdn-pim.packhelp.com/assets/fefd0ec2-74f6-40fd-809b-4c19277b5211/10475161-christmas-2?w=600&auto=format,compress&fit=crop',
+      'https://cdn-pim.packhelp.com/assets/bd170354-9351-4183-8a91-464e2aef4ddf/9992344-packhelp-26-28-05-2021-7458?w=600&auto=format,compress&fit=crop',
+      'https://cdn-pim.packhelp.com/assets/0b87c926-da10-4a97-ac4c-b68735b900de/10118352-christmas-happy-socks?w=600&auto=format,compress&fit=crop',
+      'https://cdn-pim.packhelp.com/assets/557ed2d0-0b15-4ec6-889f-7661cfdc2aed/9265672-packhelp-23-10-20201690?w=600&auto=format,compress&fit=crop',
+      'https://cdn-pim.packhelp.com/assets/af21426d-e9b9-4642-8260-c7d483c4a089/9147158-packhelp-26-28-05-2021-7344?w=600&auto=format,compress&fit=crop',
+      'https://cdn-pim.packhelp.com/assets/de710a5e-8159-44dd-b133-d06c01513797/9100125-packhelp-26-28-05-2021-7449?w=600&auto=format,compress&fit=crop'
+    ];
+
+    var CARD_W = 290;   // must match .q4-mh-wheel-card width
+    var GAP = 32;        // "~36px" rounded to the nearest existing --space-* step
+    var R = 4200;         // rim radius (px) — tuned so edge rotation lands ~±10-14deg
+    var SPEED = 55;       // px/s along the circumference
+
+    var slot = CARD_W + GAP;
+    var deltaDeg = slot / R * (180 / Math.PI);
+    var count = Math.max(8, Math.round(360 / deltaDeg));
+    deltaDeg = 360 / count; // re-even the step so the rim closes with no seam
+    var circumference = 2 * Math.PI * R;
+    var duration = circumference / SPEED;
+
+    wheel.style.setProperty('--q4-wheel-r', R + 'px');
+    wheel.style.setProperty('--q4-wheel-r-neg', (-R) + 'px');
+    wheel.style.setProperty('--q4-wheel-duration', duration.toFixed(2) + 's');
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++) {
+      var angle = i * deltaDeg;
+
+      var card = document.createElement('div');
+      card.className = 'q4-mh-wheel-card';
+      card.style.setProperty('--a', angle.toFixed(3) + 'deg');
+
+      var img = document.createElement('img');
+      img.src = IMAGES[i % IMAGES.length];
+      img.alt = '';
+      img.loading = i < 5 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      card.appendChild(img);
+
+      frag.appendChild(card);
+    }
+    wheel.appendChild(frag);
+
+    if (reduce) wheel.style.animation = 'none';
+
+    // Keep a minimum gap between the hero copy and the top of the wheel on
+    // short/narrow viewports by shrinking the whole rig (via the same `scale`
+    // property the width breakpoints already use) until the gap fits, rather
+    // than a couple of fixed breakpoints — this covers any width/height
+    // combination, not just the ones a media query happened to name. Only
+    // ever touches `scale`/`top`/height (layout), never the `transform`
+    // that's mid-animation, so the spin never resets.
+    var marquee = document.querySelector('.q4-mh-marquee');
+    var section = document.querySelector('.q4-marquee-hero');
+    var content = document.querySelector('.q4-mh-content');
+    var badge = document.querySelector('.q4-mh-content .q4-luma-badge');
+    var cta = document.querySelector('.q4-mh-content .q4-luma-cta');
+    var CARD_H = CARD_W * 4 / 3; // 386.67 — the reference (unscaled) card height
+    var BUFFER = 180;             // vertical room the arc needs beyond the card itself
+    var PADDING = 64;             // .q4-mh-marquee's own top+bottom padding (--space-8 * 2)
+    var MIN_SCALE = 0.42;
+    var MIN_GAP = 24;
+    var MAX_HERO_SHIFT = 240;      // the lift .q4-mh-content gets when there's room for it
+    var MIN_GAP_NAV = 48;          // never let the eyebrow badge get closer than this to the nav
+
+    // .q4-mh-content is pulled up by a negative margin-top so it isn't
+    // vertically centered dead-center of the 100svh section. On short
+    // viewports that fixed pull can push the eyebrow badge up under the
+    // nav bar — so instead of a constant px value, work out from the
+    // badge's un-shifted position how much room is actually there and
+    // never take more of it than leaves MIN_GAP_NAV clear.
+    function fitHeroContent() {
+      if (!content || !badge) return;
+      var nav = document.querySelector('.quote-topbar') || document.querySelector('header');
+      if (!nav) return;
+      var navBottom = nav.getBoundingClientRect().bottom;
+      var badgeTop = badge.getBoundingClientRect().top;
+      var currentMargin = parseFloat(getComputedStyle(content).marginTop) || 0;
+      var naturalTop = badgeTop - currentMargin;
+      var allowedShift = naturalTop - (navBottom + MIN_GAP_NAV);
+      var shift = Math.max(0, Math.min(MAX_HERO_SHIFT, allowedShift));
+      content.style.marginTop = (-shift).toFixed(2) + 'px';
+    }
+
+    function fitWheelToAvailableSpace() {
+      if (!marquee || !section || !cta) return;
+      var sectionRect = section.getBoundingClientRect();
+      var ctaRect = cta.getBoundingClientRect();
+      var available = sectionRect.bottom - ctaRect.bottom - MIN_GAP;
+      var naturalHeight = CARD_H + BUFFER + PADDING;
+      var targetHeight = Math.min(naturalHeight, Math.max(150, available));
+      var scale = (targetHeight - PADDING) / (CARD_H + BUFFER);
+      scale = Math.max(MIN_SCALE, Math.min(1, scale));
+      var finalHeight = scale * (CARD_H + BUFFER) + PADDING;
+      var hubTop = finalHeight / 2 + scale * R;
+
+      marquee.style.height = finalHeight.toFixed(2) + 'px';
+      wheel.style.scale = scale.toFixed(4);
+      wheel.style.top = hubTop.toFixed(2) + 'px';
+    }
+
+    function fitHero() {
+      fitHeroContent();
+      fitWheelToAvailableSpace();
+    }
+
+    fitHero();
+
+    var resizeTicking = false;
+    window.addEventListener('resize', function () {
+      if (!resizeTicking) {
+        window.requestAnimationFrame(function () { fitHero(); resizeTicking = false; });
+        resizeTicking = true;
+      }
+    });
+
+    // body.q4-marquee-hero-mode starts hidden (display:none), so measurements
+    // taken before the settings toggle switches it on would all read zero —
+    // redo the fit once it actually becomes visible.
+    new MutationObserver(fitHero).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  })();
+</script>
+
+<script>
+  (function () {
+    var el = document.querySelector('.q4-fill-text');
+    if (!el) return;
+
+    var words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words.map(function (w) {
+      return '<span class="q4-fill-word">' + w + '</span>';
+    }).join(' ');
+
+    var wordEls = el.querySelectorAll('.q4-fill-word');
+    var N = wordEls.length;
+
+    var DARK = [0, 6, 26];       // --color-text-primary (rich-blue #00061A)
+    var LIGHT = [231, 231, 231]; // --color-border-default (gray-300 #E7E7E7)
+    var WINDOW = 0.12;           // how many words wide the soft transition zone is
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+
+    function setProgress(p) {
+      for (var i = 0; i < N; i++) {
+        var target = N > 1 ? i / (N - 1) : 0;
+        var t = clamp((p - target) / WINDOW + 0.5, 0, 1);
+        wordEls[i].style.color = 'rgb(' + lerp(LIGHT[0], DARK[0], t) + ',' + lerp(LIGHT[1], DARK[1], t) + ',' + lerp(LIGHT[2], DARK[2], t) + ')';
+      }
+    }
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return; // CSS already forces full color
+
+    function update() {
+      var rect = el.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var startY = vh * 0.85;
+      var endY = vh * 0.25;
+      var progress = clamp((startY - rect.top) / (startY - endY), 0, 1);
+      setProgress(progress);
+    }
+
+    var ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(function () { update(); ticking = false; });
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
   })();
 </script>
 
