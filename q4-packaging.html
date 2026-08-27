@@ -1619,15 +1619,15 @@
 
       <div class="q4-case-stats">
         <div class="q4-case-stat">
-          <span class="q4-case-stat-num">67%</span>
+          <span class="q4-case-stat-num" data-count-to="67" data-suffix="%">0%</span>
           <p class="q4-case-stat-desc">lower average unit cost across the range</p>
         </div>
         <div class="q4-case-stat">
-          <span class="q4-case-stat-num">1</span>
+          <span class="q4-case-stat-num" data-count-to="1">0</span>
           <p class="q4-case-stat-desc">supply chain built to keep pace with a growing business</p>
         </div>
         <div class="q4-case-stat">
-          <span class="q4-case-stat-num">2</span>
+          <span class="q4-case-stat-num" data-count-to="2">0</span>
           <p class="q4-case-stat-desc">box sizes covering 13 products and 52 designs</p>
         </div>
       </div>
@@ -2288,6 +2288,55 @@
     }
 
     counters.forEach(function (c) { setValue(c, 0); });
+
+    function animate() {
+      var start = null;
+      function step(timestamp) {
+        if (start === null) start = timestamp;
+        var progress = Math.min((timestamp - start) / DURATION, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        counters.forEach(function (c) { setValue(c, Math.round(c.to * eased)); });
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animate();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    observer.observe(container);
+  })();
+</script>
+
+<script>
+  // Case study stat block: each .q4-case-stat-num counts up from 0 to its
+  // data-count-to once the stat row scrolls into view.
+  (function () {
+    var container = document.querySelector('.q4-case-stats');
+    if (!container) return;
+
+    var nums = container.querySelectorAll('.q4-case-stat-num[data-count-to]');
+    if (!nums.length) return;
+
+    var DURATION = 1200;
+    var counters = Array.prototype.map.call(nums, function (el) {
+      return { el: el, to: parseInt(el.getAttribute('data-count-to'), 10), suffix: el.getAttribute('data-suffix') || '' };
+    });
+
+    function setValue(counter, n) {
+      counter.el.textContent = n + counter.suffix;
+    }
+
+    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      counters.forEach(function (c) { setValue(c, c.to); });
+      return;
+    }
 
     function animate() {
       var start = null;
