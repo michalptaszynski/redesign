@@ -119,96 +119,46 @@
     .q4-trust-stats { gap: var(--space-6) var(--space-8); }
   }
 
-  /* ---------- HERO: "scattered cards" (Luma-style) ---------- */
-  .q4-luma-hero {
+  /* ---------- HERO: wheel carousel (Luma-style text + rotating photo rim) ----------
+     Token mapping used throughout this block (project has no shadcn-style
+     --background/--foreground/--primary/--secondary/--accent/--border/--radius
+     custom properties, so every one of those from the brief maps to the closest
+     existing Packhelp token):
+       --background          -> var(--color-bg-surface)   (white)
+       --foreground           -> var(--color-text-primary) (rich-blue)
+       --muted-foreground     -> var(--color-text-muted)   (gray-500)
+       --accent / --primary   -> var(--color-accent)       (PH blue)
+       --primary-foreground   -> var(--color-text-on-accent) (white)
+       --secondary            -> var(--color-bg-muted)     (gray-100)
+       --secondary-foreground -> var(--color-text-secondary) (gray-600)
+       --border               -> var(--color-border-default) (gray-300)
+       --radius (cards)       -> var(--radius-lg)
+       shadow token            -> the one elevation value already reused
+                                   sitewide for resting card lift
+                                   (.site-settings-btn / hover-lift pattern):
+                                   0 4px 16px rgba(0,0,0,.15)
+     Card gap: brief asked for "~36px" — not on the 4px spacing scale (jumps
+     32 -> 40), so rounded down to the nearer existing step, var(--space-8). */
+  .q4-marquee-hero {
     position: relative;
-    min-height: 100vh;
+    height: 100svh;
     overflow: hidden;
-    background: #FFFFFF;
+    background: var(--color-bg-surface);
   }
 
-  .q4-luma-hero::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 22vh;
-    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 85%);
-    pointer-events: none;
-    z-index: 5;
-  }
-
-  .q4-luma-cardfield {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-  }
-
-  .q4-luma-card {
-    position: absolute;
-    border-radius: 16px;
-    opacity: 0;
-    transform: scale(0.92);
-    transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), transform 450ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .q4-luma-card.is-visible {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .q4-luma-card-inner {
-    width: 100%;
-    height: 100%;
-    border-radius: 16px;
-    background: var(--color-bg-muted);
-    overflow: hidden;
-  }
-
-  .q4-luma-card-inner img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .q4-luma-content {
+  .q4-mh-content {
     position: relative;
-    z-index: 10;
-    min-height: 100vh;
+    z-index: 4;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
     max-width: 620px;
-    margin: 0 auto;
-    padding: var(--space-16) var(--space-5);
+    margin: -240px auto 0;
+    padding: var(--space-8) var(--space-6) 0;
   }
-
-  .q4-luma-badge,
-  .q4-luma-h1,
-  .q4-luma-subhead,
-  .q4-luma-cta {
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .q4-luma-content.is-visible .q4-luma-badge,
-  .q4-luma-content.is-visible .q4-luma-h1,
-  .q4-luma-content.is-visible .q4-luma-subhead,
-  .q4-luma-content.is-visible .q4-luma-cta {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .q4-luma-badge { transition-delay: 0ms; }
-  .q4-luma-h1 { transition-delay: 60ms; }
-  .q4-luma-subhead { transition-delay: 120ms; }
-  .q4-luma-cta { transition-delay: 180ms; }
 
   .q4-luma-badge {
     margin: 0 0 var(--space-5);
@@ -239,113 +189,9 @@
 
   .btn-pill.q4-luma-cta {
     margin-top: 28px;
-    transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1), background-color .15s ease;
   }
 
-  .q4-luma-mobile-cluster { display: none; }
-
-  /* ≥1280px: full ring, no overrides needed */
-
-  /* 1024–1280px: pull the ring inward slightly, drop the 3 smallest cards */
-  @media (max-width: 1280px) {
-    .q4-luma-cardfield { transform: scale(0.92); }
-    .q4-luma-card.q4-drop-1280 { display: none; }
-  }
-
-  /* 640–1024px: keep 8–10 cards, shrink ~25%, tighten ring */
-  @media (max-width: 1024px) {
-    .q4-luma-cardfield { transform: scale(0.75); }
-    .q4-luma-card.q4-drop-1280,
-    .q4-luma-card.q4-drop-1024 { display: none; }
-  }
-
-  /* <640px: hide the ring, show a small overlapping pile below the link instead */
-  @media (max-width: 640px) {
-    .q4-luma-hero { min-height: auto; }
-    .q4-luma-hero::after { display: none; }
-    .q4-luma-cardfield { display: none; }
-    .q4-luma-content { min-height: auto; justify-content: flex-start; padding-top: var(--space-20); padding-bottom: var(--space-16); }
-    .q4-luma-mobile-cluster {
-      display: flex;
-      justify-content: center;
-      margin-top: var(--space-10);
-    }
-    .q4-luma-mobile-cluster .q4-luma-card {
-      position: relative;
-      opacity: 1;
-      transition: none;
-    }
-    .q4-luma-mobile-cluster .q4-luma-card + .q4-luma-card { margin-left: -20px; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .q4-luma-card,
-    .q4-luma-h1,
-    .q4-luma-subhead,
-    .q4-luma-cta {
-      transition: none !important;
-      opacity: 1 !important;
-      transform: none !important;
-    }
-  }
-
-  /* ---------- HERO ALT: MARQUEE (toggle-only alternative to .q4-luma-hero) ----------
-     Token mapping used throughout this block (project has no shadcn-style
-     --background/--foreground/--primary/--secondary/--accent/--border/--radius
-     custom properties, so every one of those from the brief maps to the closest
-     existing Packhelp token):
-       --background          -> var(--color-bg-surface)   (white)
-       --foreground           -> var(--color-text-primary) (rich-blue)
-       --muted-foreground     -> var(--color-text-muted)   (gray-500)
-       --accent / --primary   -> var(--color-accent)       (PH blue)
-       --primary-foreground   -> var(--color-text-on-accent) (white)
-       --secondary            -> var(--color-bg-muted)     (gray-100)
-       --secondary-foreground -> var(--color-text-secondary) (gray-600)
-       --border               -> var(--color-border-default) (gray-300)
-       --radius (cards)       -> var(--radius-lg)
-       shadow token            -> the one elevation value already reused
-                                   sitewide for resting card lift
-                                   (.site-settings-btn / hover-lift pattern):
-                                   0 4px 16px rgba(0,0,0,.15)
-     Card gap: brief asked for "~36px" — not on the 4px spacing scale (jumps
-     32 -> 40), so rounded down to the nearer existing step, var(--space-8). */
-  .q4-marquee-hero {
-    display: none;
-    position: relative;
-    height: 100svh;
-    overflow: hidden;
-    background: var(--color-bg-surface);
-  }
-
-  body.q4-marquee-hero-mode .q4-marquee-hero { display: block; }
-  body.q4-marquee-hero-mode .q4-luma-hero { display: none; }
-
-  .q4-mh-content {
-    position: relative;
-    z-index: 4;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    max-width: 620px;
-    margin: -240px auto 0;
-    padding: var(--space-8) var(--space-6) 0;
-  }
-
-  /* reuses the original hero's text classes verbatim (same copy, same look) —
-     their fade-in-on-load transition is scoped to .q4-luma-content.is-visible,
-     which this second instance never gets, so force them shown here instead. */
-  .q4-mh-content .q4-luma-badge,
-  .q4-mh-content .q4-luma-h1,
-  .q4-mh-content .q4-luma-subhead,
-  .q4-mh-content .q4-luma-cta {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  /* ---------- HERO ALT wheel carousel ----------
+  /* ---------- HERO wheel carousel ----------
      One giant circle: `.q4-mh-wheel` is a zero-size hub positioned far below
      the visible clip area; each `.q4-mh-wheel-card` is placed on the rim via
      `rotate(angle) translateY(-R)` (the classic "clock hand" technique), which
@@ -365,6 +211,18 @@
     /* full card height, no crop — plus a buffer for how far the arc dips
        below the apex across the visible width, plus breathing room */
     height: calc(290px * 4 / 3 + var(--space-8) * 2 + 180px);
+    /* fades to transparent on all four sides — two gradients intersected so
+       cards fade out approaching either the left/right edge or the bottom
+       of the dip, instead of a hard clip; same recipe as the smaller
+       .q4-final-marquee strip above the final CTA. */
+    mask-image:
+      linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%),
+      linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%),
+      linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
+    -webkit-mask-composite: source-in;
   }
 
   .q4-mh-wheel {
@@ -391,7 +249,6 @@
     margin-top: calc(-0.5 * 290px * 4 / 3);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border-default);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
     overflow: hidden;
     transform: rotate(var(--a, 0deg)) translateY(var(--q4-wheel-r-neg, -4200px));
     will-change: transform;
@@ -442,8 +299,8 @@
     transform: translateY(0);
   }
 
-  /* .q4-case-section's own transform:translateX(-50%) (the 100vw full-bleed
-     centering trick) would otherwise get clobbered by .reveal's translateY —
+  /* .q4-case-section's own transform:translateX(-50%) (100vw full-bleed
+     centering) would otherwise get clobbered by .reveal's translateY —
      same fix as index.html's .categories-section.reveal override. */
   .q4-case-section.reveal {
     transform: translateX(-50%) translateY(-16px);
@@ -514,12 +371,8 @@
      progress, so the reveal follows natural reading order through the wrapped
      lines instead of a rectangular left-to-right wipe. */
   .q4-fill-section {
-    display: none;
     padding: var(--space-24) 0;
   }
-
-  body.q4-filled-text-mode .q4-fill-section { display: block; }
-  body.q4-filled-text-mode .q4-fan-section { display: none; }
 
   .q4-fill-text {
     max-width: 55rem;
@@ -543,201 +396,80 @@
     .q4-fill-word { color: var(--color-text-primary) !important; }
   }
 
-  /* ---- page settings (bottom-left gear + panel) ----
-     Same shell as the site-wide .site-settings-btn/.site-settings-panel
-     (components.css), just anchored bottom-left instead of bottom-right so it
-     doesn't clash with that shared component on pages that also have it.
-     Reuses .site-toggle*/.site-settings-title/row/label/desc as-is. */
-  .q4-settings-btn {
-    position: fixed;
-    bottom: 24px;
-    left: 24px;
-    z-index: 1000;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--color-bg-surface);
-    border: 1px solid rgba(0, 0, 0, .08);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+  /* ---------- THE RISK (intro text left, 3 stacked cards right) ---------- */
+  .q4-risk-layout {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--color-text-muted);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    align-items: flex-start;
+    gap: var(--space-12);
   }
 
-  .q4-settings-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
+  .q4-risk-intro {
+    flex: 1 1 0;
+    min-width: 0;
+    position: sticky;
+    top: 40px;
   }
 
-  .q4-settings-btn svg { width: 24px; height: 24px; }
-
-  .q4-settings-panel {
-    position: fixed;
-    bottom: 92px;
-    left: 24px;
-    z-index: 1000;
-    width: 280px;
-    background: var(--color-bg-surface);
-    border-radius: var(--radius-md);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
-    padding: var(--space-5);
-    box-sizing: border-box;
-    opacity: 0;
-    transform: translateY(12px);
-    pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-
-  .q4-settings-panel.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  /* ---------- FANNED CARD ROW ----------
-     Outer .q4-fan-card owns the one-shot entrance transform (off-canvas -> rest,
-     with spring overshoot) and the settled rotation. Inner .q4-fan-card-inner owns
-     only the hover "part to make room" offset. Kept on separate elements so the two
-     transforms never collide in a single `transform` value — hovering a card mid
-     entrance can't cancel its spring. */
-  .q4-fan-section {
-    overflow: hidden;
-  }
-
-  .q4-fan-cards {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow-x: hidden;
-    overflow-y: visible;
-    padding: var(--space-8) 0;
-  }
-
-  .q4-fan-card {
-    position: relative;
-    flex: 0 0 auto;
-    width: 262px; /* 5 cards at ~15% overlap ≈ .q4-container's content width (1216px - 2×--space-8) */
-    height: 313px; /* ~80px shorter than the 2:3-ratio 393px */
-    z-index: 1;
-    transform: translateX(75vw) rotate(0deg);
-    transition: transform 620ms cubic-bezier(.34, 1.56, .64, 1);
-  }
-
-  .q4-fan-card:not(:first-child) { margin-left: calc(-1 * var(--space-10)); }
-
-  .q4-fan-card:nth-child(1) { z-index: 1; transition-delay: 0ms; }
-  .q4-fan-card:nth-child(2) { z-index: 2; transition-delay: 175ms; }
-  .q4-fan-card:nth-child(3) { z-index: 3; transition-delay: 350ms; }
-  .q4-fan-card:nth-child(4) { z-index: 4; transition-delay: 525ms; }
-  .q4-fan-card:nth-child(5) { z-index: 5; transition-delay: 700ms; }
-
-  .q4-fan-section.is-visible .q4-fan-card {
-    transform: translateX(0) rotate(var(--fan-r, 0deg));
-  }
-
-  /* once the entrance has fully played out, swap to a non-staggered transition
-     so hover responds immediately instead of waiting out the entrance
-     delay/spring on every card. Same spring/duration as the inner layer's
-     hover offset so position, rotation and scale resolve together. */
-  .q4-fan-section.settled .q4-fan-card {
-    transition: transform 450ms cubic-bezier(.34, 1.56, .64, 1);
-  }
-
-  .q4-fan-section.settled .q4-fan-card:hover {
-    transform: translateX(0) rotate(0deg) scale(1.08);
-    transform-origin: center;
-    z-index: 10;
-  }
-
-  .q4-fan-card-inner {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-    transform: translateX(var(--hover-x, 0px));
-    transition: transform 450ms cubic-bezier(.34, 1.56, .64, 1);
-  }
-
-  .q4-fan-card-media {
-    background: var(--color-bg-muted);
-  }
-
-  .q4-fan-card-media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .q4-fan-card-text {
+  .q4-risk-cards {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    height: 100%;
-    padding: var(--space-5);
+    gap: var(--space-6);
   }
-
-  .q4-fan-card-tint   { background: var(--color-bg-accent-subtle); }
-  .q4-fan-card-inverse { background: var(--color-bg-inverse); }
-
-  .q4-fan-statement {
-    margin: 0;
-    font-weight: 500;
-    font-size: 1.1875rem;
-    line-height: 1.3;
-    letter-spacing: -0.03em;
-    color: var(--color-text-primary);
-  }
-
-  .q4-fan-card-inverse .q4-fan-statement { color: var(--color-text-on-accent); }
-
-  @media (max-width: 640px) {
-    .q4-fan-cards {
-      justify-content: flex-start;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x proximity;
-      scroll-padding-left: var(--space-8);
-      padding: var(--space-8) var(--space-8);
-    }
-    .q4-fan-card { scroll-snap-align: center; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .q4-fan-card { transition: none !important; }
-    .q4-fan-card-inner { transition: none; }
-  }
-
-  /* ---------- THE RISK (gray tiles, horizontal scroll when narrow) ---------- */
-  .q4-risk-cards {
-    display: flex;
-    gap: var(--space-3);
-    margin: 0 calc(-1 * var(--space-5)) 0;
-    padding: 0 var(--space-5);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-left: var(--space-5);
-    scroll-padding-right: var(--space-5);
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .q4-risk-cards::-webkit-scrollbar { display: none; }
 
   .q4-risk-card {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    flex: 0 0 78vw;
-    max-width: 320px;
-    min-height: 11rem;
-    padding: var(--space-6);
+    padding: var(--space-8);
     background: var(--color-bg-surface);
     border: 1px solid var(--color-border-default);
     border-radius: var(--radius-lg);
-    scroll-snap-align: start;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 900px) {
+    .q4-risk-layout { flex-direction: column; gap: var(--space-8); }
+    .q4-risk-intro { position: static; }
+
+    /* cards go back to a horizontally-scrolling row once the two-column
+       layout collapses — bleeds edge-to-edge past .q4-container's own
+       padding, same recipe as .q4-trust-logos' negative-margin technique. */
+    .q4-risk-cards {
+      /* .q4-risk-layout uses align-items:flex-start, so without an explicit
+         width this flex item sizes to fit all 3 unshrinkable cards in a row
+         (its max-content size) instead of being clamped to the column's
+         available width — which is what actually makes overflow-x:auto
+         start scrolling instead of just silently overflowing the page. */
+      width: 100%;
+      /* a non-visible overflow value makes a flex item's automatic min-size
+         resolve to 0 instead of its content size (spec behaviour) — without
+         an explicit height this collapses to ~0 instead of fitting the
+         176px cards, so give it one directly instead of relying on the
+         desktop flex:1 1 0 (a main-axis/width rule there, but this is now
+         a column layout where that axis is height). */
+      flex: none;
+      height: calc(11rem + var(--space-2));
+      flex-direction: row;
+      gap: var(--space-3);
+      margin: 0 calc(-1 * var(--space-5)) 0;
+      padding: 0 var(--space-5) var(--space-2);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: var(--space-5);
+      scroll-padding-right: var(--space-5);
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .q4-risk-cards::-webkit-scrollbar { display: none; }
+
+    .q4-risk-card {
+      flex: 0 0 78vw;
+      max-width: 320px;
+      min-height: 11rem;
+      scroll-snap-align: start;
+    }
   }
 
   .q4-risk-icon {
@@ -831,43 +563,116 @@
     to { transform: translateX(-50%); }
   }
 
-  /* ---------- ONE PARTNER BENTO GRID (photos + stat tiles mixed) ---------- */
-  .q4-bento {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
-    grid-template-areas:
-      "beauty      beauty"
-      "stat318     apparel"
-      "food        apparel"
-      "supplements supplements"
-      "retail      stat11291"
-      "electronics electronics";
+  /* ---------- ONE PARTNER: PINTEREST GRID (photos + stat tiles mixed) ----------
+     Four fixed columns, each a specific curated sequence of tiles (not an
+     auto-balanced masonry) — CSS multi-column's balance algorithm doesn't
+     let content dictate an exact order/grouping, so the columns are just
+     written out directly in HTML. At ≥1200px they reflow as 4 equal flex
+     columns; below that there's only room for 2 — but two independently
+     wrapped flex columns whose paired groups have very different tile
+     counts (e.g. a 3-tile group next to a 2-tile one) leave a dead gap
+     under the shorter one instead of the next group sliding up to fill it.
+     .q4-pin-super wraps each pair of columns that should merge into one
+     continuous column once that happens (display:contents at ≥1200px is a
+     no-op that promotes its two .q4-pin-col children to be direct flex
+     items instead, restoring the 4-across layout). */
+  .q4-bento-pinterest {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
     margin: var(--space-6) 0 var(--space-10);
   }
 
-  .q4-bento-photo {
-    position: relative;
-    min-width: 0;
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: var(--color-bg-muted);
+  .q4-pin-super {
+    display: contents;
   }
 
-  .q4-bento-photo img {
-    position: absolute;
-    inset: 0;
+  .q4-pin-super > .q4-pin-col {
+    flex: 1 1 calc(50% - var(--space-5) / 2);
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 1200px) {
+    .q4-pin-super > .q4-pin-col { flex-basis: 0; flex-grow: 1; }
+  }
+
+  @media (max-width: 1199px) {
+    .q4-pin-super {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+      flex: 1 1 calc(50% - var(--space-5) / 2);
+      min-width: 0;
+    }
+    .q4-pin-super > .q4-pin-col { flex: none; }
+  }
+
+  .q4-pin-tile {
+    width: 100%;
+  }
+
+  .q4-pin-media {
+    position: relative;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-muted);
+    overflow: hidden;
+  }
+
+  .q4-pin-media img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .q4-bento-full { aspect-ratio: 16 / 7; }
-
-  .q4-bento-tall {
+  .q4-pin-tile .q4-bento-stat {
     aspect-ratio: auto;
-    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    gap: var(--space-5);
+  }
+
+  .q4-pin-tile .q4-bento-stat.q4-bento-cta {
+    gap: var(--space-8);
+  }
+
+  /* a plain-width masonry column is often narrower than the CTA button's
+     natural (nowrap) size, so let it wrap onto two lines here instead of
+     spanning the whole grid — keeps this tile matching its neighbours. */
+  .q4-pin-tile .q4-bento-cta .btn-pill {
+    width: 100%;
+    height: auto;
+    min-height: var(--space-12);
+    padding: var(--space-3) var(--space-5);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+  }
+
+  /* One partner tiles: staggered "random" entrance instead of the whole
+     grid fading in as one block — each tile gets its own randomized delay,
+     duration and drift direction (set as inline custom properties by the
+     script near the bottom of the page), all triggered at once when the
+     section scrolls into view, so they don't line up in unison. */
+  .q4-tile-enter {
+    opacity: 0;
+    transform: translateY(var(--q4-tile-y, 24px)) scale(0.94);
+    transition: opacity var(--q4-tile-duration, 0.4s) ease-out, transform var(--q4-tile-duration, 0.4s) ease-out;
+    transition-delay: var(--q4-tile-delay, 0s);
+  }
+
+  .q4-tile-enter.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-tile-enter { transition: none; opacity: 1; transform: none; }
   }
 
   .q4-cat-label {
@@ -905,80 +710,6 @@
     gap: var(--space-10);
   }
 
-  /* ---- One partner: Pinterest grid (alt layout, toggle-controlled) ----
-     Equal-width columns via CSS multi-column, tile heights stay natural
-     (masonry), captions sit below the tile instead of overlaid on it. */
-  .q4-bento-pinterest { display: none; }
-  body.q4-pinterest-mode .q4-bento { display: none; }
-  body.q4-pinterest-mode .q4-bento-pinterest { display: block; }
-
-  .q4-bento-pinterest {
-    column-count: 2;
-    column-gap: var(--space-5);
-    margin-top: var(--space-8);
-  }
-
-  @media (min-width: 700px) {
-    .q4-bento-pinterest { column-count: 3; }
-  }
-
-  @media (min-width: 1200px) {
-    .q4-bento-pinterest { column-count: 4; }
-  }
-
-  .q4-pin-tile {
-    display: inline-block;
-    width: 100%;
-    break-inside: avoid;
-    margin: 0 0 var(--space-5);
-  }
-
-  .q4-pin-media {
-    width: 100%;
-    border-radius: var(--radius-lg);
-    background: var(--color-bg-muted);
-    overflow: hidden;
-  }
-
-  .q4-pin-media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .q4-pin-caption {
-    margin: var(--space-3) 0 0;
-    font-size: 0.875rem;
-    letter-spacing: -0.01em;
-    color: var(--color-text-secondary);
-  }
-
-  .q4-pin-tile .q4-bento-stat {
-    aspect-ratio: auto;
-    width: 100%;
-    box-sizing: border-box;
-    justify-content: flex-start;
-    gap: var(--space-5);
-  }
-
-  .q4-pin-tile .q4-bento-stat.q4-bento-cta {
-    gap: var(--space-8);
-  }
-
-  /* a plain-width masonry column is often narrower than the CTA button's
-     natural (nowrap) size, so let it wrap onto two lines here instead of
-     spanning the whole grid — keeps this tile matching its neighbours. */
-  .q4-pin-tile .q4-bento-cta .btn-pill {
-    width: 100%;
-    height: auto;
-    min-height: var(--space-12);
-    padding: var(--space-3) var(--space-5);
-    white-space: normal;
-    text-align: center;
-    line-height: 1.25;
-  }
-
   .q4-stat-card-num {
     display: block;
     font-weight: 500;
@@ -1002,143 +733,96 @@
     color: var(--color-text-primary);
   }
 
-  /* ---------- CASE STUDY: LOVATO CANDLES (the page's one dark section, same
-     treatment as index.html's "At any scale" .cta-card — inverse bg, on-accent
-     text, subtle bordered badge) ---------- */
+  /* ---------- CASE STUDY: LOVATO CANDLES (full-bleed gray block: badge +
+     heading centered as a block, then the word-reveal text directly
+     below) ---------- */
   .q4-case-section {
     position: relative;
     width: 100vw;
     left: 50%;
     transform: translateX(-50%);
-    padding: 0;
     box-sizing: border-box;
-    margin-bottom: var(--space-8);
   }
 
-  /* the visual card is a separate absolutely-positioned layer (inset by a
-     fixed 32px/12px margin from the section edge) so its presence never
-     shifts the text's own containing-block math — .q4-container below
-     centers against the plain 100vw section exactly like it does everywhere
-     else on the page, keeping the heading's left edge aligned with other
-     sections at every viewport width, not just wide ones where the
-     centering slack happens to cancel a padding-based gutter out. */
-  .q4-case-card {
-    position: absolute;
-    inset: var(--space-8) var(--space-3);
-    overflow: hidden;
-    isolation: isolate;
+  /* chained selector beats .q4-section's own (single-class, same-specificity)
+     padding at every breakpoint including its ≥700px media-query bump. */
+  .q4-section.q4-case-section {
+    padding: var(--space-8) var(--space-3);
+  }
+
+  .q4-case-bg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    padding: 120px var(--space-8);
     border-radius: var(--radius-2xl);
-    background: var(--color-bg-accent-subtle);
-    z-index: 0;
+    background: var(--color-bg-muted);
+    box-sizing: border-box;
   }
 
-  /* same soft-light blobs + grain as index.html's .cta-card, recoloured to
-     white so the halo reads as a soft highlight against the light blue
-     instead of the dark smudge the original navy/gray blobs would leave. */
-  .q4-case-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(100px);
-    opacity: 0.5;
-    will-change: transform;
-    mix-blend-mode: soft-light;
-    z-index: 0;
+  /* text reuses the "FILLED TEXT" word-by-word scroll-color reveal (see
+     .q4-fill-text/.q4-fill-word below, and the shared script near the
+     bottom of the page that now drives every .q4-fill-text instance on the
+     page independently) — centered as a block via .q4-case-bg's own
+     align-items:center. Paragraphs stretch to the container's own width
+     (default align-items:stretch) so they wrap correctly at 48rem; the
+     badge and button opt out via align-self so they shrink to their own
+     content width and sit flush-left instead of stretching full width too. */
+  .q4-case-fill {
+    max-width: 48rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
 
-  .q4-case-blob-1 {
-    width: 42vw;
-    height: 42vw;
-    background: #fff;
-    top: 10%;
-    left: 8%;
-    animation: q4CaseFloat1 18s ease-in-out infinite;
-  }
-
-  .q4-case-blob-2 {
-    width: 38vw;
-    height: 38vw;
-    background: #fff;
-    top: 30%;
-    right: 5%;
-    animation: q4CaseFloat2 22s ease-in-out infinite;
-  }
-
-  .q4-case-blob-3 {
-    width: 34vw;
-    height: 34vw;
-    background: #fff;
-    bottom: 5%;
-    left: 30%;
-    animation: q4CaseFloat3 26s ease-in-out infinite;
-  }
-
-  @keyframes q4CaseFloat1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33%      { transform: translate(6vw, 8vh) scale(1.1); }
-    66%      { transform: translate(-4vw, 4vh) scale(0.95); }
-  }
-
-  @keyframes q4CaseFloat2 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50%      { transform: translate(-8vw, -6vh) scale(1.08); }
-  }
-
-  @keyframes q4CaseFloat3 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    40%      { transform: translate(5vw, -5vh) scale(1.05); }
-    70%      { transform: translate(-6vw, 3vh) scale(0.92); }
-  }
-
-  .q4-case-grain {
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .q4-case-section > .q4-container {
-    position: relative;
-    z-index: 1;
-  }
-
-  .q4-case-content {
-    /* card's own visual padding (space-20) plus the outer margin already
-       spent on .q4-case-card's inset (space-8), so the text sits the same
-       80px in from the card edge as it did before the bg layer was split
-       out into its own absolutely-positioned element. */
-    padding: calc(var(--space-8) + var(--space-20)) 0;
-  }
-
-  .q4-case-badge {
-    display: inline-block;
-    margin: 0 0 var(--space-5);
-    padding: var(--space-1) var(--space-3);
-    background: rgba(255, 255, 255, .6);
-    color: var(--color-text-secondary);
-    border: 1px solid rgba(0, 0, 0, .08);
-    border-radius: var(--radius-full);
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .q4-case-blob { animation: none; }
-  }
-
-  .q4-case-heading {
+  /* the default .q4-section-badge bg (--color-bg-muted-hover, #F2F2F2) is
+     too close to this section's own --color-bg-muted (#F8F8F8) to read as a
+     distinct badge, unlike everywhere else it's used against white. Own
+     margin reset to 0 since the flex gap above already sets its distance
+     from the text below (tighter than the default --space-3). */
+  .q4-case-fill .q4-section-badge {
+    align-self: flex-start;
     margin: 0;
-    max-width: 44rem;
+    background: var(--color-bg-surface);
+  }
+
+  .q4-case-fill .btn-pill {
+    align-self: flex-start;
+  }
+
+  /* stat row below the button — same width as the text/button above it
+     (unlike the card itself, which is wider), so .q4-case-bg's own
+     align-items:center lines its edges up with them automatically. The
+     var(--space-20) gap above (on .q4-case-bg) is the only gap in this
+     2-child layout, so it alone sets the button-to-stats distance. */
+  .q4-case-stats {
+    max-width: 48rem;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-8);
+  }
+
+  .q4-case-stat-num {
+    display: block;
+    margin-bottom: var(--space-2);
     font-weight: 500;
-    font-size: 2rem;
-    line-height: 1.2;
+    font-size: 2.5rem;
     letter-spacing: -0.03em;
     color: var(--color-text-primary);
   }
 
+  .q4-case-stat-desc {
+    margin: 0;
+    max-width: 16rem;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
   @media (max-width: 700px) {
-    .q4-case-content { padding: calc(var(--space-8) + var(--space-12)) 0; }
-    .q4-case-heading { font-size: 1.5rem; }
+    .q4-case-stats { flex-direction: column; gap: var(--space-6); }
   }
 
   /* ---------- SUPPORT (same scroll-carousel component as deals.html's deals-carousel) ---------- */
@@ -1207,34 +891,6 @@
 
   .q4-support-visual { height: 400px; }
 
-  .q4-support-intro { margin-bottom: var(--space-14); }
-
-  /* highlight card: same blob background as the brief-form card, full item height, no caption below */
-  .q4-support-highlight-visual {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--radius-md);
-    background: var(--color-bg-accent-subtle);
-    height: 100%;
-    padding: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
-
-  .q4-support-highlight-content {
-    position: relative;
-    z-index: 2;
-  }
-
-  .q4-support-highlight-num {
-    display: block;
-    margin-bottom: var(--space-2);
-    font-weight: 500;
-    font-size: 2rem;
-    letter-spacing: -0.03em;
-    color: var(--color-text-primary);
-  }
 
   /* ---------- FAQ + BRIEF FORM (two columns: same faq-item accordion as index.html's "Why Packhelp", form card with Press-tile blob background) ---------- */
   .q4-faq-grid {
@@ -1461,9 +1117,89 @@
     .q4-faq-grid { grid-template-columns: 1fr; gap: var(--space-10); }
   }
 
+  /* ---------- final CTA: small tilted-photo strip (rim trick:
+     rotate(angle) translateY(-R) on a zero-size hub, card count/duration
+     derived in JS from CARD_W/GAP/R/SPEED). The rim here is fully populated
+     all the way around (not just a short arc), so as it slowly spins
+     there's always a run of cards in the visible strip — no dead gap once a
+     short set would have rotated past.
+     Fades to transparent on all four sides: horizontally via a mask-image
+     on the inner scroller (same technique as .q4-trust-logos), vertically
+     via a second mask-image on the outer wrapper so cards dipping toward
+     the bottom of the arc fade out instead of getting a hard clip. */
+  .q4-final-marquee-fade {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 280px;
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+    mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  }
+
+  .q4-final-marquee {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0, black 25%, black 75%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 25%, black 75%, transparent 100%);
+  }
+
+  .q4-final-wheel {
+    position: absolute;
+    left: 50%;
+    top: calc(280px / 2 + var(--q4-final-wheel-r, 2400px));
+    width: 0;
+    height: 0;
+    animation: q4-final-wheel-spin var(--q4-final-wheel-duration, 335s) linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes q4-final-wheel-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .q4-final-wheel-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 130px;
+    aspect-ratio: 3 / 4;
+    margin-left: -65px;
+    margin-top: calc(-0.5 * 130px * 4 / 3);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-default);
+    overflow: hidden;
+    transform: rotate(var(--a, 0deg)) translateY(var(--q4-final-wheel-r-neg, -2400px));
+    will-change: transform;
+  }
+
+  .q4-final-wheel-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 900px) {
+    .q4-final-marquee-fade { height: 210px; }
+    .q4-final-wheel { scale: 0.75; top: calc(210px / 2 + 0.75 * var(--q4-final-wheel-r, 2400px)); }
+  }
+
+  @media (max-width: 500px) {
+    .q4-final-marquee-fade { height: 160px; }
+    .q4-final-wheel { scale: 0.55; top: calc(160px / 2 + 0.55 * var(--q4-final-wheel-r, 2400px)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-final-wheel { animation: none; }
+  }
+
   /* ---------- FINAL CTA (same pattern as index.html's final-cta-section) ---------- */
   .final-cta-section {
-    padding: var(--space-40) var(--space-8) var(--space-32);
+    padding: var(--space-12) var(--space-8) var(--space-32);
     text-align: center;
   }
 
@@ -1475,6 +1211,69 @@
     line-height: 1.04;
     letter-spacing: -0.06em;
     color: var(--color-text-primary);
+  }
+
+  /* inline tilted photo thumb — same recipe as index.html's .final-deco-square:
+     scales in on reveal, cycles a set of product photos, tilts -8deg, grows
+     on hover. Cycles Q4's own One Partner photos instead of the home page's
+     generic set, since those are already on this page. */
+  .final-cta-heading .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-cta-heading .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-cta-heading .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--color-bg-muted);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+    animation: q4-final-deco-cycle 2.5s steps(1) infinite;
+  }
+
+  .final-cta-section.is-visible .final-cta-heading .final-deco-square::before {
+    animation: q4-final-deco-cycle 2.5s steps(1) infinite, final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  @keyframes q4-final-deco-cycle {
+    0%   { background-image: url('assets/q4/onepartner/onepartner02.jpg'); }
+    20%  { background-image: url('assets/q4/onepartner/onepartner03.jpeg'); }
+    40%  { background-image: url('assets/q4/onepartner/onepartner04.png'); }
+    60%  { background-image: url('assets/q4/onepartner/onepartner05.png'); }
+    80%  { background-image: url('assets/q4/onepartner/onepartner06.jpeg'); }
+    100% { background-image: url('assets/q4/onepartner/onepartner02.jpg'); }
+  }
+
+  .final-cta-heading .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .final-cta-heading .final-deco-square::before { animation: none; background-image: url('assets/q4/onepartner/onepartner05.png'); }
   }
 
   .final-cta-subheading {
@@ -1505,36 +1304,7 @@
     .q4-section { padding: var(--space-24) 0; }
   }
 
-  @media (min-width: 1024px) {
-    /* one-partner bento: denser 3-col asymmetric grid */
-    .q4-bento {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-areas:
-        "beauty      beauty      apparel"
-        "stat318     food        apparel"
-        "supplements supplements supplements"
-        "retail      stat11291   electronics";
-    }
-
-    /* the risk: enough room for a static 3-col row, no scroll needed */
-    .q4-risk-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      margin: 0;
-      padding: 0;
-      overflow-x: visible;
-      scroll-snap-type: none;
-    }
-    .q4-risk-card {
-      flex: none;
-      max-width: none;
-      min-height: 13rem;
-    }
-  }
-
   /* ---------- sticky bottom bar (same floating pill-bar recipe as get-a-quote's .quote-footer-bar / nav-header's pinned .sticky-bar) ---------- */
-  body { padding-bottom: 88px; }
-
   .q4-sticky-bar {
     position: fixed;
     left: var(--space-5);
@@ -1566,6 +1336,59 @@
     .q4-sticky-bar.is-visible { transform: translateX(-50%) translateY(0); }
     .q4-sticky-bar .btn-pill { width: auto; padding: 0 var(--space-8); }
   }
+
+  /* ---------- FOOTER (bottom bar only, same pattern as index.html's .footer-bottom) ---------- */
+  .q4-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+  }
+
+  .q4-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .q4-footer-bottom {
+    width: 100%;
+    max-width: 76rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .q4-footer-bottom span:last-child { text-align: right; }
+
+  .q4-footer-logo { justify-self: center; }
+
+  .q4-footer-logo img {
+    height: 18px;
+    width: auto;
+  }
+
+  @media (max-width: 700px) {
+    .q4-footer-bottom {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      gap: var(--space-3);
+      text-align: center;
+    }
+    .q4-footer-bottom span:last-child { text-align: center; }
+    .q4-footer-logo { order: -1; }
+  }
 </style>
 </head>
 <body>
@@ -1575,46 +1398,7 @@
 
 <main>
 
-  <!-- ============ HERO: scattered cards (Luma-style) ============ -->
-  <section class="q4-luma-hero">
-
-    <div class="q4-luma-cardfield" aria-hidden="true">
-      <div class="q4-luma-card" style="left:2%; top:10%; width:150px; height:150px; --rot:-5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/f05ac528-3532-42c1-842a-8e7e6a9228bb/10645342-packhelp-16-123884?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card q4-drop-1024" style="left:9%; top:34%; width:190px; height:238px; --rot:4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/db5780cf-4bec-4da1-948f-b579b0876868/8419042-packhelp-28526-b-1?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:1%; top:60%; width:110px; height:110px; --rot:-3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/fefd0ec2-74f6-40fd-809b-4c19277b5211/10475161-christmas-2?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:11%; top:80%; width:150px; height:150px; --rot:6deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/bd170354-9351-4183-8a91-464e2aef4ddf/9992344-packhelp-26-28-05-2021-7458?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:-4%; top:-2%; width:110px; height:138px; --rot:-7deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/0b87c926-da10-4a97-ac4c-b68735b900de/10118352-christmas-happy-socks?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card q4-drop-1280" style="left:86%; top:6%; width:110px; height:110px; --rot:5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/c3218c06-7d23-4a9e-ab7d-e555f59f3576/9833259-packhelp-27-08-2021-12715?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card q4-drop-1024" style="left:94%; top:27%; width:150px; height:188px; --rot:-4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/bfaf9c9e-eca8-4a5f-98b5-c421549bbf3f/9300197-packhelp-packshot-10270?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:79%; top:48%; width:190px; height:190px; --rot:3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/557ed2d0-0b15-4ec6-889f-7661cfdc2aed/9265672-packhelp-23-10-20201690?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card q4-drop-1280" style="left:90%; top:70%; width:110px; height:110px; --rot:-6deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/af21426d-e9b9-4642-8260-c7d483c4a089/9147158-packhelp-26-28-05-2021-7344?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:83%; top:90%; width:150px; height:150px; --rot:7deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/de710a5e-8159-44dd-b133-d06c01513797/9100125-packhelp-26-28-05-2021-7449?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:35%; top:-3%; width:110px; height:138px; --rot:-3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/ba83b262-1d70-4b3f-904a-3afff32ba027/9097126-packhelp-26-28-05-2021-7395?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card q4-drop-1024" style="left:56%; top:4%; width:150px; height:150px; --rot:5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/1541c860-9ad7-4dc4-92dd-2879c231a1e4/9084792-packhelp-packshot-10227?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:40%; top:89%; width:150px; height:150px; --rot:-5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/60e6fe48-dce4-468b-a186-7665d07e9a08/8813556-packhelp-10-081102?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card" style="left:60%; top:86%; width:110px; height:138px; --rot:4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/1816a593-6a9d-4779-89dd-d81d87ffddfc/8737906-packhelp-26-11-16680?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-      <div class="q4-luma-card q4-drop-1280" style="left:19%; top:17%; width:110px; height:110px; --rot:-2deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/33f5efb4-0ab3-47cc-afdc-1721a23bcb3c/8645088-packhelp-10-081219?w=400&auto=format,compress&fit=crop" alt=""></div></div>
-    </div>
-
-    <div class="q4-luma-content">
-      <span class="q4-luma-badge">For brands shipping their biggest volume between Black Friday and Christmas</span>
-      <h1 class="q4-luma-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
-      <p class="q4-luma-subhead">Lock in December&rsquo;s packaging now, from one supplier, with a guaranteed delivery date</p>
-      <a href="#" class="btn-pill lg q4-luma-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-
-      <div class="q4-luma-mobile-cluster" aria-hidden="true">
-        <div class="q4-luma-card" style="width:72px; height:72px; --rot:-5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/f05ac528-3532-42c1-842a-8e7e6a9228bb/10645342-packhelp-16-123884?w=200&auto=format,compress&fit=crop" alt=""></div></div>
-        <div class="q4-luma-card" style="width:72px; height:90px; --rot:4deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/db5780cf-4bec-4da1-948f-b579b0876868/8419042-packhelp-28526-b-1?w=200&auto=format,compress&fit=crop" alt=""></div></div>
-        <div class="q4-luma-card" style="width:72px; height:72px; --rot:-3deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/fefd0ec2-74f6-40fd-809b-4c19277b5211/10475161-christmas-2?w=200&auto=format,compress&fit=crop" alt=""></div></div>
-        <div class="q4-luma-card" style="width:72px; height:72px; --rot:6deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/bd170354-9351-4183-8a91-464e2aef4ddf/9992344-packhelp-26-28-05-2021-7458?w=200&auto=format,compress&fit=crop" alt=""></div></div>
-        <div class="q4-luma-card" style="width:72px; height:90px; --rot:-7deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/0b87c926-da10-4a97-ac4c-b68735b900de/10118352-christmas-happy-socks?w=200&auto=format,compress&fit=crop" alt=""></div></div>
-        <div class="q4-luma-card" style="width:72px; height:72px; --rot:5deg;"><div class="q4-luma-card-inner"><img src="https://cdn-pim.packhelp.com/assets/c3218c06-7d23-4a9e-ab7d-e555f59f3576/9833259-packhelp-27-08-2021-12715?w=200&auto=format,compress&fit=crop" alt=""></div></div>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ============ HERO ALT: MARQUEE (toggle-only, off by default) ============ -->
+  <!-- ============ HERO: wheel carousel ============ -->
   <section class="q4-marquee-hero">
 
     <div class="q4-mh-content">
@@ -1688,34 +1472,6 @@
     </div>
   </section>
 
-  <!-- ============ FANNED CARD ROW ============ -->
-  <section class="q4-fan-section">
-    <div class="q4-fan-cards">
-      <div class="q4-fan-card" data-rotate="-4" aria-hidden="true">
-        <div class="q4-fan-card-inner q4-fan-card-media"><img src="assets/q4/cards01.png" alt=""></div>
-      </div>
-
-      <div class="q4-fan-card" data-rotate="3">
-        <div class="q4-fan-card-inner q4-fan-card-text q4-fan-card-tint">
-          <p class="q4-fan-statement">Running out of branded packaging in the middle of a sales peak is an easily avoidable brand risk.</p>
-        </div>
-      </div>
-
-      <div class="q4-fan-card" data-rotate="-3" aria-hidden="true">
-        <div class="q4-fan-card-inner q4-fan-card-media"></div>
-      </div>
-
-      <div class="q4-fan-card" data-rotate="4">
-        <div class="q4-fan-card-inner q4-fan-card-text q4-fan-card-inverse">
-          <p class="q4-fan-statement">Even right now, there&rsquo;s an ops lead somewhere with a Q4 forecast in front of them but no packaging order placed.</p>
-        </div>
-      </div>
-
-      <div class="q4-fan-card" data-rotate="-2" aria-hidden="true">
-        <div class="q4-fan-card-inner q4-fan-card-media"></div>
-      </div>
-    </div>
-  </section>
 
   <div class="q4-marquee-outer">
     <div class="q4-marquee-track">
@@ -1741,142 +1497,139 @@
   <!-- ============ THE RISK ============ -->
   <section class="q4-section reveal">
     <div class="q4-container">
-      <span class="q4-section-badge">The risk</span>
-      <h2>Q4 packaging problems usually start months before Q4</h2>
-      <p class="q4-lead">When something falls behind it&rsquo;s never <em>&ldquo;just late.&rdquo;</em></p>
+      <div class="q4-risk-layout">
+        <div class="q4-risk-intro">
+          <span class="q4-section-badge">The risk</span>
+          <h2>Q4 packaging problems usually start months before Q4</h2>
+          <p class="q4-lead">When something falls behind it&rsquo;s never <em>&ldquo;just late.&rdquo;</em></p>
+        </div>
 
-      <div class="q4-risk-cards">
-        <div class="q4-risk-card">
-          <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-          <span class="q4-risk-num">01</span>
-          <p>Rushed production and emergency freight, at whatever premium keeps things moving.</p>
-        </div>
-        <div class="q4-risk-card">
-          <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
-          <span class="q4-risk-num">02</span>
-          <p>Plain boxes bought on short notice, replacing packaging your brand spent months building.</p>
-        </div>
-        <div class="q4-risk-card">
-          <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-          <span class="q4-risk-num">03</span>
-          <p>Your best-sellers shipping unbranded in the one month your brand is in front of more customers than ever.</p>
+        <div class="q4-risk-cards">
+          <div class="q4-risk-card">
+            <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <span class="q4-risk-num">01</span>
+            <p>Rushed production and emergency freight, at whatever premium keeps things moving.</p>
+          </div>
+          <div class="q4-risk-card">
+            <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+            <span class="q4-risk-num">02</span>
+            <p>Plain boxes bought on short notice, replacing packaging your brand spent months building.</p>
+          </div>
+          <div class="q4-risk-card">
+            <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <span class="q4-risk-num">03</span>
+            <p>Your best-sellers shipping unbranded in the one month your brand is in front of more customers than ever.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ============ ONE PARTNER ============ -->
-  <section class="q4-section q4-partner reveal">
+  <section class="q4-section q4-partner">
     <div class="q4-container">
-      <span class="q4-section-badge">One partner</span>
-      <h2>Put your packaging in better hands</h2>
-      <p class="q4-lead">One partner across your entire range means one point of contact, one team to coordinate the details, and fewer timelines to keep track of.</p>
-
-      <div class="q4-bento">
-        <div class="q4-bento-photo q4-bento-full" style="grid-area:beauty"><span class="q4-cat-label">Beauty · rigid magnetic box + tissue</span></div>
-
-        <div class="q4-bento-stat" style="grid-area:stat318; justify-content:flex-start;">
-          <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside — all under one roof.</p>
-        </div>
-
-        <div class="q4-bento-photo q4-bento-tall" style="grid-area:apparel"><img src="assets/q4/onepartner/onepartner03.jpeg" alt="Branded stand-up food pouches"><span class="q4-cat-label">Food · pouch</span></div>
-
-        <div class="q4-bento-photo" style="grid-area:food"><span class="q4-cat-label">Apparel · mailer</span></div>
-
-        <div class="q4-bento-photo q4-bento-full" style="grid-area:supplements"><span class="q4-cat-label">Supplements · carton</span></div>
-
-        <div class="q4-bento-photo" style="grid-area:retail"><img src="assets/q4/onepartner/onepartner05.png" alt="Branded canvas tote bags"><span class="q4-cat-label">Retail · carrier bag</span></div>
-
-        <div class="q4-bento-stat" style="grid-area:stat11291">
-          <span class="q4-stat-card-num">11,291</span>
-          <span class="q4-stat-card-desc">variants to build your exact range</span>
-        </div>
-
-        <div class="q4-bento-stat q4-bento-cta" style="grid-area:electronics">
-          <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
-          <div>
-            <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-            <p class="q4-micro">Takes 30 seconds. No design files needed yet.</p>
-          </div>
-        </div>
+      <div class="reveal">
+        <span class="q4-section-badge">One partner</span>
+        <h2>Put your packaging in better hands</h2>
+        <p class="q4-lead">One partner across your entire range means one point of contact, one team to coordinate the details, and fewer timelines to keep track of.</p>
       </div>
 
       <div class="q4-bento-pinterest">
-        <div class="q4-pin-tile">
-          <div class="q4-pin-media" style="aspect-ratio:4/5; background:var(--color-bg-muted)"></div>
-          <p class="q4-pin-caption">Beauty · rigid magnetic box + tissue</p>
-        </div>
+        <div class="q4-pin-super">
+          <div class="q4-pin-col" style="order:1">
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/q4/onepartner/onepartner05.png" alt="Branded canvas tote bags"><span class="q4-cat-label">Retail · carrier bag</span></div>
+            </div>
 
-        <div class="q4-pin-tile">
-          <div class="q4-bento-stat" style="aspect-ratio:auto">
-            <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside — all under one roof.</p>
+            <div class="q4-pin-tile">
+              <div class="q4-bento-stat" style="aspect-ratio:auto">
+                <span class="q4-stat-card-num">318</span>
+                <span class="q4-stat-card-desc">custom packaging products</span>
+              </div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-bento-stat q4-bento-cta" style="aspect-ratio:auto">
+                <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
+                <div>
+                  <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+                  <p class="q4-micro">Takes 30 seconds. No design files needed yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="q4-pin-col" style="order:3">
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/q4/onepartner/support06.jpg" alt="Branded kombucha shipping box with cans"><span class="q4-cat-label">Electronics · shipping box + void fill</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:5/4"><img src="assets/q4/onepartner/onepartner04.png" alt="Branded kraft mailer bags"><span class="q4-cat-label">Supplements · carton</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-bento-stat" style="aspect-ratio:auto">
+                <span class="q4-stat-card-num">11,291</span>
+                <span class="q4-stat-card-desc">variants to build your exact range</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="q4-pin-tile">
-          <div class="q4-pin-media" style="aspect-ratio:16/9"><img src="assets/q4/onepartner/onepartner06.jpeg" alt="Branded shipping box with printed void fill"></div>
-          <p class="q4-pin-caption">Electronics · shipping box + void fill</p>
-        </div>
+        <div class="q4-pin-super">
+          <div class="q4-pin-col" style="order:2">
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:1/1"><img src="assets/q4/onepartner/support05.jpg" alt="Branded gift tin with lip balm tubes"><span class="q4-cat-label">Apparel · mailer</span></div>
+            </div>
 
-        <div class="q4-pin-tile">
-          <div class="q4-pin-media" style="aspect-ratio:3/4"><img src="assets/q4/onepartner/onepartner03.jpeg" alt="Branded stand-up food pouches"></div>
-          <p class="q4-pin-caption">Food · pouch</p>
-        </div>
-
-        <div class="q4-pin-tile">
-          <div class="q4-pin-media" style="aspect-ratio:1/1; background:var(--color-bg-muted)"></div>
-          <p class="q4-pin-caption">Apparel · mailer</p>
-        </div>
-
-        <div class="q4-pin-tile">
-          <div class="q4-pin-media" style="aspect-ratio:5/4; background:var(--color-bg-muted)"></div>
-          <p class="q4-pin-caption">Supplements · carton</p>
-        </div>
-
-        <div class="q4-pin-tile">
-          <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/q4/onepartner/onepartner05.png" alt="Branded canvas tote bags"></div>
-          <p class="q4-pin-caption">Retail · carrier bag</p>
-        </div>
-
-        <div class="q4-pin-tile">
-          <div class="q4-bento-stat" style="aspect-ratio:auto">
-            <span class="q4-stat-card-num">318</span>
-            <span class="q4-stat-card-desc">custom packaging products</span>
+            <div class="q4-pin-tile">
+              <div class="q4-bento-stat" style="aspect-ratio:auto">
+                <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside — all under one roof.</p>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="q4-pin-tile">
-          <div class="q4-bento-stat" style="aspect-ratio:auto">
-            <span class="q4-stat-card-num">11,291</span>
-            <span class="q4-stat-card-desc">variants to build your exact range</span>
-          </div>
-        </div>
+          <div class="q4-pin-col" style="order:4">
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:3/4"><img src="assets/q4/onepartner/onepartner03.jpeg" alt="Branded stand-up food pouches"><span class="q4-cat-label">Food · pouch</span></div>
+            </div>
 
-        <div class="q4-pin-tile">
-          <div class="q4-bento-stat q4-bento-cta" style="aspect-ratio:auto">
-            <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
-            <div>
-              <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-              <p class="q4-micro">Takes 30 seconds. No design files needed yet.</p>
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/q4/onepartner/onepartner02.jpg" alt="Branded rigid magnetic box with tissue paper"><span class="q4-cat-label">Beauty · rigid magnetic box + tissue</span></div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </section>
 
   <!-- ============ CASE STUDY: LOVATO CANDLES ============ -->
-  <section class="q4-case-section reveal">
-    <div class="q4-case-card" aria-hidden="true">
-      <div class="q4-case-blob q4-case-blob-1"></div>
-      <div class="q4-case-blob q4-case-blob-2"></div>
-      <div class="q4-case-blob q4-case-blob-3"></div>
-      <div class="q4-case-grain"></div>
-    </div>
-    <div class="q4-container">
-      <div class="q4-case-content">
-        <span class="q4-case-badge">Case study &middot; Lovato Candles</span>
-        <h2 class="q4-case-heading">What happens when the right packaging partner handles your needs? How Packhelp &amp; Lovato Candles achieved a shocking <span class="q4-case-stat-num" data-count-from="41" data-count-to="67">67%</span> lower average packaging unit costs while keeping up with their incredible growth.</h2>
+  <section class="q4-section q4-case-section reveal">
+    <div class="q4-case-bg">
+      <div class="q4-case-fill">
+        <span class="q4-section-badge">Case study &middot; Lovato Candles</span>
+        <p class="q4-fill-text">What happens when the right packaging partner handles your needs? How Packhelp &amp; Lovato Candles achieved a shocking 67% lower average packaging unit costs while keeping up with their incredible growth.</p>
+        <p class="q4-fill-text">Lovato sells candles and diffusers across Ireland, the UK and Europe. As demand grew, so did the complexity behind their packaging &mdash; 13 products, 52 designs, and a need for faster fulfilment.</p>
+        <p class="q4-fill-text">Together, we simplified the whole operation.</p>
+        <p class="q4-fill-text">We consolidated the range into just 2 box sizes, and used Packhelp&rsquo;s storage and fulfilment hub &mdash; so they could order at higher volumes for better pricing and call stock off when they needed it.</p>
+        <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      </div>
+
+      <div class="q4-case-stats">
+        <div class="q4-case-stat">
+          <span class="q4-case-stat-num">67%</span>
+          <p class="q4-case-stat-desc">lower average unit cost across the range</p>
+        </div>
+        <div class="q4-case-stat">
+          <span class="q4-case-stat-num">1</span>
+          <p class="q4-case-stat-desc">supply chain built to keep pace with a growing business</p>
+        </div>
+        <div class="q4-case-stat">
+          <span class="q4-case-stat-num">2</span>
+          <p class="q4-case-stat-desc">box sizes covering 13 products and 52 designs</p>
+        </div>
       </div>
     </div>
   </section>
@@ -1886,6 +1639,7 @@
     <div class="q4-container q4-support-intro">
       <span class="q4-section-badge">Support</span>
       <h2>More support whenever you need it</h2>
+      <p class="q4-lead">&euro;500 in credit on every Q4 order, toward the services that make packaging easier to plan, produce and deliver.</p>
     </div>
 
     <div class="scroll-carousel q4-support-carousel">
@@ -1895,34 +1649,49 @@
       <div class="q4-support-track">
 
         <div class="q4-support-item">
-          <div class="q4-support-highlight-visual">
-            <div class="q4-support-highlight-content">
-              <span class="q4-support-highlight-num">&euro;500</span>
-              <p class="q4-bento-statement">in credit on every Q4 order, toward the services that make packaging easier to plan, produce and deliver.</p>
+          <div class="q4-support-visual media-card-visual">
+            <img src="assets/q4/support01.jpg" alt="Product box samples with branded tape and packaging accessories" loading="lazy" decoding="async">
+            <div class="media-card-badge">
+              <span class="media-card-badge-label">&euro;500</span>
+              <span class="media-card-badge-pill">in credit</span>
             </div>
           </div>
-        </div>
-
-        <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support01.jpg" alt="Product box samples with branded tape and packaging accessories" loading="lazy" decoding="async"></div>
           <h3 class="media-card-title">Sampling &amp; prototyping</h3>
           <p class="media-card-desc">See and test the real packaging before committing to the full run.</p>
         </div>
 
         <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support02.png" alt="Stack of branded shipping boxes" loading="lazy" decoding="async"></div>
+          <div class="q4-support-visual media-card-visual">
+            <img src="assets/q4/support02.png" alt="Stack of branded shipping boxes" loading="lazy" decoding="async">
+            <div class="media-card-badge">
+              <span class="media-card-badge-label">&euro;500</span>
+              <span class="media-card-badge-pill">in credit</span>
+            </div>
+          </div>
           <h3 class="media-card-title">Warehousing &amp; call-off</h3>
           <p class="media-card-desc">Order more for a better unit cost. We store your packaging and release stock when you need it.</p>
         </div>
 
         <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support03.jpg" alt="Boxes loaded on a warehouse trolley, ready for delivery" loading="lazy" decoding="async"></div>
+          <div class="q4-support-visual media-card-visual">
+            <img src="assets/q4/support03.jpg" alt="Boxes loaded on a warehouse trolley, ready for delivery" loading="lazy" decoding="async">
+            <div class="media-card-badge">
+              <span class="media-card-badge-label">&euro;500</span>
+              <span class="media-card-badge-pill">in credit</span>
+            </div>
+          </div>
           <h3 class="media-card-title">Guaranteed delivery date</h3>
           <p class="media-card-desc">Know when your packaging arrives before production starts, so your Q4 plan has a date you can work around.</p>
         </div>
 
         <div class="q4-support-item">
-          <div class="q4-support-visual media-card-visual"><img src="assets/q4/support04.png" alt="Person holding a stack of branded packaging boxes" loading="lazy" decoding="async"></div>
+          <div class="q4-support-visual media-card-visual">
+            <img src="assets/q4/support04.png" alt="Person holding a stack of branded packaging boxes" loading="lazy" decoding="async">
+            <div class="media-card-badge">
+              <span class="media-card-badge-label">&euro;500</span>
+              <span class="media-card-badge-pill">in credit</span>
+            </div>
+          </div>
           <h3 class="media-card-title">Expert consultation</h3>
           <p class="media-card-desc">Input from specialists who understand formats, materials, production and fulfilment.</p>
         </div>
@@ -2030,9 +1799,15 @@
     </div>
   </section>
 
+  <div class="q4-final-marquee-fade">
+    <div class="q4-final-marquee" aria-hidden="true">
+      <div class="q4-final-wheel"></div>
+    </div>
+  </div>
+
   <!-- ============ FINAL CTA ============ -->
   <section class="final-cta-section reveal">
-    <h2 class="final-cta-heading">Your Q4 forecast is already taking shape.</h2>
+    <h2 class="final-cta-heading">Your Q4 forecast is already taking <span class="final-deco-square"></span> shape.</h2>
     <p class="final-cta-subheading">Now, your packaging is getting there too. Send the brief now, get your delivery date, and take one more thing off your Q4 to-do list.</p>
     <div class="final-cta-buttons">
       <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
@@ -2041,373 +1816,17 @@
 
 </main>
 
+<footer class="q4-footer">
+  <div class="q4-footer-bottom">
+    <span>Custom packaging across the EU &amp; UK</span>
+    <a href="#" class="q4-footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+    <span>Business Hours Monday - Friday 9:00-16:00 CEST</span>
+  </div>
+</footer>
+
 <div class="q4-sticky-bar">
   <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
 </div>
-
-<script>
-  (function () {
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var content = document.querySelector('.q4-luma-content');
-    var cards = document.querySelectorAll('.q4-luma-cardfield .q4-luma-card');
-    if (!content) return;
-
-    if (reduce) {
-      content.classList.add('is-visible');
-      cards.forEach(function (c) { c.classList.add('is-visible'); });
-      return;
-    }
-
-    cards.forEach(function (card, i) {
-      card.style.transitionDelay = (250 + i * 45) + 'ms';
-    });
-
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        content.classList.add('is-visible');
-        cards.forEach(function (c) { c.classList.add('is-visible'); });
-      });
-    });
-  })();
-</script>
-
-<script>
-  (function () {
-    var heroLuma = document.querySelector('.q4-luma-hero');
-    var heroMarquee = document.querySelector('.q4-marquee-hero');
-    var stickyBar = document.querySelector('.q4-sticky-bar');
-    var finalCta = document.querySelector('.final-cta-section');
-    if (!heroLuma || !stickyBar) return;
-
-    if (!window.IntersectionObserver) {
-      stickyBar.classList.add('is-visible');
-      return;
-    }
-
-    // Two alternate heroes share this page (toggled via the settings panel);
-    // only the currently-displayed one should decide whether the sticky bar
-    // shows — the hidden one (display:none) never reports as intersecting,
-    // which would otherwise make the bar appear immediately. The final CTA
-    // section has its own full-size "Get started" button, so the sticky bar
-    // hides there too instead of floating over a duplicate CTA.
-    var state = { luma: true, marquee: true, finalCta: false };
-
-    function activeKey() {
-      return document.body.classList.contains('q4-marquee-hero-mode') ? 'marquee' : 'luma';
-    }
-
-    function update() {
-      stickyBar.classList.toggle('is-visible', !state[activeKey()] && !state.finalCta);
-    }
-
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.target === heroLuma) state.luma = entry.isIntersecting;
-        if (entry.target === heroMarquee) state.marquee = entry.isIntersecting;
-        if (entry.target === finalCta) state.finalCta = entry.isIntersecting;
-      });
-      update();
-    });
-    observer.observe(heroLuma);
-    if (heroMarquee) observer.observe(heroMarquee);
-    if (finalCta) observer.observe(finalCta);
-
-    new MutationObserver(update).observe(document.body, { attributes: true, attributeFilter: ['class'] });
-  })();
-</script>
-
-
-<script>
-  (function () {
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var section = document.querySelector('.q4-fan-section');
-    var cardEls = section ? section.querySelectorAll('.q4-fan-card') : [];
-    if (!section || !cardEls.length) return;
-
-    var CARD_W = 262; // must match .q4-fan-card width
-    // Falloff by distance from the hovered card — halves at each step, not a
-    // rigid block — so the row reads as a deck parting rather than two slabs.
-    var HOVER_FALLOFF = [0.65, 0.32, 0.16, 0.08];
-
-    var cards = Array.prototype.map.call(cardEls, function (el) {
-      el.style.setProperty('--fan-r', (parseFloat(el.getAttribute('data-rotate')) || 0) + 'deg');
-      return { el: el, inner: el.querySelector('.q4-fan-card-inner') };
-    });
-
-    var settled = false;
-
-    // Hover: neighbours part to make room, each by its own distance-based offset.
-    // Lives on the inner layer (see CSS) so it never touches the outer's entrance
-    // transform. Gated on `settled` so a stray hover mid-entrance can't half-apply
-    // the effect before the outer's own hover rule (also gated on `settled`) is
-    // active.
-    cards.forEach(function (hovered, i) {
-      hovered.el.addEventListener('mouseenter', function () {
-        if (!settled) return;
-        cards.forEach(function (c, j) {
-          if (j === i) { c.inner.style.setProperty('--hover-x', '0px'); return; }
-          var dist = Math.abs(j - i);
-          var mult = HOVER_FALLOFF[dist - 1] || 0;
-          var sign = j < i ? -1 : 1;
-          c.inner.style.setProperty('--hover-x', (sign * mult * CARD_W).toFixed(2) + 'px');
-        });
-      });
-      hovered.el.addEventListener('mouseleave', function () {
-        cards.forEach(function (c) { c.inner.style.setProperty('--hover-x', '0px'); });
-      });
-    });
-
-    if (reduce) {
-      section.classList.add('is-visible', 'settled');
-      settled = true;
-      return;
-    }
-
-    // One-shot entrance: trigger once when the section enters the viewport, then
-    // hold — no scroll-scrub, no replay on re-entry.
-    function trigger() {
-      section.classList.add('is-visible');
-      window.setTimeout(function () {
-        section.classList.add('settled');
-        settled = true;
-      }, 1400); // last card's delay (700ms) + its spring duration (620ms), padded
-    }
-
-    if (!window.IntersectionObserver) {
-      trigger();
-    } else {
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            trigger();
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.2 });
-      observer.observe(section);
-    }
-  })();
-</script>
-
-<script>
-  document.querySelectorAll('.faq-item').forEach(function (item) {
-    item.querySelector('.faq-question').addEventListener('click', function () {
-      item.classList.toggle('open');
-    });
-  });
-</script>
-
-<script>
-  // Scroll reveal — same mechanism as index.html: each .reveal section fades
-  // and slides up once when it first enters the viewport, then holds.
-  (function () {
-    var targets = document.querySelectorAll('.reveal');
-    if (!targets.length) return;
-
-    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      targets.forEach(function (el) { el.classList.add('is-visible'); });
-      return;
-    }
-
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15 });
-
-    targets.forEach(function (el) { observer.observe(el); });
-  })();
-</script>
-
-<script>
-  // Case study stat: counts up from data-count-from to data-count-to once
-  // the section scrolls into view, then holds at the final value.
-  (function () {
-    var el = document.querySelector('.q4-case-stat-num');
-    if (!el) return;
-
-    var from = parseInt(el.getAttribute('data-count-from'), 10);
-    var to = parseInt(el.getAttribute('data-count-to'), 10);
-    var DURATION = 1200;
-
-    function setValue(n) {
-      el.textContent = n + '%';
-    }
-
-    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setValue(to);
-      return;
-    }
-
-    setValue(from);
-
-    function animate() {
-      var start = null;
-      function step(timestamp) {
-        if (start === null) start = timestamp;
-        var progress = Math.min((timestamp - start) / DURATION, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        setValue(Math.round(from + (to - from) * eased));
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animate();
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
-
-    observer.observe(document.querySelector('.q4-case-section'));
-  })();
-</script>
-
-<script>
-  (function () {
-    var carousels = document.querySelectorAll('.scroll-carousel');
-
-    Array.prototype.forEach.call(carousels, function (carousel) {
-      var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
-      var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
-      var track = null;
-
-      for (var i = 0; i < carousel.children.length; i++) {
-        var child = carousel.children[i];
-        if (child !== prevBtn && child !== nextBtn) {
-          track = child;
-          break;
-        }
-      }
-
-      if (!prevBtn || !nextBtn || !track) {
-        return;
-      }
-
-      function updateNavState() {
-        var maxScroll = track.scrollWidth - track.clientWidth;
-        prevBtn.disabled = track.scrollLeft <= 0;
-        nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
-      }
-
-      function checkOverflow() {
-        var overflowing = track.scrollWidth > track.clientWidth + 1;
-        carousel.classList.toggle('has-overflow', overflowing);
-        updateNavState();
-      }
-
-      prevBtn.addEventListener('click', function () {
-        track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
-      });
-
-      nextBtn.addEventListener('click', function () {
-        track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
-      });
-
-      track.addEventListener('scroll', updateNavState);
-      window.addEventListener('resize', checkOverflow);
-
-      if (window.ResizeObserver) {
-        new ResizeObserver(checkOverflow).observe(track);
-      } else {
-        checkOverflow();
-      }
-    });
-  })();
-</script>
-
-<button id="q4SettingsBtn" class="q4-settings-btn" aria-label="Page settings">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-</button>
-
-<div id="q4SettingsPanel" class="q4-settings-panel">
-  <p class="site-settings-title">Page customization</p>
-  <div class="site-settings-row">
-    <div>
-      <p class="site-settings-label">Filled text</p>
-      <p class="site-settings-desc">Swap the fanned card row for a scroll-filled statement</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="q4ToggleFilledText" checked>
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-row">
-    <div>
-      <p class="site-settings-label">Marquee hero</p>
-      <p class="site-settings-desc">Swap the scattered-card hero for the auto-scrolling photo marquee</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="q4ToggleMarqueeHero">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-row">
-    <div>
-      <p class="site-settings-label">Pinterest grid</p>
-      <p class="site-settings-desc">Swap the One partner bento for an equal-width masonry grid</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="q4TogglePinterest">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-</div>
-
-<script>
-  (function () {
-    var btn = document.getElementById('q4SettingsBtn');
-    var panel = document.getElementById('q4SettingsPanel');
-    if (!btn || !panel) return;
-
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      panel.classList.toggle('open');
-    });
-    document.addEventListener('click', function (e) {
-      if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
-    });
-
-    var toggle = document.getElementById('q4ToggleFilledText');
-    function applyFilledText(active) {
-      document.body.classList.toggle('q4-filled-text-mode', active);
-      toggle.checked = active;
-    }
-    applyFilledText(localStorage.getItem('q4FilledText') !== '0');
-    toggle.addEventListener('change', function () {
-      applyFilledText(toggle.checked);
-      localStorage.setItem('q4FilledText', toggle.checked ? '1' : '0');
-    });
-
-    var heroToggle = document.getElementById('q4ToggleMarqueeHero');
-    function applyMarqueeHero(active) {
-      document.body.classList.toggle('q4-marquee-hero-mode', active);
-      heroToggle.checked = active;
-    }
-    applyMarqueeHero(localStorage.getItem('q4MarqueeHero') === '1');
-    heroToggle.addEventListener('change', function () {
-      applyMarqueeHero(heroToggle.checked);
-      localStorage.setItem('q4MarqueeHero', heroToggle.checked ? '1' : '0');
-    });
-
-    var pinToggle = document.getElementById('q4TogglePinterest');
-    function applyPinterest(active) {
-      document.body.classList.toggle('q4-pinterest-mode', active);
-      pinToggle.checked = active;
-    }
-    applyPinterest(localStorage.getItem('q4Pinterest') === '1');
-    pinToggle.addEventListener('change', function () {
-      applyPinterest(pinToggle.checked);
-      localStorage.setItem('q4Pinterest', pinToggle.checked ? '1' : '0');
-    });
-  })();
-</script>
 
 <script>
   // Wheel carousel: builds the rim once (card count / angle-step / duration are
@@ -2538,26 +1957,244 @@
         resizeTicking = true;
       }
     });
-
-    // body.q4-marquee-hero-mode starts hidden (display:none), so measurements
-    // taken before the settings toggle switches it on would all read zero —
-    // redo the fit once it actually becomes visible.
-    new MutationObserver(fitHero).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   })();
 </script>
 
 <script>
   (function () {
-    var el = document.querySelector('.q4-fill-text');
-    if (!el) return;
+    var hero = document.querySelector('.q4-marquee-hero');
+    var stickyBar = document.querySelector('.q4-sticky-bar');
+    var finalCta = document.querySelector('.final-cta-section');
+    var footer = document.querySelector('.q4-footer');
+    if (!hero || !stickyBar) return;
 
-    var words = el.textContent.trim().split(/\s+/);
-    el.innerHTML = words.map(function (w) {
-      return '<span class="q4-fill-word">' + w + '</span>';
-    }).join(' ');
+    if (!window.IntersectionObserver) {
+      stickyBar.classList.add('is-visible');
+      return;
+    }
 
-    var wordEls = el.querySelectorAll('.q4-fill-word');
-    var N = wordEls.length;
+    // The final CTA section has its own full-size "Get started" button, and
+    // the footer follows right after it, so the sticky bar hides for both
+    // instead of floating over a duplicate CTA or the page's bottom edge.
+    var state = { luma: true, finalCta: false, footer: false };
+
+    function update() {
+      stickyBar.classList.toggle('is-visible', !state.luma && !state.finalCta && !state.footer);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.target === hero) state.luma = entry.isIntersecting;
+        if (entry.target === finalCta) state.finalCta = entry.isIntersecting;
+        if (entry.target === footer) state.footer = entry.isIntersecting;
+      });
+      update();
+    });
+    observer.observe(hero);
+    if (finalCta) observer.observe(finalCta);
+    if (footer) observer.observe(footer);
+  })();
+</script>
+
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    item.querySelector('.faq-question').addEventListener('click', function () {
+      item.classList.toggle('open');
+    });
+  });
+</script>
+
+<script>
+  // Scroll reveal — same mechanism as index.html: each .reveal section fades
+  // and slides up once when it first enters the viewport, then holds.
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    if (!targets.length) return;
+
+    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      targets.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+<script>
+  // One partner tiles: each tile gets a randomized entrance (delay, speed,
+  // drift direction) instead of the grid fading in as one block, but all
+  // triggered at the same instant when the section scrolls into view — the
+  // randomness is in each tile's own transition, not in when it starts.
+  (function () {
+    var pinterest = document.querySelector('.q4-bento-pinterest');
+    var section = document.querySelector('.q4-partner');
+    if (!section) return;
+
+    var tiles = [];
+    if (pinterest) tiles = tiles.concat(Array.prototype.slice.call(pinterest.querySelectorAll('.q4-pin-tile')));
+    if (!tiles.length) return;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    tiles.forEach(function (tile) {
+      tile.classList.add('q4-tile-enter');
+      var y = (20 + Math.random() * 24).toFixed(1) + 'px';     // 20px to 44px — straight up from below, distance varies
+      var delay = (Math.random() * 0.25).toFixed(2) + 's';     // 0 to 250ms stagger
+      var duration = (0.28 + Math.random() * 0.24).toFixed(2) + 's'; // 280 to 520ms — fast
+      tile.style.setProperty('--q4-tile-y', y);
+      tile.style.setProperty('--q4-tile-delay', delay);
+      tile.style.setProperty('--q4-tile-duration', duration);
+    });
+
+    if (reduce || !window.IntersectionObserver) {
+      tiles.forEach(function (t) { t.classList.add('is-visible'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          tiles.forEach(function (t) { t.classList.add('is-visible'); });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    observer.observe(section);
+  })();
+</script>
+
+<script>
+  (function () {
+    var carousels = document.querySelectorAll('.scroll-carousel');
+
+    Array.prototype.forEach.call(carousels, function (carousel) {
+      var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
+      var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
+      var track = null;
+
+      for (var i = 0; i < carousel.children.length; i++) {
+        var child = carousel.children[i];
+        if (child !== prevBtn && child !== nextBtn) {
+          track = child;
+          break;
+        }
+      }
+
+      if (!prevBtn || !nextBtn || !track) {
+        return;
+      }
+
+      function updateNavState() {
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        prevBtn.disabled = track.scrollLeft <= 0;
+        nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+      }
+
+      function checkOverflow() {
+        var overflowing = track.scrollWidth > track.clientWidth + 1;
+        carousel.classList.toggle('has-overflow', overflowing);
+        updateNavState();
+      }
+
+      prevBtn.addEventListener('click', function () {
+        track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      nextBtn.addEventListener('click', function () {
+        track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      track.addEventListener('scroll', updateNavState);
+      window.addEventListener('resize', checkOverflow);
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(checkOverflow).observe(track);
+      } else {
+        checkOverflow();
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Final-CTA wheel: rotate(angle) translateY(-R) on a zero-size hub, rim
+  // populated all the way around (not just a short arc) so the slow spin
+  // never leaves the visible strip empty — count/duration derived from
+  // CARD_W/GAP/R/SPEED.
+  (function () {
+    var wheel = document.querySelector('.q4-final-wheel');
+    if (!wheel) return;
+
+    var IMAGES = [
+      'assets/q4/onepartner/onepartner02.jpg',
+      'assets/q4/onepartner/onepartner03.jpeg',
+      'assets/q4/onepartner/onepartner04.png',
+      'assets/q4/onepartner/onepartner05.png',
+      'assets/q4/onepartner/onepartner06.jpeg',
+      'assets/q4/onepartner/support05.jpg',
+      'assets/q4/onepartner/support06.jpg'
+    ];
+
+    var CARD_W = 130;  // must match .q4-final-wheel-card width
+    var GAP = 40;       // more breathing room between cards than the hero's rim
+    var R = 2400;        // wider/flatter arc than the hero's
+    var SPEED = 45;       // px/s along the circumference
+
+    var slot = CARD_W + GAP;
+    var deltaDeg = slot / R * (180 / Math.PI);
+    var count = Math.max(8, Math.round(360 / deltaDeg));
+    deltaDeg = 360 / count;
+    var circumference = 2 * Math.PI * R;
+    var duration = circumference / SPEED;
+
+    wheel.style.setProperty('--q4-final-wheel-r', R + 'px');
+    wheel.style.setProperty('--q4-final-wheel-r-neg', (-R) + 'px');
+    wheel.style.setProperty('--q4-final-wheel-duration', duration.toFixed(2) + 's');
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++) {
+      var angle = i * deltaDeg;
+
+      var card = document.createElement('div');
+      card.className = 'q4-final-wheel-card';
+      card.style.setProperty('--a', angle.toFixed(3) + 'deg');
+
+      var img = document.createElement('img');
+      img.src = IMAGES[i % IMAGES.length];
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      card.appendChild(img);
+
+      frag.appendChild(card);
+    }
+    wheel.appendChild(frag);
+
+    if (reduce) wheel.style.animation = 'none';
+  })();
+</script>
+
+<script>
+  // Word-by-word scroll-color reveal — shared by every .q4-fill-text
+  // instance on the page (the "Running out..." statement and, further down,
+  // each Case Study paragraph), each animating independently off its own
+  // scroll position.
+  (function () {
+    var els = document.querySelectorAll('.q4-fill-text');
+    if (!els.length) return;
 
     var DARK = [0, 6, 26];       // --color-text-primary (rich-blue #00061A)
     var LIGHT = [231, 231, 231]; // --color-border-default (gray-300 #E7E7E7)
@@ -2566,24 +2203,36 @@
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
     function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
 
-    function setProgress(p) {
-      for (var i = 0; i < N; i++) {
-        var target = N > 1 ? i / (N - 1) : 0;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var blocks = Array.prototype.map.call(els, function (el) {
+      var words = el.textContent.trim().split(/\s+/);
+      el.innerHTML = words.map(function (w) {
+        return '<span class="q4-fill-word">' + w + '</span>';
+      }).join(' ');
+      var wordEls = el.querySelectorAll('.q4-fill-word');
+      return { el: el, wordEls: wordEls, N: wordEls.length };
+    });
+
+    if (reduce) return; // CSS already forces full color
+
+    function setProgress(block, p) {
+      for (var i = 0; i < block.N; i++) {
+        var target = block.N > 1 ? i / (block.N - 1) : 0;
         var t = clamp((p - target) / WINDOW + 0.5, 0, 1);
-        wordEls[i].style.color = 'rgb(' + lerp(LIGHT[0], DARK[0], t) + ',' + lerp(LIGHT[1], DARK[1], t) + ',' + lerp(LIGHT[2], DARK[2], t) + ')';
+        block.wordEls[i].style.color = 'rgb(' + lerp(LIGHT[0], DARK[0], t) + ',' + lerp(LIGHT[1], DARK[1], t) + ',' + lerp(LIGHT[2], DARK[2], t) + ')';
       }
     }
 
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return; // CSS already forces full color
-
     function update() {
-      var rect = el.getBoundingClientRect();
       var vh = window.innerHeight;
       var startY = vh * 0.85;
       var endY = vh * 0.25;
-      var progress = clamp((startY - rect.top) / (startY - endY), 0, 1);
-      setProgress(progress);
+      blocks.forEach(function (block) {
+        var rect = block.el.getBoundingClientRect();
+        var progress = clamp((startY - rect.top) / (startY - endY), 0, 1);
+        setProgress(block, progress);
+      });
     }
 
     var ticking = false;
@@ -2597,6 +2246,71 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     update();
+  })();
+</script>
+
+<script>
+  // Case study numbers: 67%, 13, 52 and 2 count up from 0 once the text
+  // scrolls into view, then hold at their final value. Runs after the
+  // word-reveal script above, which rebuilds each .q4-fill-text paragraph's
+  // innerHTML from scratch (one <span class="q4-fill-word"> per word) — so
+  // this has to find and mark its target numbers among THOSE spans rather
+  // than the original markup, or the rebuild would wipe them out.
+  (function () {
+    var container = document.querySelector('.q4-case-fill');
+    if (!container) return;
+
+    var TARGETS = ['67%', '13', '52', '2'];
+    var DURATION = 1200;
+
+    var counters = [];
+    var words = container.querySelectorAll('.q4-fill-word');
+    Array.prototype.forEach.call(words, function (w) {
+      var text = w.textContent;
+      var idx = TARGETS.indexOf(text);
+      if (idx === -1) return;
+      TARGETS.splice(idx, 1); // each number only ever appears once in this text
+      counters.push({
+        el: w,
+        to: parseInt(text, 10),
+        suffix: text.indexOf('%') !== -1 ? '%' : ''
+      });
+    });
+    if (!counters.length) return;
+
+    function setValue(counter, n) {
+      counter.el.textContent = n + counter.suffix;
+    }
+
+    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      counters.forEach(function (c) { setValue(c, c.to); });
+      return;
+    }
+
+    counters.forEach(function (c) { setValue(c, 0); });
+
+    function animate() {
+      var start = null;
+      function step(timestamp) {
+        if (start === null) start = timestamp;
+        var progress = Math.min((timestamp - start) / DURATION, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        counters.forEach(function (c) { setValue(c, Math.round(c.to * eased)); });
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animate();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    observer.observe(container);
   })();
 </script>
 
