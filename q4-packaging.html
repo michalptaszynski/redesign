@@ -791,6 +791,44 @@
     align-self: flex-start;
   }
 
+  .q4-case-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-muted-hover);
+  }
+
+  .q4-case-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* reuses the shared .reveal slide-up trigger (JS observer near the bottom
+     of the page already applies to any .reveal element) but slides up into
+     place instead of .reveal's own default slide-down — same direction the
+     tile-stagger entrances elsewhere on the page use. Opacity is pinned to
+     1 throughout (unlike plain .reveal, which also fades 0->1): the photo
+     sits on .q4-case-image's own placeholder background, so fading its
+     opacity washed the whole photo out to a translucent white haze for the
+     0.8s transition — distracting and easy to mistake for a rendering bug.
+     The .is-visible overrides have to be spelled out explicitly too (same
+     fix as .q4-case-section.reveal.is-visible above): they tie with the
+     base .reveal/.reveal.is-visible rules on specificity, and these come
+     later in the file, so without them the overrides above wouldn't
+     resolve correctly. */
+  .q4-case-image.reveal {
+    opacity: 1;
+    transform: translateY(20px);
+  }
+
+  .q4-case-image.reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* stat row below the button — same width as the text/button above it
      (unlike the card itself, which is wider), so .q4-case-bg's own
      align-items:center lines its edges up with them automatically. The
@@ -898,6 +936,14 @@
     grid-template-columns: 1.05fr 1fr;
     gap: var(--space-16);
     align-items: start;
+  }
+
+  /* sticky offset matches .q4-risk-intro's (The risk section) — same
+     mechanism too: the shorter column (FAQ list) sticks while the taller
+     one (the brief form) scrolls past it, same as .q4-risk-intro/-cards. */
+  .q4-faq-left {
+    position: sticky;
+    top: 40px;
   }
 
   .faq-accordions {
@@ -1113,8 +1159,44 @@
 
   .btn-pill.q4-form-submit { width: 100%; margin-top: var(--space-2); }
 
+  .q4-form-notes-label {
+    margin: var(--space-6) 0 var(--space-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+  }
+
+  .q4-form-notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: q4-form-notes;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .q4-form-notes li {
+    counter-increment: q4-form-notes;
+    position: relative;
+    padding-left: var(--space-5);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+  }
+
+  .q4-form-notes li::before {
+    content: counter(q4-form-notes) ".";
+    position: absolute;
+    left: 0;
+    font-weight: 500;
+  }
+
   @media (max-width: 900px) {
     .q4-faq-grid { grid-template-columns: 1fr; gap: var(--space-10); }
+    .q4-faq-left { position: static; }
   }
 
   /* ---------- final CTA: small tilted-photo strip (rim trick:
@@ -1611,6 +1693,7 @@
       <div class="q4-case-fill">
         <span class="q4-section-badge">Case study &middot; Lovato Candles</span>
         <p class="q4-fill-text">What happens when the right packaging partner handles your needs? How Packhelp &amp; Lovato Candles achieved a shocking 67% lower average packaging unit costs while keeping up with their incredible growth.</p>
+        <div class="q4-case-image reveal"><img src="assets/q4/casestudy.jpeg" alt="Lit Lovato Candles candle stacked on branded gift boxes"></div>
         <p class="q4-fill-text">Lovato sells candles and diffusers across Ireland, the UK and Europe. As demand grew, so did the complexity behind their packaging &mdash; 13 products, 52 designs, and a need for faster fulfilment.</p>
         <p class="q4-fill-text">Together, we simplified the whole operation.</p>
         <p class="q4-fill-text">We consolidated the range into just 2 box sizes, and used Packhelp&rsquo;s storage and fulfilment hub &mdash; so they could order at higher volumes for better pricing and call stock off when they needed it.</p>
@@ -1791,6 +1874,13 @@
                 </div>
                 <button type="submit" class="btn-pill lg q4-form-submit">Request your quote</button>
               </form>
+
+              <p class="q4-form-notes-label">After you hit send</p>
+              <ol class="q4-form-notes">
+                <li>A specialist gets in touch within one working day &mdash; a real person, not an auto-quote.</li>
+                <li>You get a spec, a price and a realistic delivery date across your range.</li>
+                <li>Your &euro;500 services credit is applied to qualifying Q4 briefs submitted before 30 September.</li>
+              </ol>
             </div>
           </div>
         </div>
