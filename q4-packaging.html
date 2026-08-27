@@ -119,6 +119,25 @@
     .q4-trust-stats { gap: var(--space-6) var(--space-8); }
   }
 
+  @media (max-width: 700px) {
+    .q4-trust-grid { align-items: center; }
+    .q4-trust-intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: none;
+      width: 100%;
+      text-align: center;
+    }
+    .q4-trust-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      justify-items: center;
+    }
+    .q4-trust-stat { align-items: center; text-align: center; }
+  }
+
   /* ---------- HERO: wheel carousel (Luma-style text + rotating photo rim) ----------
      Token mapping used throughout this block (project has no shadcn-style
      --background/--foreground/--primary/--secondary/--accent/--border/--radius
