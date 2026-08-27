@@ -441,24 +441,32 @@
          width this flex item sizes to fit all 3 unshrinkable cards in a row
          (its max-content size) instead of being clamped to the column's
          available width — which is what actually makes overflow-x:auto
-         start scrolling instead of just silently overflowing the page. */
-      width: 100%;
-      /* a non-visible overflow value makes a flex item's automatic min-size
-         resolve to 0 instead of its content size (spec behaviour) — without
-         an explicit height this collapses to ~0 instead of fitting the
-         176px cards, so give it one directly instead of relying on the
-         desktop flex:1 1 0 (a main-axis/width rule there, but this is now
-         a column layout where that axis is height). */
+         start scrolling instead of just silently overflowing the page.
+         100% alone would only match the column's own (already-padded)
+         width — the negative margins below bleed past it on both sides,
+         but a plain 100% doesn't grow to cover that extra space, so the
+         right bleed silently did nothing (bug found 2026-08-27: the row
+         stopped 40px short of the viewport's actual right edge). */
+      width: calc(100% + 2 * var(--space-5));
+      /* flex:none (flex-shrink:0) keeps this from being squashed by
+         .q4-risk-layout's column flow — needed since overflow-x:auto here
+         would otherwise let the item's automatic min-size resolve to 0
+         instead of its content size (spec behaviour) if it COULD shrink.
+         height stays auto/content-driven rather than a fixed px value, since
+         a fixed height clips whichever of the 3 cards has the longest copy
+         (bug found 2026-08-27: card copy is a different length per card,
+         so any one fixed height only ever fits the shortest). */
       flex: none;
-      height: calc(11rem + var(--space-2));
+      height: auto;
       flex-direction: row;
       gap: var(--space-3);
       margin: 0 calc(-1 * var(--space-5)) 0;
-      padding: 0 var(--space-5) var(--space-2);
+      /* no right padding — the last card scrolls flush with the viewport's
+         right edge instead of leaving a trailing gap after it. */
+      padding: 0 0 var(--space-2) var(--space-5);
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scroll-padding-left: var(--space-5);
-      scroll-padding-right: var(--space-5);
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
@@ -654,6 +662,10 @@
     line-height: 1.25;
   }
 
+  @media (max-width: 700px) {
+    .q4-pin-cta-extra { display: none; }
+  }
+
   /* One partner tiles: staggered "random" entrance instead of the whole
      grid fading in as one block — each tile gets its own randomized delay,
      duration and drift direction (set as inline custom properties by the
@@ -679,6 +691,7 @@
     position: absolute;
     left: var(--space-3);
     bottom: var(--space-3);
+    max-width: calc(100% - var(--space-3) * 2);
     padding: var(--space-1) var(--space-3);
     background: rgba(255,255,255,.85);
     backdrop-filter: blur(4px);
@@ -687,6 +700,10 @@
     font-size: 0.75rem;
     letter-spacing: -0.01em;
     color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
   }
 
   .q4-bento-stat {
@@ -731,6 +748,10 @@
     line-height: 1.3;
     letter-spacing: -0.03em;
     color: var(--color-text-primary);
+  }
+
+  @media (max-width: 700px) {
+    .q4-bento-statement { font-size: 1.0625rem; }
   }
 
   /* ---------- CASE STUDY: LOVATO CANDLES (full-bleed gray block: badge +
@@ -860,7 +881,15 @@
   }
 
   @media (max-width: 700px) {
-    .q4-case-stats { flex-direction: column; gap: var(--space-6); }
+    /* stacked in a column, .q4-case-stats's own width would otherwise
+       shrink-wrap to its widest child instead of the available width (a
+       flex row's items summing to ~full width doesn't carry over once
+       they're stacked instead of side by side) — align-self:stretch forces
+       it back to the same width as .q4-case-fill's text above it, and the
+       max-width cap below (which existed for the desktop side-by-side
+       layout) no longer applies once stacked full-width. */
+    .q4-case-stats { flex-direction: column; align-self: stretch; gap: var(--space-6); }
+    .q4-case-stat-desc { max-width: none; }
   }
 
   /* ---------- SUPPORT (same scroll-carousel component as deals.html's deals-carousel) ---------- */
@@ -1633,7 +1662,7 @@
             <div class="q4-pin-tile">
               <div class="q4-bento-stat q4-bento-cta" style="aspect-ratio:auto">
                 <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
-                <div>
+                <div class="q4-pin-cta-extra">
                   <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
                   <p class="q4-micro">Takes 30 seconds. No design files needed yet.</p>
                 </div>
@@ -2279,9 +2308,13 @@
 
 <script>
   // Word-by-word scroll-color reveal — shared by every .q4-fill-text
-  // instance on the page (the "Running out..." statement and, further down,
-  // each Case Study paragraph), each animating independently off its own
-  // scroll position.
+  // instance on the page. The standalone "Running out..." statement reveals
+  // off its own scroll position as before; the four Case Study paragraphs
+  // share a .q4-case-fill ancestor, so they're grouped into ONE continuous
+  // reveal instead — word index runs across paragraph boundaries, and
+  // progress is driven by the whole group's scroll position (its first
+  // paragraph's top to its last paragraph's bottom), not each paragraph
+  // restarting the reveal on its own independent schedule.
   (function () {
     var els = document.querySelectorAll('.q4-fill-text');
     if (!els.length) return;
@@ -2289,19 +2322,36 @@
     var DARK = [0, 6, 26];       // --color-text-primary (rich-blue #00061A)
     var LIGHT = [231, 231, 231]; // --color-border-default (gray-300 #E7E7E7)
     var WINDOW = 0.12;           // how many words wide the soft transition zone is
+    var GROUP_SELECTOR = '.q4-case-fill';
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
     function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var blocks = Array.prototype.map.call(els, function (el) {
-      var words = el.textContent.trim().split(/\s+/);
-      el.innerHTML = words.map(function (w) {
-        return '<span class="q4-fill-word">' + w + '</span>';
-      }).join(' ');
-      var wordEls = el.querySelectorAll('.q4-fill-word');
-      return { el: el, wordEls: wordEls, N: wordEls.length };
+    var groups = [];
+    var groupByContainer = new Map();
+    Array.prototype.forEach.call(els, function (el) {
+      var container = el.closest(GROUP_SELECTOR);
+      var group = container ? groupByContainer.get(container) : null;
+      if (!group) {
+        group = { els: [] };
+        if (container) groupByContainer.set(container, group);
+        groups.push(group);
+      }
+      group.els.push(el);
+    });
+
+    var blocks = groups.map(function (group) {
+      var wordEls = [];
+      group.els.forEach(function (el) {
+        var words = el.textContent.trim().split(/\s+/);
+        el.innerHTML = words.map(function (w) {
+          return '<span class="q4-fill-word">' + w + '</span>';
+        }).join(' ');
+        wordEls = wordEls.concat(Array.prototype.slice.call(el.querySelectorAll('.q4-fill-word')));
+      });
+      return { els: group.els, wordEls: wordEls, N: wordEls.length };
     });
 
     if (reduce) return; // CSS already forces full color
@@ -2319,8 +2369,12 @@
       var startY = vh * 0.85;
       var endY = vh * 0.25;
       blocks.forEach(function (block) {
-        var rect = block.el.getBoundingClientRect();
-        var progress = clamp((startY - rect.top) / (startY - endY), 0, 1);
+        // single-paragraph blocks: span is 0, so this reduces to the
+        // original top-only formula — no behavior change for those.
+        var top = block.els[0].getBoundingClientRect().top;
+        var bottom = block.els[block.els.length - 1].getBoundingClientRect().bottom;
+        var span = block.els.length > 1 ? (bottom - top) : 0;
+        var progress = clamp((startY - top) / (startY - endY + span), 0, 1);
         setProgress(block, progress);
       });
     }
