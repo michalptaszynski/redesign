@@ -476,10 +476,10 @@
 
   .q4-fillsplit-cols p {
     margin: 0;
-    font-size: 1rem;
-    line-height: 1.45;
-    letter-spacing: -0.01em;
-    color: var(--color-text-primary);
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
   }
 
   @media (max-width: 900px) {
@@ -499,10 +499,10 @@
     .q4-fill-word { color: var(--color-text-primary) !important; }
   }
 
-  /* ---------- THE RISK (intro text left, 3 stacked cards right) ---------- */
+  /* ---------- THE RISK (intro + image block left, divided text list right) ---------- */
   .q4-risk-layout {
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     gap: var(--space-12);
   }
 
@@ -513,95 +513,133 @@
     top: 40px;
   }
 
+  /* same blob-gradient treatment as .q4-brief-card (the form tile) */
+  .q4-risk-visual {
+    position: relative;
+    overflow: hidden;
+    margin-top: var(--space-8);
+    height: 500px;
+    background: #D9E6FD;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    box-sizing: border-box;
+  }
+
+  .q4-risk-visual-blob {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .q4-risk-visual-blob-a {
+    top: -140px;
+    left: -90px;
+    width: 460px;
+    height: 460px;
+    background: linear-gradient(180deg, #D9E6FD 0%, #2757FF 100%, #7061A3 100%);
+    filter: blur(50px);
+    transform: rotate(-172.637deg);
+  }
+
+  .q4-risk-visual-blob-b {
+    bottom: -260px;
+    right: -220px;
+    width: 629px;
+    height: 629px;
+    background: linear-gradient(180deg, #B4CBF4 0%, rgba(111, 132, 255, 0.46) 100%);
+    filter: blur(100px);
+    transform: rotate(-172.637deg);
+  }
+
+  .q4-risk-chart-card {
+    position: relative;
+    z-index: 2;
+    width: 80%;
+    background: var(--color-bg-surface);
+    border-radius: var(--radius-md);
+    outline: 4px solid rgba(255, 255, 255, 0.4);
+    overflow: hidden;
+  }
+
+  .q4-risk-chart-card svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Gantt bars draw in from the left, one at a time, once the chart
+     scrolls into view (see the script near the bottom of the page). */
+  .q4-gantt-bar {
+    transform-box: fill-box;
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 0.5s ease;
+  }
+
+  .q4-gantt-bar.is-drawn {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-gantt-bar { transition: none; transform: scaleX(1); }
+  }
+
   .q4-risk-cards {
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 0 0 320px;
+    width: 320px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
   }
 
   .q4-risk-card {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: var(--space-8);
-    background: var(--color-bg-muted);
-    border-radius: var(--radius-lg);
-    box-sizing: border-box;
+    padding: var(--space-6) 0;
+  }
+
+  .q4-risk-card:first-child { padding-top: 0; }
+
+  .q4-risk-card:not(:first-child) {
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .q4-risk-card-lede {
+    margin: 0 0 var(--space-2);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-risk-card-body {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
   }
 
   @media (max-width: 900px) {
     .q4-risk-layout { flex-direction: column; gap: var(--space-8); }
     .q4-risk-intro { position: static; }
-
-    /* cards go back to a horizontally-scrolling row once the two-column
-       layout collapses — bleeds edge-to-edge past .q4-container's own
-       padding, same recipe as .q4-trust-logos' negative-margin technique. */
-    .q4-risk-cards {
-      /* .q4-risk-layout uses align-items:flex-start, so without an explicit
-         width this flex item sizes to fit all 3 unshrinkable cards in a row
-         (its max-content size) instead of being clamped to the column's
-         available width — which is what actually makes overflow-x:auto
-         start scrolling instead of just silently overflowing the page.
-         100% alone would only match the column's own (already-padded)
-         width — the negative margins below bleed past it on both sides,
-         but a plain 100% doesn't grow to cover that extra space, so the
-         right bleed silently did nothing (bug found 2026-08-27: the row
-         stopped 40px short of the viewport's actual right edge). */
-      width: calc(100% + 2 * var(--space-5));
-      /* flex:none (flex-shrink:0) keeps this from being squashed by
-         .q4-risk-layout's column flow — needed since overflow-x:auto here
-         would otherwise let the item's automatic min-size resolve to 0
-         instead of its content size (spec behaviour) if it COULD shrink.
-         height stays auto/content-driven rather than a fixed px value, since
-         a fixed height clips whichever of the 3 cards has the longest copy
-         (bug found 2026-08-27: card copy is a different length per card,
-         so any one fixed height only ever fits the shortest). */
-      flex: none;
-      height: auto;
-      flex-direction: row;
-      gap: var(--space-3);
-      margin: 0 calc(-1 * var(--space-5)) 0;
-      /* no right padding — the last card scrolls flush with the viewport's
-         right edge instead of leaving a trailing gap after it. */
-      padding: 0 0 var(--space-2) var(--space-5);
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scroll-padding-left: var(--space-5);
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .q4-risk-cards::-webkit-scrollbar { display: none; }
-
-    .q4-risk-card {
-      flex: 0 0 78vw;
-      max-width: 320px;
-      min-height: 11rem;
-      scroll-snap-align: start;
-    }
-  }
-
-  .q4-risk-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: 2.75rem;
-    height: 2.75rem;
-    margin-bottom: var(--space-5);
-    background: var(--color-bg-surface);
-    border-radius: var(--radius-md);
-    color: var(--color-text-primary);
-  }
-  .q4-risk-icon svg { width: 20px; height: 20px; }
-
-  .q4-risk-card p {
-    margin: 0;
-    font-size: 1.0625rem;
-    line-height: 1.45;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
+    .q4-risk-cards { flex: 1 1 auto; width: auto; }
+    /* the 500px placeholder height is sized for the wide desktop column —
+       on a narrow stacked mobile column a fixed height (even scaled down)
+       leaves the chart card swimming in empty gradient above/below it, so
+       go back to sizing the placeholder off its own aspect ratio instead. */
+    /* no aspect-ratio here on purpose: with one, the box's shape is fixed
+       independent of its content, so even equal CSS padding can leave
+       uneven-looking gaps once the (much wider than tall) chart card is
+       centered inside it. height:auto with no aspect-ratio instead just
+       hugs the card, so the padding value below is the actual visible gap
+       on all four sides. */
+    .q4-risk-visual { height: auto; padding: var(--space-2); }
+    /* the desktop width:80% inset is on top of this padding, not instead
+       of it — on mobile that stacked up into a much bigger left/right gap
+       (~41px) than top/bottom (8px, padding alone). Full width here so the
+       padding above is the only gap, equal on all four sides. */
+    .q4-risk-chart-card { width: 100%; }
   }
 
   /* ---------- marquee bar (same component as index.html's marquee-section) ---------- */
@@ -1715,16 +1753,70 @@
           <span class="q4-section-badge">The risk</span>
           <h2>Q4 packaging problems usually start months before Q4</h2>
           <p class="q4-lead">When something falls behind it&rsquo;s never <em>&ldquo;just late.&rdquo;</em></p>
+          <div class="q4-risk-visual">
+            <div class="q4-risk-visual-blob q4-risk-visual-blob-a"></div>
+            <div class="q4-risk-visual-blob q4-risk-visual-blob-b"></div>
+            <div class="q4-risk-chart-card">
+              <svg width="100%" viewBox="15 0 590 270" role="img" xmlns="http://www.w3.org/2000/svg">
+                <title>Packaging lead time before Q4</title>
+                <desc>Stages of packaging production counted backwards from the start of Q4 selling: structure and quote, artwork and prepress, proof sample, production run, and delivery and storage. The chain has to begin in early September.</desc>
+
+                <rect x="0" y="0" width="620" height="270" rx="8" fill="#FFFFFF"/>
+
+                <text x="40" y="79" dominant-baseline="central" font-size="12" fill="#3D3D3A">Structure &amp; quote</text>
+                <text x="40" y="109" dominant-baseline="central" font-size="12" fill="#3D3D3A">Artwork &amp; prepress</text>
+                <text x="40" y="139" dominant-baseline="central" font-size="12" fill="#3D3D3A">Proof sample</text>
+                <text x="40" y="169" dominant-baseline="central" font-size="12" fill="#3D3D3A">Production run</text>
+                <text x="40" y="199" dominant-baseline="central" font-size="12" fill="#3D3D3A">Delivery &amp; storage</text>
+
+                <!-- chart region, shifted left to close the gap left behind by the removed duration column -->
+                <g transform="translate(-60, 0)">
+                  <line x1="250" y1="58" x2="640" y2="58" stroke="#E3E3DE" stroke-width="0.5"/>
+                  <line x1="328" y1="58" x2="328" y2="218" stroke="#E3E3DE" stroke-width="0.5"/>
+                  <line x1="406" y1="58" x2="406" y2="218" stroke="#E3E3DE" stroke-width="0.5"/>
+                  <line x1="484" y1="58" x2="484" y2="218" stroke="#E3E3DE" stroke-width="0.5"/>
+                  <line x1="562" y1="58" x2="562" y2="218" stroke="#E3E3DE" stroke-width="0.5"/>
+
+                  <text x="289" y="50" text-anchor="middle" font-size="12" fill="#6B6B66">Aug</text>
+                  <text x="367" y="50" text-anchor="middle" font-size="12" fill="#6B6B66">Sep</text>
+                  <text x="445" y="50" text-anchor="middle" font-size="12" fill="#6B6B66">Oct</text>
+                  <text x="523" y="50" text-anchor="middle" font-size="12" fill="#6B6B66">Nov</text>
+                  <text x="601" y="50" text-anchor="middle" font-size="12" fill="#6B6B66">Dec</text>
+
+                  <line x1="552" y1="58" x2="552" y2="218" stroke="#2C4A9E" stroke-width="1.5"/>
+                  <text x="640" y="30" text-anchor="end" font-size="12" fill="#2C4A9E">Q4 sell-in starts</text>
+
+                  <line x1="318" y1="58" x2="318" y2="218" stroke="#84A2FE" stroke-width="1" stroke-dasharray="4 4"/>
+                  <text x="318" y="30" text-anchor="middle" font-size="12" fill="#5C81FE">today</text>
+
+                  <rect class="q4-gantt-bar" x="354" y="70" width="36" height="18" rx="4" fill="#D9E6FD"/>
+                  <text x="398" y="79" dominant-baseline="central" font-size="12" fill="#6B6B66">2 wks</text>
+
+                  <rect class="q4-gantt-bar" x="390" y="100" width="45" height="18" rx="4" fill="#B6C9FD"/>
+                  <text x="443" y="109" dominant-baseline="central" font-size="12" fill="#6B6B66">2.5 wks</text>
+
+                  <rect class="q4-gantt-bar" x="435" y="130" width="27" height="18" rx="4" fill="#84A2FE"/>
+                  <text x="470" y="139" dominant-baseline="central" font-size="12" fill="#6B6B66">1.5 wks</text>
+
+                  <rect class="q4-gantt-bar" x="462" y="160" width="63" height="18" rx="4" fill="#6E90FF"/>
+                  <text x="454" y="169" text-anchor="end" dominant-baseline="central" font-size="12" fill="#6B6B66">3.5 wks</text>
+
+                  <rect class="q4-gantt-bar" x="525" y="190" width="27" height="18" rx="4" fill="#5C81FE"/>
+                  <text x="560" y="199" dominant-baseline="central" font-size="12" fill="#6B6B66">1.5 wks</text>
+                </g>
+              </svg>
+            </div>
+          </div>
         </div>
 
         <div class="q4-risk-cards">
           <div class="q4-risk-card">
-            <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-            <p>Imagine the headaches of rushed production, emergency freight, plain boxes bought on short notice at whatever premium just to keep things moving.</p>
+            <p class="q4-risk-card-lede">Imagine the headaches</p>
+            <p class="q4-risk-card-body">of rushed production, emergency freight, plain boxes bought on short notice at whatever premium just to keep things moving.</p>
           </div>
           <div class="q4-risk-card">
-            <div class="q4-risk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
-            <p>Then your best-sellers shipping in a random box, without the packaging your brand spent months building, in the one month when your brand is in front of more customers than ever. The costs add up quickly.</p>
+            <p class="q4-risk-card-lede">Then your best-sellers shipping</p>
+            <p class="q4-risk-card-body">in a random box, without the packaging your brand spent months building, in the one month when your brand is in front of more customers than ever. The costs add up quickly.</p>
           </div>
         </div>
       </div>
@@ -2697,6 +2789,49 @@
     }, { threshold: 0.3 });
 
     observer.observe(container);
+  })();
+</script>
+
+<script>
+  // Gantt chart: bars draw in left-to-right, one after another, the first
+  // time the chart scrolls into view. Each bar starts as scaleX(0) (CSS)
+  // and is revealed by adding .is-drawn; the next bar only starts once the
+  // current one's transition actually finishes (chained via 'transitionend'
+  // rather than a guessed setTimeout), so the sequence holds even if the
+  // CSS transition duration ever changes.
+  (function () {
+    var bars = document.querySelectorAll('.q4-gantt-bar');
+    if (!bars.length) return;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return; // CSS already shows bars at full width
+
+    function drawBar(index) {
+      var bar = bars[index];
+      if (!bar) return;
+      bar.addEventListener('transitionend', function onEnd() {
+        bar.removeEventListener('transitionend', onEnd);
+        drawBar(index + 1);
+      });
+      bar.classList.add('is-drawn');
+    }
+
+    var chart = document.querySelector('.q4-risk-chart-card');
+    if (!chart || !window.IntersectionObserver) {
+      bars.forEach(function (b) { b.classList.add('is-drawn'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          drawBar(0);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+
+    observer.observe(chart);
   })();
 </script>
 
