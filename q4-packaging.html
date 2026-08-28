@@ -1033,6 +1033,17 @@
     background: var(--color-bg-muted-hover);
     outline: 1px solid var(--color-border-default);
     outline-offset: -1px;
+    overflow: hidden;
+  }
+
+  /* real photos, where present — a tile with no <img> stays the plain gray
+     placeholder above until the 3rd photo is ready. */
+  .q4-case-gallery-main img,
+  .q4-case-gallery-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .q4-case-gallery-side {
@@ -2144,9 +2155,9 @@
       </div>
 
       <div class="q4-case-gallery reveal">
-        <div class="q4-case-gallery-main"></div>
+        <div class="q4-case-gallery-main"><img src="assets/q4/casestudy/casestudy01.jpg" alt="Lovato Candles Rock Salt &amp; Driftwood candle, lit, styled with palm leaf shadow"></div>
         <div class="q4-case-gallery-side">
-          <div class="q4-case-gallery-tile"></div>
+          <div class="q4-case-gallery-tile"><img src="assets/q4/casestudy/casestudy02.jpg" alt="Lovato Candles Mandarin &amp; Sandalwood candle next to its branded gift box"></div>
           <div class="q4-case-gallery-tile"></div>
         </div>
       </div>
