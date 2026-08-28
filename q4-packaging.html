@@ -561,6 +561,10 @@
      animation on one element always wins over a transition on the same
      property, so they'd otherwise fight for it. */
   .q4-risk-chart-rise {
+    /* how far the rise (below) lifts the card — a CSS custom property so
+       mobile can tone it down instead of duplicating the whole rule; see
+       the .q4-risk-chart-rise override inside @media (max-width:900px). */
+    --q4-rise: -16px;
     position: relative;
     width: 80%;
     /* the gradient placeholder is now full content-width, but the card
@@ -578,7 +582,7 @@
      toggled on/off by IntersectionObserver (not unobserved), so unlike the
      page's one-shot .reveal entrances this one replays on every pass. */
   .q4-risk-chart-rise.q4-card-rise {
-    transform: translateY(-16px);
+    transform: translateY(var(--q4-rise));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -595,6 +599,11 @@
      settled it just keeps wobbling on a wall-clock loop, matching the
      reference effect exactly. */
   .q4-risk-chart-card {
+    /* how far the breathing wobble (below) tilts the card — a CSS custom
+       property so mobile can tone it down instead of duplicating the
+       whole animation; see the .q4-risk-chart-card override inside
+       @media (max-width:900px). */
+    --q4-tilt: 4deg;
     position: relative;
     z-index: 2;
     width: 100%;
@@ -602,8 +611,17 @@
     border-radius: var(--radius-md);
     outline: 4px solid rgba(255, 255, 255, 0.4);
     overflow: hidden;
-    transform-style: preserve-3d;
-    transform: rotateX(4deg) rotateY(4deg);
+    /* NOT transform-style:preserve-3d — nothing inside needs its own 3D
+       depth, and preserve-3d is exactly what makes overflow:hidden on an
+       ancestor (.q4-risk-visual) unreliable at clipping this element in
+       WebKit/Safari, which is what was actually causing the card to
+       visibly poke out past the gradient placeholder's rounded corners
+       even though its computed bounding box never left the parent's
+       bounds (confirmed via getBoundingClientRect sampled across the full
+       animation cycle at several widths — geometrically it always fit;
+       only the paint-time clip was failing). Default `flat` still lets
+       this element rotate in 3D just fine on its own. */
+    transform: rotateX(var(--q4-tilt)) rotateY(var(--q4-tilt));
     will-change: transform;
   }
 
@@ -612,11 +630,11 @@
   }
 
   @keyframes q4RiskChartBreathe {
-    0%   { transform: rotateX(4deg)  rotateY(4deg); }
-    25%  { transform: rotateX(4deg)  rotateY(-4deg); }
-    50%  { transform: rotateX(-4deg) rotateY(-4deg); }
-    75%  { transform: rotateX(-4deg) rotateY(4deg); }
-    100% { transform: rotateX(4deg)  rotateY(4deg); }
+    0%   { transform: rotateX(var(--q4-tilt))  rotateY(var(--q4-tilt)); }
+    25%  { transform: rotateX(var(--q4-tilt))  rotateY(calc(var(--q4-tilt) * -1)); }
+    50%  { transform: rotateX(calc(var(--q4-tilt) * -1)) rotateY(calc(var(--q4-tilt) * -1)); }
+    75%  { transform: rotateX(calc(var(--q4-tilt) * -1)) rotateY(var(--q4-tilt)); }
+    100% { transform: rotateX(var(--q4-tilt))  rotateY(var(--q4-tilt)); }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -688,12 +706,19 @@
        centered inside it. height:auto with no aspect-ratio instead just
        hugs the card, so the padding value below is the actual visible gap
        on all four sides. */
-    .q4-risk-visual { height: auto; padding: var(--space-2); }
+    .q4-risk-visual { height: auto; padding: var(--space-8); }
     /* the desktop width:80% inset is on top of this padding, not instead
        of it — on mobile that stacked up into a much bigger left/right gap
        (~41px) than top/bottom (8px, padding alone). Full width here so the
        padding above is the only gap, equal on all four sides. */
     .q4-risk-chart-rise { width: 100%; }
+    /* the enlarged card + full-strength rise/tilt was pushing past the
+       gradient placeholder's rounded edges on mobile (overflow:hidden +
+       border-radius doesn't reliably clip 3D-transformed content on every
+       engine) — tone both down here rather than lean on clipping to hide
+       the overshoot. */
+    .q4-risk-chart-rise { --q4-rise: -6px; }
+    .q4-risk-chart-card { --q4-tilt: 1.5deg; }
   }
 
   /* ---------- marquee bar (same component as index.html's marquee-section) ---------- */
