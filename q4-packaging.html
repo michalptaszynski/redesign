@@ -73,7 +73,7 @@
 
   .q4-trust-logos-content img {
     flex: none;
-    height: 14px;
+    height: 16px;
     margin-right: var(--space-5);
     width: auto;
     opacity: 0.55;
@@ -120,6 +120,10 @@
   }
 
   @media (max-width: 700px) {
+    /* The hero above is a full 100svh, so the section's usual --space-16
+       top padding reads as a big dead gap right after the carousel — pull
+       the logos/150M+ row up closer to it on mobile only. */
+    .q4-trust-section { padding-top: var(--space-8); }
     .q4-trust-grid { align-items: center; }
     .q4-trust-intro {
       display: flex;
@@ -189,14 +193,32 @@
 
   .q4-luma-h1 {
     margin: 0;
-    font-size: clamp(25px, 5.4vw, 68px);
+    /* Wider than .q4-mh-content's 620px column on purpose: at the 72px
+       desktop size "Your packaging shouldn't." needs ~755px to stay on one
+       line, and the badge/subhead's narrower reading-width column shouldn't
+       force it to wrap when the viewport actually has the room. `width:
+       max-content` is required, not just `max-width` — as a centered
+       (align-items:center, not stretch) flex-column item, its shrink-to-fit
+       width is otherwise still computed against the *parent's* 620px box,
+       so a bigger max-width alone has no effect. */
+    width: max-content;
+    max-width: min(90vw, 800px);
+    font-size: 4.5rem;
     font-weight: 500;
-    line-height: 1.05;
-    letter-spacing: -0.05em;
+    line-height: 1.04;
+    letter-spacing: -0.06em;
     color: var(--color-text-primary);
   }
 
-  .q4-luma-h1 .accent { color: var(--color-text-primary); white-space: nowrap; }
+  @media (max-width: 700px) {
+    .q4-luma-h1 {
+      font-size: 2.5rem;
+      letter-spacing: -0.05em;
+      line-height: 1.08;
+    }
+  }
+
+  .q4-luma-h1 .accent { color: var(--color-text-primary); }
 
   .q4-luma-subhead {
     margin: 20px auto 0;
@@ -1212,7 +1234,7 @@
     font-size: 0.8125rem;
     font-weight: 500;
     letter-spacing: -0.01em;
-    color: var(--color-text-muted);
+    color: var(--color-text-primary);
   }
 
   .q4-form-notes {
@@ -1232,7 +1254,7 @@
     font-size: 0.8125rem;
     line-height: 1.45;
     letter-spacing: -0.01em;
-    color: var(--color-text-muted);
+    color: var(--color-text-primary);
   }
 
   .q4-form-notes li::before {
@@ -1532,9 +1554,9 @@
   <section class="q4-marquee-hero">
 
     <div class="q4-mh-content">
-      <span class="q4-luma-badge">For brands shipping their biggest volume between Black Friday and Christmas</span>
+      <span class="q4-luma-badge">For brands shipping their biggest <br class="q4-badge-break" hidden>volume between Black Friday and Christmas</span>
       <h1 class="q4-luma-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
-      <p class="q4-luma-subhead">Lock in December&rsquo;s packaging now, from one supplier, with a guaranteed delivery date</p>
+      <p class="q4-luma-subhead">Lock in December&rsquo;s packaging now, <br class="q4-subhead-break" hidden>from one supplier, <br class="q4-subhead-break" hidden>with a guaranteed delivery date</p>
       <a href="#" class="btn-pill lg q4-luma-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
     </div>
 
@@ -1679,6 +1701,14 @@
             </div>
 
             <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/custom-packaging/ecommerce/ecommerce-boxes.avif" alt="Branded shipping boxes for a wine subscription brand"><span class="q4-cat-label">Ecommerce · shipping box</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:3/2"><img src="assets/custom-packaging/apparel/apparel-boxes.jpg" alt="Woman holding a branded apparel box"><span class="q4-cat-label">Apparel · box</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
               <div class="q4-bento-stat q4-bento-cta" style="aspect-ratio:auto">
                 <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
                 <div class="q4-pin-cta-extra">
@@ -1704,6 +1734,14 @@
                 <span class="q4-stat-card-desc">variants to build your exact range</span>
               </div>
             </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/custom-packaging/health-beauty/health-pouches.avif" alt="Branded foil vitamin pouches"><span class="q4-cat-label">Health · pouch</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:4/3"><img src="assets/main-segment/industries/industries-gifting.avif" alt="Branded kraft mailer box and notebook gift set"><span class="q4-cat-label">Gifting · mailer box</span></div>
+            </div>
           </div>
         </div>
 
@@ -1715,8 +1753,16 @@
 
             <div class="q4-pin-tile">
               <div class="q4-bento-stat" style="aspect-ratio:auto">
-                <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside — all under one roof.</p>
+                <p class="q4-bento-statement">From the box your customer opens, to the tissue paper they see inside, all under one roof.</p>
               </div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:2/3"><img src="assets/custom-packaging/food/food-pouches.jpg" alt="Branded matcha pouch in a styled product shot"><span class="q4-cat-label">Beverage · pouch</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/custom-packaging/ecommerce/ecommerce-bags.avif" alt="Branded compostable carrier bag"><span class="q4-cat-label">Ecommerce · carrier bag</span></div>
             </div>
           </div>
 
@@ -1727,6 +1773,14 @@
 
             <div class="q4-pin-tile">
               <div class="q4-pin-media" style="aspect-ratio:4/5"><img src="assets/q4/onepartner/onepartner02.jpg" alt="Branded rigid magnetic box with tissue paper"><span class="q4-cat-label">Beauty · rigid magnetic box + tissue</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:3/2"><img src="assets/custom-packaging/apparel/apparel-carrier-bags.avif" alt="Garment being placed into a branded carrier bag"><span class="q4-cat-label">Apparel · carrier bag</span></div>
+            </div>
+
+            <div class="q4-pin-tile">
+              <div class="q4-pin-media" style="aspect-ratio:1/1"><img src="assets/custom-packaging/food/food-boxes.png" alt="Branded cereal box with product spilling out"><span class="q4-cat-label">Food · box</span></div>
             </div>
           </div>
         </div>
@@ -2036,6 +2090,9 @@
     var section = document.querySelector('.q4-marquee-hero');
     var content = document.querySelector('.q4-mh-content');
     var badge = document.querySelector('.q4-mh-content .q4-luma-badge');
+    var badgeBreak = document.querySelector('.q4-badge-break');
+    var subhead = document.querySelector('.q4-mh-content .q4-luma-subhead');
+    var subheadBreaks = document.querySelectorAll('.q4-subhead-break');
     var cta = document.querySelector('.q4-mh-content .q4-luma-cta');
     var CARD_H = CARD_W * 4 / 3; // 386.67 — the reference (unscaled) card height
     var BUFFER = 180;             // vertical room the arc needs beyond the card itself
@@ -2051,6 +2108,46 @@
     // nav bar — so instead of a constant px value, work out from the
     // badge's un-shifted position how much room is actually there and
     // never take more of it than leaves MIN_GAP_NAV clear.
+    // Shared by every "only break where a hidden <br> is, and only if the
+    // text doesn't already fit" control below: count actual rendered lines
+    // of an element's current content via Range.getClientRects() (distinct
+    // rect tops = distinct lines).
+    function countRenderedLines(el) {
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      var tops = {};
+      var topCount = 0;
+      var rects = range.getClientRects();
+      for (var i = 0; i < rects.length; i++) {
+        var top = Math.round(rects[i].top);
+        if (!(top in tops)) { tops[top] = true; topCount++; }
+      }
+      return topCount;
+    }
+
+    // The eyebrow badge only breaks into two lines ("...biggest" /
+    // "volume...") when the full sentence doesn't actually fit on one line
+    // at the current width — never as a permanent two-line label. Reset the
+    // forced break, measure whether the plain text still wraps on its own
+    // (the browser's own wrap point is an ugly single-word orphan line, see
+    // git history), and only then re-enable our nicer break point.
+    function fitBadgeBreak() {
+      if (!badge || !badgeBreak) return;
+      badgeBreak.hidden = true;
+      badgeBreak.hidden = countRenderedLines(badge) <= 1;
+    }
+
+    // Same idea for the subhead, but it only forces its two comma breaks
+    // ("...now," / "from one supplier," / "...delivery date") once the
+    // sentence needs a 3rd line on its own — at 1-2 natural lines the
+    // browser's own wrap is left alone.
+    function fitSubheadBreak() {
+      if (!subhead || !subheadBreaks.length) return;
+      subheadBreaks.forEach(function (br) { br.hidden = true; });
+      var needsBreak = countRenderedLines(subhead) >= 3;
+      subheadBreaks.forEach(function (br) { br.hidden = !needsBreak; });
+    }
+
     function fitHeroContent() {
       if (!content || !badge) return;
       var nav = document.querySelector('.quote-topbar') || document.querySelector('header');
@@ -2082,11 +2179,22 @@
     }
 
     function fitHero() {
+      fitBadgeBreak();
+      fitSubheadBreak();
       fitHeroContent();
       fitWheelToAvailableSpace();
     }
 
     fitHero();
+
+    // font-display:swap means the badge/subhead break checks above can run
+    // against fallback-font metrics on a cold load, before ABC Favorit
+    // finishes loading — that swap changes each word's rendered width but
+    // doesn't itself fire a resize, so without this the wrong break choice
+    // (made pre-swap) would stick until the user resizes the window.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(fitHero);
+    }
 
     var resizeTicking = false;
     window.addEventListener('resize', function () {
