@@ -429,6 +429,68 @@
     .q4-fill-text { line-height: 1.32; }
   }
 
+  /* Split layout for the standalone "Running out..." statement: big lead
+     statement left, a lighter follow-up paragraph top-right, and two small
+     supporting paragraphs side by side beneath it. Static (no word-reveal)
+     on purpose — the reveal script colors words in DOM order top-to-bottom,
+     which would look wrong across this side-by-side arrangement (the left
+     column finishing before the right one even starts), so this doesn't
+     use .q4-fill-text/.q4-fill-word at all. */
+  .q4-fillsplit {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-10) var(--space-12);
+    align-items: start;
+  }
+
+  .q4-fillsplit-lead {
+    margin: 0;
+    max-width: 34rem;
+    font-weight: 500;
+    font-size: clamp(26px, 2.6vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-fillsplit-right {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .q4-fillsplit-sub {
+    margin: 0;
+    font-weight: 700;
+    font-size: clamp(19px, 1.5vw, 23px);
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .q4-fillsplit-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+
+  .q4-fillsplit-cols p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+  }
+
+  @media (max-width: 900px) {
+    .q4-fillsplit { grid-template-columns: 1fr; gap: var(--space-6); }
+    .q4-fillsplit-lead { max-width: none; }
+  }
+
+  @media (max-width: 500px) {
+    .q4-fillsplit-cols { grid-template-columns: 1fr; gap: var(--space-4); }
+  }
+
   .q4-fill-word {
     color: var(--color-border-default);
   }
@@ -1610,7 +1672,16 @@
   <!-- ============ FILLED TEXT ============ -->
   <section class="q4-fill-section">
     <div class="q4-container">
-      <p class="q4-fill-text">Running out of branded packaging in the middle of a sales peak is an easily avoidable brand risk. Even right now, there&rsquo;s an ops lead somewhere with a Q4 forecast in front of them but no packaging order placed. It doesn&rsquo;t have to be you. Packhelp becomes the one packaging partner behind every format you ship, all across the EU &amp; UK. Get everything in one place, with a dedicated project manager who owns your timeline, all in competitive pricing.</p>
+      <div class="q4-fillsplit">
+        <p class="q4-fillsplit-lead">Running out of branded packaging in the middle of a sales peak is an easily avoidable brand risk.</p>
+        <div class="q4-fillsplit-right">
+          <p class="q4-fillsplit-sub">Even right now, there&rsquo;s an ops lead somewhere with a Q4 forecast in front of them but no packaging order placed. It doesn&rsquo;t have to be you.</p>
+          <div class="q4-fillsplit-cols">
+            <p>Packhelp becomes the one packaging partner behind every format you ship, all across the EU &amp; UK.</p>
+            <p>Get everything in one place, with a dedicated project manager who owns your timeline, all in competitive pricing.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
