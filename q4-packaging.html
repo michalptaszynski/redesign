@@ -1167,11 +1167,11 @@
 
   /* "What we achieved" stat pair — third .q4-case-row, its own lede is the
      "What we achieved:" label, so this is just the stats + CTA sitting in
-     that row's body column. Two tiles side by side, number folded into the
+     that row's body column. Two tiles stacked, number folded into the
      start of the sentence rather than styled as its own big figure. */
   .q4-case-achieved-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: var(--space-3);
   }
 
