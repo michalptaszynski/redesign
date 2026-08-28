@@ -1013,21 +1013,36 @@
      76rem − 2×32px = 72rem. This card's own 32px padding (on
      .q4-case-bg) already plays that padding role, so matching content
      width here means matching 72rem directly, not reusing 76rem. */
-  .q4-case-image {
+  .q4-case-gallery {
     width: 100%;
     max-width: 72rem;
     margin: 0 auto;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-    background: var(--color-bg-muted-hover);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
   }
 
-  .q4-case-image img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  /* placeholder gray boxes — a real photo can drop into .q4-case-gallery-
+     main / .q4-case-gallery-tile later, same background token
+     .q4-case-image used to use. Left tile has no explicit height: grid's
+     default align-items:stretch makes it match .q4-case-gallery-side's
+     natural (content-driven) height automatically. */
+  .q4-case-gallery-main,
+  .q4-case-gallery-tile {
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-muted-hover);
+    outline: 1px solid var(--color-border-default);
+    outline-offset: -1px;
+  }
+
+  .q4-case-gallery-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .q4-case-gallery-tile {
+    aspect-ratio: 16 / 9;
   }
 
   /* reuses the shared .reveal slide-up trigger (JS observer near the bottom
@@ -1035,7 +1050,7 @@
      place instead of .reveal's own default slide-down — same direction the
      tile-stagger entrances elsewhere on the page use. Opacity is pinned to
      1 throughout (unlike plain .reveal, which also fades 0->1): the photo
-     sits on .q4-case-image's own placeholder background, so fading its
+     sits on .q4-case-gallery's own placeholder background, so fading its
      opacity washed the whole photo out to a translucent white haze for the
      0.8s transition — distracting and easy to mistake for a rendering bug.
      The .is-visible overrides have to be spelled out explicitly too (same
@@ -1043,12 +1058,12 @@
      base .reveal/.reveal.is-visible rules on specificity, and these come
      later in the file, so without them the overrides above wouldn't
      resolve correctly. */
-  .q4-case-image.reveal {
+  .q4-case-gallery.reveal {
     opacity: 1;
     transform: translateY(20px);
   }
 
-  .q4-case-image.reveal.is-visible {
+  .q4-case-gallery.reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
   }
@@ -1058,7 +1073,7 @@
      (wider-than-content) width — the card itself is a 100vw full-bleed
      section, so left uncapped this would run noticeably wider than every
      other section's text measure on large screens. 72rem, not
-     .q4-container's 76rem — see the longer comment on .q4-case-image for
+     .q4-container's 76rem — see the longer comment on .q4-case-gallery for
      why (.q4-container's 76rem already has its own padding baked in as a
      border-box value; this card's padding plays that same role, so
      matching content width means 76rem − 2×32px = 72rem here). */
@@ -1132,6 +1147,7 @@
      line-height, letter-spacing, and color all copied verbatim, not just
      the size. */
   .q4-case-row-body p.q4-case-row-highlight {
+    padding: var(--space-6) 0;
     font-weight: 500;
     font-size: 2rem;
     line-height: 1.08;
@@ -1147,6 +1163,44 @@
   .q4-case-row-body .btn-pill {
     align-self: flex-start;
     margin-top: var(--space-2);
+  }
+
+  /* "What we achieved" stat pair — third .q4-case-row, its own lede is the
+     "What we achieved:" label, so this is just the stats + CTA sitting in
+     that row's body column. Two tiles side by side, number folded into the
+     start of the sentence rather than styled as its own big figure. */
+  .q4-case-achieved-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .q4-case-achieved-tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+  }
+
+  .q4-case-achieved-tile p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  /* second line per tile — same small/muted treatment as .q4-lead
+     ("One partner across your entire range means..."). */
+  .q4-case-achieved-tile p.q4-case-achieved-sub {
+    font-weight: 400;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
   }
 
   @media (max-width: 700px) {
@@ -2080,7 +2134,13 @@
         <p class="q4-lead">How Packhelp &amp; Lovato Candles achieved a shocking 67% lower average packaging unit costs while keeping up with their incredible growth.</p>
       </div>
 
-      <div class="q4-case-image reveal"><img src="assets/q4/casestudy.jpeg" alt="Lit Lovato Candles candle stacked on branded gift boxes"></div>
+      <div class="q4-case-gallery reveal">
+        <div class="q4-case-gallery-main"></div>
+        <div class="q4-case-gallery-side">
+          <div class="q4-case-gallery-tile"></div>
+          <div class="q4-case-gallery-tile"></div>
+        </div>
+      </div>
 
       <div class="q4-case-content">
         <div class="q4-case-rows">
@@ -2097,6 +2157,21 @@
               <p>Instead of managing a complex packaging supply chain alone, Lovato worked with Packhelp on a tailored packaging and fulfilment setup.</p>
               <p class="q4-case-row-highlight">With our help, they consolidated the range into just 2 box sizes.</p>
               <p>They also used Packhelp&rsquo;s storage and fulfilment hub, allowing them to order at higher volumes for better pricing while keeping the flexibility to request stock when they needed it.</p>
+            </div>
+          </div>
+          <div class="q4-case-row">
+            <p class="q4-case-row-lede">What we achieved:</p>
+            <div class="q4-case-row-body">
+              <div class="q4-case-achieved-stats">
+                <div class="q4-case-achieved-tile">
+                  <p>67% lower average</p>
+                  <p class="q4-case-achieved-sub">packaging unit costs</p>
+                </div>
+                <div class="q4-case-achieved-tile">
+                  <p>2 box sizes</p>
+                  <p class="q4-case-achieved-sub">for 13 products and 52 designs</p>
+                </div>
+              </div>
               <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
             </div>
           </div>
