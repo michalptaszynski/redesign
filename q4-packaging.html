@@ -405,28 +405,8 @@
   .q4-partner .q4-cta-wrap .btn-pill { width: 100%; margin: 0; }
   .q4-partner .q4-micro { text-align: left; }
 
-  /* ---------- FILLED TEXT (word-by-word scroll-linked color reveal) ----------
-     Alternate take on the "Running out / Even right now" statements, toggled
-     against the fanned card row via the page-settings gear (bottom-left).
-     Each word is its own span; color is interpolated per word based on scroll
-     progress, so the reveal follows natural reading order through the wrapped
-     lines instead of a rectangular left-to-right wipe. */
   .q4-fill-section {
     padding: var(--space-24) 0;
-  }
-
-  .q4-fill-text {
-    max-width: 55rem;
-    margin: 0;
-    text-align: left;
-    font-weight: 500;
-    font-size: clamp(28px, 3.4vw, 44px);
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-  }
-
-  @media (max-width: 700px) {
-    .q4-fill-text { line-height: 1.32; }
   }
 
   /* Split layout for the standalone "Running out..." statement: big lead
@@ -489,14 +469,6 @@
 
   @media (max-width: 500px) {
     .q4-fillsplit-cols { grid-template-columns: 1fr; gap: var(--space-4); }
-  }
-
-  .q4-fill-word {
-    color: var(--color-border-default);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .q4-fill-word { color: var(--color-text-primary) !important; }
   }
 
   /* ---------- THE RISK (intro, full-width visual, two cards below) ---------- */
@@ -984,24 +956,25 @@
   .q4-case-bg {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--space-20);
+    align-items: stretch;
+    gap: var(--space-10);
     padding: 120px var(--space-8);
     border-radius: var(--radius-2xl);
     background: var(--color-bg-muted);
     box-sizing: border-box;
   }
 
-  /* text reuses the "FILLED TEXT" word-by-word scroll-color reveal (see
-     .q4-fill-text/.q4-fill-word below, and the shared script near the
-     bottom of the page that now drives every .q4-fill-text instance on the
-     page independently) — centered as a block via .q4-case-bg's own
-     align-items:center. Paragraphs stretch to the container's own width
-     (default align-items:stretch) so they wrap correctly at 48rem; the
-     badge and button opt out via align-self so they shrink to their own
-     content width and sit flush-left instead of stretching full width too. */
-  .q4-case-fill {
-    max-width: 48rem;
+  /* Centered relative to the photo below it — both share the same
+     centering axis (.q4-case-bg's full width via margin:0 auto), so a
+     plain margin:0 auto here lines this block's center up with the
+     photo's center even though this block is narrower. align-items:stretch
+     above makes this flex item full-width by default, so max-width +
+     margin:0 auto is what actually constrains and centers it, rather than
+     align-self (which would only affect position, not give it a max-width
+     to begin with). */
+  .q4-case-header {
+    max-width: 34rem;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
@@ -1009,21 +982,39 @@
 
   /* the default .q4-section-badge bg (--color-bg-muted-hover, #F2F2F2) is
      too close to this section's own --color-bg-muted (#F8F8F8) to read as a
-     distinct badge, unlike everywhere else it's used against white. Own
-     margin reset to 0 since the flex gap above already sets its distance
-     from the text below (tighter than the default --space-3). */
-  .q4-case-fill .q4-section-badge {
+     distinct badge, unlike everywhere else it's used against white. */
+  .q4-case-header .q4-section-badge {
     align-self: flex-start;
     margin: 0;
     background: var(--color-bg-surface);
   }
 
-  .q4-case-fill .btn-pill {
-    align-self: flex-start;
+  .q4-case-header h2 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 2.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
   }
 
+  .q4-case-header p.q4-lead {
+    margin: 0;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+
+  /* 72rem, not .q4-container's 76rem: .q4-container's max-width is a
+     border-box value that already has its own 32px/side padding baked in
+     (global box-sizing:border-box), so its actual *content* width — what
+     everything elsewhere on the page visually lines up to — is
+     76rem − 2×32px = 72rem. This card's own 32px padding (on
+     .q4-case-bg) already plays that padding role, so matching content
+     width here means matching 72rem directly, not reusing 76rem. */
   .q4-case-image {
     width: 100%;
+    max-width: 72rem;
+    margin: 0 auto;
     aspect-ratio: 16 / 9;
     overflow: hidden;
     border-radius: var(--radius-lg);
@@ -1060,46 +1051,107 @@
     transform: translateY(0);
   }
 
-  /* stat row below the button — same width as the text/button above it
-     (unlike the card itself, which is wider), so .q4-case-bg's own
-     align-items:center lines its edges up with them automatically. The
-     var(--space-20) gap above (on .q4-case-bg) is the only gap in this
-     2-child layout, so it alone sets the button-to-stats distance. */
-  .q4-case-stats {
-    max-width: 48rem;
+  /* Everything below the photo (rows, CTA, stats) is capped at the site's
+     standard content width instead of stretching to the card's own full
+     (wider-than-content) width — the card itself is a 100vw full-bleed
+     section, so left uncapped this would run noticeably wider than every
+     other section's text measure on large screens. 72rem, not
+     .q4-container's 76rem — see the longer comment on .q4-case-image for
+     why (.q4-container's 76rem already has its own padding baked in as a
+     border-box value; this card's padding plays that same role, so
+     matching content width means 76rem − 2×32px = 72rem here). */
+  .q4-case-content {
+    width: 100%;
+    max-width: 72rem;
+    margin: 0 auto;
     display: flex;
-    justify-content: space-between;
-    gap: var(--space-8);
+    flex-direction: column;
+    gap: var(--space-10);
   }
 
-  .q4-case-stat-num {
-    display: block;
-    margin-bottom: var(--space-2);
+  /* Two label+body rows. Static (no word-reveal) on purpose — same
+     reasoning as .q4-fillsplit above: a side-by-side lede/body pair
+     doesn't map to a single top-to-bottom reveal sequence without looking
+     broken. */
+  .q4-case-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  /* Flex, not grid: .q4-case-row-lede's own box grows to fill whatever
+     space is left after .q4-case-row-body's fixed width is subtracted, so
+     the *visible gap* between the lede text and the body text is exactly
+     .q4-case-row-body's margin-left (below) regardless of how long each
+     row's lede sentence is — a grid track's width doesn't adapt to a
+     sibling's content the way a flex-grow item does, so a fixed grid gap
+     would only equal the visible gap if the lede column had zero unused
+     space of its own, which it doesn't once the lede text is short. */
+  /* Centers the {lede, body} pair as one unit within the row (which
+     matches the photo's width) — equal empty margin on both sides, rather
+     than pushing the pair flush to the row's right edge. */
+  .q4-case-row {
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    gap: var(--space-10);
+  }
+
+  .q4-case-row-lede {
+    /* fixed at its original wrapped width (matches the earlier 1fr-of-4
+       grid share: (1152px row − 40px gap) ÷ 4). */
+    flex: 0 0 278px;
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  /* narrow reading measure, right-aligned within its (wide) grid column via
+     margin-left:auto — so it still ends flush with the photo's right edge,
+     but starts partway in instead of stretching the column's full width. */
+  .q4-case-row-body {
+    flex: 0 0 28rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .q4-case-row-body p {
+    margin: 0;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  /* exact same typography as .q4-case-header h2 — font, weight, size,
+     line-height, letter-spacing, and color all copied verbatim, not just
+     the size. */
+  .q4-case-row-body p.q4-case-row-highlight {
     font-weight: 500;
-    font-size: 2.5rem;
+    font-size: 2.25rem;
+    line-height: 1.15;
     letter-spacing: -0.03em;
     color: var(--color-text-primary);
   }
 
-  .q4-case-stat-desc {
-    margin: 0;
-    max-width: 16rem;
-    font-size: 0.9375rem;
-    line-height: 1.4;
-    letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
+  /* sits right under the last paragraph now, inside the body column, not
+     as its own full-width row below the whole grid — align-self stops it
+     stretching to the column's own width like the paragraphs above it,
+     and the extra margin-top gives it a bit more breathing room than the
+     tight inter-paragraph gap. */
+  .q4-case-row-body .btn-pill {
+    align-self: flex-start;
+    margin-top: var(--space-2);
   }
 
   @media (max-width: 700px) {
-    /* stacked in a column, .q4-case-stats's own width would otherwise
-       shrink-wrap to its widest child instead of the available width (a
-       flex row's items summing to ~full width doesn't carry over once
-       they're stacked instead of side by side) — align-self:stretch forces
-       it back to the same width as .q4-case-fill's text above it, and the
-       max-width cap below (which existed for the desktop side-by-side
-       layout) no longer applies once stacked full-width. */
-    .q4-case-stats { flex-direction: column; align-self: stretch; gap: var(--space-6); }
-    .q4-case-stat-desc { max-width: none; }
+    .q4-case-header { max-width: none; margin-left: 0; }
+    .q4-case-row { flex-direction: column; gap: var(--space-3); }
+    .q4-case-row-lede { flex: none; margin: 0; }
+    .q4-case-row-body { flex: none; margin-left: 0; }
   }
 
   /* ---------- SUPPORT (same scroll-carousel component as deals.html's deals-carousel) ---------- */
@@ -2020,28 +2072,32 @@
   <!-- ============ CASE STUDY: LOVATO CANDLES ============ -->
   <section class="q4-section q4-case-section reveal">
     <div class="q4-case-bg">
-      <div class="q4-case-fill">
+      <div class="q4-case-header">
         <span class="q4-section-badge">Case study &middot; Lovato Candles</span>
-        <p class="q4-fill-text">What happens when the right packaging partner handles your needs? How Packhelp &amp; Lovato Candles achieved a shocking 67% lower average packaging unit costs while keeping up with their incredible growth.</p>
-        <div class="q4-case-image reveal"><img src="assets/q4/casestudy.jpeg" alt="Lit Lovato Candles candle stacked on branded gift boxes"></div>
-        <p class="q4-fill-text">Lovato sells candles and diffusers across Ireland, the UK and Europe. As demand grew, so did the complexity behind their packaging &mdash; 13 products, 52 designs, and a need for faster fulfilment.</p>
-        <p class="q4-fill-text">Together, we simplified the whole operation.</p>
-        <p class="q4-fill-text">We consolidated the range into just 2 box sizes, and used Packhelp&rsquo;s storage and fulfilment hub &mdash; so they could order at higher volumes for better pricing and call stock off when they needed it.</p>
-        <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        <h2>What happens when the right packaging partner handles your needs?</h2>
+        <p class="q4-lead">How Packhelp &amp; Lovato Candles achieved a shocking <span class="q4-case-num" data-count-to="67" data-suffix="%">0%</span> lower average packaging unit costs while keeping up with their incredible growth.</p>
       </div>
 
-      <div class="q4-case-stats">
-        <div class="q4-case-stat">
-          <span class="q4-case-stat-num" data-count-to="67" data-suffix="%">0%</span>
-          <p class="q4-case-stat-desc">lower average unit cost across the range</p>
-        </div>
-        <div class="q4-case-stat">
-          <span class="q4-case-stat-num" data-count-to="1">0</span>
-          <p class="q4-case-stat-desc">supply chain built to keep pace with a growing business</p>
-        </div>
-        <div class="q4-case-stat">
-          <span class="q4-case-stat-num" data-count-to="2">0</span>
-          <p class="q4-case-stat-desc">box sizes covering 13 products and 52 designs</p>
+      <div class="q4-case-image reveal"><img src="assets/q4/casestudy.jpeg" alt="Lit Lovato Candles candle stacked on branded gift boxes"></div>
+
+      <div class="q4-case-content">
+        <div class="q4-case-rows">
+          <div class="q4-case-row">
+            <p class="q4-case-row-lede">Lovato sells candles and diffusers across Ireland, the UK and Europe.</p>
+            <div class="q4-case-row-body">
+              <p>As demand grew, so did the complexity behind their packaging, with <span class="q4-case-num" data-count-to="13">0</span> products and <span class="q4-case-num" data-count-to="52">0</span> designs, and a need for faster fulfilment.</p>
+              <p>They needed packaging that stayed consistent across every design, and could keep up with demand without tying up cash or warehouse space.</p>
+            </div>
+          </div>
+          <div class="q4-case-row">
+            <p class="q4-case-row-lede">Together, we simplified the whole operation.</p>
+            <div class="q4-case-row-body">
+              <p>Instead of managing a complex packaging supply chain alone, Lovato worked with Packhelp on a tailored packaging and fulfilment setup.</p>
+              <p class="q4-case-row-highlight">With our help, they consolidated the range into just <span class="q4-case-num" data-count-to="2">0</span> box sizes.</p>
+              <p>They also used Packhelp&rsquo;s storage and fulfilment hub, allowing them to order at higher volumes for better pricing while keeping the flexibility to request stock when they needed it.</p>
+              <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2674,165 +2730,20 @@
 </script>
 
 <script>
-  // Word-by-word scroll-color reveal — shared by every .q4-fill-text
-  // instance on the page. The standalone "Running out..." statement reveals
-  // off its own scroll position as before; the four Case Study paragraphs
-  // share a .q4-case-fill ancestor, so they're grouped into ONE continuous
-  // reveal instead — word index runs across paragraph boundaries, and
-  // progress is driven by the whole group's scroll position (its first
-  // paragraph's top to its last paragraph's bottom), not each paragraph
-  // restarting the reveal on its own independent schedule.
+  // Case study numbers: every .q4-case-num (the inline "13 products",
+  // "67%", etc. mentions in the header/row copy) counts up from 0 once the
+  // whole card scrolls into view, then holds at its final value. Generic
+  // [data-count-to] selector rather than one tied to .q4-case-num
+  // specifically — simpler than the old version, which had to reach into
+  // the word-reveal script's rebuilt <span class="q4-fill-word"> markup to
+  // find its numbers; these are just plain data-count-to spans in the real
+  // markup now (the stat row this also used to double as a selector for
+  // was removed).
   (function () {
-    var els = document.querySelectorAll('.q4-fill-text');
-    if (!els.length) return;
-
-    var DARK = [0, 6, 26];       // --color-text-primary (rich-blue #00061A)
-    var LIGHT = [231, 231, 231]; // --color-border-default (gray-300 #E7E7E7)
-    var WINDOW = 0.12;           // how many words wide the soft transition zone is
-    var GROUP_SELECTOR = '.q4-case-fill';
-
-    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-    function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
-
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    var groups = [];
-    var groupByContainer = new Map();
-    Array.prototype.forEach.call(els, function (el) {
-      var container = el.closest(GROUP_SELECTOR);
-      var group = container ? groupByContainer.get(container) : null;
-      if (!group) {
-        group = { els: [] };
-        if (container) groupByContainer.set(container, group);
-        groups.push(group);
-      }
-      group.els.push(el);
-    });
-
-    var blocks = groups.map(function (group) {
-      var wordEls = [];
-      group.els.forEach(function (el) {
-        var words = el.textContent.trim().split(/\s+/);
-        el.innerHTML = words.map(function (w) {
-          return '<span class="q4-fill-word">' + w + '</span>';
-        }).join(' ');
-        wordEls = wordEls.concat(Array.prototype.slice.call(el.querySelectorAll('.q4-fill-word')));
-      });
-      return { els: group.els, wordEls: wordEls, N: wordEls.length };
-    });
-
-    if (reduce) return; // CSS already forces full color
-
-    function setProgress(block, p) {
-      for (var i = 0; i < block.N; i++) {
-        var target = block.N > 1 ? i / (block.N - 1) : 0;
-        var t = clamp((p - target) / WINDOW + 0.5, 0, 1);
-        block.wordEls[i].style.color = 'rgb(' + lerp(LIGHT[0], DARK[0], t) + ',' + lerp(LIGHT[1], DARK[1], t) + ',' + lerp(LIGHT[2], DARK[2], t) + ')';
-      }
-    }
-
-    function update() {
-      var vh = window.innerHeight;
-      var startY = vh * 0.85;
-      var endY = vh * 0.25;
-      blocks.forEach(function (block) {
-        // single-paragraph blocks: span is 0, so this reduces to the
-        // original top-only formula — no behavior change for those.
-        var top = block.els[0].getBoundingClientRect().top;
-        var bottom = block.els[block.els.length - 1].getBoundingClientRect().bottom;
-        var span = block.els.length > 1 ? (bottom - top) : 0;
-        var progress = clamp((startY - top) / (startY - endY + span), 0, 1);
-        setProgress(block, progress);
-      });
-    }
-
-    var ticking = false;
-    function onScroll() {
-      if (!ticking) {
-        window.requestAnimationFrame(function () { update(); ticking = false; });
-        ticking = true;
-      }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
-  })();
-</script>
-
-<script>
-  // Case study numbers: 67%, 13, 52 and 2 count up from 0 once the text
-  // scrolls into view, then hold at their final value. Runs after the
-  // word-reveal script above, which rebuilds each .q4-fill-text paragraph's
-  // innerHTML from scratch (one <span class="q4-fill-word"> per word) — so
-  // this has to find and mark its target numbers among THOSE spans rather
-  // than the original markup, or the rebuild would wipe them out.
-  (function () {
-    var container = document.querySelector('.q4-case-fill');
+    var container = document.querySelector('.q4-case-bg');
     if (!container) return;
 
-    var TARGETS = ['67%', '13', '52', '2'];
-    var DURATION = 1200;
-
-    var counters = [];
-    var words = container.querySelectorAll('.q4-fill-word');
-    Array.prototype.forEach.call(words, function (w) {
-      var text = w.textContent;
-      var idx = TARGETS.indexOf(text);
-      if (idx === -1) return;
-      TARGETS.splice(idx, 1); // each number only ever appears once in this text
-      counters.push({
-        el: w,
-        to: parseInt(text, 10),
-        suffix: text.indexOf('%') !== -1 ? '%' : ''
-      });
-    });
-    if (!counters.length) return;
-
-    function setValue(counter, n) {
-      counter.el.textContent = n + counter.suffix;
-    }
-
-    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      counters.forEach(function (c) { setValue(c, c.to); });
-      return;
-    }
-
-    counters.forEach(function (c) { setValue(c, 0); });
-
-    function animate() {
-      var start = null;
-      function step(timestamp) {
-        if (start === null) start = timestamp;
-        var progress = Math.min((timestamp - start) / DURATION, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        counters.forEach(function (c) { setValue(c, Math.round(c.to * eased)); });
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animate();
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.3 });
-
-    observer.observe(container);
-  })();
-</script>
-
-<script>
-  // Case study stat block: each .q4-case-stat-num counts up from 0 to its
-  // data-count-to once the stat row scrolls into view.
-  (function () {
-    var container = document.querySelector('.q4-case-stats');
-    if (!container) return;
-
-    var nums = container.querySelectorAll('.q4-case-stat-num[data-count-to]');
+    var nums = container.querySelectorAll('[data-count-to]');
     if (!nums.length) return;
 
     var DURATION = 1200;
