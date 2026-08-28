@@ -499,25 +499,24 @@
     .q4-fill-word { color: var(--color-text-primary) !important; }
   }
 
-  /* ---------- THE RISK (intro + image block left, divided text list right) ---------- */
+  /* ---------- THE RISK (intro, full-width visual, two cards below) ---------- */
   .q4-risk-layout {
     display: flex;
-    align-items: flex-end;
-    gap: var(--space-12);
-  }
-
-  .q4-risk-intro {
-    flex: 1 1 0;
-    min-width: 0;
-    position: sticky;
-    top: 40px;
+    flex-direction: column;
+    /* no flex `gap` here on purpose: flex items don't collapse margins the
+       way normal block-flow siblings do, so a gap here would have stacked
+       on top of .q4-lead's own margin-bottom instead of replacing it,
+       giving a bigger intro-to-visual space than every other section on
+       the page (which all rely on that same collapsing lead margin).
+       Spacing below the visual is set explicitly on .q4-risk-cards
+       instead, so each gap can differ without a single shared gap value. */
   }
 
   /* same blob-gradient treatment as .q4-brief-card (the form tile) */
   .q4-risk-visual {
     position: relative;
     overflow: hidden;
-    margin-top: var(--space-8);
+    width: 100%;
     height: 500px;
     background: #D9E6FD;
     border-radius: var(--radius-lg);
@@ -554,14 +553,77 @@
     transform: rotate(-172.637deg);
   }
 
+  /* Wraps the whole white card. Owns sizing + the translateY "rise" (see
+     .q4-card-rise below) + the `perspective` that makes the card's own
+     rotateX/rotateY (set on .q4-risk-chart-card itself, below) read as
+     real 3D tilt instead of a flat skew — split onto two elements only
+     because rise and tilt both need the `transform` property and an
+     animation on one element always wins over a transition on the same
+     property, so they'd otherwise fight for it. */
+  .q4-risk-chart-rise {
+    position: relative;
+    width: 80%;
+    /* the gradient placeholder is now full content-width, but the card
+       itself shouldn't grow along with it — cap it at the width it had
+       back when the placeholder still lived in the narrower ~5/8 intro
+       column ((1216px content − 48px gap) × 5/8 − 64px padding × 80%),
+       bumped up ~15% on top of that per a later explicit ask. */
+    max-width: 613px;
+    perspective: 1400px;
+    transform: translateY(0);
+    transition: transform 0.7s ease;
+  }
+
+  /* rises slightly every time the section scrolls into view — class is
+     toggled on/off by IntersectionObserver (not unobserved), so unlike the
+     page's one-shot .reveal entrances this one replays on every pass. */
+  .q4-risk-chart-rise.q4-card-rise {
+    transform: translateY(-16px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-risk-chart-rise { transition: none; }
+  }
+
+  /* The card itself — background, outline, and all — is the element that
+     tilts. Same mechanism as index.html's video section
+     (.statement-video-mock/-inner): starts at a fixed tilt, and only
+     starts wobbling once the chart has scrolled into view for the first
+     time (.is-settled, added once by the same observer that kicks off the
+     bar-draw sequence — see the script near the bottom of the page).
+     Unlike the rise effect above, this does NOT replay per scroll: once
+     settled it just keeps wobbling on a wall-clock loop, matching the
+     reference effect exactly. */
   .q4-risk-chart-card {
     position: relative;
     z-index: 2;
-    width: 80%;
+    width: 100%;
     background: var(--color-bg-surface);
     border-radius: var(--radius-md);
     outline: 4px solid rgba(255, 255, 255, 0.4);
     overflow: hidden;
+    transform-style: preserve-3d;
+    transform: rotateX(4deg) rotateY(4deg);
+    will-change: transform;
+  }
+
+  .q4-risk-chart-card.is-settled {
+    animation: q4RiskChartBreathe 10s ease-in-out infinite;
+  }
+
+  @keyframes q4RiskChartBreathe {
+    0%   { transform: rotateX(4deg)  rotateY(4deg); }
+    25%  { transform: rotateX(4deg)  rotateY(-4deg); }
+    50%  { transform: rotateX(-4deg) rotateY(-4deg); }
+    75%  { transform: rotateX(-4deg) rotateY(4deg); }
+    100% { transform: rotateX(4deg)  rotateY(4deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .q4-risk-chart-card.is-settled {
+      animation: none;
+      transform: rotateX(2deg) rotateY(2deg);
+    }
   }
 
   .q4-risk-chart-card svg {
@@ -588,20 +650,14 @@
   }
 
   .q4-risk-cards {
-    flex: 0 0 320px;
-    width: 320px;
     display: flex;
-    flex-direction: column;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
   }
 
   .q4-risk-card {
-    padding: var(--space-6) 0;
-  }
-
-  .q4-risk-card:first-child { padding-top: 0; }
-
-  .q4-risk-card:not(:first-child) {
-    border-top: 1px solid var(--color-border-default);
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   .q4-risk-card-lede {
@@ -621,9 +677,7 @@
   }
 
   @media (max-width: 900px) {
-    .q4-risk-layout { flex-direction: column; gap: var(--space-8); }
-    .q4-risk-intro { position: static; }
-    .q4-risk-cards { flex: 1 1 auto; width: auto; }
+    .q4-risk-cards { flex-direction: column; }
     /* the 500px placeholder height is sized for the wide desktop column —
        on a narrow stacked mobile column a fixed height (even scaled down)
        leaves the chart card swimming in empty gradient above/below it, so
@@ -639,7 +693,7 @@
        of it — on mobile that stacked up into a much bigger left/right gap
        (~41px) than top/bottom (8px, padding alone). Full width here so the
        padding above is the only gap, equal on all four sides. */
-    .q4-risk-chart-card { width: 100%; }
+    .q4-risk-chart-rise { width: 100%; }
   }
 
   /* ---------- marquee bar (same component as index.html's marquee-section) ---------- */
@@ -1753,9 +1807,12 @@
           <span class="q4-section-badge">The risk</span>
           <h2>Q4 packaging problems usually start months before Q4</h2>
           <p class="q4-lead">When something falls behind it&rsquo;s never <em>&ldquo;just late.&rdquo;</em></p>
-          <div class="q4-risk-visual">
+        </div>
+
+        <div class="q4-risk-visual">
             <div class="q4-risk-visual-blob q4-risk-visual-blob-a"></div>
             <div class="q4-risk-visual-blob q4-risk-visual-blob-b"></div>
+            <div class="q4-risk-chart-rise">
             <div class="q4-risk-chart-card">
               <svg width="100%" viewBox="15 0 590 270" role="img" xmlns="http://www.w3.org/2000/svg">
                 <title>Packaging lead time before Q4</title>
@@ -1763,11 +1820,11 @@
 
                 <rect x="0" y="0" width="620" height="270" rx="8" fill="#FFFFFF"/>
 
-                <text x="40" y="79" dominant-baseline="central" font-size="12" fill="#3D3D3A">Structure &amp; quote</text>
-                <text x="40" y="109" dominant-baseline="central" font-size="12" fill="#3D3D3A">Artwork &amp; prepress</text>
-                <text x="40" y="139" dominant-baseline="central" font-size="12" fill="#3D3D3A">Proof sample</text>
-                <text x="40" y="169" dominant-baseline="central" font-size="12" fill="#3D3D3A">Production run</text>
-                <text x="40" y="199" dominant-baseline="central" font-size="12" fill="#3D3D3A">Delivery &amp; storage</text>
+                <text class="q4-gantt-label" x="40" y="79" dominant-baseline="central" font-size="12" fill="#3D3D3A">Structure &amp; quote</text>
+                <text class="q4-gantt-label" x="40" y="109" dominant-baseline="central" font-size="12" fill="#3D3D3A">Artwork &amp; prepress</text>
+                <text class="q4-gantt-label" x="40" y="139" dominant-baseline="central" font-size="12" fill="#3D3D3A">Proof sample</text>
+                <text class="q4-gantt-label" x="40" y="169" dominant-baseline="central" font-size="12" fill="#3D3D3A">Production run</text>
+                <text class="q4-gantt-label" x="40" y="199" dominant-baseline="central" font-size="12" fill="#3D3D3A">Delivery &amp; storage</text>
 
                 <!-- chart region, shifted left to close the gap left behind by the removed duration column -->
                 <g transform="translate(-60, 0)">
@@ -1805,8 +1862,8 @@
                   <text x="560" y="199" dominant-baseline="central" font-size="12" fill="#6B6B66">1.5 wks</text>
                 </g>
               </svg>
+              </div>
             </div>
-          </div>
         </div>
 
         <div class="q4-risk-cards">
@@ -2798,17 +2855,41 @@
   // and is revealed by adding .is-drawn; the next bar only starts once the
   // current one's transition actually finishes (chained via 'transitionend'
   // rather than a guessed setTimeout), so the sequence holds even if the
-  // CSS transition duration ever changes.
+  // CSS transition duration ever changes. Each row's label types itself
+  // out character-by-character at the same moment its bar starts drawing.
   (function () {
     var bars = document.querySelectorAll('.q4-gantt-bar');
+    var labels = document.querySelectorAll('.q4-gantt-label');
     if (!bars.length) return;
 
+    var fullTexts = Array.prototype.map.call(labels, function (el) { return el.textContent; });
+
+    function showLabelsInstantly() {
+      labels.forEach(function (el, i) { el.textContent = fullTexts[i]; });
+    }
+
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return; // CSS already shows bars at full width
+    if (reduce) return; // CSS already shows bars at full width, labels keep their original text
+
+    var CHAR_DELAY = 28; // ms per typed character
+
+    function typeLabel(index) {
+      var el = labels[index];
+      var text = fullTexts[index];
+      if (!el || text == null) return;
+      var i = 0;
+      el.textContent = '';
+      (function step() {
+        i++;
+        el.textContent = text.slice(0, i);
+        if (i < text.length) setTimeout(step, CHAR_DELAY);
+      })();
+    }
 
     function drawBar(index) {
       var bar = bars[index];
       if (!bar) return;
+      typeLabel(index);
       bar.addEventListener('transitionend', function onEnd() {
         bar.removeEventListener('transitionend', onEnd);
         drawBar(index + 1);
@@ -2819,6 +2900,8 @@
     var chart = document.querySelector('.q4-risk-chart-card');
     if (!chart || !window.IntersectionObserver) {
       bars.forEach(function (b) { b.classList.add('is-drawn'); });
+      showLabelsInstantly();
+      if (chart) chart.classList.add('is-settled');
       return;
     }
 
@@ -2826,12 +2909,37 @@
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           drawBar(0);
+          // also kicks off the continuous 3D "breathing" tilt on
+          // .q4-risk-chart-inner (see its CSS) — settles once, like
+          // index.html's video section, and keeps wobbling from then on
+          // regardless of further scrolling.
+          chart.classList.add('is-settled');
           observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.4 });
 
     observer.observe(chart);
+  })();
+</script>
+
+<script>
+  // Chart card rises slightly every time the section scrolls into view —
+  // toggles the class on/off rather than unobserving after the first hit,
+  // so it replays on every pass (scroll away and back), unlike the page's
+  // one-shot .reveal entrances elsewhere.
+  (function () {
+    var riseWrap = document.querySelector('.q4-risk-chart-rise');
+    if (!riseWrap || !window.IntersectionObserver) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        riseWrap.classList.toggle('q4-card-rise', entry.isIntersecting);
+      });
+    }, { threshold: 0.3 });
+
+    observer.observe(riseWrap);
   })();
 </script>
 
