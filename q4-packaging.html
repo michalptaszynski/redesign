@@ -989,12 +989,14 @@
     background: var(--color-bg-surface);
   }
 
+  /* same size as the site's standard .q4-section h2 (e.g. "More support
+     whenever you need it") — 2rem, not the earlier one-off 2.25rem. */
   .q4-case-header h2 {
     margin: 0;
     font-weight: 500;
-    font-size: 2.25rem;
-    line-height: 1.15;
-    letter-spacing: -0.03em;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
     color: var(--color-text-primary);
   }
 
@@ -1131,9 +1133,9 @@
      the size. */
   .q4-case-row-body p.q4-case-row-highlight {
     font-weight: 500;
-    font-size: 2.25rem;
-    line-height: 1.15;
-    letter-spacing: -0.03em;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
     color: var(--color-text-primary);
   }
 
@@ -2075,7 +2077,7 @@
       <div class="q4-case-header">
         <span class="q4-section-badge">Case study &middot; Lovato Candles</span>
         <h2>What happens when the right packaging partner handles your needs?</h2>
-        <p class="q4-lead">How Packhelp &amp; Lovato Candles achieved a shocking <span class="q4-case-num" data-count-to="67" data-suffix="%">0%</span> lower average packaging unit costs while keeping up with their incredible growth.</p>
+        <p class="q4-lead">How Packhelp &amp; Lovato Candles achieved a shocking 67% lower average packaging unit costs while keeping up with their incredible growth.</p>
       </div>
 
       <div class="q4-case-image reveal"><img src="assets/q4/casestudy.jpeg" alt="Lit Lovato Candles candle stacked on branded gift boxes"></div>
@@ -2085,7 +2087,7 @@
           <div class="q4-case-row">
             <p class="q4-case-row-lede">Lovato sells candles and diffusers across Ireland, the UK and Europe.</p>
             <div class="q4-case-row-body">
-              <p>As demand grew, so did the complexity behind their packaging, with <span class="q4-case-num" data-count-to="13">0</span> products and <span class="q4-case-num" data-count-to="52">0</span> designs, and a need for faster fulfilment.</p>
+              <p>As demand grew, so did the complexity behind their packaging, with 13 products and 52 designs, and a need for faster fulfilment.</p>
               <p>They needed packaging that stayed consistent across every design, and could keep up with demand without tying up cash or warehouse space.</p>
             </div>
           </div>
@@ -2093,7 +2095,7 @@
             <p class="q4-case-row-lede">Together, we simplified the whole operation.</p>
             <div class="q4-case-row-body">
               <p>Instead of managing a complex packaging supply chain alone, Lovato worked with Packhelp on a tailored packaging and fulfilment setup.</p>
-              <p class="q4-case-row-highlight">With our help, they consolidated the range into just <span class="q4-case-num" data-count-to="2">0</span> box sizes.</p>
+              <p class="q4-case-row-highlight">With our help, they consolidated the range into just 2 box sizes.</p>
               <p>They also used Packhelp&rsquo;s storage and fulfilment hub, allowing them to order at higher volumes for better pricing while keeping the flexibility to request stock when they needed it.</p>
               <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
             </div>
@@ -2175,6 +2177,18 @@
           </div>
           <h3 class="media-card-title">Supply-chain cost optimisation</h3>
           <p class="media-card-desc">Look beyond the price per box and find ways to reduce the total cost of packaging across your range.</p>
+        </div>
+
+        <div class="q4-support-item">
+          <div class="q4-support-visual media-card-visual">
+            <img src="assets/q4/support05.jpeg" alt="Hand holding a calculator" loading="lazy" decoding="async">
+            <div class="media-card-badge">
+              <span class="media-card-badge-label">&euro;500</span>
+              <span class="media-card-badge-pill">in credit</span>
+            </div>
+          </div>
+          <h3 class="media-card-title">Fast, transparent quotes</h3>
+          <p class="media-card-desc">Get real numbers back quickly, so you know exactly what your Q4 packaging will cost before you commit.</p>
         </div>
 
       </div>
@@ -2726,62 +2740,6 @@
     wheel.appendChild(frag);
 
     if (reduce) wheel.style.animation = 'none';
-  })();
-</script>
-
-<script>
-  // Case study numbers: every .q4-case-num (the inline "13 products",
-  // "67%", etc. mentions in the header/row copy) counts up from 0 once the
-  // whole card scrolls into view, then holds at its final value. Generic
-  // [data-count-to] selector rather than one tied to .q4-case-num
-  // specifically — simpler than the old version, which had to reach into
-  // the word-reveal script's rebuilt <span class="q4-fill-word"> markup to
-  // find its numbers; these are just plain data-count-to spans in the real
-  // markup now (the stat row this also used to double as a selector for
-  // was removed).
-  (function () {
-    var container = document.querySelector('.q4-case-bg');
-    if (!container) return;
-
-    var nums = container.querySelectorAll('[data-count-to]');
-    if (!nums.length) return;
-
-    var DURATION = 1200;
-    var counters = Array.prototype.map.call(nums, function (el) {
-      return { el: el, to: parseInt(el.getAttribute('data-count-to'), 10), suffix: el.getAttribute('data-suffix') || '' };
-    });
-
-    function setValue(counter, n) {
-      counter.el.textContent = n + counter.suffix;
-    }
-
-    if (!window.IntersectionObserver || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      counters.forEach(function (c) { setValue(c, c.to); });
-      return;
-    }
-
-    function animate() {
-      var start = null;
-      function step(timestamp) {
-        if (start === null) start = timestamp;
-        var progress = Math.min((timestamp - start) / DURATION, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        counters.forEach(function (c) { setValue(c, Math.round(c.to * eased)); });
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animate();
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.3 });
-
-    observer.observe(container);
   })();
 </script>
 
