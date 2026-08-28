@@ -1208,6 +1208,14 @@
     .q4-case-row { flex-direction: column; gap: var(--space-3); }
     .q4-case-row-lede { flex: none; margin: 0; }
     .q4-case-row-body { flex: none; margin-left: 0; }
+
+    /* stack all 3 gallery tiles in one column instead of the desktop
+       main+side split — .q4-case-gallery-main loses grid's stretch-to-
+       match-side-height behavior here, so it needs its own aspect-ratio
+       too, matching the other two tiles. */
+    .q4-case-gallery { grid-template-columns: 1fr; gap: var(--space-3); }
+    .q4-case-gallery-main { aspect-ratio: 16 / 9; }
+    .q4-case-gallery-side { gap: var(--space-3); }
   }
 
   /* ---------- SUPPORT (same scroll-carousel component as deals.html's deals-carousel) ---------- */
