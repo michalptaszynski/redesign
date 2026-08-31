@@ -1345,14 +1345,8 @@
     color: var(--color-text-muted);
   }
 
-  .site-settings-divider {
-    height: 1px;
-    background: rgba(0,0,0,.08);
-    margin: var(--space-4) 0;
-  }
-
   /* Reuse the step-level .toggle-switch/.toggle-option pattern, but it's designed for
-     section spacing (margin-bottom: var(--space-6)) — kill that here, it's one row among others. */
+     section spacing (margin-bottom: var(--space-6)) — kill that inside the settings panel row. */
   .site-settings-panel .toggle-switch {
     margin-bottom: 0;
   }
@@ -2457,17 +2451,6 @@
   <p class="site-settings-title">Page customization</p>
   <div class="site-settings-row">
     <div>
-      <p class="site-settings-label">Compact</p>
-      <p class="site-settings-desc">Collapse steps into a tight accordion list</p>
-    </div>
-    <label class="site-toggle">
-      <input type="checkbox" id="toggleCompact">
-      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
-    </label>
-  </div>
-  <div class="site-settings-divider"></div>
-  <div class="site-settings-row">
-    <div>
       <p class="site-settings-label">Version</p>
       <p class="site-settings-desc">Switch between the two build-your-box drafts</p>
     </div>
@@ -3301,8 +3284,7 @@
   (function () {
     var btn = document.getElementById('siteSettingsBtn');
     var panel = document.getElementById('siteSettingsPanel');
-    var compactToggle = document.getElementById('toggleCompact');
-    if (!btn || !panel || !compactToggle) { return; }
+    if (!btn || !panel) { return; }
 
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -3313,10 +3295,6 @@
       if (!panel.contains(e.target) && e.target !== btn) {
         panel.classList.remove('open');
       }
-    });
-
-    compactToggle.addEventListener('change', function () {
-      document.body.classList.toggle('compact-mode', compactToggle.checked);
     });
 
     var versionSwitch = document.getElementById('versionToggleSwitch');
