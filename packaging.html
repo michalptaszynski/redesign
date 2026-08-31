@@ -1838,6 +1838,10 @@
         <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Bundles.png')"></div>
         <span class="thumb-caption">Bundles</span>
       </a>
+      <a class="thumb-item" href="#" data-key="samples">
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Samples.png')"></div>
+        <span class="thumb-caption">Samples</span>
+      </a>
     </div>
       <div class="scroll-fade right"></div>
       <button class="scroll-carousel-nav next" type="button" aria-label="Przewiń w prawo">
@@ -2545,6 +2549,17 @@
     var productBoxesProducts = foldingCartonsProducts.concat(rigidCartonsProducts);
     var boxesProducts = mailerBoxesProducts.concat(shippingBoxesProducts, productBoxesProducts);
 
+    var samplesProducts = [
+      { name: 'Packhelp bestsellers sample kit', price: 9.90, img: 'assets/packaging/Samples.png' },
+      { name: 'Custom Mailer Box samples', price: 4.50, img: 'assets/packaging/Custom%20Mailer%20Box.png', href: 'sample-pack.html' },
+      { name: 'Custom Classic Poly Mailer samples', price: 4.50, img: 'assets/packaging/poly_mailer_1.avif' },
+      { name: 'Custom Recycled Poly Mailer samples', price: 4.50, img: 'assets/packaging/Custom%20Recycled%20Poly%20Mailer.png' },
+      { name: 'Custom Bio Poly Mailer samples', price: 4.50, img: 'assets/packaging/poly_mailer_3.avif' },
+      { name: 'Custom Tissue Paper samples', price: 4.50, img: 'assets/packaging/Custom%20Tissue%20Paper.png' },
+      { name: 'Custom Labels samples', price: 4.50, img: 'assets/packaging/Custom%20Rectangle%20Labels%20on%20Roll.png' },
+      { name: 'Custom Kraft Tape samples', price: 4.50, img: 'assets/packaging/Custom%20Paper%20Adhesive%20Tape.png' }
+    ];
+
     var categoryTree = {
       root: {
         title: 'Packaging',
@@ -2561,7 +2576,8 @@
           { label: 'Envelopes', img: 'assets/packaging/Envelopes.png' },
           { label: 'Food Packaging', img: 'assets/packaging/Food%20Packaging.png' },
           { label: 'Containers', img: 'assets/packaging/Containers.png' },
-          { label: 'Bundles', img: 'assets/packaging/Bundles.png' }
+          { label: 'Bundles', img: 'assets/packaging/Bundles.png' },
+          { key: 'samples', label: 'Samples', img: 'assets/packaging/Samples.png' }
         ]
       },
       boxes: {
@@ -2612,6 +2628,20 @@
         breadcrumb: [{ label: 'Packaging', key: 'root' }, { label: 'Boxes', key: 'boxes' }, { label: 'Product Boxes', key: 'product-boxes' }, { label: 'Rigid Cartons' }],
         tiles: [],
         products: rigidCartonsProducts
+      },
+      samples: {
+        title: 'Samples',
+        desc: 'Try before you buy — order real samples of our packaging and get your money back with your first order. Compare materials, print techniques and finishes side by side before you commit.',
+        breadcrumb: [{ label: 'Packaging', key: 'root' }, { label: 'Samples' }],
+        tiles: [
+          { label: 'Boxes samples', img: 'assets/packaging/Boxes.png' },
+          { label: 'Mailing bags samples', img: 'assets/packaging/Mailing%20Bags.png' },
+          { label: 'Flexible packaging samples', img: 'assets/packaging/Pouches.png' },
+          { label: 'Bags samples', img: 'assets/packaging/Product%20Bags.png' },
+          { label: 'Envelopes samples', img: 'assets/packaging/Envelopes.png' },
+          { label: 'Tubes samples', img: 'assets/packaging/Packaging%20Tubes.png' }
+        ],
+        products: samplesProducts
       }
     };
 
@@ -2943,13 +2973,18 @@
       var mediaImg = product.img
         ? '<img class="product-card-img" src="' + product.img + '" alt="">'
         : '';
-      return '<div class="product-card">' +
+      // Most catalog products don't have a built PDP yet, so the card is a
+      // plain, non-clickable div -- product.href opts a specific product
+      // (e.g. Custom Mailer Box samples) into linking to a real page instead.
+      var tag = product.href ? 'a' : 'div';
+      var hrefAttr = product.href ? ' href="' + product.href + '"' : '';
+      return '<' + tag + ' class="product-card"' + hrefAttr + '>' +
         '<div class="product-card-media">' + mediaImg + '</div>' +
         '<div class="product-card-info">' +
         '<h3 class="product-card-name">' + product.name + '</h3>' +
         '<p class="product-card-price">From €' + product.price.toFixed(2) + ' piece</p>' +
         '</div>' +
-        '</div>';
+        '</' + tag + '>';
     }
 
     // Fill in a photo from the root grid where a category's own product

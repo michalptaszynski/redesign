@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Custom Mailer Box samples — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  html { scroll-behavior: smooth; }
+
+  /* ---------- PAGE CONTAINER -- wider desktop breakpoint, matching
+     product_page.html/packaging.html (nav itself is --max-w-lg globally
+     regardless, via components.css). ---------- */
+  .container {
+    max-width: var(--max-w-lg);
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+  }
+
+  /* ---------- nav CTA avatars (page-local everywhere -- not in
+     components.css, per product_page.html's own convention) ---------- */
+  .cta-avatars { display: flex; margin-right: var(--space-3); }
+  .cta-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--color-bg-muted); border: 2px solid var(--color-accent); margin-left: -8px; }
+  .cta-avatar:first-child { margin-left: 0; }
+  .cta-avatar img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .cta-avatars.sm { margin-right: var(--space-2); }
+  .cta-avatars.sm .cta-avatar { width: 18px; height: 18px; border-width: 1.5px; }
+
+  .reveal { opacity: 0; transform: translateY(-16px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* ---------- breadcrumb -- identical recipe to product_page.html's
+     .pp-breadcrumb, kept under the same class name so this page reads as
+     part of the same PDP family. ---------- */
+  .pp-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    box-sizing: border-box;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pp-breadcrumb a { color: var(--color-text-muted); text-decoration: none; }
+  .pp-breadcrumb a:hover { color: var(--color-text-primary); text-decoration: underline; }
+  .pp-breadcrumb span.current { color: var(--color-text-primary); }
+
+  /* ---------- two-column layout -- mirrors product_page.html's .pp-layout ---------- */
+  .pp-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    align-items: start;
+    gap: var(--space-14);
+    padding: var(--space-6) var(--space-14) var(--space-6) var(--space-8);
+    box-sizing: border-box;
+  }
+
+  /* ---------- left: sticky photo gallery -- a fixed two-up split (swatch
+     collage + product shot) rather than a single swappable image, since
+     Sample Pack is one fixed concept, not a configurable box needing a
+     multi-shot gallery/thumbnail rail. ---------- */
+  .pp-gallery-outer {
+    position: sticky;
+    top: var(--space-6);
+  }
+
+  .pp-gallery {
+    display: flex;
+    flex-direction: row;
+    height: 640px;
+    box-sizing: border-box;
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+  }
+
+  .pp-gallery-half {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    box-sizing: border-box;
+  }
+
+  .pp-gallery-half + .pp-gallery-half {
+    border-left: 1px solid var(--white);
+  }
+
+  .pp-gallery-half img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  /* ---------- thumbnail strip -- decorative (the hero above is a fixed
+     two-up split, not a single swappable image), just giving the gallery
+     the same "more photos below it" richness a real PDP gallery has. ---------- */
+  .pp-gallery-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .pp-gallery-thumb {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    box-sizing: border-box;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    overflow: hidden;
+  }
+
+  .pp-gallery-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  @media (max-width: 900px) {
+    .pp-layout { grid-template-columns: 1fr; padding: var(--space-4); gap: var(--space-4); }
+    .pp-gallery-outer { position: static; top: 0; }
+    .pp-gallery { height: 60vh; min-height: 320px; }
+  }
+
+  @media (max-width: 600px) {
+    .pp-gallery { flex-direction: column; }
+    .pp-gallery-half + .pp-gallery-half { border-left: none; border-top: 1px solid var(--white); }
+  }
+
+  @media (max-width: 700px) {
+    .pp-breadcrumb { padding: var(--space-6) var(--space-4) 0; }
+  }
+
+  /* ---------- right: config column -- same wrapper as product_page.html ---------- */
+  .pp-config-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .pp-heading {
+    margin: 0 0 var(--space-2);
+    font-weight: 500;
+    font-size: 2.5rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .pp-subheading {
+    margin: 0 0 var(--space-4);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pp-subheading a { color: inherit; text-decoration: underline; }
+
+  .pp-usps {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-10);
+    padding: 0;
+    list-style: none;
+  }
+
+  .pp-usps li {
+    display: flex;
+    align-items: center;
+    background-color: var(--gray-200);
+    border-radius: 200px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  /* ---------- sample summary rows -- this page's own component (no
+     precedent elsewhere in the site yet): a thumbnail/collage + title +
+     description + "Edit" pill, echoing the reference samples-PDP design
+     but built from tokens already used in .pp-info-rows (bordered card,
+     12px radius, --space-5 row padding). Promote to components.css if a
+     second page ever needs it. ---------- */
+  .pp-sample-rows {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .pp-sample-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .pp-sample-row:first-child { border-top: none; }
+
+  .pp-sample-row-media {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-bg-muted);
+  }
+
+  .pp-sample-row-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .pp-sample-row-body { flex: 1; min-width: 0; }
+
+  .pp-sample-row-title {
+    display: block;
+    margin: 0 0 2px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .pp-sample-row-desc {
+    display: block;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pp-sample-row-details { display: block; }
+  .pp-sample-row-product { display: block; }
+
+  .pp-sample-row-divider {
+    margin: var(--space-2) 0;
+    border: none;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .pp-sample-row .btn-pill { flex: none; }
+
+  /* ---------- CTA area -- identical structure/classes to
+     product_page.html's .pp-cta, simplified (no delivery-date ladder,
+     since Sample Pack has one fixed delivery estimate, not tiered
+     shipping dates tied to a production lead time). ---------- */
+  .pp-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+    margin-top: var(--space-8);
+  }
+
+  .pp-cta-price-row {
+    display: flex;
+    width: 100%;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .pp-cta-delivery { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .pp-cta-delivery-to { font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-cta-delivery-note { font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-muted); }
+
+  .pp-cta-price-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: var(--space-1); white-space: nowrap; text-align: right; }
+  .pp-cta-price-value { font-size: 32px; line-height: 1.08; font-weight: 500; letter-spacing: -0.03em; color: var(--color-text-primary); }
+
+  .pp-cta-buttons { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); width: 100%; }
+  .pp-cta-buttons .btn-pill { width: 100%; height: 48px; justify-content: center; }
+
+  /* ---------- sample edit modal -- full-screen, two-column (visual +
+     fields), reusing build-your-box.html's own field-label/size-select/
+     sticky-summary components verbatim so the editor feels consistent
+     with the configurator rather than inventing a parallel style. ---------- */
+  .sp-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-page);
+  }
+
+  .sp-modal[hidden] { display: none; }
+
+  body.sp-modal-open { overflow: hidden; }
+
+  /* ---------- top bar -- same recipe as nav-header.js's simplified
+     "flow" nav (.quote-topbar: centered logo, bottom border), reused
+     here since a full-screen editor is exactly that kind of focused,
+     task-driven screen -- plus a close (X) button on the right. ---------- */
+  .sp-modal-topbar {
+    flex: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--space-16);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .sp-modal-topbar-close {
+    position: absolute;
+    top: 50%;
+    right: var(--space-8);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .sp-modal-topbar-close svg { width: 24px; height: 24px; }
+
+  /* ---------- body -- same grid recipe as this page's own .pp-layout
+     (gallery + config column), so the modal reads as a continuation of
+     the page it edits rather than borrowing a different page's
+     proportions. ---------- */
+  .sp-modal-body {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    /* same outer cap as this page's own .container (--max-w-lg), so the
+       hero never grows wider here than it does on the page itself on
+       wide viewports. */
+    max-width: var(--max-w-lg);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    align-items: stretch;
+    gap: var(--space-14);
+    padding: var(--space-6) var(--space-14) var(--space-6) var(--space-8);
+    box-sizing: border-box;
+  }
+
+  .sp-modal-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+  }
+
+  .sp-modal-visual img {
+    width: 80%;
+    height: 80%;
+    max-width: 640px;
+    object-fit: contain;
+  }
+
+  .sp-modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-default);
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .sp-modal-nav:hover { background: var(--gray-200); }
+  .sp-modal-nav svg { width: 18px; height: 18px; }
+  .sp-modal-nav-prev { left: var(--space-8); }
+  .sp-modal-nav-next { right: var(--space-8); }
+
+  .sp-modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* no horizontal padding of its own -- .sp-modal-body's own gap/padding
+       already position it exactly like .pp-config-col on the page, which
+       has none either. Only a bottom reserve for the fixed summary bar. */
+    padding: 0 0 100px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  .sp-modal-title {
+    margin: 0 0 var(--space-4);
+    font-size: 2.5rem;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .sp-modal-desc {
+    margin: 0 0 var(--space-10);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+    max-width: 480px;
+  }
+
+  .sp-modal-field { margin-bottom: var(--space-10); }
+
+  /* ---------- sample card -- groups Size + Adhesive strip in one
+     gray-outlined card, so "+ Add another sample" has something visually
+     discrete to duplicate. ---------- */
+  .sp-sample-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .sp-sample-card {
+    position: relative;
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    padding: var(--space-6);
+  }
+
+  .sp-sample-card .sp-modal-field:last-child { margin-bottom: 0; }
+
+  .sp-sample-card-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .sp-sample-card-close svg { width: 18px; height: 18px; }
+  .sp-sample-card-close:hover { color: var(--color-text-primary); }
+  .sp-sample-card:first-child .sp-sample-card-close { display: none; }
+
+  /* .sp-modal-content is a flex column (default align-items: stretch), which
+     would otherwise force this button's width to match the field column
+     above it instead of sizing to its own label. */
+  .sp-modal-content > .btn-pill { align-self: flex-start; }
+
+  /* ---------- Size -- build-your-box.html's .dimension-preset-* trio,
+     copied as-is (minus the body-class gate it uses there to toggle
+     Custom/Standard Size, since this modal only ever shows the preset
+     picker). ---------- */
+  .dimension-preset-wrap { position: relative; }
+
+  .dimension-preset-select {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 40px 0 var(--space-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    font: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .dimension-preset-select:hover { border-color: var(--color-border-hover); }
+
+  .dimension-preset-select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .dimension-preset-chevron {
+    position: absolute;
+    top: 50%;
+    right: var(--space-4);
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  /* ---------- Adhesive strip -- product_page.html's own .pp-chip photo
+     swatch component, copied as-is (same one used there for print
+     colour / material colour), plus the .pp-step-header + "Learn more"
+     row it's always paired with. ---------- */
+  .pp-step-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-3);
+  }
+
+  .pp-step-header .pp-field-label { margin: 0; }
+
+  .pp-field-label {
+    margin: 0 0 var(--space-3);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.16;
+    color: var(--color-text-primary);
+  }
+
+  .pp-learn-more {
+    flex: none;
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,6,26,.25);
+    padding-bottom: 1px;
+    white-space: nowrap;
+  }
+
+  .pp-chip-group { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--space-2); }
+
+  .pp-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: none;
+    width: 104px;
+    min-height: 133px;
+    box-sizing: border-box;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .pp-chip-media {
+    position: relative;
+    display: flex;
+    flex: none;
+    width: 104px;
+    height: 104px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--gray-100);
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .pp-chip:hover .pp-chip-media { background: var(--gray-300); }
+  .pp-chip.active .pp-chip-media,
+  .pp-chip.active:hover .pp-chip-media {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--gray-500), 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  .pp-chip-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .pp-chip-label {
+    width: 100%;
+    padding: var(--space-2) 0 0;
+    font-size: 12px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  .pp-chip.active .pp-chip-label { color: var(--color-text-primary); }
+
+  /* ---------- bottom summary bar -- build-your-box.html's
+     .build-box-sticky-summary, copied as-is (including its rounded-top
+     floating-card shape). left/width are set by JS to match the actual
+     rendered content column exactly (see alignSummaryBar below); this is
+     just the pre-JS fallback. ---------- */
+  .build-box-sticky-summary {
+    position: fixed;
+    right: 0;
+    width: 440px;
+    bottom: 0;
+    z-index: 210;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    background: rgba(255, 255, 255, 0.80);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .build-box-sticky-summary-group { display: flex; flex-direction: column; gap: var(--space-1); }
+  .build-box-sticky-summary-label { font-size: 0.6875rem; line-height: 1.32; letter-spacing: -0.02em; color: var(--color-text-muted); }
+  .build-box-sticky-summary-value { font-size: 0.9375rem; line-height: 1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+  .build-box-sticky-summary-value.underline { text-decoration: underline; text-decoration-color: var(--color-border-hover); text-underline-offset: 3px; }
+  .build-box-sticky-summary-price { font-size: 1.0625rem; line-height: 1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+  .build-box-sticky-summary-right { display: flex; align-items: center; gap: var(--space-6); }
+  .build-box-sticky-summary-price-group { text-align: right; }
+
+  @media (max-width: 900px) {
+    .sp-modal-body { grid-template-columns: 1fr; grid-auto-rows: auto; padding: var(--space-4) var(--space-4) 100px; gap: var(--space-4); overflow-y: auto; }
+    .sp-modal-visual { height: 40vh; min-height: 280px; }
+    .sp-modal-content { padding: var(--space-4) 0 0; overflow-y: visible; }
+    .sp-modal-title { font-size: 1.75rem; }
+    .build-box-sticky-summary { left: 0; right: 0; width: auto; border-radius: 0; }
+  }
+
+  /* ---------- "Other product samples" carousel -- product_page.html's own
+     .pp-carousel-section/.scroll-carousel/.category-item tile pattern,
+     copied verbatim (including the full-bleed 100vw trick, keyed off the
+     same --max-w-lg this page's .container already uses). Tiles keep the
+     same .category-thumb box for consistent sizing/hover but skip the
+     --thumb-img background entirely -- no photos in the tiles. ---------- */
+  .pp-carousel-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: var(--space-40) 0 0;
+  }
+
+  /* .reveal.is-visible also sets `transform` on this element -- compose
+     both explicitly or the -50% recentring gets replaced outright. */
+  .pp-carousel-section.reveal { transform: translateX(-50%) translateY(-16px); }
+  .pp-carousel-section.reveal.is-visible { transform: translateX(-50%) translateY(0); }
+
+  .pp-carousel-heading {
+    margin: 0 0 var(--space-6);
+    padding-left: calc((100vw - min(100vw, var(--max-w-lg))) / 2 + 2rem);
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .scroll-carousel { position: relative; }
+
+  .scroll-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .scroll-carousel-nav.prev { left: var(--space-4); }
+  .scroll-carousel-nav.next { right: var(--space-4); }
+  .scroll-carousel-nav svg { width: 20px; height: 20px; }
+  .scroll-carousel-nav::after { content: ""; position: absolute; inset: -8px; }
+  .scroll-carousel.has-overflow .scroll-carousel-nav { display: flex; }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .categories-grid {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding: 0 calc((100vw - min(100vw, var(--max-w-lg))) / 2 + 2rem) var(--space-2);
+  }
+
+  .category-item { flex: 0 0 auto; width: 320px; color: inherit; text-decoration: none; display: block; }
+
+  .category-thumb {
+    position: relative;
+    height: 320px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--color-bg-muted);
+  }
+
+  .category-title { margin: var(--space-4) 0 var(--space-1); font-size: 0.9375rem; line-height: 1.16; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+  .category-desc { margin: 0; font-size: 0.8125rem; letter-spacing: -0.02em; line-height: 1.32; color: var(--color-text-muted); }
+
+  .pp-carousel-section .scroll-carousel-nav { top: 160px; }
+
+  @media (max-width: 700px) {
+    .pp-carousel-heading { padding-left: var(--space-4); }
+    .categories-grid { padding: 0 var(--space-4) var(--space-2); }
+  }
+
+  /* ---------- footer (site-footer, copied from product_page.html) ---------- */
+  .site-footer { position: relative; padding: var(--space-16) 0 0; margin: var(--space-16) 0 0; }
+  .site-footer::before { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; transform: translateX(-50%); border-top: 1px solid var(--color-border-default); }
+  .footer-inner { display: flex; justify-content: space-between; gap: var(--space-16); padding: 0 var(--space-8) var(--space-16); }
+  .footer-left { flex: 0 0 320px; display: flex; flex-direction: column; gap: var(--space-4); }
+  .footer-logo img { height: 24px; display: block; }
+  .footer-newsletter-copy { margin: 0; font-size: 0.875rem; line-height: 1.4; letter-spacing: -0.02em; color: var(--color-text-muted); }
+  .footer-newsletter { display: flex; gap: var(--space-2); }
+  .footer-newsletter-input { flex: 1; min-width: 0; height: 2.5rem; padding: 0 var(--space-4); border: 1px solid var(--gray-400); border-radius: var(--radius-full); font: inherit; font-size: 0.875rem; }
+  .footer-badges { display: flex; gap: var(--space-3); align-items: center; }
+  .footer-badge img { height: 40px; display: block; }
+  .footer-links { flex: 1; display: flex; justify-content: space-between; gap: var(--space-8); flex-wrap: wrap; }
+  .footer-col-group { display: flex; flex-direction: column; gap: var(--space-8); }
+  .footer-col-title { margin: 0 0 var(--space-3); font-size: 0.8125rem; font-weight: 500; letter-spacing: -0.02em; color: var(--color-text-muted); text-transform: uppercase; }
+  .footer-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+  .footer-col a { font-size: 0.875rem; letter-spacing: -0.02em; color: var(--color-text-primary); text-decoration: none; }
+  .footer-col a:hover { text-decoration: underline; }
+  .footer-bottom { border-top: 1px solid var(--color-border-default); }
+  .footer-bottom-inner { display: flex; justify-content: space-between; padding: 1.5rem var(--space-8); font-size: 0.8125rem; letter-spacing: -0.02em; color: var(--color-text-muted); }
+
+  @media (max-width: 900px) {
+    .footer-inner { flex-direction: column; gap: var(--space-8); padding: 0 var(--space-4) var(--space-16); }
+    .footer-left { flex: none; }
+  }
+
+  @media (max-width: 700px) {
+    .footer-inner { padding: 0 var(--space-4); }
+    .footer-bottom-inner { padding: 1.5rem var(--space-4); }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+<div id="ph-nav-wrapper"></div>
+<script src="nav-header.js"></script>
+
+<nav class="pp-breadcrumb reveal">
+  <a href="index.html">Packhelp</a>
+  <span>/</span>
+  <a href="packaging.html">Packaging</a>
+  <span>/</span>
+  <a href="sample-packs.html">Samples</a>
+  <span>/</span>
+  <span class="current">Custom Mailer Box samples</span>
+</nav>
+
+<div class="pp-layout">
+  <div class="pp-gallery-outer" id="ppGalleryOuter">
+    <div class="pp-gallery" id="ppGallery">
+      <div class="pp-gallery-half">
+        <img src="assets/samplepacks/samplepack-swatches.png" alt="Print &amp; material swatch cards">
+      </div>
+      <div class="pp-gallery-half">
+        <img src="assets/samplepacks/samplepack-product.png" alt="Sample Pack box">
+      </div>
+    </div>
+
+    <div class="pp-gallery-thumbs">
+      <span class="pp-gallery-thumb"><img src="assets/samplepacks/samplepack-swatches.png" alt=""></span>
+      <span class="pp-gallery-thumb"><img src="assets/samplepacks/samplepack-product.png" alt=""></span>
+      <span class="pp-gallery-thumb"><img src="assets/product-page/One%20Colour.png" alt=""></span>
+      <span class="pp-gallery-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20saturated.png" alt=""></span>
+      <span class="pp-gallery-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20premium.png" alt=""></span>
+      <span class="pp-gallery-thumb"><img src="assets/product-page/White%20Colour.png" alt=""></span>
+    </div>
+  </div>
+
+  <div class="pp-config-col" id="ppConfigCol">
+
+    <h1 class="pp-heading reveal">Custom Mailer Box samples</h1>
+    <p class="pp-subheading reveal">Example text cardboard mailing box with black print. Perfect for a minimalist and eco-friendly look. These are samples for the <a href="product_page.html">Custom Mailer Box</a> product.</p>
+
+    <ul class="pp-usps">
+      <li>Money refund</li>
+      <li>Free shipping</li>
+    </ul>
+
+    <div class="pp-sample-rows">
+      <div class="pp-sample-row">
+        <span class="pp-sample-row-media">
+          <img src="assets/samplepacks/samplepack-product.png" alt="">
+        </span>
+        <span class="pp-sample-row-body">
+          <span class="pp-sample-row-title">Size &amp; construction sample</span>
+          <span class="pp-sample-row-details" id="sizeConstructionDetails">
+            <span class="pp-sample-row-product">
+              <span class="pp-sample-row-desc">F52 (26.5 x 19.5 x 6 cm)</span>
+              <span class="pp-sample-row-desc">Adhesive stripe: No</span>
+            </span>
+          </span>
+        </span>
+        <button type="button" class="btn-pill secondary sm" id="editSizeConstructionBtn">Edit</button>
+      </div>
+      <div class="pp-sample-row">
+        <span class="pp-sample-row-media">
+          <img src="assets/samplepacks/samplepack-swatches.png" alt="">
+        </span>
+        <span class="pp-sample-row-body">
+          <span class="pp-sample-row-title">Print &amp; material samples</span>
+          <span class="pp-sample-row-desc">All available print &amp; material options presented on swatches</span>
+        </span>
+        <a href="sample-packs.html" class="btn-pill secondary sm">Edit</a>
+      </div>
+    </div>
+
+    <div class="pp-cta" id="ppCta">
+      <div class="pp-cta-price-row">
+        <div class="pp-cta-delivery">
+          <span class="pp-cta-delivery-to">Total <span class="pp-cta-delivery-note">(VAT not included)</span></span>
+        </div>
+        <div class="pp-cta-price-group">
+          <span class="pp-cta-price-value">£4.50</span>
+        </div>
+      </div>
+
+      <div class="pp-cta-buttons">
+        <button type="button" class="btn-pill lg">Add to cart</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<section class="pp-carousel-section reveal">
+  <h2 class="pp-carousel-heading">Other product samples</h2>
+  <div class="scroll-carousel">
+    <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <div class="categories-grid">
+      <a href="sample-packs.html" class="category-item">
+        <div class="category-thumb"></div>
+        <h3 class="category-title">Mailer Box samples</h3>
+        <p class="category-desc">From £4.50</p>
+      </a>
+      <a href="sample-packs.html" class="category-item">
+        <div class="category-thumb"></div>
+        <h3 class="category-title">Ecommerce Delivery Box samples</h3>
+        <p class="category-desc">From £4.50</p>
+      </a>
+      <a href="sample-packs.html" class="category-item">
+        <div class="category-thumb"></div>
+        <h3 class="category-title">Two Piece Product Box samples</h3>
+        <p class="category-desc">From £4.50</p>
+      </a>
+      <a href="sample-packs.html" class="category-item">
+        <div class="category-thumb"></div>
+        <h3 class="category-title">Product Box samples</h3>
+        <p class="category-desc">From £4.50</p>
+      </a>
+      <a href="sample-packs.html" class="category-item">
+        <div class="category-thumb"></div>
+        <h3 class="category-title">Wine Product Box samples</h3>
+        <p class="category-desc">From £4.50</p>
+      </a>
+      <a href="sample-packs.html" class="category-item">
+        <div class="category-thumb"></div>
+        <h3 class="category-title">Paper Bag samples</h3>
+        <p class="category-desc">From £4.50</p>
+      </a>
+    </div>
+    <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+      <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+      <form class="footer-newsletter">
+        <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+        <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+      </form>
+
+      <div class="footer-badges">
+        <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+        <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-col-group">
+        <div class="footer-col">
+          <p class="footer-col-title">Contact &amp; Help</p>
+          <ul>
+            <li><a href="contact.html">Contact us</a></li>
+            <li><a href="#">Send us a brief</a></li>
+            <li><a href="#">Help</a></li>
+            <li><a href="#">Return policy</a></li>
+            <li><a href="impressum.html">Impressum</a></li>
+            <li><a href="press.html">Press</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Company</p>
+          <ul>
+            <li><a href="press.html">Press</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-col-group">
+        <div class="footer-col">
+          <p class="footer-col-title">Sustainability</p>
+          <ul>
+            <li><a href="#">Sustainability Hub</a></li>
+            <li><a href="#">Our Progress Reports</a></li>
+            <li><a href="#">Responsible Supply Chain</a></li>
+            <li><a href="#">Eco badge</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Resources</p>
+          <ul>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Terms of service</a></li>
+            <li><a href="#">Privacy policy</a></li>
+            <li><a href="#">Whistleblowing policy</a></li>
+            <li><a href="#">Sitemap</a></li>
+            <li><a href="#">Cookie settings</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <p class="footer-col-title">Connect</p>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">X</a></li>
+          <li><a href="#">Pinterest</a></li>
+          <li><a href="#">Tiktok</a></li>
+          <li><a href="#">Linkedin</a></li>
+          <li><a href="#">Youtube</a></li>
+          <li><a href="#">Facebook</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <span>Copyright Packhelp 2026</span>
+      <span>Business Hours Monday - Friday 8:00-15:00</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<div class="sp-modal" id="sampleEditModal" hidden>
+  <div class="sp-modal-topbar">
+    <a href="index.html" aria-label="Packhelp" style="display:flex;">
+      <img class="logo" src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp">
+    </a>
+    <button type="button" class="sp-modal-topbar-close" id="sampleEditModalClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="sp-modal-body">
+    <div class="sp-modal-visual">
+      <button type="button" class="sp-modal-nav sp-modal-nav-prev" id="sampleEditModalPrev" aria-label="Previous photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <img id="sampleEditModalImg" src="assets/samplepacks/samplepack-product.png" alt="Sample">
+      <button type="button" class="sp-modal-nav sp-modal-nav-next" id="sampleEditModalNext" aria-label="Next photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="sp-modal-content">
+      <h2 class="sp-modal-title">Size &amp; construction sample</h2>
+      <p class="sp-modal-desc">Example text cardboard mailing box with black print. Perfect for a minimalist and eco-friendly look.</p>
+
+      <div class="sp-sample-card-list" id="sampleCardList">
+        <div class="sp-sample-card">
+          <button type="button" class="sp-sample-card-close" aria-label="Remove sample">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+
+          <div class="sp-modal-field">
+            <h3 class="pp-field-label">Size</h3>
+            <div class="dimension-preset-wrap">
+              <button type="button" class="dimension-preset-select">
+                <span>F52 (26.5 &times; 19.5 &times; 6 cm)</span>
+              </button>
+              <svg class="dimension-preset-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+
+          <div class="sp-modal-field">
+            <div class="pp-step-header">
+              <h3 class="pp-field-label">Adhesive strip</h3>
+              <a href="#" class="pp-learn-more">Learn more</a>
+            </div>
+            <div class="pp-chip-group">
+              <button type="button" class="pp-chip active" data-value="none">
+                <span class="pp-chip-media"><img src="assets/build/adhesive-none.png" alt=""></span>
+                <span class="pp-chip-label">None</span>
+              </button>
+              <button type="button" class="pp-chip" data-value="single">
+                <span class="pp-chip-media"><img src="assets/build/adhesive-single.png" alt=""></span>
+                <span class="pp-chip-label">Single</span>
+              </button>
+              <button type="button" class="pp-chip" data-value="double">
+                <span class="pp-chip-media"><img src="assets/build/adhesive-double.png" alt=""></span>
+                <span class="pp-chip-label">Double</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-pill secondary sm" id="addSampleCardBtn">+ Add another sample</button>
+    </div>
+  </div>
+
+  <div class="build-box-sticky-summary">
+    <div class="build-box-sticky-summary-group">
+      <span class="build-box-sticky-summary-label">Delivery</span>
+      <span class="build-box-sticky-summary-value underline">3–5 days</span>
+    </div>
+    <div class="build-box-sticky-summary-right">
+      <div class="build-box-sticky-summary-group build-box-sticky-summary-price-group">
+        <span class="build-box-sticky-summary-label">Samples</span>
+        <span class="build-box-sticky-summary-price">£4.50</span>
+      </div>
+      <button type="button" class="btn-pill lg" id="sampleEditDoneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var navRow1 = document.querySelector('.nav-row1');
+  var stickyBar = document.getElementById('stickyBar');
+  if (!navRow1 || !stickyBar) return;
+
+  function onScroll() {
+    var rect = navRow1.getBoundingClientRect();
+    var pinned = rect.bottom <= 0;
+    stickyBar.classList.toggle('is-pinned', pinned);
+
+    var minTop = 12;
+    var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+    stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+})();
+
+(function () {
+  var targets = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  targets.forEach(function (el) { observer.observe(el); });
+})();
+
+// ---------- scroll-carousels (prev/next, disabled at ends) ----------
+(function () {
+  var carousels = document.querySelectorAll('.scroll-carousel');
+
+  Array.prototype.forEach.call(carousels, function (carousel) {
+    var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
+    var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
+    var track = carousel.querySelector('.categories-grid');
+    if (!prevBtn || !nextBtn || !track) { return; }
+
+    function updateNavState() {
+      var maxScroll = track.scrollWidth - track.clientWidth;
+      prevBtn.disabled = track.scrollLeft <= 0;
+      nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+    }
+
+    function checkOverflow() {
+      var overflowing = track.scrollWidth > track.clientWidth + 1;
+      carousel.classList.toggle('has-overflow', overflowing);
+      updateNavState();
+    }
+
+    prevBtn.addEventListener('click', function () {
+      track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+    nextBtn.addEventListener('click', function () {
+      track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+
+    track.addEventListener('scroll', updateNavState, { passive: true });
+    window.addEventListener('resize', checkOverflow);
+    checkOverflow();
+  });
+})();
+
+(function () {
+  var modal = document.getElementById('sampleEditModal');
+  var openBtn = document.getElementById('editSizeConstructionBtn');
+  var closeBtn = document.getElementById('sampleEditModalClose');
+  var doneBtn = document.getElementById('sampleEditDoneBtn');
+  if (!modal || !openBtn) return;
+
+  var contentCol = document.querySelector('.sp-modal-content');
+  var summaryBar = document.querySelector('.build-box-sticky-summary');
+
+  function alignSummaryBar() {
+    if (!contentCol || !summaryBar || window.innerWidth <= 900) return;
+    var rect = contentCol.getBoundingClientRect();
+    summaryBar.style.left = rect.left + 'px';
+    summaryBar.style.width = rect.width + 'px';
+  }
+
+  function openModal() {
+    modal.hidden = false;
+    document.body.classList.add('sp-modal-open');
+    alignSummaryBar();
+  }
+
+  var sizeConstructionDetails = document.getElementById('sizeConstructionDetails');
+
+  // Mirrors every card currently in the modal onto the page's "Size &
+  // construction sample" row summary, separated by a divider once there's
+  // more than one -- called whenever the modal closes, since that's when
+  // the row's summary should reflect whatever was added/removed inside it.
+  function syncSizeConstructionSummary() {
+    var cardListEl = document.getElementById('sampleCardList');
+    if (!sizeConstructionDetails || !cardListEl) return;
+
+    var cards = cardListEl.querySelectorAll('.sp-sample-card');
+    var html = '';
+    cards.forEach(function (card, i) {
+      if (i > 0) html += '<hr class="pp-sample-row-divider">';
+      var activeChipLabel = card.querySelector('.pp-chip.active .pp-chip-label');
+      var adhesiveLabel = activeChipLabel ? activeChipLabel.textContent.trim() : 'None';
+      var adhesiveText = adhesiveLabel === 'None' ? 'No' : adhesiveLabel;
+      html += '<span class="pp-sample-row-product">' +
+        '<span class="pp-sample-row-desc">F52 (26.5 x 19.5 x 6 cm)</span>' +
+        '<span class="pp-sample-row-desc">Adhesive stripe: ' + adhesiveText + '</span>' +
+        '</span>';
+    });
+    sizeConstructionDetails.innerHTML = html;
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.classList.remove('sp-modal-open');
+    syncSizeConstructionSummary();
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  if (doneBtn) doneBtn.addEventListener('click', closeModal);
+  window.addEventListener('resize', alignSummaryBar);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  var images = [
+    'assets/samplepacks/samplepack-product.png',
+    'assets/samplepacks/samplepack-swatches.png',
+    'assets/product-page/One%20Colour.png'
+  ];
+  var imgIndex = 0;
+  var modalImg = document.getElementById('sampleEditModalImg');
+  var prevBtn = document.getElementById('sampleEditModalPrev');
+  var nextBtn = document.getElementById('sampleEditModalNext');
+
+  function showImage(index) {
+    imgIndex = (index + images.length) % images.length;
+    modalImg.setAttribute('src', images[imgIndex]);
+  }
+
+  if (prevBtn) prevBtn.addEventListener('click', function () { showImage(imgIndex - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { showImage(imgIndex + 1); });
+
+  var cardList = document.getElementById('sampleCardList');
+  var addCardBtn = document.getElementById('addSampleCardBtn');
+
+  // Delegated (not bound per-chip/per-card) so it keeps working on cards
+  // cloned later by "+ Add another sample" without re-binding anything.
+  if (cardList) {
+    cardList.addEventListener('click', function (e) {
+      var chip = e.target.closest('.pp-chip');
+      if (chip) {
+        var group = chip.closest('.pp-chip-group');
+        group.querySelectorAll('.pp-chip').forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        return;
+      }
+
+      var closeBtn = e.target.closest('.sp-sample-card-close');
+      if (closeBtn) {
+        var card = closeBtn.closest('.sp-sample-card');
+        if (card) card.remove();
+      }
+    });
+  }
+
+  if (addCardBtn && cardList) {
+    addCardBtn.addEventListener('click', function () {
+      var template = cardList.querySelector('.sp-sample-card');
+      cardList.appendChild(template.cloneNode(true));
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -31,6 +31,7 @@ konsoliduje/upraszcza).
 | `press.html` | `/press/` | Press kit, wzmianki medialne wg lat, fakty firmowe (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
 | `impressum.html` | `/impressum/` | Dane firmy, adres, kontakt, godziny pracy — proste karty label/value, bez zdjęć (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
 | `custom-mailer-box.html` | `/p/custom-mailer-box/custom/` | Pierwsza strona produktowa (PDP) w repo — hero z opcjami (material-card swatches, print/production pills, quantity ladder z build-your-box.html), specyfikacja, rich description, showcase gallery, FAQ (8 realnych pytań), cross-sell. Copy wyciągnięte z żywego `packhelp.com/en-us/p/custom-mailer-box/custom/` (przez jina.ai reader — packhelp.co.uk geo-redirectuje na PL mirror przy zapytaniach z tej sieci) + PL JSON (`zapakuj.to`, ProductPageApp astro-island props) przetłumaczony dla brakujących sekcji (FAQ, rich description). Wszystkie zdjęcia to `.ph-media` placeholdery na wyraźną prośbę użytkownika, mimo że realne CDN URL-e były dostępne. CTA-y kierują do `build-your-box.html` (konfigurator) zamiast duplikować jego logikę (zbudowane 2026-08-03). |
+| `sample-pack.html` | — | **New concept**, patrz sekcja 3 |
 
 ## 2. Planned — realne strony/sekcje z packhelp.co.uk, jeszcze nie zbudowane
 
@@ -116,6 +117,24 @@ podanym URL zamiast wymyślać od zera.
   tej zasady. Layout celowo wąski (`max-width: 720px`) nawet na desktopie —
   strona zoptymalizowana pod mobile (95% ruchu wg brief), nie pod pełną
   szerokość 1280px.
+- **`sample-pack.html`** — dedykowana strona produktowa (PDP) dla "Sample
+  Pack" — jednego, uniwersalnego produktu próbek obejmującego wszystkie
+  kategorie (materiały/print/wykończenia), a nie osobnej strony próbek per
+  produkt jak na live sajcie (`/p/<product>/samples/`). Zbudowana na
+  podstawie zrzutu ekranu takiej właśnie strony ("Custom Mailer Box
+  samples") dostarczonego przez użytkownika, ale przełożona 1:1 na
+  komponenty i klasy `.pp-*` z `product_page.html` (breadcrumb, sticky
+  gallery, `.pp-usps`, `.pp-cta`/`.pp-info-rows`), żeby strona layoutowo
+  czytała się jako część tej samej rodziny PDP, zamiast kopiować własny
+  system komponentów ze zrzutu. Jedyny nowy komponent to `.pp-sample-row`
+  (thumbnail/collage + tytuł + opis + przycisk "Edit") — promować do
+  `components.css`, jeśli pojawi się druga strona, która go potrzebuje.
+  Cena i limit próbek (£4.50/próbka, do 8 sztuk) wzięte wprost z
+  istniejącego `sample-packs.html` (ta sama zmienna `UNIT_PRICE`/
+  `MAX_SAMPLES` w jego skrypcie) — ten produkt nie ma stałej ceny, więc
+  CTA "Choose your samples" prowadzi do `sample-packs.html` (tam żyje
+  faktyczny wybór próbek/koszyk), zamiast duplikować logikę wyboru czy
+  udawać fałszywy "Add to cart" z niewłaściwą, stałą ceną.
 
 ## 4. Jak z tego korzystać przy nowym prompcie
 
