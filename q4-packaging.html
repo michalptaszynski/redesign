@@ -9,6 +9,10 @@
 <link rel="stylesheet" href="components.css">
 <style>
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   /* ---------- shared page rhythm ---------- */
   .q4-container {
     max-width: 76rem; /* 1216px — same content width as index.html's .hero-grid / .faq-grid */
@@ -142,7 +146,7 @@
     .q4-trust-stat { align-items: center; text-align: center; }
   }
 
-  /* ---------- HERO: wheel carousel (Luma-style text + rotating photo rim) ----------
+  /* ---------- HERO: wheel carousel (scattered-card text + rotating photo rim) ----------
      Token mapping used throughout this block (project has no shadcn-style
      --background/--foreground/--primary/--secondary/--accent/--border/--radius
      custom properties, so every one of those from the brief maps to the closest
@@ -183,7 +187,7 @@
     padding: var(--space-8) var(--space-6) 0;
   }
 
-  .q4-luma-badge {
+  .q4-mh-badge {
     margin: 0 0 var(--space-5);
     max-width: 480px;
     font-size: 0.8125rem;
@@ -191,7 +195,7 @@
     color: var(--color-text-muted);
   }
 
-  .q4-luma-h1 {
+  .q4-mh-h1 {
     margin: 0;
     /* Wider than .q4-mh-content's 620px column on purpose: at the 72px
        desktop size "Your packaging shouldn't." needs ~755px to stay on one
@@ -211,16 +215,16 @@
   }
 
   @media (max-width: 700px) {
-    .q4-luma-h1 {
+    .q4-mh-h1 {
       font-size: 2.5rem;
       letter-spacing: -0.05em;
       line-height: 1.08;
     }
   }
 
-  .q4-luma-h1 .accent { color: var(--color-text-primary); }
+  .q4-mh-h1 .accent { color: var(--color-text-primary); }
 
-  .q4-luma-subhead {
+  .q4-mh-subhead {
     margin: var(--space-6) auto 0;
     max-width: 480px;
     font-size: 1.0625rem;
@@ -229,7 +233,7 @@
     color: var(--color-text-muted);
   }
 
-  .btn-pill.q4-luma-cta {
+  .btn-pill.q4-mh-cta {
     margin-top: 28px;
   }
 
@@ -1303,6 +1307,17 @@
     align-items: start;
   }
 
+  /* min-width:0 on both columns: grid items default to min-width:auto, which
+     lets a non-shrinking descendant (the phone input's flex-shrink:0 dial-code
+     trigger, see .phone-input__trigger below) set a content-based floor on the
+     whole column's width. Chromium is forgiving about it, but WebKit isn't —
+     without this the FAQ/form column locks to its content's min-content width
+     and overflows the viewport on mobile Safari regardless of screen size. */
+  .q4-faq-left,
+  .q4-faq-right {
+    min-width: 0;
+  }
+
   /* sticky offset matches .q4-risk-intro's (The risk section) — same
      mechanism too: the shorter column (FAQ list) sticks while the taller
      one (the brief form) scrolls past it, same as .q4-risk-intro/-cards. */
@@ -1392,6 +1407,7 @@
     border-radius: var(--radius-2xl);
     background: #D9E6FD;
     padding: 8px;
+    scroll-margin-top: var(--space-8);
   }
 
   .q4-brief-blob {
@@ -2034,10 +2050,10 @@
   <section class="q4-marquee-hero">
 
     <div class="q4-mh-content">
-      <span class="q4-luma-badge">For brands shipping their biggest <br class="q4-badge-break" hidden>volume between Black Friday and Christmas</span>
-      <h1 class="q4-luma-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
-      <p class="q4-luma-subhead">Lock in December&rsquo;s packaging now, <br class="q4-subhead-break" hidden>from one supplier, <br class="q4-subhead-break" hidden>with a guaranteed delivery date</p>
-      <a href="#" class="btn-pill lg q4-luma-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <span class="q4-mh-badge">For brands shipping their biggest <br class="q4-badge-break" hidden>volume between Black Friday and Christmas</span>
+      <h1 class="q4-mh-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
+      <p class="q4-mh-subhead">Lock in December&rsquo;s packaging now, <br class="q4-subhead-break" hidden>from one supplier, <br class="q4-subhead-break" hidden>with a guaranteed delivery date</p>
+      <a href="#q4-form" class="btn-pill lg q4-mh-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
     </div>
 
     <div class="q4-mh-marquee" aria-hidden="true">
@@ -2251,7 +2267,7 @@
               <div class="q4-bento-stat q4-bento-cta" style="aspect-ratio:auto">
                 <p class="q4-bento-statement">So when Q4 gets busy, your packaging stays right on schedule.</p>
                 <div class="q4-pin-cta-extra">
-                  <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+                  <a href="#q4-form" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
                   <p class="q4-micro">Takes 30 seconds. No design files needed yet.</p>
                 </div>
               </div>
@@ -2375,7 +2391,7 @@
                   <p class="q4-case-achieved-sub">for 13 products and 52 designs</p>
                 </div>
               </div>
-              <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+              <a href="#q4-form" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
             </div>
           </div>
         </div>
@@ -2514,7 +2530,7 @@
         </div>
 
         <div class="q4-faq-right">
-          <div class="q4-brief-card">
+          <div class="q4-brief-card" id="q4-form">
             <div class="q4-brief-blob q4-brief-blob-b"></div>
             <div class="q4-brief-blob q4-brief-blob-a"></div>
             <div class="q4-brief-form-inner">
@@ -2571,8 +2587,8 @@
                   </select>
                 </div>
                 <div class="q4-field">
-                  <label for="q4DockBy">On our dock by</label>
-                  <input id="q4DockBy" type="text" placeholder="e.g. 7 November">
+                  <label for="q4DockBy">Needed by</label>
+                  <input id="q4DockBy" type="date">
                 </div>
                 <div class="q4-field">
                   <label for="q4Details">Tell us what you have in mind</label>
@@ -2612,7 +2628,7 @@
     <h2 class="final-cta-heading">Your Q4 forecast is already taking <span class="final-deco-square"></span> shape.</h2>
     <p class="final-cta-subheading">Now, your packaging is getting there too. Send the brief now, get your delivery date, and take one more thing off your Q4 to-do list.</p>
     <div class="final-cta-buttons">
-      <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="#q4-form" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
     </div>
   </section>
 
@@ -2627,7 +2643,7 @@
 </footer>
 
 <div class="q4-sticky-bar">
-  <a href="#" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+  <a href="#q4-form" class="btn-pill lg">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
 </div>
 
 <script>
@@ -2699,11 +2715,11 @@
     var marquee = document.querySelector('.q4-mh-marquee');
     var section = document.querySelector('.q4-marquee-hero');
     var content = document.querySelector('.q4-mh-content');
-    var badge = document.querySelector('.q4-mh-content .q4-luma-badge');
+    var badge = document.querySelector('.q4-mh-content .q4-mh-badge');
     var badgeBreak = document.querySelector('.q4-badge-break');
-    var subhead = document.querySelector('.q4-mh-content .q4-luma-subhead');
+    var subhead = document.querySelector('.q4-mh-content .q4-mh-subhead');
     var subheadBreaks = document.querySelectorAll('.q4-subhead-break');
-    var cta = document.querySelector('.q4-mh-content .q4-luma-cta');
+    var cta = document.querySelector('.q4-mh-content .q4-mh-cta');
     var CARD_H = CARD_W * 4 / 3; // 386.67 — the reference (unscaled) card height
     var BUFFER = 180;             // vertical room the arc needs beyond the card itself
     var PADDING = 64;             // .q4-mh-marquee's own top+bottom padding (--space-8 * 2)
@@ -2832,15 +2848,15 @@
     // The final CTA section has its own full-size "Get started" button, and
     // the footer follows right after it, so the sticky bar hides for both
     // instead of floating over a duplicate CTA or the page's bottom edge.
-    var state = { luma: true, finalCta: false, footer: false };
+    var state = { hero: true, finalCta: false, footer: false };
 
     function update() {
-      stickyBar.classList.toggle('is-visible', !state.luma && !state.finalCta && !state.footer);
+      stickyBar.classList.toggle('is-visible', !state.hero && !state.finalCta && !state.footer);
     }
 
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.target === hero) state.luma = entry.isIntersecting;
+        if (entry.target === hero) state.hero = entry.isIntersecting;
         if (entry.target === finalCta) state.finalCta = entry.isIntersecting;
         if (entry.target === footer) state.footer = entry.isIntersecting;
       });
