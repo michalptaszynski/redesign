@@ -93,20 +93,20 @@
   }
 
   .build-box-header {
-    max-width: calc(1400px + 480px + var(--space-6));
+    max-width: var(--max-w-lg);
     margin: 0 auto;
-    padding: var(--space-8) var(--space-6) 0;
+    padding: var(--space-8) var(--space-6) 0 var(--space-8);
     box-sizing: border-box;
   }
 
   .build-box-page {
-    max-width: calc(1400px + 480px + var(--space-6));
+    max-width: var(--max-w-lg);
     margin: 0 auto;
     display: grid;
     grid-template-columns: minmax(0, 1400px) 480px;
     align-items: start;
     gap: var(--space-6);
-    padding: var(--space-6);
+    padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
     box-sizing: border-box;
   }
 
@@ -310,6 +310,37 @@
   .b3d-left   { top: 50%; left: 50%; width: var(--d); height: var(--h); margin: calc(var(--h) / -2) 0 0 calc(var(--d) / -2); transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); filter: brightness(.76); }
   .b3d-top    { top: 50%; left: 50%; width: var(--w); height: var(--d); margin: calc(var(--d) / -2) 0 0 calc(var(--w) / -2); transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); filter: brightness(1.18); transition: opacity .15s ease; }
   .b3d-bottom { top: 50%; left: 50%; width: var(--w); height: var(--d); margin: calc(var(--d) / -2) 0 0 calc(var(--w) / -2); transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); filter: brightness(.68); }
+
+  /* "Size of my product" mode: the W/L/H inputs become the *product* (inner) box, and the outer
+     (external) box auto-grows to product + a buffer added on every side. The inner box is a plain
+     gray cuboid — same 6-face geometry as the outer body, just built from --iw/--ih/--id instead of
+     --w/--h/--d, sharing the same center so it always sits correctly nested inside the outer box
+     regardless of proportions. Both custom-prop sets are computed together in updateSize() (JS). */
+  .b3d-inner-body { display: none; }
+  #box3dModel.product-size-mode .b3d-inner-body { display: block; }
+
+  .b3d-inner-face {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,.15);
+    background: #9A9A9A;
+  }
+  .b3d-inner-front  { top: 50%; left: 50%; width: var(--iw); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--iw) / -2); transform: translateZ(calc(var(--id) / 2)); filter: brightness(1.12); }
+  .b3d-inner-back   { top: 50%; left: 50%; width: var(--iw); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--iw) / -2); transform: rotateY(180deg) translateZ(calc(var(--id) / 2)); filter: brightness(.82); }
+  .b3d-inner-right  { top: 50%; left: 50%; width: var(--id); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--id) / -2); transform: rotateY(90deg) translateZ(calc(var(--iw) / 2)); filter: brightness(.94); }
+  .b3d-inner-left   { top: 50%; left: 50%; width: var(--id); height: var(--ih); margin: calc(var(--ih) / -2) 0 0 calc(var(--id) / -2); transform: rotateY(-90deg) translateZ(calc(var(--iw) / 2)); filter: brightness(.74); }
+  .b3d-inner-top    { top: 50%; left: 50%; width: var(--iw); height: var(--id); margin: calc(var(--id) / -2) 0 0 calc(var(--iw) / -2); transform: rotateX(90deg) translateZ(calc(var(--ih) / 2)); filter: brightness(1.22); }
+  .b3d-inner-bottom { top: 50%; left: 50%; width: var(--iw); height: var(--id); margin: calc(var(--id) / -2) 0 0 calc(var(--iw) / -2); transform: rotateX(-90deg) translateZ(calc(var(--ih) / 2)); filter: brightness(.68); }
+
+  /* the outer (external) walls go translucent in this mode so the inner product box shows through */
+  #box3dModel.product-size-mode .b3d-front,
+  #box3dModel.product-size-mode .b3d-back,
+  #box3dModel.product-size-mode .b3d-left,
+  #box3dModel.product-size-mode .b3d-right,
+  #box3dModel.product-size-mode .b3d-top,
+  #box3dModel.product-size-mode .b3d-bottom {
+    opacity: .32;
+  }
 
   #box3dModel[data-construction="gable"] .b3d-top { display: none; }
   /* the 4 flaps below exist only to animate the open state; while closed, the flat .b3d-top above is
@@ -581,7 +612,7 @@
   }
 
   .build-box-heading {
-    margin: 0 0 var(--space-1);
+    margin: 0 0 var(--space-3);
     font-weight: 500;
     font-size: 2rem;
     line-height: 1.08;
@@ -589,12 +620,74 @@
     color: var(--color-text-primary);
   }
 
-  .build-box-subheading {
-    margin: 0 0 var(--space-8);
+  /* ---------- catalog subheader -- shown by default, hideable from the
+     gear panel (body.hide-catalog-note). ---------- */
+  .build-box-catalog-note {
+    margin: 0 0 var(--space-3);
     font-size: 0.9375rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
+  }
+
+  body.hide-catalog-note .build-box-catalog-note { display: none; }
+
+  /* ---------- USP pills (Unlimited constructions / Custom sizes / 3D
+     preview), replacing the old plain-text subtitle -- same .pp-usps pill
+     style as product-page.html, with a hover popover explaining each one
+     (no icon, left-aligned text), matching Build_your_box's own UspPills. ---------- */
+  .build-box-usps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .build-box-usp {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: 200px;
+    background: var(--gray-200);
+    padding: 4px var(--space-3);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  .build-box-usp-popover {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    z-index: 20;
+    width: 220px;
+    box-sizing: border-box;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+    padding: var(--space-4);
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+    text-align: left;
+  }
+
+  .build-box-usp:hover .build-box-usp-popover {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .build-box-usp-popover p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
   }
 
   .build-box-field-label {
@@ -631,6 +724,7 @@
     border-radius: 12px;
     background: var(--color-bg-muted);
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
     transition: background-color .15s ease, box-shadow .15s ease;
   }
@@ -804,6 +898,33 @@
     object-fit: contain;
   }
 
+  /* Closure's icons (unlike every other .box-type-card-thumb, which holds
+     a full-bleed photo) read as oversized at the full 88px thumb size --
+     shrunk 40% within the same-size thumb slot so the row stays aligned
+     with the other picker sections. */
+  #stepClosure .box-type-card-thumb img {
+    width: 60%;
+    height: 60%;
+  }
+
+  /* "More products" link tile -- same slot as a photo thumb, a plain
+     arrow-in-a-circle instead (matches the equivalent "More products" tile
+     on Build_your_box/dist/index.html's Product picker). */
+  .box-type-card-thumb-icon {
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    transition: background-color .15s ease;
+  }
+
+  /* The row's own :hover already darkens the whole card -- without this,
+     the circle (still var(--color-bg-muted), lighter than the now-darker
+     row background) stood out as its own highlighted blob under the arrow
+     instead of just blending into the hovered row like the rest of it. */
+  .box-type-card:hover .box-type-card-thumb-icon { background: transparent; }
+
+  .box-type-card-thumb-icon svg { width: 28px; height: 28px; }
+
   .box-type-card-text {
     display: flex;
     flex-direction: column;
@@ -829,25 +950,15 @@
     color: var(--color-text-muted);
   }
 
-  .box-type-card-tag {
-    display: inline-flex;
-    align-items: center;
-    margin-left: var(--space-1);
-    padding: 0.1875rem 0.5rem;
-    border-radius: var(--radius-full);
-    background: var(--gray-300);
-    color: var(--color-text-muted);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: -0.01em;
-    vertical-align: middle;
-  }
-
   .box-type-card.active {
     background: var(--color-bg-surface);
-    box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
+    box-shadow: 0 0 0 1px var(--gray-500), 0 4px 12px rgba(0,0,0,.05);
   }
+
+  /* Same darkened-gray hover already used on the Type tiles
+     (.type-tile:hover .type-tile-media) -- :not(.active) so the selected
+     card's white background never gets fought over by hover. */
+  .box-type-card:not(.active):hover { background: var(--gray-200); }
 
   .material-card-grid {
     display: grid;
@@ -908,8 +1019,10 @@
 
   .material-card.active {
     background: var(--color-bg-surface);
-    box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
+    box-shadow: 0 0 0 1px var(--gray-500), 0 4px 12px rgba(0,0,0,.05);
   }
+
+  .material-card:not(.active):hover { background: var(--gray-200); }
 
   .construction-grid {
     display: flex;
@@ -983,6 +1096,93 @@
     color: var(--color-text-primary);
   }
 
+  /* ---------- Type / Closure tiles -- same Chip pattern as
+     Build_your_box/dist/index.html (and product-page.html's .pp-chip):
+     square media box with its own background/active state, caption below
+     it off the background, left-aligned. Closure reuses the same tile but
+     smaller centered icons (fit:icon) instead of full-bleed photos. ---------- */
+  .type-tile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: var(--space-4);
+    column-gap: var(--space-2);
+  }
+
+  .type-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: none;
+    width: 96px;
+    box-sizing: border-box;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .type-tile-media {
+    position: relative;
+    display: flex;
+    flex: none;
+    width: 96px;
+    height: 96px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--gray-100);
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .type-tile:hover .type-tile-media { background: var(--gray-200); }
+  .type-tile.active .type-tile-media {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--gray-500), 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  .type-tile-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .type-tile-media.type-tile-media-icon img { width: 64px; height: auto; object-fit: contain; }
+
+  .type-tile-label {
+    width: 100%;
+    padding: var(--space-2) 0 0;
+    font-size: 12px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  .type-tile.active .type-tile-label { color: var(--color-text-primary); }
+
+  /* Snap Lock's hover video preview, ported from .construction-card-preview
+     -- same panel, just anchored off the smaller 104px tile instead. */
+  .type-tile-preview {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 160px;
+    border-radius: 16px;
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.08);
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .15s ease;
+  }
+
+  .type-tile:hover .type-tile-preview { opacity: 1; visibility: visible; }
+
+  .type-tile-preview video { display: block; width: 100%; height: 100%; object-fit: cover; }
+
   .toggle-switch {
     position: relative;
     display: inline-flex;
@@ -1037,179 +1237,45 @@
   /* .dimension-grid/.dimension-field/.dimension-input-wrap/.dimension-input/.dimension-unit
      now live in components.css — shared with packaging.html's quick-box banner */
 
-  /* ---------- Dimensions: preset-size select, alternate to the 3-input custom grid above.
-     Which one shows is driven by the "Custom Size"/"Standard Size" segment at the top of the
-     Dimensions step (#sizeToggleSwitch) toggling this body class. */
-  .dimension-preset-wrap { display: none; position: relative; }
-
-  body.dims-preset-mode .dimension-grid { display: none; }
-  body.dims-preset-mode .dimension-preset-wrap { display: block; }
-
-  /* same bordered-field look as .dimension-input-wrap (48px, radius-sm, focus ring); a <button>
-     standing in for a native select, since choosing a preset opens the right-side drawer below
-     instead of a native dropdown */
-  .dimension-preset-select {
-    appearance: none;
-    -webkit-appearance: none;
-    display: block;
-    width: 100%;
-    height: 48px;
-    box-sizing: border-box;
-    padding: 0 40px 0 var(--space-4);
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-surface);
-    font: inherit;
-    font-size: 0.9375rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-    text-align: left;
-    cursor: pointer;
-    transition: border-color .15s ease, box-shadow .15s ease;
-  }
-
-  .dimension-preset-select.placeholder { color: var(--color-text-muted); }
-
-  .dimension-preset-select:hover { border-color: var(--color-border-hover); }
-
-  .dimension-preset-select:focus {
-    outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px var(--color-focus-ring);
-  }
-
-  .dimension-preset-chevron {
-    position: absolute;
-    top: 50%;
-    right: var(--space-4);
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    color: var(--color-text-muted);
-    pointer-events: none;
-  }
-
-  /* ---------- Dimensions preset panel: swaps in for the *whole right-hand config column* while
-     picking a standard size, instead of a modal drawer overlaying the page — so the left 3D
-     preview stays fully visible/interactive the whole time. #dimensionPresetTrigger's click
-     toggles .showing-size-panel on .build-box-config-col, which hides every other direct child
-     (all the .build-box-step sections plus the checkout card) and reveals this panel instead — it
-     lives as a sibling directly under .build-box-config-col (not nested in #stepSize), since
-     #stepSize itself gets hidden too.
-     Positioned `fixed` (top/left/width/height set as inline styles by the JS below, mirroring
-     .build-box-visual's own current box exactly) rather than `sticky`, and deliberately without
-     scrolling the page on open: sticky's position depends on where the (now-collapsed, since every
-     other step just got hidden) column happens to sit relative to the current scroll offset, which
-     can leave part of the panel — including the "Save & close" footer — outside the viewport. A
-     scroll-independent `fixed` box side-steps that entirely, so the footer stays visible no matter
-     where the page was scrolled when the panel opened. */
-  .dimension-preset-panel {
-    display: none;
-    position: fixed;
-    z-index: 5;
-    flex-direction: column;
-    box-sizing: border-box;
-    background: var(--color-bg-surface);
-    border-radius: var(--radius-2xl);
+  .dimension-buffer-note {
+    max-height: 0;
+    margin-top: 0;
+    padding: 0 var(--space-4);
+    border-radius: 12px;
+    background: var(--color-bg-notice);
+    opacity: 0;
     overflow: hidden;
+    transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s ease, margin-top .4s cubic-bezier(.4,0,.2,1), padding-top .4s cubic-bezier(.4,0,.2,1), padding-bottom .4s cubic-bezier(.4,0,.2,1);
   }
 
-  .build-box-config-col.showing-size-panel > *:not(.dimension-preset-panel) { display: none; }
-  .build-box-config-col.showing-size-panel .dimension-preset-panel { display: flex; }
+  .dimension-buffer-note.visible {
+    max-height: 220px;
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
+    opacity: 1;
+    transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s ease .1s, margin-top .4s cubic-bezier(.4,0,.2,1), padding-top .4s cubic-bezier(.4,0,.2,1), padding-bottom .4s cubic-bezier(.4,0,.2,1);
+  }
 
-  .dimension-preset-panel-header {
+  .dimension-buffer-text {
+    margin: 0 0 var(--space-3);
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-primary);
+  }
+
+  .dimension-buffer-control {
     display: flex;
-    flex: none;
     align-items: center;
-    padding: var(--space-6) var(--space-6) 0;
+    gap: var(--space-2);
   }
 
-  .dimension-preset-panel-title {
-    margin: 0;
-    font-size: 1.25rem;
-    line-height: 1.16;
-    letter-spacing: -0.02em;
-    font-weight: 450;
-    color: var(--color-text-primary);
-  }
-
-  .dimension-preset-panel-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--space-6);
-    /* extra bottom clearance so the last rows scroll fully clear of the fixed
-       .dimension-preset-panel-footer bar overlaid on top of this list, same as the page's own
-       .build-box-checkout-card scrolling underneath .build-box-sticky-summary */
-    padding-bottom: var(--space-20);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .dimension-preset-option {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-1);
-    width: 100%;
-    box-sizing: border-box;
-    padding: var(--space-4);
-    border: 1.5px solid var(--color-border-default);
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-surface);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: border-color .15s ease, background-color .15s ease;
-  }
-
-  .dimension-preset-option:hover { background: var(--color-bg-muted-hover); }
-
-  /* same active outline as .construction-card.active — solid dark border, no accent color/glow */
-  .dimension-preset-option.selected {
-    border-color: var(--color-text-primary);
-  }
-
-  .dimension-preset-option-label {
-    font-size: 0.9375rem;
+  .dimension-buffer-label {
+    font-size: 13px;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-primary);
-  }
-
-  .dimension-preset-option-inside {
-    display: none;
-    font-size: 0.8125rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
-  }
-
-  .dimension-preset-option.selected .dimension-preset-option-inside { display: block; }
-
-  /* same fixed bottom-bar recipe as .build-box-sticky-summary (position/left/width set inline by
-     the JS below, mirrored from the same .build-box-config-col rect the panel itself uses) — so
-     "Save & close" sits on that identical field, and the list above scrolls underneath it rather
-     than being pushed up by an in-flow footer row. */
-  .dimension-preset-panel-footer {
-    position: fixed;
-    bottom: 0;
-    z-index: 60;
-    box-sizing: border-box;
-    display: flex;
-    padding: var(--space-4) var(--space-6);
-    background: rgba(255, 255, 255, 0.80);
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,.08);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-
-  .dimension-preset-panel-footer .btn-pill {
-    display: block;
-    width: 100%;
-    text-align: center;
-    box-sizing: border-box;
   }
 
   .build-box-zoom.sm {
@@ -1345,34 +1411,6 @@
     color: var(--color-text-muted);
   }
 
-  .site-settings-divider {
-    height: 1px;
-    background: rgba(0,0,0,.08);
-    margin: var(--space-4) 0;
-  }
-
-  /* Reuse the step-level .toggle-switch/.toggle-option pattern, but it's designed for
-     section spacing (margin-bottom: var(--space-6)) — kill that here, it's one row among others. */
-  .site-settings-panel .toggle-switch {
-    margin-bottom: 0;
-  }
-
-  /* ---------- Version switch: swaps the whole page for an iframe of the other draft ---------- */
-  #emilVersionFrame {
-    display: none;
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    border: 0;
-    z-index: 999;
-    background: var(--color-bg-surface);
-  }
-
-  body.showing-emil-version #emilVersionFrame {
-    display: block;
-  }
-
   /* ---------- Compact mode: accordion list ---------- */
   .build-box-accordion-header {
     display: none;
@@ -1483,22 +1521,32 @@
     margin-top: 0;
   }
 
-  /* ---------- mini sticky price summary, pinned like the homepage sticky nav ---------- */
+  /* ---------- mini sticky price summary -- same panel as
+     Build_your_box/src/components/StickyDeliveryBar.tsx: docked to the
+     bottom, exactly as wide as the config column, rounded top corners
+     only, border-x/border-t (not a full border), bg white/80 + blur(4px),
+     soft upward shadow. left/width are set from JS (positionBar(), below)
+     to the config column's own real getBoundingClientRect() -- more
+     robust than replicating .build-box-page's max-width/centering math in
+     a second place, and already there before this pass. ---------- */
   .build-box-sticky-summary {
     position: fixed;
     bottom: 0;
     z-index: 60;
     box-sizing: border-box;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: var(--space-4) var(--space-6);
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2);
+    height: 72px;
+    padding: var(--space-3) var(--space-4);
     background: rgba(255, 255, 255, 0.80);
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,.08);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--color-border-default);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    box-shadow: 0 -5px 16px rgba(47,47,47,.06);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     transform: translateY(100%);
     pointer-events: none;
@@ -1511,24 +1559,29 @@
     pointer-events: auto;
   }
 
+  .build-box-sticky-summary-row { display: flex; width: 100%; align-items: center; gap: var(--space-4); }
+
   .build-box-sticky-summary-group {
     display: flex;
+    flex: 1;
     flex-direction: column;
+    justify-content: center;
     gap: var(--space-1);
   }
 
   .build-box-sticky-summary-label {
-    font-size: 0.6875rem;
+    white-space: nowrap;
+    font-size: 0.8125rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
   }
 
   .build-box-sticky-summary-value {
-    font-size: 0.9375rem;
-    line-height: 1;
+    font-size: 0.8125rem;
+    line-height: 1.32;
     letter-spacing: -0.02em;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--color-text-primary);
   }
 
@@ -1540,20 +1593,23 @@
 
   .build-box-sticky-summary-price {
     font-size: 1.0625rem;
-    line-height: 1;
+    line-height: 1.16;
     letter-spacing: -0.02em;
     font-weight: 500;
     color: var(--color-text-primary);
   }
 
-  .build-box-sticky-summary-right {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
+  .build-box-sticky-summary-price-group {
+    flex: 1;
+    align-items: flex-end;
+    text-align: right;
   }
 
-  .build-box-sticky-summary-price-group {
-    text-align: right;
+  .build-box-sticky-summary .btn-pill {
+    flex: none;
+    height: 44px;
+    padding: 0 var(--space-5);
+    font-size: 0.9375rem;
   }
 
   @media (max-width: 900px) {
@@ -1637,15 +1693,15 @@
 
   .build-box-checkout-top {
     display: flex;
-    align-items: stretch;
+    align-items: flex-end;
     justify-content: space-between;
     gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
   }
 
   .build-box-checkout-delivery-label {
-    margin: 0 0 var(--space-3);
-    font-size: 0.9375rem;
+    margin: 0 0 var(--space-2);
+    font-size: 0.8125rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-primary);
@@ -1663,8 +1719,8 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
-    font-size: 0.9375rem;
+    gap: var(--space-1);
+    font-size: 0.8125rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
   }
@@ -1709,15 +1765,15 @@
   .build-box-checkout-price-value {
     margin: 0;
     font-size: 2rem;
-    line-height: 1;
+    line-height: 1.08;
     font-weight: 500;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.03em;
     color: var(--color-text-primary);
   }
 
   .build-box-checkout-card .btn-pill {
     width: 100%;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
   }
 
   .build-box-checkout-card .btn-pill:last-child {
@@ -1732,6 +1788,170 @@
 
   .build-box-checkout-card .btn-pill.muted:hover {
     background: var(--color-bg-muted-hover);
+  }
+
+  /* ---------- checkout info-rows (Contact packaging advisors / Specification)
+     -- same .pp-info-rows table as product-page.html, ported verbatim.
+     margin-top tops up the buttons' own space-2 (8px) margin to a full
+     40px gap between the CTA buttons and this table. ---------- */
+  .build-box-info-rows {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: calc(var(--space-10) - var(--space-2));
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .build-box-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-5);
+    border-top: 1px solid var(--color-border-default);
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    font: inherit;
+    text-align: left;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .build-box-info-row:first-child { border-top: none; }
+
+  .build-box-info-row-icon { flex: none; width: 18px; height: 18px; color: var(--color-text-primary); }
+  .build-box-info-row-label { font-size: 0.9375rem; letter-spacing: -0.02em; }
+  .build-box-info-row-arrow { flex: none; width: 18px; height: 18px; margin-left: auto; color: var(--color-text-muted); transform: rotate(-90deg); }
+
+  /* ---------- specification modal -- same shell as Build_your_box's own
+     LearnMoreModal/SpecificationModal (rounded-24 card, header + scrollable
+     body + footer CTA), populated with the same spec table as
+     product-page.html's #ppSpecPanelSpec. ---------- */
+  .build-box-spec-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, .4);
+    padding: var(--space-6);
+  }
+
+  .build-box-spec-modal-backdrop.open { display: flex; }
+
+  .build-box-spec-modal {
+    display: flex;
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 24px;
+    background: var(--color-bg-surface);
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+
+  .build-box-spec-modal-header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-border-default);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .build-box-spec-modal-title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .build-box-spec-modal-close {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .build-box-spec-modal-close:hover { background: var(--color-bg-muted-hover); }
+
+  .build-box-spec-modal-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 0 var(--space-6);
+  }
+
+  .build-box-spec-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .build-box-spec-row:last-child { border-bottom: none; }
+
+  .build-box-spec-row-label {
+    flex: none;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .build-box-spec-row-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .build-box-spec-row-sub { color: var(--color-text-muted); }
+
+  .build-box-spec-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+
+  .build-box-spec-tag {
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    padding: var(--space-1) var(--space-3);
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .build-box-spec-modal-footer {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-border-default);
+    padding: var(--space-4) var(--space-6);
+  }
+
+  @media (max-width: 700px) {
+    .build-box-spec-row { flex-direction: column; }
   }
 
   /* ---------- tablet: margins shrink before the full stack breakpoint; the 1400px/480px column sizing already flexes down gracefully ---------- */
@@ -1749,10 +1969,6 @@
     .build-box-step { min-height: 0; padding: var(--space-8) var(--space-2); }
     .build-box-config-col { gap: var(--space-7); }
     .build-box-dots { display: none; }
-    /* full-screen takeover on mobile (no side-by-side preview to protect at this width) —
-       !important since the JS below sets top/left/width/height as inline styles */
-    .dimension-preset-panel { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: auto !important; height: auto !important; border-radius: 0; }
-    .dimension-preset-panel-footer { left: 0 !important; right: 0 !important; width: auto !important; border-radius: 0; }
   }
 </style>
 </head>
@@ -1773,33 +1989,49 @@
 </div>
 
   <nav class="build-box-dots" id="stepDots" aria-label="Configuration steps">
-    <button class="build-box-dot active" data-target="stepBoxType" aria-label="Box type"></button>
-    <button class="build-box-dot" data-target="stepConstruction" aria-label="Construction"></button>
+    <button class="build-box-dot active" data-target="stepBoxType" aria-label="Product"></button>
+    <button class="build-box-dot" data-target="stepConstruction" aria-label="Type"></button>
     <button class="build-box-dot" data-target="stepSize" aria-label="Size"></button>
+    <button class="build-box-dot" data-target="stepOpening" aria-label="Opening"></button>
     <button class="build-box-dot" data-target="stepClosure" aria-label="Closure"></button>
     <button class="build-box-dot" data-target="stepWindows" aria-label="Windows and cutouts"></button>
     <button class="build-box-dot" data-target="stepMaterial" aria-label="Material color"></button>
     <button class="build-box-dot" data-target="stepCustomization" aria-label="Customization"></button>
-    <button class="build-box-dot" data-target="stepAdditional" aria-label="Additional options"></button>
+    <button class="build-box-dot" data-target="stepPrintCoverage" aria-label="Print coverage"></button>
+    <button class="build-box-dot" data-target="stepFinish" aria-label="Finish"></button>
     <button class="build-box-dot" data-target="stepQuantity" aria-label="Quantity"></button>
   </nav>
 
   <div class="build-box-header">
-    <h2 class="build-box-heading">Build your box</h2>
-    <p class="build-box-subheading">Quickly configure the exact box type you need</p>
+    <h2 class="build-box-heading">Build your packaging</h2>
+    <p class="build-box-catalog-note">Unlock expanded constructions beyond our standard catalog.</p>
+    <ul class="build-box-usps">
+      <li class="build-box-usp">
+        Unlimited constructions
+        <span class="build-box-usp-popover"><p>Switch freely between mailer boxes, gable tops, pillow packs and more — every construction updates the 3D preview and price instantly, so you can compare options before committing.</p></span>
+      </li>
+      <li class="build-box-usp">
+        Custom sizes
+        <span class="build-box-usp-popover"><p>Set any width, length and height in centimetres — the outer box, print area and dieline all recalculate live as you type, down to the millimetre.</p></span>
+      </li>
+      <li class="build-box-usp">
+        3D preview
+        <span class="build-box-usp-popover"><p>See a true-to-scale 3D model of your box as you configure it — drag to rotate, zoom in on details, and switch to a flat 2D dieline any time.</p></span>
+      </li>
+    </ul>
   </div>
 
   <div class="build-box-sticky-summary" id="stickySummaryBar">
-    <div class="build-box-sticky-summary-group">
-      <span class="build-box-sticky-summary-label">Delivery</span>
-      <span class="build-box-sticky-summary-value underline">20-28 April</span>
-    </div>
-    <div class="build-box-sticky-summary-right">
+    <div class="build-box-sticky-summary-row">
+      <div class="build-box-sticky-summary-group">
+        <span class="build-box-sticky-summary-label">Delivery</span>
+        <span class="build-box-sticky-summary-value underline">20-28 April</span>
+      </div>
       <div class="build-box-sticky-summary-group build-box-sticky-summary-price-group">
         <span class="build-box-sticky-summary-label">Netto / 30 pieces</span>
         <span class="build-box-sticky-summary-price">€45.00</span>
       </div>
-      <a href="#" class="btn-pill lg">Add to cart</a>
+      <a href="#" class="btn-pill lg">Customize design</a>
     </div>
   </div>
 
@@ -1868,6 +2100,14 @@
               <div class="b3d-roof-end b3d-roof-end-left"></div>
               <div class="b3d-roof-end b3d-roof-end-right"></div>
             </div>
+            <div class="b3d-group b3d-inner-body">
+              <div class="b3d-inner-face b3d-inner-front"></div>
+              <div class="b3d-inner-face b3d-inner-back"></div>
+              <div class="b3d-inner-face b3d-inner-left"></div>
+              <div class="b3d-inner-face b3d-inner-right"></div>
+              <div class="b3d-inner-face b3d-inner-top"></div>
+              <div class="b3d-inner-face b3d-inner-bottom"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1901,41 +2141,64 @@
       <section class="build-box-step" id="stepBoxType">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">1</span>
-          <span class="build-box-accordion-title">Box Type<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Product<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Box Type</h3>
-        <p class="build-box-field-desc">Choose the base format that fits your product</p>
+        <h3 class="build-box-field-label">Product</h3>
+        <p class="build-box-field-desc">Choose the packaging product and material you want to build</p>
         <div class="box-type-grid">
           <button class="box-type-card active" data-box-type="folding">
-            <span class="box-type-card-thumb"><img src="assets/build/folding-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-cardboard.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Folding Box<span class="box-type-card-tag">For retail</span></span>
-              <span class="box-type-card-desc">Flat-packed box that folds from one die-cut sheet.</span>
+              <span class="box-type-card-label">Cardboard Boxes</span>
+              <span class="box-type-card-desc">Lightweight folding carton, ideal for retail and gifting.</span>
             </span>
           </button>
           <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/rigid-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-corrugated.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Rigid Box<span class="box-type-card-tag">For retail</span></span>
+              <span class="box-type-card-label">Corrugated Boxes</span>
+              <span class="box-type-card-desc">Durable corrugated cardboard built for shipping and transit.</span>
+            </span>
+          </button>
+          <button class="box-type-card">
+            <span class="box-type-card-thumb"><img src="assets/build/product-rigid.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Rigid Boxes</span>
               <span class="box-type-card-desc">Sturdy, non-collapsible box for premium packaging.</span>
             </span>
           </button>
           <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/mialer-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-envelopes.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Mailer Box<span class="box-type-card-tag">For shipping</span></span>
-              <span class="box-type-card-desc">Self-locking box with an attached lid for shipping.</span>
+              <span class="box-type-card-label">Envelopes</span>
+              <span class="box-type-card-desc">Padded or flat mailers for documents and lightweight items.</span>
             </span>
           </button>
           <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/shipping-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-bags.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Shipping Box<span class="box-type-card-tag">For shipping</span></span>
-              <span class="box-type-card-desc">Corrugated box built for transport and storage.</span>
+              <span class="box-type-card-label">Bags</span>
+              <span class="box-type-card-desc">Mailing and carrier bags for apparel and lightweight goods.</span>
             </span>
           </button>
+          <button class="box-type-card">
+            <span class="box-type-card-thumb"><img src="assets/build/product-tubes.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Tubes</span>
+              <span class="box-type-card-desc">Cylindrical packaging for posters, bottles and gift sets.</span>
+            </span>
+          </button>
+          <a href="packaging.html" target="_blank" rel="noopener" class="box-type-card">
+            <span class="box-type-card-thumb box-type-card-thumb-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">More products</span>
+              <span class="box-type-card-desc">Browse the full Packhelp packaging range.</span>
+            </span>
+          </a>
         </div>
         </div>
       </section>
@@ -1943,32 +2206,60 @@
       <section class="build-box-step" id="stepConstruction">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">2</span>
-          <span class="build-box-accordion-title">Construction<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Type<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Construction</h3>
+        <h3 class="build-box-field-label">Type</h3>
         <p class="build-box-field-desc">Decide how the box will open and close</p>
-        <div class="construction-grid">
-          <button class="construction-card active" data-construction="classic">
-            <img src="assets/build/classic.svg" alt="">
-            <span>Classic</span>
+        <div class="type-tile-grid">
+          <button class="type-tile active" data-construction="classic">
+            <span class="type-tile-media"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="type-tile-label">Classic</span>
           </button>
-          <button class="construction-card" data-construction="hanging">
-            <img src="assets/build/hanging.svg" alt="">
-            <span>Hanging</span>
+          <button class="type-tile" data-construction="hanging">
+            <span class="type-tile-media"><img src="assets/build/type/Hanging.png" alt=""></span>
+            <span class="type-tile-label">Hanging</span>
           </button>
-          <button class="construction-card" data-construction="with-lid">
-            <img src="assets/build/with-lid.svg" alt="">
-            <span>With Lid</span>
+          <button class="type-tile" data-construction="with-lid">
+            <span class="type-tile-media"><img src="assets/build/type/With_Lid.png" alt=""></span>
+            <span class="type-tile-label">With Lid</span>
           </button>
-          <button class="construction-card" data-construction="handle">
-            <img src="assets/build/handle.svg" alt="">
-            <span>With Handle</span>
+          <button class="type-tile" data-construction="handle">
+            <span class="type-tile-media"><img src="assets/build/type/With_Handle.png" alt=""></span>
+            <span class="type-tile-label">With Handle</span>
           </button>
-          <button class="construction-card" data-construction="gable">
-            <img src="assets/build/gable.svg" alt="">
-            <span>Gable Top</span>
+          <button class="type-tile" data-construction="gable">
+            <span class="type-tile-media"><img src="assets/build/type/Gable.png" alt=""></span>
+            <span class="type-tile-label">Gable</span>
+          </button>
+          <button class="type-tile" data-construction="pull-out">
+            <span class="type-tile-media"><img src="assets/build/type/Pull_Out.png" alt=""></span>
+            <span class="type-tile-label">Pull out</span>
+          </button>
+          <button class="type-tile" data-construction="pillow">
+            <span class="type-tile-media"><img src="assets/build/type/Pillow.png" alt=""></span>
+            <span class="type-tile-label">Pillow</span>
+          </button>
+          <button class="type-tile" data-construction="displays">
+            <span class="type-tile-media"><img src="assets/build/type/Displays.png" alt=""></span>
+            <span class="type-tile-label">Displays</span>
+          </button>
+          <button class="type-tile" data-construction="open-end">
+            <span class="type-tile-media"><img src="assets/build/type/Open_end.png" alt=""></span>
+            <span class="type-tile-label">Open end</span>
+          </button>
+          <button class="type-tile" data-construction="tray">
+            <span class="type-tile-media"><img src="assets/build/type/Tray.png" alt=""></span>
+            <span class="type-tile-label">Tray</span>
+          </button>
+          <button class="type-tile" data-construction="sleeve">
+            <span class="type-tile-media"><img src="assets/build/type/Sleeve.png" alt=""></span>
+            <span class="type-tile-label">Sleeve</span>
+          </button>
+          <button class="type-tile" data-construction="food">
+            <span class="type-tile-media"><img src="assets/build/type/Food.png" alt=""></span>
+            <span class="type-tile-label">Food</span>
           </button>
         </div>
         </div>
@@ -1982,11 +2273,11 @@
         </button>
         <div class="build-box-step-content">
         <h3 class="build-box-field-label">Dimensions</h3>
-        <p class="build-box-field-desc">Enter a custom size, or pick from our standard box sizes</p>
+        <p class="build-box-field-desc">Enter external size or your product's size — we'll calculate the rest</p>
         <div class="toggle-switch" id="sizeToggleSwitch">
           <div class="toggle-indicator" id="sizeToggleIndicator"></div>
-          <button class="toggle-option active" data-value="custom">Custom Size</button>
-          <button class="toggle-option" data-value="standard">Standard Size</button>
+          <button class="toggle-option active">External size</button>
+          <button class="toggle-option">Size of my product</button>
         </div>
         <div class="dimension-grid">
           <label class="dimension-field">
@@ -2003,41 +2294,91 @@
           </label>
         </div>
 
-        <!-- alt to the grid above: a trigger for the preset-size panel (#dimensionPresetPanel, a
-             sibling of every .build-box-step at the end of .build-box-config-col), shown instead
-             when "Standard Size" is active -->
-        <div class="dimension-preset-wrap" id="dimensionPresetWrap">
-          <button type="button" class="dimension-preset-select placeholder" id="dimensionPresetTrigger">
-            <span id="dimensionPresetTriggerLabel">Choose a size…</span>
+        <div class="dimension-buffer-note" id="dimensionBufferNote">
+          <p class="dimension-buffer-text">We automatically add a <span id="bufferMmText">5</span> mm buffer on all sides to ensure your product fits. External size of the box: W <span id="extW">8.5</span> cm x L <span id="extL">8.5</span> cm x h <span id="extH">12.5</span> cm</p>
+          <div class="dimension-buffer-control">
+            <span class="dimension-buffer-label">Buffer size:</span>
+            <div class="build-box-zoom sm" id="bufferStepper">
+              <button class="icon-btn" id="bufferMinus" aria-label="Decrease buffer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+              <span id="bufferValue">5 mm</span>
+              <button class="icon-btn" id="bufferPlus" aria-label="Increase buffer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepOpening">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">4</span>
+          <span class="build-box-accordion-title">Opening<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Opening</h3>
+        <p class="build-box-field-desc">Choose how the top of the box opens</p>
+        <div class="box-type-grid">
+          <button class="box-type-card active" data-opening="tuck-end">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Tuck end</span>
+              <span class="box-type-card-desc">A simple flap tucks into the box to hold it closed, no adhesive needed.</span>
+            </span>
           </button>
-          <svg class="dimension-preset-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          <button class="box-type-card" data-opening="seal-end">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Seal end</span>
+              <span class="box-type-card-desc">The end flap is glued shut for a fully sealed, tamper-evident closure.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-opening="tuck-and-tongue">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Tuck and Tongue</span>
+              <span class="box-type-card-desc">A tongue-shaped flap tucks into a matching slot for a secure, reusable close.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-opening="deluxe-bellow">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Deluxe bellow</span>
+              <span class="box-type-card-desc">An expandable bellow base pack that folds flat and holds contents securely.</span>
+            </span>
+          </button>
         </div>
         </div>
       </section>
 
       <section class="build-box-step" id="stepClosure">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">4</span>
+          <span class="build-box-accordion-badge">5</span>
           <span class="build-box-accordion-title">Closure<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
         <h3 class="build-box-field-label">Closure</h3>
         <p class="build-box-field-desc">Choose how the box bottom locks together</p>
-        <div class="construction-grid">
-          <button class="construction-card active">
-            <img src="assets/build/auto-lock.svg" alt="">
-            <span>Auto Lock</span>
+        <div class="box-type-grid">
+          <button class="box-type-card active" data-closure="snap-lock">
+            <span class="box-type-card-thumb"><img src="assets/build/closure-snap-lock-icon.svg" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Snap lock</span>
+              <span class="box-type-card-desc">A resealable interlocking base that folds together without glue or tape.</span>
+            </span>
           </button>
-          <button class="construction-card">
-            <img src="assets/build/reverse-tuck.svg" alt="">
-            <span>Reverse Tuck</span>
+          <button class="box-type-card" data-closure="auto-lock">
+            <span class="box-type-card-thumb"><img src="assets/build/closure-auto-lock-icon.svg" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Auto lock</span>
+              <span class="box-type-card-desc">A pre-glued base that pops into a flat bottom the moment the box is opened.</span>
+            </span>
           </button>
-          <button class="construction-card">
-            <img src="assets/build/snap-lock.svg" alt="">
-            <span>Snap Lock</span>
-            <span class="construction-card-preview">
-              <video src="assets/build/snaplock.mp4" autoplay muted loop playsinline></video>
+          <button class="box-type-card" data-closure="reverse-tuck">
+            <span class="box-type-card-thumb"><img src="assets/build/closure-reverse-tuck-icon.svg" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Reverse Tuck...</span>
+              <span class="box-type-card-desc">Flaps tuck in the opposite direction for a tamper-evident, locked base.</span>
             </span>
           </button>
         </div>
@@ -2046,7 +2387,7 @@
 
       <section class="build-box-step" id="stepWindows">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">5</span>
+          <span class="build-box-accordion-badge">6</span>
           <span class="build-box-accordion-title">Windows &amp; Cutouts<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -2087,7 +2428,7 @@
 
       <section class="build-box-step" id="stepMaterial">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">6</span>
+          <span class="build-box-accordion-badge">7</span>
           <span class="build-box-accordion-title">Material Color<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -2122,7 +2463,7 @@
 
       <section class="build-box-step" id="stepCustomization">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">7</span>
+          <span class="build-box-accordion-badge">8</span>
           <span class="build-box-accordion-title">Customization<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -2148,57 +2489,63 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepAdditional">
+      <section class="build-box-step" id="stepPrintCoverage">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">8</span>
-          <span class="build-box-accordion-title">Additional options<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-badge">9</span>
+          <span class="build-box-accordion-title">Print coverage<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Additional options</h3>
-        <p class="build-box-field-desc">Fine-tune the print and finish to match your brand.</p>
-
-        <div class="build-box-subfield">
-          <h4 class="build-box-subfield-label">Print coverage</h4>
-          <div class="box-type-grid">
-            <button class="box-type-card no-thumb active" data-print="outside">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Outside</span>
-                <span class="box-type-card-desc">Print applied only to the outer surface of the box.</span>
-              </span>
-            </button>
-            <button class="box-type-card no-thumb" data-print="outside-inside">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Outside + Inside</span>
-                <span class="box-type-card-desc">Print applied both outside and inside for a fully branded look.</span>
-              </span>
-            </button>
-          </div>
+        <h3 class="build-box-field-label">Print coverage</h3>
+        <p class="build-box-field-desc">Choose which surfaces of the box get printed</p>
+        <div class="box-type-grid">
+          <button class="box-type-card active" data-print="outside">
+            <span class="box-type-card-thumb"><img src="assets/build/print-coverage-outside.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Outside</span>
+              <span class="box-type-card-desc">Print applied only to the outer surface of the box.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-print="outside-inside">
+            <span class="box-type-card-thumb"><img src="assets/build/print-coverage-outside-inside.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Outside + Inside</span>
+              <span class="box-type-card-desc">Print applied both outside and inside for a fully branded look.</span>
+            </span>
+          </button>
         </div>
+        </div>
+      </section>
 
-        <div class="build-box-subfield">
-          <h4 class="build-box-subfield-label">Finish</h4>
-          <div class="box-type-grid">
-            <button class="box-type-card no-thumb active" data-finish="gloss">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Gloss</span>
-                <span class="box-type-card-desc">A shiny finish that makes colors pop and print stand out.</span>
-              </span>
-            </button>
-            <button class="box-type-card no-thumb" data-finish="matt">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Matt</span>
-                <span class="box-type-card-desc">A soft, non-reflective finish for a subtle, premium look.</span>
-              </span>
-            </button>
-          </div>
+      <section class="build-box-step" id="stepFinish">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">10</span>
+          <span class="build-box-accordion-title">Finish<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Finish</h3>
+        <p class="build-box-field-desc">Fine-tune the finish to match your brand.</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-finish="gloss">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Gloss</span>
+              <span class="box-type-card-desc">A shiny finish that makes colors pop and print stand out.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-finish="matt">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Matt</span>
+              <span class="box-type-card-desc">A soft, non-reflective finish for a subtle, premium look.</span>
+            </span>
+          </button>
         </div>
         </div>
       </section>
 
       <section class="build-box-step" id="stepQuantity">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">9</span>
+          <span class="build-box-accordion-badge">11</span>
           <span class="build-box-accordion-title">Quantity<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -2334,116 +2681,80 @@
           </div>
           <a href="#" class="btn-pill lg">Customize design</a>
           <button class="btn-pill lg muted">Skip design for now</button>
+
+          <div class="build-box-info-rows">
+            <a href="#" class="build-box-info-row">
+              <svg class="build-box-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              <span class="build-box-info-row-label">Contact packaging advisors</span>
+              <svg class="build-box-info-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </a>
+            <button type="button" class="build-box-info-row" id="buildBoxSpecBtn">
+              <svg class="build-box-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+              <span class="build-box-info-row-label">Specification</span>
+              <svg class="build-box-info-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Preset-size panel: a sibling of the .build-box-step sections above (not nested inside
-           #stepSize, which gets hidden along with everything else while this is open — see the
-           .showing-size-panel CSS rule). Opened by #dimensionPresetTrigger inside #stepSize. -->
-      <div class="dimension-preset-panel" id="dimensionPresetPanel">
-        <div class="dimension-preset-panel-header">
-          <h2 class="dimension-preset-panel-title">Size</h2>
-        </div>
-        <div class="dimension-preset-panel-list" id="dimensionPresetList">
-          <button type="button" class="dimension-preset-option" data-code="P15" data-w="3" data-l="3" data-h="9">
-            <span class="dimension-preset-option-label">P15 (3 cm x 3 cm x 9 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P15i" data-w="5" data-l="5" data-h="5">
-            <span class="dimension-preset-option-label">P15i (5 cm x 5 cm x 5 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P18" data-w="3.5" data-l="3.5" data-h="11">
-            <span class="dimension-preset-option-label">P18 (3.5 cm x 3.5 cm x 11 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P18i" data-w="6" data-l="6" data-h="6">
-            <span class="dimension-preset-option-label">P18i (6 cm x 6 cm x 6 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P18ii" data-w="7" data-l="3" data-h="8">
-            <span class="dimension-preset-option-label">P18ii (7 cm x 3 cm x 8 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P20" data-w="5" data-l="5" data-h="10">
-            <span class="dimension-preset-option-label">P20 (5 cm x 5 cm x 10 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P21" data-w="4" data-l="4" data-h="13">
-            <span class="dimension-preset-option-label">P21 (4 cm x 4 cm x 13 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P21i" data-w="7" data-l="7" data-h="7">
-            <span class="dimension-preset-option-label">P21i (7 cm x 7 cm x 7 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P24" data-w="7" data-l="5" data-h="12">
-            <span class="dimension-preset-option-label">P24 (7 cm x 5 cm x 12 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P24i" data-w="4" data-l="4" data-h="16">
-            <span class="dimension-preset-option-label">P24i (4 cm x 4 cm x 16 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P24ii" data-w="5" data-l="5" data-h="14">
-            <span class="dimension-preset-option-label">P24ii (5 cm x 5 cm x 14 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P24iii" data-w="8" data-l="8" data-h="8">
-            <span class="dimension-preset-option-label">P24iii (8 cm x 8 cm x 8 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P25" data-w="7" data-l="7" data-h="11">
-            <span class="dimension-preset-option-label">P25 (7 cm x 7 cm x 11 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P26" data-w="8" data-l="8" data-h="10">
-            <span class="dimension-preset-option-label">P26 (8 cm x 8 cm x 10 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P28i" data-w="6" data-l="6" data-h="16">
-            <span class="dimension-preset-option-label">P28i (6 cm x 6 cm x 16 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P29" data-w="9" data-l="6" data-h="14">
-            <span class="dimension-preset-option-label">P29 (9 cm x 6 cm x 14 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P30" data-w="10" data-l="10" data-h="10">
-            <span class="dimension-preset-option-label">P30 (10 cm x 10 cm x 10 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P34" data-w="18" data-l="8" data-h="8">
-            <span class="dimension-preset-option-label">P34 (18 cm x 8 cm x 8 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P35" data-w="10" data-l="10" data-h="15">
-            <span class="dimension-preset-option-label">P35 (10 cm x 10 cm x 15 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P36" data-w="12" data-l="12" data-h="12">
-            <span class="dimension-preset-option-label">P36 (12 cm x 12 cm x 12 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P39" data-w="13" data-l="13" data-h="13">
-            <span class="dimension-preset-option-label">P39 (13 cm x 13 cm x 13 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P40i" data-w="10" data-l="10" data-h="20">
-            <span class="dimension-preset-option-label">P40i (10 cm x 10 cm x 20 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P43" data-w="18" data-l="3" data-h="22">
-            <span class="dimension-preset-option-label">P43 (18 cm x 3 cm x 22 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-          <button type="button" class="dimension-preset-option" data-code="P45i" data-w="15" data-l="15" data-h="15">
-            <span class="dimension-preset-option-label">P45i (15 cm x 15 cm x 15 cm)</span>
-            <span class="dimension-preset-option-inside">Inside: <span class="dimension-preset-option-inside-value"></span></span>
-          </button>
-        </div>
-        <div class="dimension-preset-panel-footer">
-          <button type="button" class="btn-pill lg" id="dimensionPresetSave">Save &amp; close</button>
+      <div class="build-box-spec-modal-backdrop" id="buildBoxSpecModal">
+        <div class="build-box-spec-modal">
+          <div class="build-box-spec-modal-header">
+            <h2 class="build-box-spec-modal-title">Specification</h2>
+            <button type="button" class="build-box-spec-modal-close" id="buildBoxSpecModalClose" aria-label="Close">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="build-box-spec-modal-body">
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Data for current product configuration</span>
+              <span class="build-box-spec-row-value"><strong>Custom Mailer Box</strong><span class="build-box-spec-row-sub">F23 (9.2 x 9.2 x 5 cm)</span></span>
+            </div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Material</span><span class="build-box-spec-row-value">Corrugated cardboard</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Material colour</span><span class="build-box-spec-row-value">Kraft</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Print colour mode</span><span class="build-box-spec-row-value">One Colour</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Print coverage</span><span class="build-box-spec-row-value">Outside</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Foil</span><span class="build-box-spec-row-value">None</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Adhesive strip</span><span class="build-box-spec-row-value">None</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Raw material</span><span class="build-box-spec-row-value">Corrugated cardboard flute E</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Weight</span><span class="build-box-spec-row-value">0.02 kg</span></div>
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Eco properties</span>
+              <ul class="build-box-spec-tags">
+                <li class="build-box-spec-tag">Biodegradable material</li>
+                <li class="build-box-spec-tag">Made in Europe</li>
+                <li class="build-box-spec-tag">Plastic-free</li>
+                <li class="build-box-spec-tag">Recyclable</li>
+                <li class="build-box-spec-tag">Recycled content</li>
+                <li class="build-box-spec-tag">Responsible sourcing</li>
+              </ul>
+            </div>
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Certifications</span>
+              <ul class="build-box-spec-tags">
+                <li class="build-box-spec-tag">Made for recycling</li>
+                <li class="build-box-spec-tag">FSC</li>
+              </ul>
+            </div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Grammage</span><span class="build-box-spec-row-value">438 gsm</span></div>
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Parcel size</span>
+              <ul class="build-box-spec-tags">
+                <li class="build-box-spec-tag">InPost Size A</li>
+                <li class="build-box-spec-tag">Royal Mail Size Small</li>
+                <li class="build-box-spec-tag">DPD Size S</li>
+                <li class="build-box-spec-tag">Pocztex Size S</li>
+                <li class="build-box-spec-tag">Vinted GO Up to 0.5 kg</li>
+                <li class="build-box-spec-tag">DHL BOX 24/7 Size XS</li>
+              </ul>
+            </div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Box size</span><span class="build-box-spec-row-value">Small</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Dimensional tolerance</span><span class="build-box-spec-row-value">±2-4mm</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Variant SKU</span><span class="build-box-spec-row-value" style="word-break:break-all;">box--mailer-box--23--cardboard-natural--print-monochrome--foil-none</span></div>
+          </div>
+          <div class="build-box-spec-modal-footer">
+            <button type="button" class="btn-pill lg" id="buildBoxSpecModalDone">Got it</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2465,21 +2776,17 @@
       <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
     </label>
   </div>
-  <div class="site-settings-divider"></div>
   <div class="site-settings-row">
     <div>
-      <p class="site-settings-label">Version</p>
-      <p class="site-settings-desc">Switch between the two build-your-box drafts</p>
+      <p class="site-settings-label">Hide catalog subheader</p>
+      <p class="site-settings-desc">Hide the "Unlock expanded constructions..." line under the title</p>
     </div>
-    <div class="toggle-switch" id="versionToggleSwitch">
-      <div class="toggle-indicator" id="versionToggleIndicator"></div>
-      <button class="toggle-option active" data-value="mine">Mine</button>
-      <button class="toggle-option" data-value="emil">Emil's</button>
-    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleHideCatalogNote">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
   </div>
 </div>
-
-<iframe id="emilVersionFrame" title="Emil's build-your-box draft"></iframe>
 
 <script>
   function initToggleSwitch(switchId, indicatorId) {
@@ -2509,7 +2816,6 @@
   initToggleSwitch('viewToggleSwitch', 'viewToggleIndicator');
   initToggleSwitch('sizeToggleSwitch', 'sizeToggleIndicator');
   initToggleSwitch('openToggleSwitch', 'openToggleIndicator');
-  initToggleSwitch('versionToggleSwitch', 'versionToggleIndicator');
 
   (function () {
     var openSwitch = document.getElementById('openToggleSwitch');
@@ -2524,27 +2830,73 @@
     });
   })();
 
-  // "Custom Size" / "Standard Size" segment at the top of the Dimensions step: which one's active
-  // drives the dims-preset-mode body class (see CSS), swapping the 3-input grid for the preset-size
-  // drawer trigger below it — same body-class-toggle pattern packaging.html uses for its own
-  // gear-panel-driven variants, just triggered from this step's own primary control instead.
   (function () {
     var sizeToggle = document.getElementById('sizeToggleSwitch');
-    if (!sizeToggle) { return; }
+    var note = document.getElementById('dimensionBufferNote');
+    var widthInput = document.getElementById('dimWidth');
+    var lengthInput = document.getElementById('dimLength');
+    var heightInput = document.getElementById('dimHeight');
+    var bufferValueEl = document.getElementById('bufferValue');
+    var bufferMmText = document.getElementById('bufferMmText');
+    var extW = document.getElementById('extW');
+    var extL = document.getElementById('extL');
+    var extH = document.getElementById('extH');
+    var bufferMinus = document.getElementById('bufferMinus');
+    var bufferPlus = document.getElementById('bufferPlus');
+    if (!sizeToggle || !note || !widthInput || !lengthInput || !heightInput || !bufferMinus || !bufferPlus) { return; }
 
-    function isStandardSize() {
+    var bufferMm = 5;
+
+    function isProductSize() {
       var options = sizeToggle.querySelectorAll('.toggle-option');
       return !!(options[1] && options[1].classList.contains('active'));
     }
 
+    // Tells the box3d IIFE (a separate script block) whether the inputs are currently product size
+    // or external size, and the current buffer — same decoupled-via-custom-event pattern as zoom.
+    function dispatchProductSize() {
+      document.dispatchEvent(new CustomEvent('box3d:productsize', {
+        detail: { active: isProductSize(), bufferCm: bufferMm / 10 }
+      }));
+    }
+
+    function recalc() {
+      // buffer is added on *every* side, so each dimension grows by 2x the buffer, not 1x
+      var bufferCm2 = (bufferMm / 10) * 2;
+      var w = parseFloat(widthInput.value) || 0;
+      var l = parseFloat(lengthInput.value) || 0;
+      var h = parseFloat(heightInput.value) || 0;
+      extW.textContent = (w + bufferCm2).toFixed(1);
+      extL.textContent = (l + bufferCm2).toFixed(1);
+      extH.textContent = (h + bufferCm2).toFixed(1);
+      bufferValueEl.textContent = bufferMm + ' mm';
+      bufferMmText.textContent = bufferMm;
+      dispatchProductSize();
+    }
+
     function updateVisibility() {
-      document.body.classList.toggle('dims-preset-mode', isStandardSize());
+      note.classList.toggle('visible', isProductSize());
+      dispatchProductSize();
     }
 
     sizeToggle.querySelectorAll('.toggle-option').forEach(function (opt) {
       opt.addEventListener('click', updateVisibility);
     });
 
+    [widthInput, lengthInput, heightInput].forEach(function (input) {
+      input.addEventListener('input', recalc);
+    });
+
+    bufferMinus.addEventListener('click', function () {
+      bufferMm = Math.max(0, bufferMm - 1);
+      recalc();
+    });
+    bufferPlus.addEventListener('click', function () {
+      bufferMm = Math.min(20, bufferMm + 1);
+      recalc();
+    });
+
+    recalc();
     updateVisibility();
   })();
 
@@ -2577,8 +2929,13 @@
 
     function positionBar() {
       var rect = configCol.getBoundingClientRect();
-      summaryBar.style.left = rect.left + 'px';
-      summaryBar.style.width = rect.width + 'px';
+      // Side padding went from 32px to 16px (space-8 -> space-4), 16px
+      // less per side -- the bar's own width shrinks by that same total
+      // (32px) so it doesn't just look like it grew relative to its
+      // padding-defined content once it's tighter. Then nudged 16px right
+      // of the config column's own left edge.
+      summaryBar.style.left = (rect.left + 16) + 'px';
+      summaryBar.style.width = (rect.width - 32) + 'px';
     }
 
     function onScroll() {
@@ -2619,7 +2976,7 @@
     firstStepObserver.observe(firstStep);
 
     btn.addEventListener('click', function () {
-      slowScrollToCenter(nextStep, 500);
+      slowScrollToCenter(nextStep, 1100);
     });
 
     window.addEventListener('resize', positionBtn);
@@ -2661,7 +3018,7 @@
     function step(timestamp) {
       if (!startTime) { startTime = timestamp; }
       var progress = Math.min((timestamp - startTime) / duration, 1);
-      window.scrollTo({ top: startY + diff * easeInOutQuad(progress), left: 0, behavior: 'instant' });
+      window.scrollTo(0, startY + diff * easeInOutQuad(progress));
       if (progress < 1) { requestAnimationFrame(step); }
     }
 
@@ -2682,7 +3039,7 @@
     }
 
     initSelectableGroup('.box-type-grid');
-    initSelectableGroup('.construction-grid');
+    initSelectableGroup('.type-tile-grid');
     initSelectableGroup('.material-card-grid');
   })();
 
@@ -2846,12 +3203,23 @@
     var dragging = false;
     var lastX, lastY;
     var zoomPct = 100;
+    var productSizeMode = false;
+    var bufferCm = 0.5;
 
     // The zoom toolbar control lives in its own IIFE (it's shared UI, not box-3d-specific state) and
     // reaches this one via a custom event rather than a direct function reference, so the two stay
     // decoupled regardless of script order.
     document.addEventListener('box3d:zoom', function (e) {
       zoomPct = e.detail.pct;
+      updateSize();
+    });
+
+    // Same decoupling pattern for the "External size"/"Size of my product" toggle + Buffer size
+    // stepper, which live in the size-toggle IIFE further down the page.
+    document.addEventListener('box3d:productsize', function (e) {
+      productSizeMode = e.detail.active;
+      bufferCm = e.detail.bufferCm;
+      model.classList.toggle('product-size-mode', productSizeMode);
       updateSize();
     });
 
@@ -2980,14 +3348,27 @@
       var l = parseFloat(lengthInput.value) || 1;
       var h = parseFloat(heightInput.value) || 1;
 
-      var scale = (FIT / Math.max(w, l, h)) * (zoomPct / 100);
-      wPx = w * scale;
-      dPx = l * scale;
-      hPx = h * scale;
+      // In "Size of my product" mode the inputs are the *product* (inner box); the real/external
+      // box is the product plus a buffer added on every side (2x per dimension: once on each side).
+      var outerW = w, outerL = l, outerH = h;
+      if (productSizeMode) {
+        outerW = w + bufferCm * 2;
+        outerL = l + bufferCm * 2;
+        outerH = h + bufferCm * 2;
+      }
+
+      var scale = (FIT / Math.max(outerW, outerL, outerH)) * (zoomPct / 100);
+      wPx = outerW * scale;
+      dPx = outerL * scale;
+      hPx = outerH * scale;
 
       stage.style.setProperty('--w', wPx + 'px');
       stage.style.setProperty('--d', dPx + 'px');
       stage.style.setProperty('--h', hPx + 'px');
+
+      stage.style.setProperty('--iw', (w * scale) + 'px');
+      stage.style.setProperty('--id', (l * scale) + 'px');
+      stage.style.setProperty('--ih', (h * scale) + 'px');
 
       var rise = wPx * ROOF_RISE_RATIO;
       var halfD = dPx / 2;
@@ -3143,7 +3524,7 @@
       setFromActive('#stepWindows', 'data-windows', 'no');
     }
 
-    document.querySelectorAll('#stepConstruction .construction-card').forEach(function (c) { c.addEventListener('click', refresh); });
+    document.querySelectorAll('#stepConstruction .type-tile').forEach(function (c) { c.addEventListener('click', refresh); });
     document.querySelectorAll('#stepMaterial .material-card').forEach(function (c) { c.addEventListener('click', refresh); });
     document.querySelectorAll('#stepWindows .box-type-card').forEach(function (c) { c.addEventListener('click', refresh); });
 
@@ -3153,7 +3534,7 @@
   (function () {
     var canvasImage = document.getElementById('canvasImage');
     var boxTypeCards = document.querySelectorAll('#stepBoxType .box-type-card');
-    var constructionCards = document.querySelectorAll('#stepConstruction .construction-card');
+    var constructionCards = document.querySelectorAll('#stepConstruction .type-tile');
     var windowsCards = document.querySelectorAll('#stepWindows .box-type-card');
     var materialCards = document.querySelectorAll('#stepMaterial .material-card');
     if (!canvasImage) { return; }
@@ -3302,6 +3683,7 @@
     var btn = document.getElementById('siteSettingsBtn');
     var panel = document.getElementById('siteSettingsPanel');
     var compactToggle = document.getElementById('toggleCompact');
+    var hideCatalogNoteToggle = document.getElementById('toggleHideCatalogNote');
     if (!btn || !panel || !compactToggle) { return; }
 
     btn.addEventListener('click', function (e) {
@@ -3319,131 +3701,11 @@
       document.body.classList.toggle('compact-mode', compactToggle.checked);
     });
 
-    var versionSwitch = document.getElementById('versionToggleSwitch');
-    var emilFrame = document.getElementById('emilVersionFrame');
-    if (versionSwitch && emilFrame) {
-      versionSwitch.querySelectorAll('.toggle-option').forEach(function (option) {
-        option.addEventListener('click', function () {
-          var showEmil = option.dataset.value === 'emil';
-          if (showEmil && !emilFrame.getAttribute('src')) {
-            emilFrame.setAttribute('src', 'build-your-box-emil.html');
-          }
-          document.body.classList.toggle('showing-emil-version', showEmil);
-        });
+    if (hideCatalogNoteToggle) {
+      hideCatalogNoteToggle.addEventListener('change', function () {
+        document.body.classList.toggle('hide-catalog-note', hideCatalogNoteToggle.checked);
       });
     }
-  })();
-
-  // Preset-size panel: the trigger button (shown in "Standard Size" mode — see the
-  // sizeToggleSwitch IIFE above) swaps out the whole .build-box-config-col for #dimensionPresetPanel
-  // (via the .showing-size-panel class), listing every P-code, no "Custom size" row — instead of a
-  // modal drawer, so the left 3D preview never gets covered. Picking a row drives the same
-  // dimWidth/dimLength/dimHeight inputs the custom grid uses, replaying a real `input` event on
-  // each — same trick as the ?width=&length=&height= prefill below — so the 3D preview and
-  // accordion header both pick it up for free. The picked row also shows its own "Inside"
-  // (product) size, computed from a fixed 5mm-per-side buffer (BUFFER_CM below).
-  (function () {
-    var configCol = document.querySelector('.build-box-config-col');
-    var visual = document.querySelector('.build-box-visual');
-    var trigger = document.getElementById('dimensionPresetTrigger');
-    var triggerLabel = document.getElementById('dimensionPresetTriggerLabel');
-    var panel = document.getElementById('dimensionPresetPanel');
-    var footer = document.querySelector('.dimension-preset-panel-footer');
-    var saveBtn = document.getElementById('dimensionPresetSave');
-    var optionEls = Array.prototype.slice.call(document.querySelectorAll('.dimension-preset-option'));
-    var widthInput = document.getElementById('dimWidth');
-    var lengthInput = document.getElementById('dimLength');
-    var heightInput = document.getElementById('dimHeight');
-    if (!configCol || !visual || !trigger || !panel || !footer || !widthInput || !lengthInput || !heightInput || !optionEls.length) { return; }
-
-    // The panel is `position: fixed`, so it needs its box set explicitly — mirror
-    // .build-box-visual's current box (same left/width via .build-box-config-col's own rect, same
-    // top/bottom via .build-box-visual's), so it lines up as a matching right-hand column and —
-    // being `fixed`, not `sticky` — never depends on scroll position at all, which is what keeps
-    // the "Save & close" footer guaranteed visible without ever scrolling the page. The top gets
-    // nudged down (bottom stays put) when the site nav's pinned .sticky-bar is currently opaque —
-    // .build-box-visual's own empty top padding hides the same overlap harmlessly, but the panel
-    // has real title text right at its top edge, so it needs to actually dodge the bar.
-    // The footer bar shares the same left/width — same trick .build-box-sticky-summary itself uses
-    // (see the "positionBar" IIFE further down) to line its own fixed bar up with this column.
-    function syncPanelBox() {
-      if (window.innerWidth <= 900) { return; } // mobile CSS takes over with !important
-      var configRect = configCol.getBoundingClientRect();
-      var visualRect = visual.getBoundingClientRect();
-      var top = visualRect.top;
-      var stickyBar = document.getElementById('stickyBar');
-      if (stickyBar && stickyBar.classList.contains('is-pinned')) {
-        top = Math.max(top, stickyBar.getBoundingClientRect().bottom);
-      }
-      panel.style.left = configRect.left + 'px';
-      panel.style.width = configRect.width + 'px';
-      panel.style.top = top + 'px';
-      panel.style.height = (visualRect.bottom - top) + 'px';
-      footer.style.left = configRect.left + 'px';
-      footer.style.width = configRect.width + 'px';
-    }
-
-    var BUFFER_CM = 0.5; // fixed 5mm-per-side buffer used only for the "Inside" preview below
-
-    function formatNum(n) {
-      var rounded = Math.round(n * 10) / 10;
-      return rounded % 1 === 0 ? String(rounded) : String(rounded.toFixed(1));
-    }
-
-    function updateInsideNote(optionEl) {
-      var bufferCm2 = BUFFER_CM * 2;
-      var w = parseFloat(optionEl.getAttribute('data-w'));
-      var l = parseFloat(optionEl.getAttribute('data-l'));
-      var h = parseFloat(optionEl.getAttribute('data-h'));
-      var insideVal = optionEl.querySelector('.dimension-preset-option-inside-value');
-      if (!insideVal) { return; }
-      insideVal.textContent = formatNum(Math.max(0, w - bufferCm2)) + ' x ' + formatNum(Math.max(0, l - bufferCm2)) + ' x ' + formatNum(Math.max(0, h - bufferCm2)) + ' cm';
-    }
-
-    function selectOption(optionEl) {
-      optionEls.forEach(function (el) { el.classList.remove('selected'); });
-      optionEl.classList.add('selected');
-      updateInsideNote(optionEl);
-
-      var code = optionEl.getAttribute('data-code');
-      var w = optionEl.getAttribute('data-w');
-      var l = optionEl.getAttribute('data-l');
-      var h = optionEl.getAttribute('data-h');
-      triggerLabel.textContent = code + ' — ' + w + ' × ' + l + ' × ' + h + ' cm';
-      trigger.classList.remove('placeholder');
-
-      widthInput.value = w;
-      lengthInput.value = l;
-      heightInput.value = h;
-      [widthInput, lengthInput, heightInput].forEach(function (input) {
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-    }
-
-    optionEls.forEach(function (optionEl) {
-      optionEl.addEventListener('click', function () { selectOption(optionEl); });
-    });
-
-    function openPanel() {
-      configCol.classList.add('showing-size-panel');
-      syncPanelBox();
-      window.addEventListener('scroll', syncPanelBox, { passive: true });
-      window.addEventListener('resize', syncPanelBox);
-      var selected = document.querySelector('.dimension-preset-option.selected');
-      if (selected) { updateInsideNote(selected); }
-    }
-
-    function closePanel() {
-      configCol.classList.remove('showing-size-panel');
-      window.removeEventListener('scroll', syncPanelBox);
-      window.removeEventListener('resize', syncPanelBox);
-    }
-
-    trigger.addEventListener('click', openPanel);
-    if (saveBtn) { saveBtn.addEventListener('click', closePanel); }
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && configCol.classList.contains('showing-size-panel')) { closePanel(); }
-    });
   })();
 
   (function () {
@@ -3458,17 +3720,9 @@
         if (w && l && h) { return w.value + ' x ' + l.value + ' x ' + h.value + ' cm'; }
         return '';
       }
-      if (step.id === 'stepAdditional') {
-        var parts = [];
-        step.querySelectorAll('.build-box-subfield').forEach(function (sub) {
-          var active = sub.querySelector('.box-type-card.active .box-type-card-label');
-          if (active) { parts.push(active.textContent.trim()); }
-        });
-        return parts.join(', ');
-      }
-      var activeCard = step.querySelector('.box-type-card.active, .construction-card.active, .material-card.active');
+      var activeCard = step.querySelector('.box-type-card.active, .type-tile.active, .material-card.active');
       if (!activeCard) { return ''; }
-      var labelEl = activeCard.querySelector('.box-type-card-label, .material-card-label, span');
+      var labelEl = activeCard.querySelector('.box-type-card-label, .type-tile-label, .material-card-label, span');
       return labelEl ? labelEl.textContent.trim() : '';
     }
 
@@ -3538,6 +3792,27 @@
 
       el.value = num;
       el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  })();
+
+  (function () {
+    var openBtn = document.getElementById('buildBoxSpecBtn');
+    var backdrop = document.getElementById('buildBoxSpecModal');
+    var closeBtn = document.getElementById('buildBoxSpecModalClose');
+    var doneBtn = document.getElementById('buildBoxSpecModalDone');
+    if (!openBtn || !backdrop) { return; }
+
+    function open() { backdrop.classList.add('open'); }
+    function close() { backdrop.classList.remove('open'); }
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    doneBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', function (e) {
+      if (e.target === backdrop) { close(); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { close(); }
     });
   })();
 </script>
