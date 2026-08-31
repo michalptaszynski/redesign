@@ -1674,7 +1674,39 @@
     text-align: center;
   }
 
-  .btn-pill.q4-form-submit { width: 100%; margin-top: var(--space-2); }
+  .q4-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+    cursor: pointer;
+  }
+
+  .q4-consent .checkbox-box { margin-top: 2px; }
+
+  .q4-consent-text {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--color-text-secondary);
+  }
+
+  .q4-consent-text .q4-optional { color: var(--color-text-muted); }
+
+  .btn-pill.q4-form-submit { width: 100%; margin-top: var(--space-4); }
+
+  .q4-form-legal {
+    margin: var(--space-3) 0 0;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+  }
+
+  .q4-form-legal a {
+    color: var(--color-text-secondary);
+    text-decoration: underline;
+  }
 
   .q4-form-notes-label {
     margin: var(--space-6) 0 var(--space-2);
@@ -2545,7 +2577,13 @@
                   <label for="q4Details">Tell us what you have in mind</label>
                   <textarea id="q4Details" placeholder="Formats, rough quantities, anything already designed"></textarea>
                 </div>
+                <label class="q4-consent">
+                  <input type="checkbox" id="q4NewsletterOptIn" class="checkbox-box-input">
+                  <span class="checkbox-box"></span>
+                  <span class="q4-consent-text">Send me Packhelp emails with the latest news and seasonal offers exclusive to subscribers only. Opt-out any time. <span class="q4-optional">(optional)</span></span>
+                </label>
                 <button type="submit" class="btn-pill lg q4-form-submit">Request your quote</button>
+                <p class="q4-form-legal">By clicking Request your quote you agree to <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a>.</p>
               </form>
 
               <p class="q4-form-notes-label">After you hit send</p>
