@@ -540,6 +540,96 @@
      above it instead of sizing to its own label. */
   .sp-modal-content > .btn-pill { align-self: flex-start; }
 
+  /* ---------- size preset panel -- build-your-box.html's own
+     #dimensionPresetPanel mechanism: clicking the Size trigger swaps out
+     everything else in the column for a scrollable list of presets plus
+     a "Save & close" footer, exactly like build-your-box's Standard Size
+     picker. Positioned absolute (not build-your-box's fixed + JS-measured
+     rect) since .sp-modal-content is already this panel's own positioned
+     ancestor -- no sticky-vs-scroll-offset drift to correct for here. */
+  .dimension-preset-panel {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    flex-direction: column;
+    box-sizing: border-box;
+    background: var(--color-bg-page);
+  }
+
+  .sp-modal-content.showing-size-panel > *:not(.dimension-preset-panel) { display: none; }
+  .sp-modal-content.showing-size-panel .dimension-preset-panel { display: flex; }
+
+  .dimension-preset-panel-header {
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding: var(--space-6) 0 0;
+  }
+
+  .dimension-preset-panel-title {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    font-weight: 450;
+    color: var(--color-text-primary);
+  }
+
+  .dimension-preset-panel-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-6) 0 var(--space-20);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .dimension-preset-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-4);
+    border: 1.5px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+
+  .dimension-preset-option:hover { background: var(--color-bg-muted-hover); }
+
+  /* same active outline as build-your-box's own selected preset -- solid
+     dark border, no accent color/glow. */
+  .dimension-preset-option.selected { border-color: var(--color-text-primary); }
+
+  .dimension-preset-option-label {
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .dimension-preset-panel-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    box-sizing: border-box;
+    display: flex;
+    padding: var(--space-4) 0;
+    background: rgba(255,255,255,.9);
+    box-shadow: 0 -1px 2px rgba(0,0,0,.08);
+  }
+
+  .dimension-preset-panel-footer .btn-pill { display: block; width: 100%; text-align: center; box-sizing: border-box; }
+
   /* ---------- Size -- build-your-box.html's .dimension-preset-* trio,
      copied as-is (minus the body-class gate it uses there to toggle
      Custom/Standard Size, since this modal only ever shows the preset
@@ -1296,6 +1386,38 @@
         </div>
       </div>
 
+      <div class="dimension-preset-panel" id="sizePresetPanel">
+        <div class="dimension-preset-panel-header">
+          <h2 class="dimension-preset-panel-title">Size</h2>
+        </div>
+        <div class="dimension-preset-panel-list">
+          <button type="button" class="dimension-preset-option" data-size="F23 (9.2 &times; 9.2 &times; 5 cm)">
+            <span class="dimension-preset-option-label">F23 — 9.2 &times; 9.2 &times; 5 cm</span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-size="F33 (11.8 &times; 14 &times; 8 cm)">
+            <span class="dimension-preset-option-label">F33 — 11.8 &times; 14 &times; 8 cm</span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-size="F45 (23.1 &times; 14 &times; 8 cm)">
+            <span class="dimension-preset-option-label">F45 — 23.1 &times; 14 &times; 8 cm</span>
+          </button>
+          <button type="button" class="dimension-preset-option selected" data-size="F52 (26.5 &times; 19.5 &times; 6 cm)">
+            <span class="dimension-preset-option-label">F52 — 26.5 &times; 19.5 &times; 6 cm</span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-size="F56 (26 &times; 20 &times; 10.5 cm)">
+            <span class="dimension-preset-option-label">F56 — 26 &times; 20 &times; 10.5 cm</span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-size="F71 (35 &times; 26 &times; 10 cm)">
+            <span class="dimension-preset-option-label">F71 — 35 &times; 26 &times; 10 cm</span>
+          </button>
+          <button type="button" class="dimension-preset-option" data-size="F79 (36.4 &times; 31.4 &times; 12.5 cm)">
+            <span class="dimension-preset-option-label">F79 — 36.4 &times; 31.4 &times; 12.5 cm</span>
+          </button>
+        </div>
+        <div class="dimension-preset-panel-footer">
+          <button type="button" class="btn-pill lg" id="sizePresetSave">Save &amp; close</button>
+        </div>
+      </div>
+
       <button type="button" class="btn-pill secondary sm" id="addSampleAccordionBtn">+ Add another sample</button>
     </div>
   </div>
@@ -1558,8 +1680,8 @@
   var doneBtn = document.getElementById('sampleEditDoneBtn');
   if (!modal || !openBtn) return;
 
-  var contentCol = document.querySelector('.sp-modal-content');
-  var summaryBar = document.querySelector('.build-box-sticky-summary');
+  var contentCol = modal.querySelector('.sp-modal-content');
+  var summaryBar = modal.querySelector('.build-box-sticky-summary');
 
   function alignSummaryBar() {
     if (!contentCol || !summaryBar || window.innerWidth <= 900) return;
@@ -1589,11 +1711,13 @@
     var html = '';
     items.forEach(function (item, i) {
       if (i > 0) html += '<hr class="pp-sample-row-divider">';
+      var sizeLabel = item.querySelector('.dimension-preset-select span');
+      var sizeText = sizeLabel ? sizeLabel.textContent.trim() : 'F52 (26.5 x 19.5 x 6 cm)';
       var activeChipLabel = item.querySelector('.pp-chip.active .pp-chip-label');
       var adhesiveLabel = activeChipLabel ? activeChipLabel.textContent.trim() : 'None';
       var adhesiveText = adhesiveLabel === 'None' ? 'No' : adhesiveLabel;
       html += '<span class="pp-sample-row-product">' +
-        '<span class="pp-sample-row-desc">F52 (26.5 x 19.5 x 6 cm)</span>' +
+        '<span class="pp-sample-row-desc">' + sizeText + '</span>' +
         '<span class="pp-sample-row-desc">Adhesive stripe: ' + adhesiveText + '</span>' +
         '</span>';
     });
@@ -1606,13 +1730,61 @@
     syncSizeConstructionSummary();
   }
 
+  // ---------- Size preset panel -- build-your-box.html's own "Standard
+  // Size" picker mechanism: opening it swaps out everything else in this
+  // column for a scrollable list, closing it (Save & close/Escape)
+  // restores the accordion. activeSizeTrigger tracks which product's Size
+  // field opened it, since a page with several products has one field
+  // each but only ever one shared panel. ----------
+  var sizePanel = document.getElementById('sizePresetPanel');
+  var activeSizeTrigger = null;
+
+  function openSizePanel(trigger) {
+    activeSizeTrigger = trigger;
+    var currentValue = trigger.querySelector('span').textContent.trim();
+    sizePanel.querySelectorAll('.dimension-preset-option').forEach(function (opt) {
+      opt.classList.toggle('selected', opt.getAttribute('data-size') === currentValue);
+    });
+    contentCol.classList.add('showing-size-panel');
+    contentCol.scrollTop = 0;
+    // the panel has its own "Save & close" footer sharing the same
+    // bottom edge as this modal's always-on-top fixed summary bar --
+    // hide that one while the panel's footer needs those clicks instead.
+    // (the `hidden` attribute alone loses to this element's own
+    // `display: flex` class rule on specificity ties, so set it inline.)
+    if (summaryBar) summaryBar.style.display = 'none';
+  }
+
+  function closeSizePanel() {
+    contentCol.classList.remove('showing-size-panel');
+    activeSizeTrigger = null;
+    if (summaryBar) summaryBar.style.display = '';
+  }
+
+  if (sizePanel) {
+    sizePanel.addEventListener('click', function (e) {
+      var option = e.target.closest('.dimension-preset-option');
+      if (option) {
+        sizePanel.querySelectorAll('.dimension-preset-option').forEach(function (o) { o.classList.remove('selected'); });
+        option.classList.add('selected');
+        if (activeSizeTrigger) {
+          activeSizeTrigger.querySelector('span').textContent = option.getAttribute('data-size');
+        }
+        return;
+      }
+      if (e.target.closest('#sizePresetSave')) closeSizePanel();
+    });
+  }
+
   openBtn.addEventListener('click', openModal);
   closeBtn.addEventListener('click', closeModal);
   if (doneBtn) doneBtn.addEventListener('click', closeModal);
   window.addEventListener('resize', alignSummaryBar);
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !modal.hidden) closeModal();
+    if (e.key !== 'Escape') return;
+    if (contentCol.classList.contains('showing-size-panel')) { closeSizePanel(); return; }
+    if (!modal.hidden) closeModal();
   });
 
   var images = [
@@ -1679,6 +1851,12 @@
         var group = chip.closest('.pp-chip-group');
         group.querySelectorAll('.pp-chip').forEach(function (c) { c.classList.remove('active'); });
         chip.classList.add('active');
+        return;
+      }
+
+      var sizeTrigger = e.target.closest('.dimension-preset-select');
+      if (sizeTrigger) {
+        openSizePanel(sizeTrigger);
         return;
       }
 
