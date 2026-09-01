@@ -62,19 +62,22 @@
     box-sizing: border-box;
   }
 
-  /* ---------- left: sticky photo gallery -- a fixed two-up split (swatch
-     collage + product shot) rather than a single swappable image, since
-     Sample Pack is one fixed concept, not a configurable box needing a
-     multi-shot gallery/thumbnail rail. ---------- */
+  /* ---------- left: sticky photo gallery -- defaults to a two-up split
+     (swatch collage + product shot); clicking a single-image thumb below
+     swaps the placeholder to show that one photo large instead, clicking
+     the first (split) thumb restores the default two-up view. ---------- */
   .pp-gallery-outer {
     position: sticky;
     top: var(--space-6);
+    display: flex;
+    flex-direction: column;
   }
 
   .pp-gallery {
     display: flex;
     flex-direction: row;
-    height: 640px;
+    flex: 1;
+    min-height: 0;
     box-sizing: border-box;
     background: var(--color-bg-muted);
     border-radius: var(--radius-2xl);
@@ -102,10 +105,28 @@
     object-fit: contain;
   }
 
-  /* ---------- thumbnail strip -- decorative (the hero above is a fixed
-     two-up split, not a single swappable image), just giving the gallery
-     the same "more photos below it" richness a real PDP gallery has. ---------- */
+  .pp-gallery-single {
+    display: none;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    box-sizing: border-box;
+  }
+
+  .pp-gallery-single img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  /* single-image mode: hide the two-up split, show the one big photo. */
+  .pp-gallery.single-mode .pp-gallery-half { display: none; }
+  .pp-gallery.single-mode .pp-gallery-single { display: flex; }
+
+  /* ---------- thumbnail strip -- click swaps the placeholder above:
+     the first thumb is the two-up split itself (mini replica of the
+     default view), the rest are single photos shown large on click. ---------- */
   .pp-gallery-thumbs {
+    flex: none;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
@@ -117,13 +138,25 @@
     width: 64px;
     height: 64px;
     box-sizing: border-box;
+    padding: 0;
     border: 1px solid var(--color-border-default);
     border-radius: var(--radius-sm);
     background: var(--color-bg-surface);
     overflow: hidden;
+    cursor: pointer;
+    transition: border-color .15s ease;
   }
 
+  .pp-gallery-thumb:hover { border-color: var(--color-border-hover); }
+  .pp-gallery-thumb.active { border-color: var(--gray-600); }
+
   .pp-gallery-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  /* the split thumb shows both halves side by side, same recipe as the
+     main placeholder's own two-up split, just in miniature. */
+  .pp-gallery-thumb-split { display: flex; flex-direction: row; }
+  .pp-gallery-thumb-split img { flex: 1; min-width: 0; width: 50%; }
+  .pp-gallery-thumb-split img + img { border-left: 1px solid var(--white); }
 
   @media (max-width: 900px) {
     .pp-layout { grid-template-columns: 1fr; padding: var(--space-4); gap: var(--space-4); }
@@ -428,29 +461,48 @@
 
   .sp-modal-field { margin-bottom: var(--space-10); }
 
-  /* ---------- sample card -- groups Size + Adhesive strip in one
-     gray-outlined card, so "+ Add another sample" has something visually
-     discrete to duplicate. ---------- */
-  .sp-sample-card-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+  /* ---------- sample accordion -- one item per product, single-open
+     (expanding one collapses the rest), numbered badge + chevron pattern
+     borrowed from build-your-box.html's own accordion (.build-box-
+     accordion-*, its "compact mode" step-list) since that's this site's
+     existing accordion visual language. ---------- */
+  .sp-sample-accordion-list {
+    border-top: 1px solid var(--color-border-default);
     margin-bottom: var(--space-4);
   }
 
-  .sp-sample-card {
-    position: relative;
-    border: 1px solid var(--color-border-default);
-    border-radius: 12px;
-    padding: var(--space-6);
+  .sp-sample-accordion-item { border-bottom: 1px solid var(--color-border-default); }
+
+  .sp-sample-accordion-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-4) 0;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
   }
 
-  .sp-sample-card .sp-modal-field:last-child { margin-bottom: 0; }
+  .sp-sample-accordion-badge {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+  }
 
-  .sp-sample-card-close {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
+  .sp-sample-accordion-title { flex: 1; font-size: 17px; font-weight: 500; letter-spacing: -0.02em; color: var(--color-text-primary); }
+
+  .sp-sample-accordion-remove {
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -462,9 +514,26 @@
     cursor: pointer;
   }
 
-  .sp-sample-card-close svg { width: 18px; height: 18px; }
-  .sp-sample-card-close:hover { color: var(--color-text-primary); }
-  .sp-sample-card:first-child .sp-sample-card-close { display: none; }
+  .sp-sample-accordion-remove svg { width: 16px; height: 16px; }
+  .sp-sample-accordion-remove:hover { color: var(--color-text-primary); }
+  .sp-sample-accordion-item:first-child .sp-sample-accordion-remove { display: none; }
+
+  .sp-sample-accordion-chevron {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-primary);
+    transition: transform .2s ease;
+  }
+
+  .sp-sample-accordion-item.expanded .sp-sample-accordion-chevron { transform: rotate(180deg); }
+
+  /* left padding matches the badge's own width + the header's gap, so
+     Size/Adhesive strip start flush with "Product #N", not the badge. */
+  .sp-sample-accordion-content { display: none; padding: 0 0 var(--space-8) calc(32px + var(--space-3)); }
+  .sp-sample-accordion-item.expanded .sp-sample-accordion-content { display: block; }
+
+  .sp-sample-accordion-content .sp-modal-field:last-child { margin-bottom: 0; }
 
   /* .sp-modal-content is a flex column (default align-items: stretch), which
      would otherwise force this button's width to match the field column
@@ -518,36 +587,14 @@
 
   /* ---------- Adhesive strip -- product_page.html's own .pp-chip photo
      swatch component, copied as-is (same one used there for print
-     colour / material colour), plus the .pp-step-header + "Learn more"
-     row it's always paired with. ---------- */
-  .pp-step-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    margin: 0 0 var(--space-3);
-  }
-
-  .pp-step-header .pp-field-label { margin: 0; }
-
+     colour / material colour). ---------- */
   .pp-field-label {
     margin: 0 0 var(--space-3);
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 500;
     letter-spacing: -0.02em;
     line-height: 1.16;
     color: var(--color-text-primary);
-  }
-
-  .pp-learn-more {
-    flex: none;
-    font-size: 13px;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(0,6,26,.25);
-    padding-bottom: 1px;
-    white-space: nowrap;
   }
 
   .pp-chip-group { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--space-2); }
@@ -733,6 +780,184 @@
     .categories-grid { padding: 0 var(--space-4) var(--space-2); }
   }
 
+  /* ---------- "Add to cart" drawer -- slides in over most of the
+     viewport, leaving a gap on the left (where the close button floats)
+     so the page behind stays visible, matching the reference. Reuses
+     .categories-grid/.category-item/.category-thumb verbatim (same
+     --radius-md/--space-4 tokens as "Other product samples" below) for
+     the "Others also bought" row instead of inventing a new tile. ---------- */
+  /* dark scrim behind the panel -- measured off the live packhelp.co.uk
+     add-to-cart drawer: rgba(0,6,26,.2), i.e. --rich-blue at 20%. */
+  .cart-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 6, 26, 0);
+    transition: background .3s ease;
+  }
+
+  .cart-drawer-overlay.open { background: rgba(0, 6, 26, .2); }
+  .cart-drawer-overlay[hidden] { display: none; }
+
+  .cart-drawer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1000px;
+    max-width: 100vw;
+    /* slides in from the right; .open (added a frame after unhiding, so
+       the browser has something to transition from) animates it to 0. */
+    transform: translateX(100%);
+    transition: transform .3s ease;
+  }
+
+  .cart-drawer-overlay.open .cart-drawer { transform: translateX(0); }
+
+  /* the actual padded/scrollable surface, split out from .cart-drawer
+     itself so overflow-y:auto here doesn't also clip -x and hide the
+     close button sitting outside this box's left edge. */
+  .cart-drawer-inner {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: var(--space-8) 28px;
+    background: var(--color-bg-page);
+    box-shadow: -4px 0 24px rgba(0,6,26,.1);
+    overflow-y: auto;
+  }
+
+  /* floats just outside the panel's own left edge -- 40x40, no shadow,
+     matching the live drawer's own close button exactly. */
+  .cart-drawer-close {
+    position: absolute;
+    top: var(--space-6);
+    left: -48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .cart-drawer-close svg { width: 16px; height: 16px; }
+
+  /* matches the live drawer's own CrossSellHeader bar: 944px = this
+     drawer's 1000px width minus its 28px left/right padding (written
+     here as width: 100% of that content box), --radius-md, --gray-100. */
+  .cart-drawer-toast {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-10);
+    gap: var(--space-4);
+  }
+
+  .cart-drawer-toast-media {
+    position: relative;
+    flex: none;
+    width: 64px;
+    height: 48px;
+  }
+
+  .cart-drawer-toast-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+  }
+
+  .cart-drawer-toast-check {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-full);
+    background: #0B693D;
+    color: var(--white);
+    box-shadow: 0 0 0 3px var(--color-bg-muted);
+  }
+
+  .cart-drawer-toast-check svg { width: 11px; height: 11px; }
+
+  .cart-drawer-toast-text {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .cart-drawer-toast-text strong { font-weight: 500; color: var(--color-text-primary); }
+
+  .cart-drawer-carousel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .cart-drawer-carousel-heading {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .cart-drawer-carousel-nav-group { display: flex; gap: var(--space-2); }
+
+  /* reuses .scroll-carousel-nav's own class for the JS hook (so this
+     carousel's prev/next behave exactly like every other .scroll-carousel
+     on the site) but overrides its floating-over-the-track positioning
+     and sizing (32x32, --gray-400 border) to match the live drawer. */
+  .cart-drawer-carousel-nav-group .scroll-carousel-nav {
+    position: static;
+    display: flex;
+    transform: none;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--gray-400);
+    background: var(--color-bg-surface);
+    box-shadow: none;
+  }
+
+  .cart-drawer-carousel-nav-group .scroll-carousel-nav svg { width: 16px; height: 16px; }
+
+  .cart-drawer-carousel-nav-group .scroll-carousel-nav:hover { background: var(--gray-200); }
+
+  .cart-drawer-carousel-nav-group .scroll-carousel-nav[disabled] {
+    opacity: .4;
+    pointer-events: none;
+  }
+
+  .cart-drawer .categories-grid { padding: 0 0 var(--space-2); }
+
+  @media (max-width: 700px) {
+    .cart-drawer-inner { padding: var(--space-4); }
+    /* no exposed gap left to float in once the drawer is full-width --
+       moves onto the panel itself instead of just outside its edge. */
+    .cart-drawer-close { left: var(--space-4); width: 40px; height: 40px; }
+    .cart-drawer-toast { flex-wrap: wrap; padding: var(--space-4); }
+    .cart-drawer-toast .btn-pill { width: 100%; justify-content: center; }
+  }
+
   /* ---------- footer (site-footer, copied from product_page.html) ---------- */
   .site-footer { position: relative; padding: var(--space-16) 0 0; margin: var(--space-16) 0 0; }
   .site-footer::before { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; transform: translateX(-50%); border-top: 1px solid var(--color-border-default); }
@@ -793,15 +1018,28 @@
       <div class="pp-gallery-half">
         <img src="assets/samplepacks/samplepack-product.png" alt="Sample Pack box">
       </div>
+      <div class="pp-gallery-single">
+        <img id="ppGallerySingleImg" src="" alt="">
+      </div>
     </div>
 
-    <div class="pp-gallery-thumbs">
-      <span class="pp-gallery-thumb"><img src="assets/samplepacks/samplepack-swatches.png" alt=""></span>
-      <span class="pp-gallery-thumb"><img src="assets/samplepacks/samplepack-product.png" alt=""></span>
-      <span class="pp-gallery-thumb"><img src="assets/product-page/One%20Colour.png" alt=""></span>
-      <span class="pp-gallery-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20saturated.png" alt=""></span>
-      <span class="pp-gallery-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20premium.png" alt=""></span>
-      <span class="pp-gallery-thumb"><img src="assets/product-page/White%20Colour.png" alt=""></span>
+    <div class="pp-gallery-thumbs" id="ppGalleryThumbs">
+      <button type="button" class="pp-gallery-thumb pp-gallery-thumb-split active" data-mode="split" aria-label="Show both photos">
+        <img src="assets/samplepacks/samplepack-swatches.png" alt="">
+        <img src="assets/samplepacks/samplepack-product.png" alt="">
+      </button>
+      <button type="button" class="pp-gallery-thumb" data-mode="single" aria-label="Show this photo large">
+        <img src="assets/product-page/One%20Colour.png" alt="">
+      </button>
+      <button type="button" class="pp-gallery-thumb" data-mode="single" aria-label="Show this photo large">
+        <img src="assets/product-page/Multicolour%20%E2%80%93%20saturated.png" alt="">
+      </button>
+      <button type="button" class="pp-gallery-thumb" data-mode="single" aria-label="Show this photo large">
+        <img src="assets/product-page/Multicolour%20%E2%80%93%20premium.png" alt="">
+      </button>
+      <button type="button" class="pp-gallery-thumb" data-mode="single" aria-label="Show this photo large">
+        <img src="assets/product-page/White%20Colour.png" alt="">
+      </button>
     </div>
   </div>
 
@@ -839,7 +1077,7 @@
           <span class="pp-sample-row-title">Print &amp; material samples</span>
           <span class="pp-sample-row-desc">All available print &amp; material options presented on swatches</span>
         </span>
-        <a href="sample-packs.html" class="btn-pill secondary sm">Edit</a>
+        <button type="button" class="btn-pill secondary sm" id="editPrintMaterialsBtn">Edit</button>
       </div>
     </div>
 
@@ -854,7 +1092,7 @@
       </div>
 
       <div class="pp-cta-buttons">
-        <button type="button" class="btn-pill lg">Add to cart</button>
+        <button type="button" class="btn-pill lg" id="addToCartBtn">Add to cart</button>
       </div>
     </div>
 
@@ -1015,46 +1253,50 @@
       <h2 class="sp-modal-title">Size &amp; construction sample</h2>
       <p class="sp-modal-desc">Example text cardboard mailing box with black print. Perfect for a minimalist and eco-friendly look.</p>
 
-      <div class="sp-sample-card-list" id="sampleCardList">
-        <div class="sp-sample-card">
-          <button type="button" class="sp-sample-card-close" aria-label="Remove sample">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
-
-          <div class="sp-modal-field">
-            <h3 class="pp-field-label">Size</h3>
-            <div class="dimension-preset-wrap">
-              <button type="button" class="dimension-preset-select">
-                <span>F52 (26.5 &times; 19.5 &times; 6 cm)</span>
-              </button>
-              <svg class="dimension-preset-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </div>
+      <div class="sp-sample-accordion-list" id="sampleAccordionList">
+        <div class="sp-sample-accordion-item expanded">
+          <div class="sp-sample-accordion-header" role="button" tabindex="0">
+            <span class="sp-sample-accordion-badge">1</span>
+            <span class="sp-sample-accordion-title">Product #1</span>
+            <button type="button" class="sp-sample-accordion-remove" aria-label="Remove product">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <svg class="sp-sample-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </div>
 
-          <div class="sp-modal-field">
-            <div class="pp-step-header">
-              <h3 class="pp-field-label">Adhesive strip</h3>
-              <a href="#" class="pp-learn-more">Learn more</a>
+          <div class="sp-sample-accordion-content">
+            <div class="sp-modal-field">
+              <h3 class="pp-field-label">Size</h3>
+              <div class="dimension-preset-wrap">
+                <button type="button" class="dimension-preset-select">
+                  <span>F52 (26.5 &times; 19.5 &times; 6 cm)</span>
+                </button>
+                <svg class="dimension-preset-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
             </div>
-            <div class="pp-chip-group">
-              <button type="button" class="pp-chip active" data-value="none">
-                <span class="pp-chip-media"><img src="assets/build/adhesive-none.png" alt=""></span>
-                <span class="pp-chip-label">None</span>
-              </button>
-              <button type="button" class="pp-chip" data-value="single">
-                <span class="pp-chip-media"><img src="assets/build/adhesive-single.png" alt=""></span>
-                <span class="pp-chip-label">Single</span>
-              </button>
-              <button type="button" class="pp-chip" data-value="double">
-                <span class="pp-chip-media"><img src="assets/build/adhesive-double.png" alt=""></span>
-                <span class="pp-chip-label">Double</span>
-              </button>
+
+            <div class="sp-modal-field">
+              <h3 class="pp-field-label">Adhesive strip</h3>
+              <div class="pp-chip-group">
+                <button type="button" class="pp-chip active" data-value="none">
+                  <span class="pp-chip-media"><img src="assets/build/adhesive-none.png" alt=""></span>
+                  <span class="pp-chip-label">None</span>
+                </button>
+                <button type="button" class="pp-chip" data-value="single">
+                  <span class="pp-chip-media"><img src="assets/build/adhesive-single.png" alt=""></span>
+                  <span class="pp-chip-label">Single</span>
+                </button>
+                <button type="button" class="pp-chip" data-value="double">
+                  <span class="pp-chip-media"><img src="assets/build/adhesive-double.png" alt=""></span>
+                  <span class="pp-chip-label">Double</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <button type="button" class="btn-pill secondary sm" id="addSampleCardBtn">+ Add another sample</button>
+      <button type="button" class="btn-pill secondary sm" id="addSampleAccordionBtn">+ Add another sample</button>
     </div>
   </div>
 
@@ -1069,6 +1311,108 @@
         <span class="build-box-sticky-summary-price">£4.50</span>
       </div>
       <button type="button" class="btn-pill lg" id="sampleEditDoneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="sp-modal" id="printMaterialsModal" hidden>
+  <div class="sp-modal-topbar">
+    <a href="index.html" aria-label="Packhelp" style="display:flex;">
+      <img class="logo" src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp">
+    </a>
+    <button type="button" class="sp-modal-topbar-close" id="printMaterialsModalClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="sp-modal-body">
+    <div class="sp-modal-visual">
+      <button type="button" class="sp-modal-nav sp-modal-nav-prev" id="printMaterialsModalPrev" aria-label="Previous photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <img id="printMaterialsModalImg" src="assets/samplepacks/samplepack-swatches.png" alt="Print &amp; material samples">
+      <button type="button" class="sp-modal-nav sp-modal-nav-next" id="printMaterialsModalNext" aria-label="Next photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="sp-modal-content">
+      <h2 class="sp-modal-title">Print &amp; material samples</h2>
+      <p class="sp-modal-desc">Our sushi box with lid makes your sushi look great with a crystal-clear lid. It has an anti-fog coating. Example text cardboard mailing box with black print. Perfect for a minimalist and eco-friendly look.</p>
+    </div>
+  </div>
+
+  <div class="build-box-sticky-summary">
+    <div class="build-box-sticky-summary-group">
+      <span class="build-box-sticky-summary-label">Delivery</span>
+      <span class="build-box-sticky-summary-value underline">3–5 days</span>
+    </div>
+    <div class="build-box-sticky-summary-right">
+      <button type="button" class="btn-pill lg" id="printMaterialsDoneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="cart-drawer-overlay" id="cartDrawerOverlay" hidden>
+  <div class="cart-drawer">
+    <button type="button" class="cart-drawer-close" id="cartDrawerClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+
+    <div class="cart-drawer-inner">
+    <div class="cart-drawer-toast">
+      <span class="cart-drawer-toast-media">
+        <img src="assets/samplepacks/samplepack-product.png" alt="">
+        <span class="cart-drawer-toast-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+      </span>
+      <p class="cart-drawer-toast-text"><strong>Custom Mailer Box samples</strong> added to cart</p>
+      <button type="button" class="btn-pill md">Review cart</button>
+    </div>
+
+    <div class="cart-drawer-carousel-header">
+      <h2 class="cart-drawer-carousel-heading">Others also bought</h2>
+      <div class="cart-drawer-carousel-nav-group">
+        <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+        <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+      </div>
+    </div>
+
+    <div class="scroll-carousel" id="cartDrawerCarousel">
+      <div class="categories-grid">
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb"></div>
+          <h3 class="category-title">Custom Tissue Paper samples</h3>
+          <p class="category-desc">From £4.50</p>
+        </a>
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb"></div>
+          <h3 class="category-title">Custom Kraft Tape samples</h3>
+          <p class="category-desc">From £4.50</p>
+        </a>
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb"></div>
+          <h3 class="category-title">Custom Recycled Poly Mailer samples</h3>
+          <p class="category-desc">From £4.50</p>
+        </a>
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb"></div>
+          <h3 class="category-title">Custom Classic Poly Mailer samples</h3>
+          <p class="category-desc">From £4.50</p>
+        </a>
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb"></div>
+          <h3 class="category-title">Custom Bio Poly Mailer samples</h3>
+          <p class="category-desc">From £4.50</p>
+        </a>
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb"></div>
+          <h3 class="category-title">Custom Labels samples</h3>
+          <p class="category-desc">From £4.50</p>
+        </a>
+      </div>
+    </div>
     </div>
   </div>
 </div>
@@ -1106,6 +1450,70 @@
   }, { threshold: 0.1 });
 
   targets.forEach(function (el) { observer.observe(el); });
+})();
+
+// ---------- gallery: size to fit the viewport from the very first paint,
+// not just once scrolled/pinned -- copied verbatim from product_page.html.
+// A fixed height only fits once the sticky element is actually pinned; at
+// scroll 0 its natural (unpinned) position sits below the nav+breadcrumb,
+// so this re-measures the gallery's LIVE top on every scroll and sizes the
+// height so its bottom lands exactly space-6 above the viewport bottom in
+// both states -- letting it grow as the page scrolls and its pinned top
+// position frees up more room. ----------
+(function () {
+  var gallery = document.getElementById('ppGalleryOuter');
+  var layout = document.querySelector('.pp-layout');
+  if (!gallery || !layout) { return; }
+
+  function sizeGallery() {
+    if (window.innerWidth <= 900) { gallery.style.height = ''; return; }
+    var currentTop = Math.max(gallery.getBoundingClientRect().top, 24);
+    var height = window.innerHeight - currentTop - 24;
+    gallery.style.height = Math.max(height, 420) + 'px';
+  }
+
+  var scheduled = false;
+  function scheduleSizeGallery() {
+    if (scheduled) { return; }
+    scheduled = true;
+    requestAnimationFrame(function () {
+      scheduled = false;
+      sizeGallery();
+    });
+  }
+
+  window.addEventListener('resize', scheduleSizeGallery);
+  window.addEventListener('scroll', scheduleSizeGallery, { passive: true });
+  window.addEventListener('load', sizeGallery);
+  sizeGallery();
+})();
+
+// ---------- gallery thumbnails: click swaps the placeholder above -- the
+// first (split) thumb restores the default two-up view, every other thumb
+// shows its own photo large instead. ----------
+(function () {
+  var thumbs = document.getElementById('ppGalleryThumbs');
+  var galleryPanel = document.getElementById('ppGallery');
+  var singleImg = document.getElementById('ppGallerySingleImg');
+  if (!thumbs || !galleryPanel || !singleImg) return;
+
+  thumbs.addEventListener('click', function (e) {
+    var thumb = e.target.closest('.pp-gallery-thumb');
+    if (!thumb) return;
+
+    thumbs.querySelectorAll('.pp-gallery-thumb').forEach(function (t) { t.classList.remove('active'); });
+    thumb.classList.add('active');
+
+    if (thumb.getAttribute('data-mode') === 'split') {
+      galleryPanel.classList.remove('single-mode');
+      return;
+    }
+
+    var thumbImg = thumb.querySelector('img');
+    singleImg.setAttribute('src', thumbImg.getAttribute('src'));
+    singleImg.setAttribute('alt', thumbImg.getAttribute('alt') || '');
+    galleryPanel.classList.add('single-mode');
+  });
 })();
 
 // ---------- scroll-carousels (prev/next, disabled at ends) ----------
@@ -1168,19 +1576,20 @@
 
   var sizeConstructionDetails = document.getElementById('sizeConstructionDetails');
 
-  // Mirrors every card currently in the modal onto the page's "Size &
-  // construction sample" row summary, separated by a divider once there's
-  // more than one -- called whenever the modal closes, since that's when
-  // the row's summary should reflect whatever was added/removed inside it.
+  // Mirrors every product currently in the modal's accordion onto the
+  // page's "Size & construction sample" row summary, separated by a
+  // divider once there's more than one -- called whenever the modal
+  // closes, since that's when the row's summary should reflect whatever
+  // was added/removed inside it.
   function syncSizeConstructionSummary() {
-    var cardListEl = document.getElementById('sampleCardList');
-    if (!sizeConstructionDetails || !cardListEl) return;
+    var accordionListEl = document.getElementById('sampleAccordionList');
+    if (!sizeConstructionDetails || !accordionListEl) return;
 
-    var cards = cardListEl.querySelectorAll('.sp-sample-card');
+    var items = accordionListEl.querySelectorAll('.sp-sample-accordion-item');
     var html = '';
-    cards.forEach(function (card, i) {
+    items.forEach(function (item, i) {
       if (i > 0) html += '<hr class="pp-sample-row-divider">';
-      var activeChipLabel = card.querySelector('.pp-chip.active .pp-chip-label');
+      var activeChipLabel = item.querySelector('.pp-chip.active .pp-chip-label');
       var adhesiveLabel = activeChipLabel ? activeChipLabel.textContent.trim() : 'None';
       var adhesiveText = adhesiveLabel === 'None' ? 'No' : adhesiveLabel;
       html += '<span class="pp-sample-row-product">' +
@@ -1224,13 +1633,47 @@
   if (prevBtn) prevBtn.addEventListener('click', function () { showImage(imgIndex - 1); });
   if (nextBtn) nextBtn.addEventListener('click', function () { showImage(imgIndex + 1); });
 
-  var cardList = document.getElementById('sampleCardList');
-  var addCardBtn = document.getElementById('addSampleCardBtn');
+  var accordionList = document.getElementById('sampleAccordionList');
+  var addAccordionBtn = document.getElementById('addSampleAccordionBtn');
 
-  // Delegated (not bound per-chip/per-card) so it keeps working on cards
+  function expandOnly(item) {
+    accordionList.querySelectorAll('.sp-sample-accordion-item').forEach(function (i) {
+      i.classList.toggle('expanded', i === item);
+    });
+  }
+
+  // Clicking an already-expanded item's header closes it (even if it's the
+  // only one open); clicking a collapsed one expands it and closes the rest.
+  function toggleAccordion(item) {
+    var wasExpanded = item.classList.contains('expanded');
+    expandOnly(wasExpanded ? null : item);
+  }
+
+  function renumberAccordion() {
+    var items = accordionList.querySelectorAll('.sp-sample-accordion-item');
+    items.forEach(function (item, i) {
+      item.querySelector('.sp-sample-accordion-badge').textContent = i + 1;
+      item.querySelector('.sp-sample-accordion-title').textContent = 'Product #' + (i + 1);
+    });
+  }
+
+  // Delegated (not bound per-chip/per-item) so it keeps working on items
   // cloned later by "+ Add another sample" without re-binding anything.
-  if (cardList) {
-    cardList.addEventListener('click', function (e) {
+  if (accordionList) {
+    accordionList.addEventListener('click', function (e) {
+      var removeBtn = e.target.closest('.sp-sample-accordion-remove');
+      if (removeBtn) {
+        var itemToRemove = removeBtn.closest('.sp-sample-accordion-item');
+        var wasExpanded = itemToRemove.classList.contains('expanded');
+        itemToRemove.remove();
+        renumberAccordion();
+        if (wasExpanded) {
+          var first = accordionList.querySelector('.sp-sample-accordion-item');
+          if (first) expandOnly(first);
+        }
+        return;
+      }
+
       var chip = e.target.closest('.pp-chip');
       if (chip) {
         var group = chip.closest('.pp-chip-group');
@@ -1239,19 +1682,172 @@
         return;
       }
 
-      var closeBtn = e.target.closest('.sp-sample-card-close');
-      if (closeBtn) {
-        var card = closeBtn.closest('.sp-sample-card');
-        if (card) card.remove();
+      var header = e.target.closest('.sp-sample-accordion-header');
+      if (header) {
+        toggleAccordion(header.closest('.sp-sample-accordion-item'));
       }
+    });
+
+    // role="button" header needs keyboard activation too.
+    accordionList.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var header = e.target.closest('.sp-sample-accordion-header');
+      if (!header) return;
+      e.preventDefault();
+      toggleAccordion(header.closest('.sp-sample-accordion-item'));
     });
   }
 
-  if (addCardBtn && cardList) {
-    addCardBtn.addEventListener('click', function () {
-      var template = cardList.querySelector('.sp-sample-card');
-      cardList.appendChild(template.cloneNode(true));
+  if (addAccordionBtn && accordionList) {
+    addAccordionBtn.addEventListener('click', function () {
+      var template = accordionList.querySelector('.sp-sample-accordion-item');
+      var clone = template.cloneNode(true);
+
+      // Fresh product starts at the default selection, not whatever the
+      // cloned item happened to have active.
+      var chips = clone.querySelectorAll('.pp-chip');
+      chips.forEach(function (c, i) { c.classList.toggle('active', i === 0); });
+
+      accordionList.appendChild(clone);
+      renumberAccordion();
+      expandOnly(clone);
+      clone.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });
+  }
+})();
+
+// ---------- "Print & material samples" edit modal -- same shell as the
+// Size & construction one (topbar, visual with prev/next, sticky summary)
+// but with no accordion/configurator, just a photo + description. ----------
+(function () {
+  var modal = document.getElementById('printMaterialsModal');
+  var openBtn = document.getElementById('editPrintMaterialsBtn');
+  var closeBtn = document.getElementById('printMaterialsModalClose');
+  var doneBtn = document.getElementById('printMaterialsDoneBtn');
+  if (!modal || !openBtn) return;
+
+  var contentCol = modal.querySelector('.sp-modal-content');
+  var summaryBar = modal.querySelector('.build-box-sticky-summary');
+
+  function alignSummaryBar() {
+    if (!contentCol || !summaryBar || window.innerWidth <= 900) return;
+    var rect = contentCol.getBoundingClientRect();
+    summaryBar.style.left = rect.left + 'px';
+    summaryBar.style.width = rect.width + 'px';
+  }
+
+  function openModal() {
+    modal.hidden = false;
+    document.body.classList.add('sp-modal-open');
+    alignSummaryBar();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.classList.remove('sp-modal-open');
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  if (doneBtn) doneBtn.addEventListener('click', closeModal);
+  window.addEventListener('resize', alignSummaryBar);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  var images = [
+    'assets/samplepacks/samplepack-swatches.png',
+    'assets/product-page/One%20Colour.png',
+    'assets/product-page/Multicolour%20%E2%80%93%20saturated.png',
+    'assets/product-page/Multicolour%20%E2%80%93%20premium.png',
+    'assets/product-page/White%20Colour.png'
+  ];
+  var imgIndex = 0;
+  var modalImg = document.getElementById('printMaterialsModalImg');
+  var prevBtn = document.getElementById('printMaterialsModalPrev');
+  var nextBtn = document.getElementById('printMaterialsModalNext');
+
+  function showImage(index) {
+    imgIndex = (index + images.length) % images.length;
+    modalImg.setAttribute('src', images[imgIndex]);
+  }
+
+  if (prevBtn) prevBtn.addEventListener('click', function () { showImage(imgIndex - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { showImage(imgIndex + 1); });
+})();
+
+// ---------- "Add to cart" drawer ----------
+(function () {
+  var overlay = document.getElementById('cartDrawerOverlay');
+  var openBtn = document.getElementById('addToCartBtn');
+  var closeBtn = document.getElementById('cartDrawerClose');
+  var drawer = overlay ? overlay.querySelector('.cart-drawer') : null;
+  if (!overlay || !openBtn) return;
+
+  function openDrawer() {
+    overlay.hidden = false;
+    document.body.classList.add('sp-modal-open');
+    // Double rAF: unhiding and adding .open in the same frame gives the
+    // browser nothing to transition FROM (it'd just paint the end state),
+    // since .cart-drawer's transform:translateX(100%) needs one full
+    // frame committed before the transition to translateX(0) can animate.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        overlay.classList.add('open');
+      });
+    });
+  }
+
+  function closeDrawer() {
+    overlay.classList.remove('open');
+    document.body.classList.remove('sp-modal-open');
+    // Keep it in the layout (and its slide-out transition playing) for
+    // the transition's own duration, then actually hide it.
+    setTimeout(function () {
+      overlay.hidden = true;
+    }, 300);
+  }
+
+  openBtn.addEventListener('click', openDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+
+  // Click anywhere in the exposed gap outside the panel closes it too.
+  overlay.addEventListener('click', function (e) {
+    if (!drawer.contains(e.target) && e.target !== closeBtn && !closeBtn.contains(e.target)) {
+      closeDrawer();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !overlay.hidden) closeDrawer();
+  });
+
+  // Same scrollBy/disabled-at-ends behavior as every other .scroll-carousel
+  // on the site, just wired up manually since this one's prev/next buttons
+  // live in the header row above the track instead of floating over it.
+  var carousel = document.getElementById('cartDrawerCarousel');
+  if (carousel) {
+    var track = carousel.querySelector('.categories-grid');
+    var prevBtn2 = overlay.querySelector('.scroll-carousel-nav.prev');
+    var nextBtn2 = overlay.querySelector('.scroll-carousel-nav.next');
+
+    function updateNavState() {
+      var maxScroll = track.scrollWidth - track.clientWidth;
+      prevBtn2.disabled = track.scrollLeft <= 0;
+      nextBtn2.disabled = track.scrollLeft >= maxScroll - 1;
+    }
+
+    prevBtn2.addEventListener('click', function () {
+      track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+    nextBtn2.addEventListener('click', function () {
+      track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+
+    track.addEventListener('scroll', updateNavState, { passive: true });
+    window.addEventListener('resize', updateNavState);
+    updateNavState();
   }
 })();
 </script>
