@@ -1414,7 +1414,7 @@
           </button>
         </div>
         <div class="dimension-preset-panel-footer">
-          <button type="button" class="btn-pill lg" id="sizePresetSave">Save &amp; close</button>
+          <button type="button" class="btn-pill lg" id="sizePresetSave">Close</button>
         </div>
       </div>
 
@@ -1747,18 +1747,22 @@
     });
     contentCol.classList.add('showing-size-panel');
     contentCol.scrollTop = 0;
-    // the panel has its own "Save & close" footer sharing the same
-    // bottom edge as this modal's always-on-top fixed summary bar --
-    // hide that one while the panel's footer needs those clicks instead.
+    // the panel has its own "Close" footer sharing the same bottom edge
+    // as this modal's always-on-top fixed summary bar -- hide that one
+    // while the panel's footer needs those clicks instead. Same for the
+    // topbar's X: closing the whole modal from inside the size panel
+    // would be confusing, so it's hidden until the panel itself closes.
     // (the `hidden` attribute alone loses to this element's own
     // `display: flex` class rule on specificity ties, so set it inline.)
     if (summaryBar) summaryBar.style.display = 'none';
+    if (closeBtn) closeBtn.style.display = 'none';
   }
 
   function closeSizePanel() {
     contentCol.classList.remove('showing-size-panel');
     activeSizeTrigger = null;
     if (summaryBar) summaryBar.style.display = '';
+    if (closeBtn) closeBtn.style.display = '';
   }
 
   if (sizePanel) {
