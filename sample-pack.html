@@ -8,7 +8,55 @@
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="components.css">
 <style>
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    /* reserves the scrollbar's own width permanently, so toggling
+       body/html overflow:hidden for a modal never removes/re-adds a
+       scrollbar and shifts the whole page (nav included) sideways. */
+    scrollbar-gutter: stable;
+  }
+
+  /* ---------- ANNOUNCEMENT (copied from product_page.html) -- not just
+     decorative: nav-header.js's .nav-wrapper has a built-in -20px
+     margin-top that's designed to sit inside this bar's own extra
+     `calc(.75rem + 20px)` bottom padding (every other full-nav page in
+     this repo has one). Without it, nav-row1 gets pulled 20px above the
+     page's actual top -- which broke the sticky-bar's own vertical
+     centering against it (the search bar/nav-links visibly sat lower
+     than the logo/cart, since the sticky-bar's "match nav-row1's
+     center" math had nothing but negative space to center against). ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover { background: rgba(255,255,255,.8); }
+  .announcement-copy svg { width: 14px; height: 14px; }
+
+  @media (max-width: 700px) {
+    .announcement-bar { padding: 0.75rem var(--space-4) calc(0.75rem + 20px); }
+  }
 
   /* ---------- PAGE CONTAINER -- wider desktop breakpoint, matching
      product_page.html/packaging.html (nav itself is --max-w-lg globally
@@ -335,7 +383,12 @@
 
   .sp-modal[hidden] { display: none; }
 
-  body.sp-modal-open { overflow: hidden; }
+  /* both html and body: body's own overflow:hidden alone doesn't
+     reliably suppress the document's own scroll in every browser (the
+     viewport scroller is html, not body, per spec), which is what let
+     the page underneath keep scrolling while a modal's own content was
+     already fully scrolled. */
+  html.sp-modal-open, body.sp-modal-open { overflow: hidden; }
 
   /* ---------- top bar -- same recipe as nav-header.js's simplified
      "flow" nav (.quote-topbar: centered logo, bottom border), reused
@@ -407,27 +460,6 @@
     object-fit: contain;
   }
 
-  .sp-modal-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1px solid var(--color-border-default);
-    background: var(--color-bg-surface);
-    color: var(--color-text-primary);
-    cursor: pointer;
-    transition: background-color .15s ease;
-  }
-
-  .sp-modal-nav:hover { background: var(--gray-200); }
-  .sp-modal-nav svg { width: 18px; height: 18px; }
-  .sp-modal-nav-prev { left: var(--space-8); }
-  .sp-modal-nav-next { right: var(--space-8); }
 
   .sp-modal-content {
     position: relative;
@@ -439,6 +471,10 @@
     padding: 0 0 100px;
     box-sizing: border-box;
     overflow-y: auto;
+    /* stops scrolling from chaining to the page underneath once this
+       column hits its own top/bottom -- otherwise the outer page could
+       keep scrolling under a "locked" modal. */
+    overscroll-behavior: contain;
   }
 
   .sp-modal-title {
@@ -579,6 +615,7 @@
   .dimension-preset-panel-list {
     flex: 1;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: var(--space-6) 0 var(--space-20);
     display: flex;
     flex-direction: column;
@@ -745,6 +782,10 @@
      floating-card shape). left/width are set by JS to match the actual
      rendered content column exactly (see alignSummaryBar below); this is
      just the pre-JS fallback. ---------- */
+  /* matches product_page.html's newer .pp-sticky-summary recipe (not
+     build-your-box.html's older, flatter version this class was
+     originally copied from): bordered outline + soft upward shadow,
+     fixed 72px height instead of padding-driven auto height. */
   .build-box-sticky-summary {
     position: fixed;
     right: 0;
@@ -752,23 +793,26 @@
     bottom: 0;
     z-index: 210;
     box-sizing: border-box;
+    height: 72px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
-    padding: var(--space-4) var(--space-6);
+    padding: 0 var(--space-4);
     background: rgba(255, 255, 255, 0.80);
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,.08);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--gray-300);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -5px 16px rgba(47,47,47,.06);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 
   .build-box-sticky-summary-group { display: flex; flex-direction: column; gap: var(--space-1); }
-  .build-box-sticky-summary-label { font-size: 0.6875rem; line-height: 1.32; letter-spacing: -0.02em; color: var(--color-text-muted); }
-  .build-box-sticky-summary-value { font-size: 0.9375rem; line-height: 1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+  .build-box-sticky-summary-label { font-size: 13px; line-height: 1.32; letter-spacing: -0.02em; color: var(--gray-600); }
+  .build-box-sticky-summary-value { font-size: 13px; line-height: 1.32; letter-spacing: -0.02em; color: var(--color-text-primary); }
   .build-box-sticky-summary-value.underline { text-decoration: underline; text-decoration-color: var(--color-border-hover); text-underline-offset: 3px; }
-  .build-box-sticky-summary-price { font-size: 1.0625rem; line-height: 1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+  .build-box-sticky-summary-price { font-size: 17px; line-height: 1.16; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
   .build-box-sticky-summary-right { display: flex; align-items: center; gap: var(--space-6); }
   .build-box-sticky-summary-price-group { text-align: right; }
 
@@ -777,7 +821,7 @@
     .sp-modal-visual { height: 40vh; min-height: 280px; }
     .sp-modal-content { padding: var(--space-4) 0 0; overflow-y: visible; }
     .sp-modal-title { font-size: 1.75rem; }
-    .build-box-sticky-summary { left: 0; right: 0; width: auto; border-radius: 0; }
+    .build-box-sticky-summary { left: 0; right: 0; width: auto; border-radius: 0; border-left: none; border-right: none; }
   }
 
   /* ---------- "Other product samples" carousel -- product_page.html's own
@@ -915,6 +959,7 @@
     background: var(--color-bg-page);
     box-shadow: -4px 0 24px rgba(0,6,26,.1);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   /* floats just outside the panel's own left edge -- 40x40, no shadow,
@@ -1082,6 +1127,13 @@
 </style>
 </head>
 <body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
 
 <div id="ph-sticky-bar"></div>
 
@@ -1330,13 +1382,7 @@
 
   <div class="sp-modal-body">
     <div class="sp-modal-visual">
-      <button type="button" class="sp-modal-nav sp-modal-nav-prev" id="sampleEditModalPrev" aria-label="Previous photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      </button>
       <img id="sampleEditModalImg" src="assets/samplepacks/samplepack-product.png" alt="Sample">
-      <button type="button" class="sp-modal-nav sp-modal-nav-next" id="sampleEditModalNext" aria-label="Next photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-      </button>
     </div>
 
     <div class="sp-modal-content">
@@ -1449,13 +1495,7 @@
 
   <div class="sp-modal-body">
     <div class="sp-modal-visual">
-      <button type="button" class="sp-modal-nav sp-modal-nav-prev" id="printMaterialsModalPrev" aria-label="Previous photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      </button>
       <img id="printMaterialsModalImg" src="assets/samplepacks/samplepack-swatches.png" alt="Print &amp; material samples">
-      <button type="button" class="sp-modal-nav sp-modal-nav-next" id="printMaterialsModalNext" aria-label="Next photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-      </button>
     </div>
 
     <div class="sp-modal-content">
@@ -1558,6 +1598,17 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   onScroll();
+
+  // ABC Favorit loads with font-display: swap -- the initial paint uses a
+  // fallback font with different metrics, so nav-row1's real height/
+  // position can shift once the real font swaps in. Re-measuring only on
+  // scroll/resize misses that swap entirely if the user hasn't scrolled
+  // yet, leaving the sticky-bar (and its always-visible search box)
+  // pinned to stale, pre-swap coordinates -- exactly the "search sits
+  // lower than the logo" symptom this is meant to prevent.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(onScroll);
+  }
 })();
 
 (function () {
@@ -1693,6 +1744,7 @@
   function openModal() {
     modal.hidden = false;
     document.body.classList.add('sp-modal-open');
+    document.documentElement.classList.add('sp-modal-open');
     alignSummaryBar();
   }
 
@@ -1727,6 +1779,7 @@
   function closeModal() {
     modal.hidden = true;
     document.body.classList.remove('sp-modal-open');
+    document.documentElement.classList.remove('sp-modal-open');
     syncSizeConstructionSummary();
   }
 
@@ -1791,24 +1844,6 @@
     if (contentCol.classList.contains('showing-size-panel')) { closeSizePanel(); return; }
     if (!modal.hidden) closeModal();
   });
-
-  var images = [
-    'assets/samplepacks/samplepack-product.png',
-    'assets/samplepacks/samplepack-swatches.png',
-    'assets/product-page/One%20Colour.png'
-  ];
-  var imgIndex = 0;
-  var modalImg = document.getElementById('sampleEditModalImg');
-  var prevBtn = document.getElementById('sampleEditModalPrev');
-  var nextBtn = document.getElementById('sampleEditModalNext');
-
-  function showImage(index) {
-    imgIndex = (index + images.length) % images.length;
-    modalImg.setAttribute('src', images[imgIndex]);
-  }
-
-  if (prevBtn) prevBtn.addEventListener('click', function () { showImage(imgIndex - 1); });
-  if (nextBtn) nextBtn.addEventListener('click', function () { showImage(imgIndex + 1); });
 
   var accordionList = document.getElementById('sampleAccordionList');
   var addAccordionBtn = document.getElementById('addSampleAccordionBtn');
@@ -1922,12 +1957,14 @@
   function openModal() {
     modal.hidden = false;
     document.body.classList.add('sp-modal-open');
+    document.documentElement.classList.add('sp-modal-open');
     alignSummaryBar();
   }
 
   function closeModal() {
     modal.hidden = true;
     document.body.classList.remove('sp-modal-open');
+    document.documentElement.classList.remove('sp-modal-open');
   }
 
   openBtn.addEventListener('click', openModal);
@@ -1939,25 +1976,6 @@
     if (e.key === 'Escape' && !modal.hidden) closeModal();
   });
 
-  var images = [
-    'assets/samplepacks/samplepack-swatches.png',
-    'assets/product-page/One%20Colour.png',
-    'assets/product-page/Multicolour%20%E2%80%93%20saturated.png',
-    'assets/product-page/Multicolour%20%E2%80%93%20premium.png',
-    'assets/product-page/White%20Colour.png'
-  ];
-  var imgIndex = 0;
-  var modalImg = document.getElementById('printMaterialsModalImg');
-  var prevBtn = document.getElementById('printMaterialsModalPrev');
-  var nextBtn = document.getElementById('printMaterialsModalNext');
-
-  function showImage(index) {
-    imgIndex = (index + images.length) % images.length;
-    modalImg.setAttribute('src', images[imgIndex]);
-  }
-
-  if (prevBtn) prevBtn.addEventListener('click', function () { showImage(imgIndex - 1); });
-  if (nextBtn) nextBtn.addEventListener('click', function () { showImage(imgIndex + 1); });
 })();
 
 // ---------- "Add to cart" drawer ----------
@@ -1971,6 +1989,7 @@
   function openDrawer() {
     overlay.hidden = false;
     document.body.classList.add('sp-modal-open');
+    document.documentElement.classList.add('sp-modal-open');
     // Double rAF: unhiding and adding .open in the same frame gives the
     // browser nothing to transition FROM (it'd just paint the end state),
     // since .cart-drawer's transform:translateX(100%) needs one full
@@ -1985,6 +2004,7 @@
   function closeDrawer() {
     overlay.classList.remove('open');
     document.body.classList.remove('sp-modal-open');
+    document.documentElement.classList.remove('sp-modal-open');
     // Keep it in the layout (and its slide-out transition playing) for
     // the transition's own duration, then actually hide it.
     setTimeout(function () {
