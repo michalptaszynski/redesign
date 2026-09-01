@@ -1770,6 +1770,7 @@
         if (activeSizeTrigger) {
           activeSizeTrigger.querySelector('span').textContent = option.getAttribute('data-size');
         }
+        closeSizePanel();
         return;
       }
       if (e.target.closest('#sizePresetSave')) closeSizePanel();
