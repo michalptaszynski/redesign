@@ -830,6 +830,440 @@
      same --max-w-lg this page's .container already uses). Tiles keep the
      same .category-thumb box for consistent sizing/hover but skip the
      --thumb-img background entirely -- no photos in the tiles. ---------- */
+  /* ================= OPTION B (prototype, behind the gear toggle) =================
+     Alternative body for #sampleEditModal: one full-width grid of every size in
+     the catalogue instead of the accordion + size-panel pair. Everything here is
+     additive -- the accordion markup, its CSS and its IIFE are untouched, and
+     with `body.option-b` absent none of these rules match anything.
+
+     The state of record stays the accordion's own DOM (see the JS note): this
+     view reads it on open and writes it back on every change, so closeModal()'s
+     existing syncSizeConstructionSummary() keeps working unchanged and a switch
+     in either direction preserves the selection. ---------- */
+
+  /* the modal body is a 2-col grid (visual + content); Option B collapses it to
+     a single full-width column. The product photo is deliberately dropped: it is
+     the same shot for every size, so it differentiates nothing here. */
+  body.option-b .sp-modal-visual,
+  body.option-b .sp-modal-content { display: none; }
+  body:not(.option-b) .ob-panel { display: none; }
+
+  body.option-b .sp-modal-body { grid-template-columns: minmax(0, 1fr); }
+
+  .ob-panel {
+    --ob-panel-bg: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .ob-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: var(--space-2);
+  }
+
+  .ob-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  /* swaps to a limit warning in place; kept in the same node so the aria-live
+     announcement and the heading never disagree about what is on screen. */
+  .ob-title.is-limit { font-size: 1.25rem; letter-spacing: -0.03em; }
+
+  .ob-count {
+    flex: none;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ob-sub {
+    margin: 0 0 var(--space-8);
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- size grid ---------- */
+  .ob-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: var(--space-8);
+  }
+
+  /* the tile wrapper is a plain div: the selection <button> and the adhesive
+     buttons are siblings inside it, because nesting a button in a button is
+     invalid HTML and browsers drop the inner one. The wrapper carries only the
+     visual selected state; aria-pressed lives on the real button. */
+  .ob-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border-default);
+    border-radius: 14px;
+    background: var(--color-bg-surface);
+    overflow: hidden;
+    transition: border-color 0.15s ease, opacity 0.15s ease;
+  }
+
+  .ob-tile:hover { border-color: var(--color-border-hover); }
+
+  /* The selected ring is an overlay, not a border or an inset shadow: a
+     thicker border resizes the box (which knocked neighbouring tape rows 1px
+     out of line), and an inset shadow paints before the tile's own children,
+     so the full-bleed photo sat on top of it and cut the ring off along the
+     image edge. A pseudo-element paints after the photo and stays crisp. */
+  .ob-tile.is-selected { border-color: var(--color-text-primary); }
+
+  .ob-tile.is-selected::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--color-text-primary);
+    border-radius: 14px;
+    pointer-events: none;
+  }
+
+  /* over the limit: dimmed but still a live button -- a `disabled` tile gives
+     the user no way to find out why it stopped working (brief, behaviours table) */
+  .ob-tile.is-blocked { opacity: .42; }
+
+  .ob-tile-main {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+
+  .ob-tile-main:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+    box-shadow: inset 0 0 0 4px var(--color-focus-ring);
+  }
+
+  /* the whole area above the first separator is one grey panel, filled edge to
+     edge by the photo: the photos carry a studio backdrop of their own, and
+     letterboxing them on white read as a picture inside a card. Sizes not shot
+     yet show the bare panel, which is also where the adhesive-strip hover
+     preview lands. */
+  .ob-tile-figure {
+    /* a fixed height, not min-height: a photo otherwise sizes the panel to its
+       own aspect ratio, which made the photo row 24px taller than the rest */
+    position: relative;
+    flex: none;
+    height: 200px;
+    margin: 0;
+    background: var(--ob-panel-bg);
+    overflow: hidden;
+  }
+
+  /* name + dimensions sit below the separator, on the card surface */
+  .ob-tile-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  /* cover, so no edge of the backdrop shows; the crop is vertical only and
+     stays well clear of the box and its printed dimension label */
+  .ob-tile-figure img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ---------- adhesive hover chip ----------
+     Hovering an adhesive option pops a small square by the cursor showing that
+     option's close-up -- the same three images the accordion's chips use in the
+     default view, so both views illustrate the choice identically.
+
+     Same construction as sample-packs.html's .hover-preview: ONE shared element
+     appended to <body> and positioned with position:fixed, not one nested per
+     button. Nested, it would inherit .ob-tile's `overflow: hidden` (the tile
+     rounds its corners with it) and get clipped away. */
+  .ob-tape-preview {
+    position: fixed;
+    z-index: 1000;
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-surface);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .12s ease, visibility 0s linear .12s;
+  }
+
+  .ob-tape-preview.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .12s ease;
+  }
+
+  .ob-tape-preview img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ob-tape-preview { transition: opacity 0s, visibility 0s; }
+  }
+
+  .ob-tile-code {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .ob-tile-dims {
+    margin-top: var(--space-1);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ob-check {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 1;
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-full);
+    background: var(--color-text-primary);
+    color: var(--color-text-on-accent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ob-check svg { width: 13px; height: 13px; }
+  .ob-tile.is-selected .ob-check { display: flex; }
+
+  /* ---------- per-size adhesive strip, only on selected tiles ---------- */
+  .ob-tape {
+    padding: 0 var(--space-4) var(--space-4);
+  }
+
+  .ob-tape-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .ob-tape-group { display: flex; gap: 4px; }
+
+  .ob-tape-btn {
+    flex: 1;
+    padding: 6px 4px;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    font-size: 0.6875rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+
+  .ob-tape-btn:hover { border-color: var(--color-border-hover); }
+
+  .ob-tape-btn[aria-pressed="true"] {
+    border-color: var(--color-text-primary);
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+  }
+
+  .ob-tape-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 4px var(--color-focus-ring);
+  }
+
+  /* ---------- footer -- laid out like .sp-modal-topbar: a flex child of the
+     modal itself, so its rule spans the modal edge to edge. It is a real row in
+     the column rather than an overlay, so it never covers the last tiles.
+
+     Top and bottom padding on .ob-foot-inner are deliberately identical: the
+     gap from the rule to the Order button matches the gap from the button to
+     the bottom edge. ---------- */
+  .ob-foot {
+    flex: none;
+    padding: 0;
+    background: var(--color-bg-page);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  /* the rule runs edge to edge, but its contents line up with the tiles: same
+     max-width + auto margins + horizontal padding as .sp-modal-body, so the
+     summary sits under the first column and the CTA under the last one at every
+     width. (Above --max-w-lg the body is centred and narrower than the modal,
+     which is where a full-bleed footer drifted 128px out of line.) */
+  .ob-foot-inner {
+    width: 100%;
+    max-width: var(--max-w-lg);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding: var(--space-5) var(--space-14) var(--space-5) var(--space-8);
+    box-sizing: border-box;
+  }
+
+  body:not(.option-b) .ob-foot { display: none; }
+
+  .ob-foot-summary { min-width: 0; }
+
+  .ob-foot-line1 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .ob-foot-line2 {
+    margin: var(--space-1) 0 0;
+    font-size: 13px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .ob-foot-msg {
+    margin: var(--space-1) 0 0;
+    font-size: 13px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-danger);
+  }
+
+  .ob-foot-msg:empty { display: none; }
+
+  @media (max-width: 1024px) {
+    .ob-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    body.option-b .sp-modal-body { padding: var(--space-4); }
+  }
+
+  @media (max-width: 768px) {
+    .ob-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* stacked footer, button full-width; the inset matches what
+       body.option-b .sp-modal-body drops to at this width */
+    .ob-foot-inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-4);
+      padding: var(--space-5) var(--space-4);
+    }
+    .ob-foot-inner .btn-pill { width: 100%; justify-content: center; }
+    .site-settings-btn { bottom: 16px; right: 16px; }
+    .site-settings-panel { bottom: 84px; right: 16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ob-tile, .ob-tape-btn { transition: none; }
+  }
+
+  /* which variant you are looking at has to be readable without opening the
+     panel, so the gear itself carries the active state (page-local: the shared
+     .site-settings-btn in components.css has no such state and 6 other pages
+     use it) */
+  .site-settings-btn.is-active {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+    color: var(--color-text-on-accent);
+  }
+
+  /* ---------- PROTOTYPE CTA -- same card duet as press.html's "Writing about
+     Packhelp?" block (text left, single CTA right on a muted panel), sitting
+     under the configurator column as the next step up from a sample pack.
+     Horizontal padding matches .pp-layout so its edges line up with the
+     gallery on the left and the config column on the right. ---------- */
+  .pp-proto-cta {
+    padding: var(--space-6) var(--space-14) 0 var(--space-8);
+  }
+
+  .pp-proto-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding: var(--space-8);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-xl);
+  }
+
+  .pp-proto-text {
+    max-width: 32rem;
+  }
+
+  .pp-proto-title {
+    margin: 0 0 var(--space-2);
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .pp-proto-desc {
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .pp-proto-buttons {
+    display: flex;
+    flex: none;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 900px) {
+    .pp-proto-cta { padding: var(--space-4); }
+    .pp-proto-card { flex-direction: column; align-items: flex-start; }
+    .pp-proto-buttons { flex-wrap: wrap; }
+  }
+
   .pp-carousel-section {
     position: relative;
     width: 100vw;
@@ -1241,6 +1675,18 @@
   </div>
 </div>
 
+<section class="pp-proto-cta reveal">
+  <div class="pp-proto-card">
+    <div class="pp-proto-text">
+      <p class="pp-proto-title">Need a prototype?</p>
+      <p class="pp-proto-desc">Example text to form decisions with accurate 3D visual representations of your packaging. Unlimited digital experimentation with.</p>
+    </div>
+    <div class="pp-proto-buttons">
+      <a href="#" class="btn-pill lg">Buy prototype<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </div>
+</section>
+
 <section class="pp-carousel-section reveal">
   <h2 class="pp-carousel-heading">Other product samples</h2>
   <div class="scroll-carousel">
@@ -1465,6 +1911,37 @@
       </div>
 
       <button type="button" class="btn-pill secondary sm" id="addSampleAccordionBtn">+ Add another sample</button>
+    </div>
+
+    <!-- Option B: prototype-only alternative to the accordion above, shown
+         instead of it (and of the product photo) while body.option-b is set.
+         Grid, scale strip and footer are all rendered by the IIFE at the end
+         of the page from SAMPLE_SIZES. -->
+    <div class="ob-panel" id="optionBPanel">
+      <div class="ob-head">
+        <h2 class="ob-title" id="obTitle">Pick the sizes you want to check</h2>
+        <span class="ob-count" id="obCount">0 of 8</span>
+      </div>
+      <p class="ob-sub">Every sample is an unprinted box in the same board as the finished run. Dimensions are length &times; width &times; height.</p>
+
+      <div class="ob-grid" id="obGrid"></div>
+
+    </div>
+  </div>
+
+  <!-- Option B's footer is a direct child of .sp-modal, a sibling of the body
+       and a mirror of .sp-modal-topbar above it: that is what lets its rule run
+       the full width of the modal. Inside .ob-panel it could not -- the panel is
+       the scroll container, so anything wider than it is clipped or starts a
+       horizontal scrollbar. -->
+  <div class="ob-foot">
+    <div class="ob-foot-inner">
+      <div class="ob-foot-summary">
+        <p class="ob-foot-line1" id="obFootPrice">0 samples &middot; &pound;0.00</p>
+        <p class="ob-foot-line2" id="obFootDetail">Delivery 3&ndash;5 days</p>
+        <p class="ob-foot-msg" id="obFootMsg" role="status" aria-live="polite"></p>
+      </div>
+      <button type="button" class="btn-pill lg" id="obOrderBtn">Order</button>
     </div>
   </div>
 
@@ -1919,6 +2396,9 @@
   if (addAccordionBtn && accordionList) {
     addAccordionBtn.addEventListener('click', function () {
       var template = accordionList.querySelector('.sp-sample-accordion-item');
+      // the list can now be empty (Option B lets every size be deselected),
+      // and cloning null would throw -- nothing to clone means nothing to add
+      if (!template) return;
       var clone = template.cloneNode(true);
 
       // Fresh product starts at the default selection, not whatever the
@@ -2052,6 +2532,468 @@
     window.addEventListener('resize', updateNavState);
     updateNavState();
   }
+})();
+
+// ================= OPTION B (prototype, behind the gear toggle) =================
+// Alternative body for #sampleEditModal: the whole size catalogue as one grid,
+// no accordion and no hidden size panel.
+//
+// State: there is no store on this page -- the accordion's DOM *is* the state,
+// so this view keeps using it as the record. It reads the accordion when it
+// renders and writes back to it on every change, which means (a) closeModal()'s
+// existing syncSizeConstructionSummary() keeps working untouched, and (b) a
+// switch in either direction preserves the selection for free. Nothing in the
+// accordion's own IIFE is modified.
+(function () {
+  var panel = document.getElementById('optionBPanel');
+  var modal = document.getElementById('sampleEditModal');
+  var accordionList = document.getElementById('sampleAccordionList');
+  if (!panel || !modal || !accordionList) return;
+
+  // Dimensions are L x W x H (height last) -- matches the strings already in
+  // the size panel's data-size attributes and build-your-box.html's own
+  // Width/Length/Height fields. Codes and numbers are the seven options in
+  // #sizePresetPanel; that list stays the source for the accordion view, this
+  // array is the source for Option B.
+  // `img` is the product photo for that size, web-sized from the originals in
+  // assets/samplepacks/sizes/ (800px wide, 7.2MB -> 160KB total; the originals
+  // are kept next to them). Only four of the seven have been shot so far --
+  // the rest show the bare grey panel rather than borrowing another size's
+  // photo, which would misrepresent them (guideline 2.5: a missing asset gets
+  // no stand-in).
+  var SAMPLE_SIZES = [
+    { code: 'F23', l: 9.2,  w: 9.2,  h: 5,    img: 'f23.jpg' },
+    { code: 'F33', l: 11.8, w: 14,   h: 8,    img: 'f33.jpg' },
+    { code: 'F45', l: 23.1, w: 14,   h: 8,    img: 'f45.jpg' },
+    { code: 'F52', l: 26.5, w: 19.5, h: 6,    img: 'f52.jpg' },
+    { code: 'F56', l: 26,   w: 20,   h: 10.5, img: 'f56.jpg' },
+    { code: 'F71', l: 35,   w: 26,   h: 10,   img: 'f71.jpg' },
+    { code: 'F79', l: 36.4, w: 31.4, h: 12.5 }
+  ];
+
+  var PHOTO_DIR = 'assets/samplepacks/sizes/';
+
+  // same figures the samples listing page uses (sample-packs.html: UNIT_PRICE /
+  // MAX_SAMPLES) rather than the PDP's hardcoded "£4.50", which never recalculates.
+  var UNIT_PRICE = 4.5;
+  var MAX_SAMPLES = 8;
+
+  var TAPE = [
+    { value: 'none',   label: 'None',   img: 'assets/build/adhesive-none.png'   },
+    { value: 'single', label: 'Single', img: 'assets/build/adhesive-single.png' },
+    { value: 'double', label: 'Double', img: 'assets/build/adhesive-double.png' }
+  ];
+
+  function esc(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  function dims(sz) { return sz.l + ' × ' + sz.w + ' × ' + sz.h + ' cm'; }
+
+  // exactly the string shape the accordion's size field and #sizePresetPanel use
+  function sizeLabel(sz) { return sz.code + ' (' + dims(sz) + ')'; }
+
+  // A size with no photo yet shows the bare grey panel -- no generated stand-in.
+  function figure(sz) {
+    if (!sz.img) return '';
+    // lazy: the modal is display:none until opened, so nothing loads up front
+    return '<img class="ob-figure-photo" src="' + PHOTO_DIR + sz.img + '" alt="' +
+      esc(sz.code + ', ' + dims(sz)) + '" loading="lazy" decoding="async">';
+  }
+
+  // ---------- accordion bridge ----------
+  // pristine clone kept from load, so the accordion can be rebuilt even after
+  // Option B empties it (its own "+ Add another sample" clones a live item)
+  var itemTemplate = accordionList.querySelector('.sp-sample-accordion-item');
+  itemTemplate = itemTemplate ? itemTemplate.cloneNode(true) : null;
+
+  function byLabel(label) {
+    for (var i = 0; i < SAMPLE_SIZES.length; i++) {
+      if (sizeLabel(SAMPLE_SIZES[i]) === label) return SAMPLE_SIZES[i];
+    }
+    return null;
+  }
+
+  function readState() {
+    selected = [];
+    accordionList.querySelectorAll('.sp-sample-accordion-item').forEach(function (item) {
+      var span = item.querySelector('.dimension-preset-select span');
+      var sz = span ? byLabel(span.textContent.trim()) : null;
+      if (!sz) return;
+      var chip = item.querySelector('.pp-chip.active');
+      tapeByCode[sz.code] = chip ? chip.getAttribute('data-value') : 'none';
+      // one entry per size: the grid cannot express the same size twice, so a
+      // duplicate coming from the accordion collapses to its first occurrence
+      if (isSelected(sz.code)) return;
+      selected.push(sz.code);
+    });
+  }
+
+  function writeState() {
+    if (!itemTemplate) return;
+    accordionList.innerHTML = '';
+    selected.forEach(function (code, i) {
+      var sz = SAMPLE_SIZES.filter(function (s) { return s.code === code; })[0];
+      if (!sz) return;
+      var item = itemTemplate.cloneNode(true);
+      item.classList.toggle('expanded', i === 0);
+      item.querySelector('.dimension-preset-select span').textContent = sizeLabel(sz);
+      item.querySelectorAll('.pp-chip').forEach(function (c) {
+        c.classList.toggle('active', c.getAttribute('data-value') === tapeByCode[code]);
+      });
+      item.querySelector('.sp-sample-accordion-badge').textContent = i + 1;
+      item.querySelector('.sp-sample-accordion-title').textContent = 'Product #' + (i + 1);
+      accordionList.appendChild(item);
+    });
+  }
+
+  // ---------- render ----------
+  var grid       = document.getElementById('obGrid');
+  var titleEl    = document.getElementById('obTitle');
+  var countEl    = document.getElementById('obCount');
+  var priceEl    = document.getElementById('obFootPrice');
+  var detailEl   = document.getElementById('obFootDetail');
+  var msgEl      = document.getElementById('obFootMsg');
+  var orderBtn   = document.getElementById('obOrderBtn');
+
+  // Selection is just an ordered list of codes. Tape lives in its own map keyed
+  // by size and is NOT cleared on deselect: the tape row is rendered on every
+  // tile, so it has to have a value to show even for sizes not currently picked.
+  var selected = [];
+  var tapeByCode = {};
+  var message = '';
+
+  SAMPLE_SIZES.forEach(function (sz) { tapeByCode[sz.code] = 'none'; });
+
+  function isSelected(code) { return selected.indexOf(code) !== -1; }
+
+  function money(n) { return '£' + n.toFixed(2); }
+
+  function plural(n) { return n === 1 ? '1 sample' : n + ' samples'; }
+
+  function tapeLabel(v) {
+    return TAPE.filter(function (t) { return t.value === v; })[0].label.toLowerCase();
+  }
+
+  function renderGrid() {
+    var atLimit = selected.length >= MAX_SAMPLES;
+
+    grid.innerHTML = SAMPLE_SIZES.map(function (sz) {
+      var sel = isSelected(sz.code);
+      var blocked = !sel && atLimit;
+      var tape = tapeByCode[sz.code];
+
+      // rendered on every tile, selected or not, so tiles keep one height and
+      // the control does not appear and disappear as you click around
+      var tapeHtml = '<div class="ob-tape" role="group" aria-label="' + esc('Adhesive strip for ' + sz.code) + '">' +
+        '<span class="ob-tape-label">Adhesive strip</span>' +
+        '<div class="ob-tape-group">' +
+        TAPE.map(function (t) {
+          return '<button type="button" class="ob-tape-btn" data-code="' + sz.code +
+            '" data-tape="' + t.value + '" data-focus-key="tape:' + sz.code + ':' + t.value +
+            '" aria-pressed="' + (tape === t.value) + '">' + t.label + '</button>';
+        }).join('') +
+        '</div></div>';
+
+      return '<div class="ob-tile' + (sel ? ' is-selected' : '') + (blocked ? ' is-blocked' : '') + '">' +
+        '<button type="button" class="ob-tile-main" data-code="' + sz.code +
+          '" data-focus-key="tile:' + sz.code + '" aria-pressed="' + sel + '">' +
+          '<span class="ob-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>' +
+          '<span class="ob-tile-figure">' + figure(sz) + '</span>' +
+          '<span class="ob-tile-info">' +
+            '<span class="ob-tile-code">' + sz.code + '</span>' +
+            '<span class="ob-tile-dims">' + dims(sz) + '</span>' +
+          '</span>' +
+        '</button>' + tapeHtml +
+        '</div>';
+    }).join('');
+  }
+
+  function renderFooter() {
+    var n = selected.length;
+    countEl.textContent = n + ' of ' + MAX_SAMPLES;
+
+    if (n >= MAX_SAMPLES) {
+      titleEl.textContent = 'Limit reached. Deselect one sample to pick another.';
+      titleEl.classList.add('is-limit');
+    } else {
+      titleEl.textContent = 'Pick the sizes you want to check';
+      titleEl.classList.remove('is-limit');
+    }
+
+    priceEl.textContent = plural(n) + ' · ' + money(n * UNIT_PRICE);
+
+    var listed = SAMPLE_SIZES
+      .filter(function (sz) { return isSelected(sz.code); })
+      .map(function (sz) { return sz.code + ' (' + tapeLabel(tapeByCode[sz.code]) + ')'; })
+      .join(', ');
+    detailEl.textContent = 'Delivery 3–5 days' + (listed ? ' · ' + listed : '');
+
+    msgEl.textContent = message;
+  }
+
+  // Re-rendering the grid throws away the focused node, so remember which
+  // logical control had focus and put it back on the node that replaced it.
+  // Only restores when focus was inside the grid to begin with.
+  function render() {
+    var active = document.activeElement;
+    var key = (active && grid.contains(active)) ? active.getAttribute('data-focus-key') : null;
+
+    renderGrid();
+    renderFooter();
+
+    if (key) {
+      var next = grid.querySelector('[data-focus-key="' + key + '"]');
+      if (next) next.focus();
+    }
+  }
+
+  function commit() {
+    writeState();
+    render();
+  }
+
+  grid.addEventListener('click', function (e) {
+    var tapeBtn = e.target.closest('.ob-tape-btn');
+    if (tapeBtn) {
+      var tCode = tapeBtn.getAttribute('data-code');
+      // tape belongs to its size and nothing else resets it -- not deselecting,
+      // not picking another size
+      tapeByCode[tCode] = tapeBtn.getAttribute('data-tape');
+      // setting tape on a size you have not picked would otherwise be a control
+      // that visibly does nothing, so it picks the size too
+      if (!isSelected(tCode)) {
+        if (selected.length >= MAX_SAMPLES) {
+          message = 'You can order up to ' + MAX_SAMPLES + ' samples.';
+        } else {
+          selected.push(tCode);
+          message = '';
+        }
+      } else {
+        message = '';
+      }
+      commit();
+      return;
+    }
+
+    var tile = e.target.closest('.ob-tile-main');
+    if (!tile) return;
+    var code = tile.getAttribute('data-code');
+
+    if (isSelected(code)) {
+      // deselect replaces removal, so there is nothing to confirm or undo
+      selected = selected.filter(function (c) { return c !== code; });
+      message = '';
+    } else if (selected.length >= MAX_SAMPLES) {
+      message = 'You can order up to ' + MAX_SAMPLES + ' samples.';
+    } else {
+      selected.push(code);
+      message = '';
+    }
+    commit();
+  });
+
+  // ---------- adhesive hover chip ----------
+  // One shared element on <body> (see the .ob-tape-preview CSS for why it is not
+  // nested per button), following the cursor while an option is hovered.
+  // Keyboard focus gets the same illustration, anchored under the button since
+  // there is no cursor to track.
+  var tapePreview = document.createElement('div');
+  tapePreview.className = 'ob-tape-preview';
+  tapePreview.innerHTML = '<img alt="">';
+  document.body.appendChild(tapePreview);
+  var tapePreviewImg = tapePreview.querySelector('img');
+
+  var CHIP = 96, CHIP_GAP = 16;
+
+  function setPreviewImage(btn) {
+    var opt = TAPE.filter(function (t) { return t.value === btn.getAttribute('data-tape'); })[0];
+    if (!opt) return false;
+    if (tapePreviewImg.getAttribute('src') !== opt.img) tapePreviewImg.setAttribute('src', opt.img);
+    return true;
+  }
+
+  // clamped to the viewport so the chip never hangs off an edge when the option
+  // being hovered sits in the last column or the bottom row
+  function placeAtCursor(e) {
+    var x = e.clientX + CHIP_GAP;
+    var y = e.clientY + CHIP_GAP;
+    if (x + CHIP > window.innerWidth - 8)  x = e.clientX - CHIP_GAP - CHIP;
+    if (y + CHIP > window.innerHeight - 8) y = e.clientY - CHIP_GAP - CHIP;
+    tapePreview.style.left = Math.max(8, x) + 'px';
+    tapePreview.style.top  = Math.max(8, y) + 'px';
+  }
+
+  function hidePreview() { tapePreview.classList.remove('visible'); }
+
+  grid.addEventListener('mouseover', function (e) {
+    var btn = e.target.closest('.ob-tape-btn');
+    if (!btn || !setPreviewImage(btn)) return;
+    placeAtCursor(e);
+    tapePreview.classList.add('visible');
+  });
+
+  grid.addEventListener('mousemove', function (e) {
+    if (!tapePreview.classList.contains('visible')) return;
+    if (!e.target.closest('.ob-tape-btn')) { hidePreview(); return; }
+    placeAtCursor(e);
+  });
+
+  grid.addEventListener('mouseout', function (e) {
+    var btn = e.target.closest('.ob-tape-btn');
+    // ignore moves between a button and its own children
+    if (btn && !btn.contains(e.relatedTarget)) hidePreview();
+  });
+
+  // a re-render replaces the hovered button, so drop the chip rather than
+  // leaving it stranded over a node that no longer exists
+  grid.addEventListener('mouseleave', hidePreview);
+
+  grid.addEventListener('focusin', function (e) {
+    var btn = e.target.closest('.ob-tape-btn');
+    if (!btn || !setPreviewImage(btn)) return;
+    var r = btn.getBoundingClientRect();
+    var x = Math.min(r.left + r.width / 2 - CHIP / 2, window.innerWidth - CHIP - 8);
+    var y = r.bottom + 8;
+    if (y + CHIP > window.innerHeight - 8) y = r.top - 8 - CHIP;
+    tapePreview.style.left = Math.max(8, x) + 'px';
+    tapePreview.style.top  = Math.max(8, y) + 'px';
+    tapePreview.classList.add('visible');
+  });
+
+  grid.addEventListener('focusout', function (e) {
+    if (e.target.closest('.ob-tape-btn')) hidePreview();
+  });
+
+  orderBtn.addEventListener('click', function () {
+    if (!selected.length) {
+      message = 'Pick at least one sample.';
+      renderFooter();
+      return;
+    }
+    message = '';
+    renderFooter();
+  });
+
+  // Pull the accordion's current contents in whenever the modal is shown, so
+  // edits made in the other view are already reflected. Observing `hidden`
+  // rather than hooking openModal() keeps the existing IIFE untouched.
+  function syncFromAccordion() {
+    readState();
+    message = '';
+    render();
+  }
+
+  new MutationObserver(function () {
+    if (!modal.hidden) syncFromAccordion();
+  }).observe(modal, { attributes: true, attributeFilter: ['hidden'] });
+
+  window.optionB = { sync: syncFromAccordion };
+  syncFromAccordion();
+})();
+
+</script>
+
+<!-- Floating settings gear -- same shared component (.site-settings-btn /
+     .site-settings-panel in components.css) already used on index, packaging,
+     product_page, industries, build-your-box and sample-packs; this page was
+     the only one of the flow without it. Prototype-only switch. -->
+<button id="siteSettingsBtn" class="site-settings-btn" aria-label="Site settings" aria-expanded="false" aria-controls="siteSettingsPanel">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<div id="siteSettingsPanel" class="site-settings-panel">
+  <p class="site-settings-title">Prototype</p>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Option B</p>
+      <p class="site-settings-desc">Size grid instead of the accordion, inside the sample editor</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleOptionB">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+</div>
+
+<script>
+// ---------- floating settings gear ----------
+// Same shared component as the other prototype pages, plus the keyboard
+// handling the brief asks for (Escape + focus return), which the existing
+// copies of this panel do not have.
+(function () {
+  var btn = document.getElementById('siteSettingsBtn');
+  var panel = document.getElementById('siteSettingsPanel');
+  var toggle = document.getElementById('toggleOptionB');
+  if (!btn || !panel || !toggle) return;
+
+  var KEY = 'sampleFlow.optionB';
+
+  function apply(on) {
+    document.body.classList.toggle('option-b', on);
+    // the modal's own fixed summary bar is Option A's footer; Option B brings
+    // its own, so hide that one exactly the way the size panel already does
+    var bar = document.querySelector('#sampleEditModal .build-box-sticky-summary');
+    if (bar) bar.style.display = on ? 'none' : '';
+    btn.classList.toggle('is-active', on);
+    positionGear();
+    if (on && window.optionB) window.optionB.sync();
+  }
+
+  // Option B's footer runs the full width of the modal with its CTA lined up
+  // under the last column of tiles -- which is exactly where the gear sits. Lift
+  // the gear above the footer while it is on screen, rather than carving a
+  // reserve out of the footer: that reserve is what pulled the CTA out of line
+  // with the grid in the first place.
+  var obFoot = document.querySelector('.ob-foot');
+  var sizeModal = document.getElementById('sampleEditModal');
+
+  function positionGear() {
+    var lifted = obFoot && sizeModal && !sizeModal.hidden &&
+                 document.body.classList.contains('option-b');
+    if (!lifted) { btn.style.bottom = ''; panel.style.bottom = ''; return; }
+    var edge = window.innerWidth <= 768 ? 16 : 24;   // matches the CSS offsets
+    var h = obFoot.getBoundingClientRect().height;
+    btn.style.bottom = (h + edge) + 'px';
+    panel.style.bottom = (h + edge + 68) + 'px';     // 68 = button height + gap
+  }
+
+  if (sizeModal) {
+    new MutationObserver(positionGear)
+      .observe(sizeModal, { attributes: true, attributeFilter: ['hidden'] });
+  }
+  window.addEventListener('resize', positionGear);
+
+  function setOpen(open) {
+    panel.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  toggle.checked = localStorage.getItem(KEY) === '1';
+  apply(toggle.checked);
+
+  toggle.addEventListener('change', function () {
+    localStorage.setItem(KEY, toggle.checked ? '1' : '0');
+    apply(toggle.checked);
+  });
+
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!panel.classList.contains('open'));
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) setOpen(false);
+  });
+
+  // capture phase: this page already has a bubble-phase Escape handler that
+  // closes the whole modal, and closing the popover must win over it
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !panel.classList.contains('open')) return;
+    e.stopPropagation();
+    setOpen(false);
+    btn.focus();
+  }, true);
 })();
 </script>
 
