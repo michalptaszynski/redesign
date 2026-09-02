@@ -615,11 +615,11 @@
   h1.headline {
     margin: 0;
     max-width: none;
-    font-weight: 500;
-    font-size: 4.5rem;
-    line-height: 1.04;
-    letter-spacing: -0.06em;
-    color: var(--color-text-primary);
+    font-weight: var(--type-h1-weight);
+    font-size: var(--type-hero-h1-size);
+    line-height: var(--type-h1-line-height);
+    letter-spacing: var(--type-h1-tracking);
+    color: var(--type-h1-color);
   }
 
   .cta-row {
@@ -1375,20 +1375,20 @@
   .final-cta-heading {
     margin: 0 auto;
     max-width: 60rem;
-    font-weight: 500;
-    font-size: 5rem;
-    line-height: 1.04;
-    letter-spacing: -0.06em;
-    color: var(--color-text-primary);
+    font-weight: var(--type-h1-weight);
+    font-size: var(--type-display-h1-size);
+    line-height: var(--type-h1-line-height);
+    letter-spacing: var(--type-h1-tracking);
+    color: var(--type-h1-color);
   }
 
   .final-cta-subheading {
     max-width: 32rem;
     margin: var(--space-6) auto 0;
-    font-size: 1.0625rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
+    font-size: var(--type-subhead-size);
+    letter-spacing: var(--type-subhead-tracking);
+    line-height: var(--type-subhead-line-height);
+    color: var(--type-subhead-color);
   }
 
   .final-cta-buttons {
@@ -1400,7 +1400,7 @@
   }
 
   @media (max-width: 700px) {
-    .final-cta-heading { font-size: 2.5rem; line-height: 1.08; letter-spacing: -0.05em; }
+    .final-cta-heading { font-size: var(--type-h1-size-mobile); line-height: var(--type-h1-line-height-mobile); letter-spacing: var(--type-h1-tracking-mobile); }
     .final-cta-buttons { flex-direction: column; align-items: stretch; }
   }
 
@@ -1503,10 +1503,10 @@
     margin: 0 0 var(--space-3);
     padding: var(--space-1) var(--space-3);
     background: var(--color-bg-muted-hover);
-    color: var(--color-text-muted);
-    font-size: 0.8125rem;
+    color: var(--type-eyebrow-color);
+    font-size: var(--type-eyebrow-size);
     line-height: 1;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--type-eyebrow-tracking);
     border-radius: var(--radius-full);
   }
 
@@ -1525,9 +1525,9 @@
 
   @media (max-width: 700px) {
     h1.headline {
-      font-size: 2.5rem;
-      letter-spacing: -0.05em;
-      line-height: 1.08;
+      font-size: var(--type-h1-size-mobile);
+      letter-spacing: var(--type-h1-tracking-mobile);
+      line-height: var(--type-h1-line-height-mobile);
     }
   }
 

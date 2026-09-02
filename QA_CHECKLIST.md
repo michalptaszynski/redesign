@@ -108,6 +108,17 @@ Dla każdej karuzeli na stronie:
 - Jeśli komponent pojawia się teraz **trzeci raz** na różnych stronach pod
   różnymi page-specific nazwami — kandydat do awansu do `components.css`
   (próg opisany w `PAGE_BUILDING_GUIDELINE.md` pkt 3).
+- Nowy H1/eyebrow/subhead w hero czy innej "showpiece" sekcji: to nie tylko
+  kwestia kształtu markupu, ale i **wartości typografii** (font-size,
+  letter-spacing, line-height, kolor). `tokens.css` ma do tego gotowe
+  zmienne (`--type-hero-h1-size` / `--type-display-h1-size`, `--type-h1-*`,
+  `--type-subhead-*`, `--type-eyebrow-*`) — użyj ich zamiast wpisywać liczby
+  na nowo, nawet jeśli sama klasa i layout (width, margin, position) zostają
+  page-specific. Dopiero jeśli świadomie chcesz innej skali niż istniejąca,
+  odstępstwo jest jawne (inny numer niż token), a nie przypadkowe.
+  Rozjazd złapany raz na żywo: q4-packaging.html's hero subhead nie
+  pasował do `.final-cta-subheading` z index.html, dopóki nie ujednolicono
+  obu przez `--type-subhead-*` (2026-08-31).
 
 ## 10. Wizualna weryfikacja końcowa
 

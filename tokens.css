@@ -103,4 +103,36 @@
   /* ---- layout ---- */
   --max-w: 1280px;
   --max-w-lg: 1664px; /* wider desktop breakpoint — nav internals (globally) and packaging.html's page container */
+
+  /* ---- typography: recurring display-type roles ----
+     Big hero-scale text repeats across pages under different page-local
+     class names (index.html .headline / q4-packaging.html .q4-mh-h1;
+     .final-cta-heading / a future page's own "centered hero"; .section-badge
+     / .q4-hero-eyebrow; .final-cta-subheading / .q4-mh-subhead) — each one
+     historically hand-copied the same numbers instead of sharing a source.
+     That silently drifts (caught once already: q4-packaging.html's hero
+     subhead didn't match .final-cta-subheading until fixed 2026-08-31).
+     Any new hero/eyebrow/subhead should reference these tokens for its type
+     properties even when its class name and layout (width, margin, position)
+     stay page-specific — that way matching an existing role is the default,
+     and diverging from it is a visible, deliberate override instead of an
+     accidental one. */
+  --type-h1-weight:             500;
+  --type-h1-line-height:        1.04;
+  --type-h1-tracking:           -0.06em;
+  --type-h1-line-height-mobile: 1.08;
+  --type-h1-tracking-mobile:    -0.05em;
+  --type-h1-color:              var(--color-text-primary);
+  --type-hero-h1-size:          4.5rem; /* split-hero H1 — index.html .headline, q4-packaging.html .q4-mh-h1 */
+  --type-display-h1-size:       5rem;   /* centered/final-CTA H1 — bigger variant, e.g. index.html .final-cta-heading */
+  --type-h1-size-mobile:        2.5rem; /* both variants converge to the same mobile size */
+
+  --type-subhead-size:        1.0625rem; /* 17px */
+  --type-subhead-tracking:    -0.02em;
+  --type-subhead-line-height: 1.32;
+  --type-subhead-color:       var(--color-text-muted);
+
+  --type-eyebrow-size:      0.8125rem; /* 13px */
+  --type-eyebrow-tracking:  -0.02em;
+  --type-eyebrow-color:     var(--color-text-muted);
 }

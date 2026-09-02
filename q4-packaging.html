@@ -187,12 +187,12 @@
     padding: var(--space-8) var(--space-6) 0;
   }
 
-  .q4-mh-badge {
+  .q4-hero-eyebrow {
     margin: 0 0 var(--space-5);
     max-width: 480px;
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
+    font-size: var(--type-eyebrow-size);
+    letter-spacing: var(--type-eyebrow-tracking);
+    color: var(--type-eyebrow-color);
   }
 
   .q4-mh-h1 {
@@ -207,18 +207,18 @@
        so a bigger max-width alone has no effect. */
     width: max-content;
     max-width: min(90vw, 800px);
-    font-size: 4.5rem;
-    font-weight: 500;
-    line-height: 1.04;
-    letter-spacing: -0.06em;
-    color: var(--color-text-primary);
+    font-size: var(--type-hero-h1-size);
+    font-weight: var(--type-h1-weight);
+    line-height: var(--type-h1-line-height);
+    letter-spacing: var(--type-h1-tracking);
+    color: var(--type-h1-color);
   }
 
   @media (max-width: 700px) {
     .q4-mh-h1 {
-      font-size: 2.5rem;
-      letter-spacing: -0.05em;
-      line-height: 1.08;
+      font-size: var(--type-h1-size-mobile);
+      letter-spacing: var(--type-h1-tracking-mobile);
+      line-height: var(--type-h1-line-height-mobile);
     }
   }
 
@@ -227,10 +227,10 @@
   .q4-mh-subhead {
     margin: var(--space-6) auto 0;
     max-width: 480px;
-    font-size: 1.0625rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
+    font-size: var(--type-subhead-size);
+    letter-spacing: var(--type-subhead-tracking);
+    line-height: var(--type-subhead-line-height);
+    color: var(--type-subhead-color);
   }
 
   .btn-pill.q4-mh-cta {
@@ -2050,7 +2050,7 @@
   <section class="q4-marquee-hero">
 
     <div class="q4-mh-content">
-      <span class="q4-mh-badge">For brands shipping their biggest <br class="q4-badge-break" hidden>volume between Black Friday and Christmas</span>
+      <span class="q4-hero-eyebrow">For brands shipping their biggest <br class="q4-eyebrow-break" hidden>volume between Black Friday and Christmas</span>
       <h1 class="q4-mh-h1">You can sell out.<br><span class="accent">Your packaging shouldn&rsquo;t.</span></h1>
       <p class="q4-mh-subhead">Lock in December&rsquo;s packaging now, <br class="q4-subhead-break" hidden>from one supplier, <br class="q4-subhead-break" hidden>with a guaranteed delivery date</p>
       <a href="#q4-form" class="btn-pill lg q4-mh-cta">Get started on Q4 packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
@@ -2715,8 +2715,8 @@
     var marquee = document.querySelector('.q4-mh-marquee');
     var section = document.querySelector('.q4-marquee-hero');
     var content = document.querySelector('.q4-mh-content');
-    var badge = document.querySelector('.q4-mh-content .q4-mh-badge');
-    var badgeBreak = document.querySelector('.q4-badge-break');
+    var badge = document.querySelector('.q4-mh-content .q4-hero-eyebrow');
+    var badgeBreak = document.querySelector('.q4-eyebrow-break');
     var subhead = document.querySelector('.q4-mh-content .q4-mh-subhead');
     var subheadBreaks = document.querySelectorAll('.q4-subhead-break');
     var cta = document.querySelector('.q4-mh-content .q4-mh-cta');
