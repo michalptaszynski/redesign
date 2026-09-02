@@ -40,8 +40,9 @@ var STICKY_BAR_HTML = `
 var NAV_WRAPPER_HTML = `
 <div class="nav-wrapper">
     <div class="nav-row1">
-      <a href="index.html" aria-label="Packhelp" style="display:flex;">
+      <a href="index.html" aria-label="Packhelp" class="logo-lockup">
         <img class="logo" src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp">
+        <span class="logo-legacy">dawniej Zapakuj.to</span>
       </a>
 
       <div style="display:flex; align-items:center; gap:1rem;">
@@ -229,8 +230,9 @@ var NAV_WRAPPER_HTML = `
 
 var NAV_SIMPLE_HTML = `
 <header class="quote-topbar">
-  <a href="index.html" aria-label="Packhelp" style="display:flex;">
+  <a href="index.html" aria-label="Packhelp" class="logo-lockup">
     <img class="logo" src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp">
+    <span class="logo-legacy">dawniej Zapakuj.to</span>
   </a>
 </header>
 `;
@@ -247,6 +249,76 @@ var NAV_SIMPLE_HTML = `
   }
   if (navSimplePlaceholder) {
     navSimplePlaceholder.outerHTML = NAV_SIMPLE_HTML;
+  }
+
+  // Gear panel > "Zapakuj.to": shows the "dawniej Zapakuj.to" line next to
+  // the logo. The nav is shared, so the row is owned here and injected into
+  // whatever settings panel the page has (or into one created on the spot for
+  // pages without one) rather than copied into every page's inline panel.
+  var LEGACY_KEY = 'brandLegacy';
+
+  function applyLegacyBrand(on) {
+    document.body.classList.toggle('brand-legacy', on);
+  }
+
+  // Applied synchronously, before the nav paints, so the line never flashes.
+  applyLegacyBrand(localStorage.getItem(LEGACY_KEY) !== '0');
+
+  function mountLegacyBrandToggle() {
+    var panel = document.getElementById('siteSettingsPanel');
+
+    if (!panel) {
+      var gearBtn = document.createElement('button');
+      gearBtn.id = 'siteSettingsBtn';
+      gearBtn.className = 'site-settings-btn';
+      gearBtn.setAttribute('aria-label', 'Site settings');
+      gearBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+
+      panel = document.createElement('div');
+      panel.id = 'siteSettingsPanel';
+      panel.className = 'site-settings-panel';
+      panel.innerHTML = '<p class="site-settings-title">Page customization</p>';
+
+      document.body.appendChild(gearBtn);
+      document.body.appendChild(panel);
+
+      gearBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        panel.classList.toggle('open');
+      });
+      document.addEventListener('click', function (e) {
+        if (!panel.contains(e.target) && e.target !== gearBtn) {
+          panel.classList.remove('open');
+        }
+      });
+    }
+
+    var row = document.createElement('div');
+    row.className = 'site-settings-row';
+    row.innerHTML =
+      '<div>' +
+        '<p class="site-settings-label">Zapakuj.to</p>' +
+        '<p class="site-settings-desc">Show "dawniej Zapakuj.to" next to the logo</p>' +
+      '</div>' +
+      '<label class="site-toggle">' +
+        '<input type="checkbox" id="toggleLegacyBrand">' +
+        '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
+      '</label>';
+    panel.appendChild(row);
+
+    var input = row.querySelector('#toggleLegacyBrand');
+    input.checked = document.body.classList.contains('brand-legacy');
+    input.addEventListener('change', function () {
+      applyLegacyBrand(input.checked);
+      localStorage.setItem(LEGACY_KEY, input.checked ? '1' : '0');
+    });
+  }
+
+  // The panel lives at the end of the page, so wait for the rest of the DOM.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountLegacyBrandToggle);
+  } else {
+    mountLegacyBrandToggle();
   }
 
   var menuBtn = document.getElementById('mobileMenuBtn');

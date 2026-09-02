@@ -745,6 +745,41 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
   flex: none;
 }
 
+/* Logo lockup: the wordmark plus the optional "dawniej Zapakuj.to" legacy
+   line (gear panel > Zapakuj.to). The lockup's height is pinned to the
+   logo's own 25px so switching the line on never changes .nav-row1's
+   vertical centering. The text is baseline-aligned to the img (a replaced
+   element's baseline is its bottom edge, i.e. 25px down) and then nudged
+   up 5.55px with relative positioning -- which has no layout effect -- so
+   it lands on the wordmark's own baseline instead: the "P" of Packhelp
+   sits at y=21.78 in the SVG's 28-unit viewBox, which is 19.45px once the
+   logo is drawn 25px tall (21.78 x 25/28), and 25 - 19.45 = 5.55. */
+.logo-lockup {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  height: 25px;
+  /* The lockup is an <a> with no global reset behind it, so the legacy line
+     would otherwise inherit the UA's underline. */
+  text-decoration: none;
+}
+
+.logo-legacy {
+  display: none;
+  position: relative;
+  top: -5.55px;
+  flex: none;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+
+body.brand-legacy .logo-legacy {
+  display: block;
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -1080,6 +1115,15 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+}
+
+/* Panels with many rows (7 on packaging.html / product_page.html now that the
+   nav owns one) run off the top of a short viewport, so scroll the panel
+   instead of losing rows. Pages carrying an inline copy of this shell don't
+   redeclare these two properties, so it applies there too. */
+.site-settings-panel {
+  max-height: calc(100vh - 116px);
+  overflow-y: auto;
 }
 
 .site-settings-title {
