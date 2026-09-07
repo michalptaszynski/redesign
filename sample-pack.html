@@ -1213,55 +1213,167 @@
     color: var(--color-text-on-accent);
   }
 
-  /* ---------- PROTOTYPE CTA -- same card duet as press.html's "Writing about
-     Packhelp?" block (text left, single CTA right on a muted panel), sitting
-     under the configurator column as the next step up from a sample pack.
-     Horizontal padding matches .pp-layout so its edges line up with the
-     gallery on the left and the config column on the right. ---------- */
+  /* ---------- PROTOTYPE CTA -- same component as industries.html's "Need
+     more?" section (.needmore-*): full-bleed card + centred inner, copy
+     column with a checked USP list and a button duet, visual column as a
+     bento of one 2/1 photo over a 1/1 photo + 1/1 stat tile. Deliberate
+     difference: the card is the light-blue --color-bg-accent-faint panel
+     (industries' .quickbox-card) instead of the dark inverse one, so all type
+     stays --color-text-primary. ---------- */
   .pp-proto-cta {
-    padding: var(--space-6) var(--space-14) 0 var(--space-8);
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-8) var(--space-3);
+    box-sizing: border-box;
   }
 
+  /* .reveal.is-visible also sets `transform` on this element -- compose both
+     explicitly or the -50% recentring gets replaced outright (same gotcha as
+     .pp-carousel-section below). */
+  .pp-proto-cta.reveal { transform: translateX(-50%) translateY(-16px); }
+  .pp-proto-cta.reveal.is-visible { transform: translateX(-50%) translateY(0); }
+
   .pp-proto-card {
+    border-radius: var(--radius-2xl);
+    background: var(--color-bg-accent-faint);
+  }
+
+  .pp-proto-inner {
     display: flex;
-    align-items: center;
+    gap: var(--space-4);
+    align-items: stretch;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: var(--space-16) var(--space-8);
+    box-sizing: border-box;
+  }
+
+  .pp-proto-visual {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* aspect-ratio 2/1, not a fixed height: the wide photo spans the full column
+     while each tile below spans half of it (minus the gap), so it lands at the
+     same height as those 1/1 squares and stays matched as the column resizes. */
+  .pp-proto-photo-main {
+    aspect-ratio: 2 / 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-surface);
+  }
+
+  .pp-proto-photo-main img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Grid (not flex) so both tiles resolve to an identical width regardless of
+     the intrinsic size of the <img> inside -- see the same note on
+     .needmore-photo-row in industries.html. */
+  .pp-proto-photo-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+
+  /* min-width:0 on both tiles: without it the stat card's min-content width
+     (its own text) wins over the 1fr track at narrow widths and squeezes the
+     photo tile down to a thumbnail -- the classic grid auto-min-size blowout. */
+  .pp-proto-photo-small {
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-surface);
+  }
+
+  .pp-proto-photo-small img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pp-proto-stat-card {
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    gap: var(--space-8);
     padding: var(--space-8);
-    background: var(--color-bg-muted);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    box-sizing: border-box;
+  }
+
+  .pp-proto-stat-number {
+    margin: 0;
+    font-weight: 500;
+    font-size: 4.5rem;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: var(--color-text-on-accent);
+  }
+
+  .pp-proto-stat-desc {
+    margin: 0;
+    font-size: 1.0625rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,.7);
   }
 
   .pp-proto-text {
-    max-width: 32rem;
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-6);
   }
 
   .pp-proto-title {
-    margin: 0 0 var(--space-2);
-    font-size: 1.25rem;
+    margin: 0;
+    max-width: 34rem;
     font-weight: 500;
-    letter-spacing: -0.03em;
+    font-size: 3rem;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
     color: var(--color-text-primary);
   }
 
   .pp-proto-desc {
     margin: 0;
-    font-size: 0.9375rem;
-    letter-spacing: -0.02em;
+    max-width: 34rem;
+    font-size: 1.0625rem;
     line-height: 1.32;
+    letter-spacing: -0.02em;
     color: var(--color-text-muted);
   }
 
   .pp-proto-buttons {
     display: flex;
-    flex: none;
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
 
   @media (max-width: 900px) {
-    .pp-proto-cta { padding: var(--space-4); }
-    .pp-proto-card { flex-direction: column; align-items: flex-start; }
+    .pp-proto-inner { flex-direction: column; padding: var(--space-8) var(--space-4); }
+    .pp-proto-title { font-size: 2.25rem; }
     .pp-proto-buttons { flex-wrap: wrap; }
+  }
+
+  /* Two 1/1 tiles side by side stop working once the column is phone-narrow --
+     the stat card's copy no longer fits a half-width square. Stack them. */
+  @media (max-width: 640px) {
+    .pp-proto-photo-row { grid-template-columns: 1fr; }
   }
 
   .pp-carousel-section {
@@ -1677,12 +1789,24 @@
 
 <section class="pp-proto-cta reveal">
   <div class="pp-proto-card">
-    <div class="pp-proto-text">
-      <p class="pp-proto-title">Need a prototype?</p>
-      <p class="pp-proto-desc">Example text to form decisions with accurate 3D visual representations of your packaging. Unlimited digital experimentation with.</p>
-    </div>
-    <div class="pp-proto-buttons">
-      <a href="#" class="btn-pill lg">Buy prototype<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    <div class="pp-proto-inner">
+      <div class="pp-proto-text">
+        <h2 class="pp-proto-title">Need a prototype?</h2>
+        <p class="pp-proto-desc">A sample pack shows you our materials. A prototype shows you yours — one real box, printed with your own artwork, in the size and finish you picked. Check the colours and the fit in your hands before you order thousands.</p>
+        <div class="pp-proto-buttons">
+          <a href="#" class="btn-pill lg">Buy prototype<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+      <div class="pp-proto-visual">
+        <div class="pp-proto-photo-main"><img src="assets/samplepacks/PackHelp0115.jpg" alt="Kraft Eco Mailer Box and Product Boxes from a sample pack"></div>
+        <div class="pp-proto-photo-row">
+          <div class="pp-proto-photo-small"><img src="assets/samplepacks/PackHelp0083.jpg" alt="Full Colour Mailer Box and Two-Piece Product Box samples"></div>
+          <div class="pp-proto-stat-card">
+            <p class="pp-proto-stat-number">1</p>
+            <p class="pp-proto-stat-desc">Box is all it takes. Print a single one before you commit to a full run.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
