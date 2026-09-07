@@ -338,6 +338,11 @@
 
   .pp-sample-row .btn-pill { flex: none; }
 
+  /* A row with no action button still reserves the button's column, so the
+     descriptive text in every row wraps at the same right edge. Rendering a
+     hidden copy of the real pill keeps the reserved width in sync with it. */
+  .pp-sample-row-btn-spacer { visibility: hidden; pointer-events: none; }
+
   /* ---------- CTA area -- identical structure/classes to
      product_page.html's .pp-cta, simplified (no delivery-date ladder,
      since Sample Pack has one fixed delivery estimate, not tiered
@@ -1755,7 +1760,7 @@
             </span>
           </span>
         </span>
-        <button type="button" class="btn-pill secondary sm" id="editSizeConstructionBtn">Edit</button>
+        <button type="button" class="btn-pill sm" id="editSizeConstructionBtn">Change</button>
       </div>
       <div class="pp-sample-row">
         <span class="pp-sample-row-media">
@@ -1765,7 +1770,7 @@
           <span class="pp-sample-row-title">Print &amp; material samples</span>
           <span class="pp-sample-row-desc">All available print &amp; material options presented on swatches</span>
         </span>
-        <button type="button" class="btn-pill secondary sm" id="editPrintMaterialsBtn">Edit</button>
+        <span class="btn-pill sm pp-sample-row-btn-spacer" aria-hidden="true">Change</span>
       </div>
     </div>
 
