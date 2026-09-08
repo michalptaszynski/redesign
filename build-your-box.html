@@ -496,6 +496,149 @@
   .b3d-roof-end-right { transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
   .b3d-roof-end-left  { transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); filter: brightness(.74); }
 
+  /* ---------- Tube (box type "tube") ----------
+     Same CSS-3D trick as the box, but a cylinder can't be built from 4 flat faces, so each barrel
+     (body, lid cap, base cap) is a ring of TUBE_SEGMENTS thin panels rotated around Y and pushed
+     out by the polygon's apothem. The panels themselves are injected by buildTubeShell() in the
+     box3d script, which also writes each one's --b (diffuse brightness) and --spec (specular
+     highlight opacity) — that per-panel ramp is what makes the barrel read as round, and what
+     turns the Finish step's glossy/matte choice into a tight or broad highlight band. */
+  .b3d-tube { display: none; }
+  #box3dModel[data-box-type="tube"] .b3d-tube { display: block; }
+  #box3dModel[data-box-type="tube"] .b3d-body,
+  #box3dModel[data-box-type="tube"] .b3d-lid,
+  #box3dModel[data-box-type="tube"] .b3d-roof { display: none; }
+
+  .b3d-tube-body,
+  .b3d-tube-lid,
+  .b3d-tube-base,
+  .b3d-tube-wall,
+  .b3d-tube-lid-wall,
+  .b3d-tube-base-wall {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-style: preserve-3d;
+  }
+
+  /* the two metal caps ride at the very top / very bottom of the body barrel, overlapping it, and
+     are a hair wider (capR vs r in updateTubeSize) so they read as slipped over it, not flush with it */
+  .b3d-tube-wall      { --seg-color: var(--b3d-tube-color, #F2F0E9); }
+  /* the caps are metal, so the Finish step (which describes the printed paper body) must not
+     scale their highlight — they pin --spec-mul back to 1 for their own subtree */
+  .b3d-tube-lid-wall,
+  .b3d-tube-base-wall { --seg-color: var(--tube-cap-color, #26262A); --spec-mul: 1; }
+
+  .b3d-tube-lid  { transform: translateY(calc((var(--th) - var(--tlh)) / -2)); transition: transform .45s cubic-bezier(.4,0,.2,1); }
+  .b3d-tube-base { transform: translateY(calc((var(--th) - var(--tbh)) / 2)); }
+
+  #box3dModel.box-open .b3d-tube-lid {
+    transform: translateY(calc((var(--th) - var(--tlh)) / -2 - var(--tlh) - var(--th) * 0.22));
+  }
+
+  .b3d-tube-seg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--seg-w);
+    height: var(--seg-h);
+    margin: calc(var(--seg-h) / -2) 0 0 calc(var(--seg-w) / -2);
+    transform: rotateY(var(--a)) translateZ(var(--seg-r));
+    background: var(--seg-color, #F2F0E9);
+  }
+
+  /* Shading is two overlays per panel rather than one filter: brightness(), because a single value
+     per panel bands visibly on a barrel. Each overlay is instead a left-to-right gradient between
+     the values sampled at the panel's own two *edges* (JS writes --sh-a/--sh-b and --sp-a/--sp-b),
+     so neighbouring panels agree where they meet and the shading reads continuous.
+     ::before = diffuse falloff (black), ::after = the specular highlight (white), scaled whole by
+     --spec-mul so the Finish step can make the band tight and bright or broad and soft. */
+  .b3d-tube-seg::before,
+  .b3d-tube-seg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .b3d-tube-seg::before {
+    background: linear-gradient(to right, rgba(0,0,0,var(--sh-a, 0)), rgba(0,0,0,var(--sh-b, 0)));
+  }
+
+  .b3d-tube-seg::after {
+    background: linear-gradient(to right, rgba(255,255,255,var(--sp-a, 0)), rgba(255,255,255,var(--sp-b, 0)));
+    opacity: var(--spec-mul, 1);
+  }
+
+  .b3d-tube-disc {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--disc-d);
+    height: var(--disc-d);
+    margin: calc(var(--disc-d) / -2) 0 0 calc(var(--disc-d) / -2);
+    border-radius: 50%;
+    background: var(--tube-cap-color, #26262A);
+  }
+
+  .b3d-tube-disc-top    { transform: rotateX(90deg) translateZ(calc(var(--tlh) / 2)); filter: brightness(1.16); }
+  .b3d-tube-disc-bottom { transform: rotateX(-90deg) translateZ(calc(var(--tbh) / 2)); filter: brightness(.6); }
+
+  /* hot-stamped seal: a filled metallic disc with the body colour punched back out of its middle
+     (::after), leaving a foil ring. Sits tangent to the front of the barrel — kept narrow enough
+     that the flat plate never pokes back through the curved wall behind it. The 45deg puts it square
+     to the camera at the model's resting isometric angle (rotateY(-45deg)), so it faces the viewer
+     rather than sitting half-hidden round the side. */
+  .b3d-tube-stamp {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--stamp-d);
+    height: var(--stamp-d);
+    margin: calc(var(--stamp-d) / -2) 0 0 calc(var(--stamp-d) / -2);
+    border-radius: 50%;
+    transform: rotateY(45deg) translateZ(calc(var(--tapo) + 0.5px));
+    background: var(--stamp-color, linear-gradient(135deg, #F0DFAE 0%, #C3A15A 45%, #8A6C2E 100%));
+  }
+
+  /* the board showing through the middle of the ring, ringed by the shadow the pressed foil casts */
+  .b3d-tube-stamp::after {
+    content: '';
+    position: absolute;
+    inset: 26%;
+    border-radius: 50%;
+    background: var(--b3d-tube-color, #F2F0E9);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.22);
+  }
+
+  #box3dModel[data-tube-embellishment="gold"] .b3d-tube-stamp,
+  #box3dModel[data-tube-embellishment="silver"] .b3d-tube-stamp { display: block; }
+
+  /* same two metallic sweeps the Lid colour swatches use, so the foil matches across the page */
+  #box3dModel[data-tube-embellishment="gold"]   { --stamp-color: linear-gradient(135deg, #F0DFAE 0%, #C3A15A 45%, #8A6C2E 100%); }
+  #box3dModel[data-tube-embellishment="silver"] { --stamp-color: linear-gradient(135deg, #F2F4F6 0%, #B9BEC4 45%, #7C838B 100%); }
+
+  #box3dModel[data-tube-material="white"] { --b3d-tube-color: #F2F0E9; }
+  #box3dModel[data-tube-material="kraft"] { --b3d-tube-color: #C6A170; }
+
+  /* same real paper texture the kraft box faces get (see the [data-material="kraft"] rule above) —
+     only the body barrel and the stamp's punched-out middle, never the metal caps */
+  #box3dModel[data-tube-material="kraft"] .b3d-tube-wall .b3d-tube-seg,
+  #box3dModel[data-tube-material="kraft"] .b3d-tube-stamp::after {
+    background-image: url('assets/build/kraft-texture.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  #box3dModel[data-tube-lid="black"]  { --tube-cap-color: #26262A; }
+  #box3dModel[data-tube-lid="silver"] { --tube-cap-color: #B9BEC4; }
+  #box3dModel[data-tube-lid="gold"]   { --tube-cap-color: #C3A15A; }
+
+  #box3dModel[data-tube-finish="none"]   { --spec-mul: 0.18; }
+  #box3dModel[data-tube-finish="glossy"] { --spec-mul: 1; }
+  #box3dModel[data-tube-finish="matte"]  { --spec-mul: 0.34; }
+
+
   .build-box-visual-toolbar {
     display: flex;
     align-items: center;
@@ -637,6 +780,79 @@
 
   .box-type-card.no-thumb {
     padding: 16px;
+  }
+
+  /* ---------- product tiles (the Product step) ----------
+     One grid per category, only the active category's is displayed. Unlike every other step's
+     full-width rows these are square picture tiles with the name *below* the frame, so the four
+     products that have no plain studio shot yet still read as deliberate empty frames. */
+  .product-tile-grid {
+    display: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-2);
+  }
+
+  .product-tile-grid.active { display: grid; }
+
+  .product-tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: 0;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .product-tile-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    aspect-ratio: 1;
+    padding: var(--space-3);
+    border-radius: 12px;
+    background: var(--color-bg-muted);
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .product-tile-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .product-tile:hover .product-tile-thumb { background: var(--color-bg-muted-hover); }
+
+  /* same white-plus-outline selected treatment the card-shaped steps use */
+  .product-tile.active .product-tile-thumb {
+    background: var(--color-bg-surface);
+    box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
+  }
+
+  .product-tile-label {
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+    transition: color .15s ease;
+  }
+
+  .product-tile.active .product-tile-label {
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  /* the "More products" row is a link out of the configurator, not a choice — an arrow takes the
+     thumb slot so it lines up with the category rows above it */
+  .category-more { text-decoration: none; }
+
+  .category-more .box-type-card-thumb svg {
+    width: 32px;
+    height: 32px;
+    color: var(--color-text-primary);
   }
 
   .quantity-card {
@@ -802,6 +1018,12 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+
+  /* the Embellishment swatches are the only card thumbs that are solid square studio shots rather
+     than cut-out product PNGs, so they're the only ones a corner radius shows on */
+  #stepTubeEmbellishment .box-type-card-thumb img {
+    border-radius: 8px;
   }
 
   .box-type-card-text {
@@ -1033,6 +1255,49 @@
   .build-box-step .toggle-switch {
     align-self: flex-start;
   }
+
+  /* ---------- per-box-type step sets ----------
+     Every step carries data-for="box" or data-for="tube" unless it applies to both (Box Type,
+     Dimensions, Quantity). The Tube box type swaps the whole middle of the flow: body.box-type-tube
+     drops Construction / Closure / Windows / Material Color / Customization / Additional options and
+     reveals Material / Lid colour / Finish / Embellishment instead. The dots in #stepDots carry the
+     same attribute so the progress rail matches, and the accordion badges renumber themselves off
+     the visible steps only (see isStepVisible() in the accordion script). */
+  /* hide-only, never re-show: an element left alone keeps whatever display its own rules give it
+     (flex for a step, block for a dot or a label), so no per-element "put it back" rule is needed */
+  body:not(.box-type-tube) [data-for="tube"],
+  body.box-type-tube [data-for="box"] { display: none; }
+
+  /* a category with only one product has nothing to choose, so the Product step (and its dot) drop
+     out entirely rather than showing a one-item grid — set by the category controller */
+  .build-box-step.is-hidden,
+  .build-box-dot.is-hidden { display: none; }
+
+  /* a tube's cross-section is a circle, so Length is Width — the input stays in the DOM (the 3D
+     model, dimension pills and accordion summary all still read it) but is hidden and mirrored
+     from Width in JS. Standard sizes are box P-codes, so that segment goes too. */
+  body.box-type-tube .dimension-field[data-dim="length"],
+  body.box-type-tube #sizeToggleSwitch,
+  body.box-type-tube .build-box-dim-line.dim-length { display: none; }
+
+  /* ---------- lid colour ----------
+     Same stacked .box-type-card rows the Finish and Embellishment steps use, minus the description
+     line — the swatch carries the meaning, so a sentence explaining "black is black" would only add
+     noise. The swatch sits where a thumbed card's thumb would. */
+  .tube-color-swatch {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+  }
+
+  /* a two-stop sweep across each swatch stands in for the metal's specular band, so silver and
+     gold read as brushed caps rather than flat grey/yellow fills */
+  .tube-color-swatch.swatch-black  { background: linear-gradient(135deg, #4A4A50 0%, #26262A 45%, #101013 100%); }
+  .tube-color-swatch.swatch-silver { background: linear-gradient(135deg, #F2F4F6 0%, #B9BEC4 45%, #7C838B 100%); }
+  .tube-color-swatch.swatch-gold   { background: linear-gradient(135deg, #F0DFAE 0%, #C3A15A 45%, #8A6C2E 100%); }
+
 
   /* .dimension-grid/.dimension-field/.dimension-input-wrap/.dimension-input/.dimension-unit
      now live in components.css — shared with packaging.html's quick-box banner */
@@ -1767,14 +2032,19 @@
 </div>
 
   <nav class="build-box-dots" id="stepDots" aria-label="Configuration steps">
-    <button class="build-box-dot active" data-target="stepBoxType" aria-label="Box type"></button>
-    <button class="build-box-dot" data-target="stepConstruction" aria-label="Construction"></button>
+    <button class="build-box-dot active" data-target="stepCategory" aria-label="Category"></button>
+    <button class="build-box-dot" data-target="stepProduct" aria-label="Product"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepConstruction" aria-label="Construction"></button>
     <button class="build-box-dot" data-target="stepSize" aria-label="Size"></button>
-    <button class="build-box-dot" data-target="stepClosure" aria-label="Closure"></button>
-    <button class="build-box-dot" data-target="stepWindows" aria-label="Windows and cutouts"></button>
-    <button class="build-box-dot" data-target="stepMaterial" aria-label="Material color"></button>
-    <button class="build-box-dot" data-target="stepCustomization" aria-label="Customization"></button>
-    <button class="build-box-dot" data-target="stepAdditional" aria-label="Additional options"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepClosure" aria-label="Closure"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepWindows" aria-label="Windows and cutouts"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepMaterial" aria-label="Material color"></button>
+    <button class="build-box-dot" data-for="tube" data-target="stepTubeMaterial" aria-label="Material"></button>
+    <button class="build-box-dot" data-for="tube" data-target="stepTubeLid" aria-label="Lid colour"></button>
+    <button class="build-box-dot" data-for="tube" data-target="stepTubeFinish" aria-label="Finish"></button>
+    <button class="build-box-dot" data-for="tube" data-target="stepTubeEmbellishment" aria-label="Embellishment"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepCustomization" aria-label="Customization"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepAdditional" aria-label="Additional options"></button>
     <button class="build-box-dot" data-target="stepQuantity" aria-label="Quantity"></button>
   </nav>
 
@@ -1862,6 +2132,25 @@
               <div class="b3d-roof-end b3d-roof-end-left"></div>
               <div class="b3d-roof-end b3d-roof-end-right"></div>
             </div>
+            <!-- Tube: a cylinder faked the same CSS-3D way the box is — but its curved walls can't
+                 be 4 flat faces, so .b3d-tube-wall/.b3d-tube-lid-wall are filled at runtime with
+                 TUBE_SEGMENTS thin rotated panels each (see the buildTubeShell() helper in the
+                 box3d script), which also sets their per-panel brightness so the barrel shades
+                 smoothly. Only the discs and the stamp are authored here. -->
+            <div class="b3d-group b3d-tube">
+              <div class="b3d-tube-body">
+                <div class="b3d-tube-wall"></div>
+                <div class="b3d-tube-stamp"></div>
+              </div>
+              <div class="b3d-tube-base">
+                <div class="b3d-tube-base-wall"></div>
+                <div class="b3d-tube-disc b3d-tube-disc-bottom"></div>
+              </div>
+              <div class="b3d-tube-lid">
+                <div class="b3d-tube-lid-wall"></div>
+                <div class="b3d-tube-disc b3d-tube-disc-top"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1892,49 +2181,137 @@
 
     <div class="build-box-config-col">
 
-      <section class="build-box-step" id="stepBoxType">
+      <section class="build-box-step" id="stepCategory">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">1</span>
-          <span class="build-box-accordion-title">Box Type<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Category<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Box Type</h3>
-        <p class="build-box-field-desc">Choose the base format that fits your product</p>
-        <div class="box-type-grid">
-          <button class="box-type-card active" data-box-type="folding">
-            <span class="box-type-card-thumb"><img src="assets/build/folding-box.png" alt=""></span>
+        <h3 class="build-box-field-label">Category</h3>
+        <p class="build-box-field-desc">Choose the packaging family that fits your product</p>
+        <div class="box-type-grid" id="categoryGrid">
+          <button class="box-type-card active" data-category="boxes">
+            <span class="box-type-card-thumb"><img src="assets/build/prod-mailer-box.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Folding Box<span class="box-type-card-tag">For retail</span></span>
-              <span class="box-type-card-desc">Flat-packed box that folds from one die-cut sheet.</span>
+              <span class="box-type-card-label">Boxes</span>
+              <span class="box-type-card-desc">Mailer, shipping, product and rigid styles in cardboard.</span>
             </span>
           </button>
-          <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/rigid-box.png" alt=""></span>
+          <button class="box-type-card" data-category="envelopes">
+            <span class="box-type-card-thumb"><img src="assets/build/prod-padded-envelope.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Rigid Box<span class="box-type-card-tag">For retail</span></span>
-              <span class="box-type-card-desc">Sturdy, non-collapsible box for premium packaging.</span>
+              <span class="box-type-card-label">Envelopes</span>
+              <span class="box-type-card-desc">Padded, board and poly mailers for anything that ships flat.</span>
             </span>
           </button>
-          <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/mialer-box.png" alt=""></span>
+          <button class="box-type-card" data-category="bags">
+            <span class="box-type-card-thumb"><img src="assets/build/prod-paper-bag.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Mailer Box<span class="box-type-card-tag">For shipping</span></span>
-              <span class="box-type-card-desc">Self-locking box with an attached lid for shipping.</span>
+              <span class="box-type-card-label">Bags</span>
+              <span class="box-type-card-desc">Paper carriers and cotton totes for in-store and reuse.</span>
             </span>
           </button>
-          <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/shipping-box.png" alt=""></span>
+          <button class="box-type-card" data-category="tubes">
+            <span class="box-type-card-thumb"><img src="assets/build/prod-tube.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Shipping Box<span class="box-type-card-tag">For shipping</span></span>
-              <span class="box-type-card-desc">Corrugated box built for transport and storage.</span>
+              <span class="box-type-card-label">Tubes</span>
+              <span class="box-type-card-desc">Cylindrical tubes with metal lids for posters and gifting.</span>
             </span>
           </button>
+          <button class="box-type-card" data-category="labels">
+            <span class="box-type-card-thumb"><img src="assets/build/prod-labels.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Labels</span>
+              <span class="box-type-card-desc">Printed labels on a roll for sealing and branding.</span>
+            </span>
+          </button>
+          <a class="box-type-card category-more" href="packaging.html">
+            <span class="box-type-card-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">More products</span>
+              <span class="box-type-card-desc">Browse the full Packhelp packaging range.</span>
+            </span>
+          </a>
         </div>
         </div>
       </section>
 
-      <section class="build-box-step" id="stepConstruction">
+      <!-- The product list is per-category: one .product-tile-grid per category, only the one
+           matching the active Category card is shown (see the category controller script). -->
+      <section class="build-box-step" id="stepProduct">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">2</span>
+          <span class="build-box-accordion-title">Product<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Product</h3>
+        <p class="build-box-field-desc">Pick the exact format you want to configure</p>
+          <div class="product-tile-grid active" data-category="boxes">
+            <button class="product-tile active" data-product="mailer-box">
+              <span class="product-tile-thumb"><img src="assets/build/prod-mailer-box.png" alt=""></span>
+              <span class="product-tile-label">Mailer Box</span>
+            </button>
+            <button class="product-tile" data-product="product-box">
+              <span class="product-tile-thumb"><img src="assets/build/prod-product-box.png" alt=""></span>
+              <span class="product-tile-label">Product Box</span>
+            </button>
+            <button class="product-tile" data-product="shipping-box">
+              <span class="product-tile-thumb"><img src="assets/build/shipping-box.png" alt=""></span>
+              <span class="product-tile-label">Shipping Box</span>
+            </button>
+            <button class="product-tile" data-product="rigid-box">
+              <span class="product-tile-thumb"><img src="assets/build/prod-rigid-box.png" alt=""></span>
+              <span class="product-tile-label">Rigid Box</span>
+            </button>
+          </div>
+          <div class="product-tile-grid" data-category="envelopes">
+            <button class="product-tile active" data-product="cardboard-envelope">
+              <span class="product-tile-thumb"><img src="assets/build/product-envelopes.png" alt=""></span>
+              <span class="product-tile-label">Cardboard Envelope</span>
+            </button>
+            <button class="product-tile" data-product="padded-envelope">
+              <span class="product-tile-thumb"><img src="assets/build/prod-padded-envelope.png" alt=""></span>
+              <span class="product-tile-label">Padded Envelope</span>
+            </button>
+            <button class="product-tile" data-product="paper-mailing-bag">
+              <span class="product-tile-thumb"></span>
+              <span class="product-tile-label">Paper Mailing Bag</span>
+            </button>
+            <button class="product-tile" data-product="poly-mailer">
+              <span class="product-tile-thumb"><img src="assets/build/prod-poly-mailer.png" alt=""></span>
+              <span class="product-tile-label">Poly Mailer</span>
+            </button>
+          </div>
+          <div class="product-tile-grid" data-category="bags">
+            <button class="product-tile active" data-product="paper-bag">
+              <span class="product-tile-thumb"><img src="assets/build/prod-paper-bag.png" alt=""></span>
+              <span class="product-tile-label">Paper Bag</span>
+            </button>
+            <button class="product-tile" data-product="cotton-bag">
+              <span class="product-tile-thumb"><img src="assets/build/prod-cotton-bag.png" alt=""></span>
+              <span class="product-tile-label">Cotton Bag</span>
+            </button>
+          </div>
+          <div class="product-tile-grid" data-category="tubes">
+            <button class="product-tile active" data-product="tube">
+              <span class="product-tile-thumb"><img src="assets/build/prod-tube.png" alt=""></span>
+              <span class="product-tile-label">Tube</span>
+            </button>
+          </div>
+          <div class="product-tile-grid" data-category="labels">
+            <button class="product-tile active" data-product="labels">
+              <span class="product-tile-thumb"><img src="assets/build/prod-labels.png" alt=""></span>
+              <span class="product-tile-label">Labels</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepConstruction" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">2</span>
           <span class="build-box-accordion-title">Construction<span class="build-box-accordion-value"></span></span>
@@ -1976,18 +2353,20 @@
         </button>
         <div class="build-box-step-content">
         <h3 class="build-box-field-label">Dimensions</h3>
-        <p class="build-box-field-desc">Enter a custom size, or pick from our standard box sizes</p>
+        <p class="build-box-field-desc" data-for="box">Enter a custom size, or pick from our standard box sizes</p>
+        <p class="build-box-field-desc" data-for="tube">Enter the diameter and the height of the tube you need</p>
         <div class="toggle-switch" id="sizeToggleSwitch">
           <div class="toggle-indicator" id="sizeToggleIndicator"></div>
           <button class="toggle-option active" data-value="custom">Custom Size</button>
           <button class="toggle-option" data-value="standard">Standard Size</button>
         </div>
         <div class="dimension-grid">
-          <label class="dimension-field">
-            <span class="dimension-field-label">Width</span>
+          <label class="dimension-field" data-dim="width">
+            <span class="dimension-field-label" data-for="box">Width</span>
+            <span class="dimension-field-label" data-for="tube">Diameter</span>
             <span class="dimension-input-wrap"><input type="number" class="dimension-input" id="dimWidth" value="8"><span class="dimension-unit">cm</span></span>
           </label>
-          <label class="dimension-field">
+          <label class="dimension-field" data-dim="length">
             <span class="dimension-field-label">Length</span>
             <span class="dimension-input-wrap"><input type="number" class="dimension-input" id="dimLength" value="8"><span class="dimension-unit">cm</span></span>
           </label>
@@ -2009,7 +2388,7 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepClosure">
+      <section class="build-box-step" id="stepClosure" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">4</span>
           <span class="build-box-accordion-title">Closure<span class="build-box-accordion-value"></span></span>
@@ -2038,7 +2417,7 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepWindows">
+      <section class="build-box-step" id="stepWindows" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">5</span>
           <span class="build-box-accordion-title">Windows &amp; Cutouts<span class="build-box-accordion-value"></span></span>
@@ -2079,7 +2458,7 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepMaterial">
+      <section class="build-box-step" id="stepMaterial" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">6</span>
           <span class="build-box-accordion-title">Material Color<span class="build-box-accordion-value"></span></span>
@@ -2114,7 +2493,7 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepCustomization">
+      <section class="build-box-step" id="stepCustomization" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">7</span>
           <span class="build-box-accordion-title">Customization<span class="build-box-accordion-value"></span></span>
@@ -2142,7 +2521,7 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepAdditional">
+      <section class="build-box-step" id="stepAdditional" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">8</span>
           <span class="build-box-accordion-title">Additional options<span class="build-box-accordion-value"></span></span>
@@ -2186,6 +2565,139 @@
               </span>
             </button>
           </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ---------- Tube-only steps ----------
+           Shown instead of the box-only steps (Construction / Closure / Windows / Material Color /
+           Customization / Additional options, all data-for="box") whenever the Tube box type is
+           active — see the body.box-type-tube rules in the <style> block above. They sit here, after
+           the box-only steps and before Quantity, so the tube flow reads in the right order once the
+           hidden ones drop out: Box Type -> Size -> Material -> Lid colour -> Finish ->
+           Embellishment -> Quantity. -->
+      <section class="build-box-step" id="stepTubeMaterial" data-for="tube">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">3</span>
+          <span class="build-box-accordion-title">Material<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Material</h3>
+        <p class="build-box-field-desc">Pick the base board the tube body is wound from</p>
+        <div class="material-card-grid">
+          <button class="material-card active" data-tube-material="white">
+            <span class="material-card-image"><img src="assets/build/material-white.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">White</span>
+              <span class="material-card-desc">A white surface for clean, crisp printing at an accessible price.</span>
+            </span>
+          </button>
+          <button class="material-card" data-tube-material="kraft">
+            <span class="material-card-image"><img src="assets/build/material-kraft.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Kraft</span>
+              <span class="material-card-desc">Natural brown board with a rustic look and sturdy strength.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepTubeLid" data-for="tube">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">4</span>
+          <span class="build-box-accordion-title">Lid colour<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Lid colour</h3>
+        <p class="build-box-field-desc">Choose the finish of the metal caps on both ends</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb tube-color-card active" data-tube-lid="black">
+            <span class="tube-color-swatch swatch-black"></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Black</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb tube-color-card" data-tube-lid="silver">
+            <span class="tube-color-swatch swatch-silver"></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Silver</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb tube-color-card" data-tube-lid="gold">
+            <span class="tube-color-swatch swatch-gold"></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Gold</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepTubeFinish" data-for="tube">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">5</span>
+          <span class="build-box-accordion-title">Finish<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Finish</h3>
+        <p class="build-box-field-desc">Add a protective foil over the printed tube body</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-tube-finish="none">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">None</span>
+              <span class="box-type-card-desc">Uncoated board, left with its natural paper texture.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-tube-finish="glossy">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Glossy foil</span>
+              <span class="box-type-card-desc">A shiny coating that makes colours pop and the print stand out.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-tube-finish="matte">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Matte foil</span>
+              <span class="box-type-card-desc">A soft, non-reflective coating for a subtle, premium look.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepTubeEmbellishment" data-for="tube">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">6</span>
+          <span class="build-box-accordion-title">Embellishment<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Embellishment</h3>
+        <p class="build-box-field-desc">Press a metallic foil detail into the tube for extra shelf presence</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-tube-embellishment="none">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">None</span>
+              <span class="box-type-card-desc">No added foil detail; print only.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-tube-embellishment="gold">
+            <span class="box-type-card-thumb"><img src="assets/build/embellishment-hot-stamping-gold.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Hot stamping gold<span class="box-type-card-tag">Premium</span></span>
+              <span class="box-type-card-desc">Warm gold foil pressed into the board with heat for a raised, luxurious mark.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-tube-embellishment="silver">
+            <span class="box-type-card-thumb"><img src="assets/build/embellishment-hot-stamping-silver.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Hot stamping silver<span class="box-type-card-tag">Premium</span></span>
+              <span class="box-type-card-desc">Cool silver foil pressed into the board with heat for a crisp, modern mark.</span>
+            </span>
+          </button>
         </div>
         </div>
       </section>
@@ -2584,9 +3096,18 @@
   (function () {
     var btn = document.getElementById('moreOptionsBtn');
     var configCol = document.querySelector('.build-box-config-col');
-    var firstStep = document.getElementById('stepBoxType');
-    var nextStep = document.getElementById('stepConstruction');
-    if (!btn || !configCol || !firstStep || !nextStep) { return; }
+    var firstStep = document.getElementById('stepCategory');
+    if (!btn || !configCol || !firstStep) { return; }
+
+    // resolved on click, not up front: which step follows Box Type depends on the chosen box type
+    // (Construction for a box, Dimensions for a tube — the rest are display:none by then)
+    function nextVisibleStep() {
+      var step = firstStep.nextElementSibling;
+      while (step && (!step.classList.contains('build-box-step') || !step.offsetParent)) {
+        step = step.nextElementSibling;
+      }
+      return step;
+    }
 
     var isDesktop = window.matchMedia('(min-width: 901px)');
 
@@ -2602,7 +3123,8 @@
     firstStepObserver.observe(firstStep);
 
     btn.addEventListener('click', function () {
-      slowScrollToCenter(nextStep, 500);
+      var next = nextVisibleStep();
+      if (next) { slowScrollToCenter(next, 500); }
     });
 
     window.addEventListener('resize', positionBtn);
@@ -2667,6 +3189,121 @@
     initSelectableGroup('.box-type-grid');
     initSelectableGroup('.construction-grid');
     initSelectableGroup('.material-card-grid');
+    initSelectableGroup('.product-tile-grid');
+  })();
+
+  // Category -> Product: each category owns one .product-tile-grid and only the active category's
+  // is displayed. Switching category also re-selects that grid's first tile, so the Product step
+  // never shows a stale selection from a category you just left.
+  (function () {
+    var categoryCards = document.querySelectorAll('#categoryGrid .box-type-card[data-category]');
+    var grids = document.querySelectorAll('#stepProduct .product-tile-grid');
+    if (!categoryCards.length || !grids.length) { return; }
+
+    var productStep = document.getElementById('stepProduct');
+    var productDot = document.querySelector('.build-box-dot[data-target="stepProduct"]');
+
+    function showGridFor(category) {
+      var count = 0;
+      grids.forEach(function (grid) {
+        var on = grid.getAttribute('data-category') === category;
+        grid.classList.toggle('active', on);
+        if (!on) { return; }
+        var tiles = grid.querySelectorAll('.product-tile');
+        tiles.forEach(function (t, i) { t.classList.toggle('active', i === 0); });
+        count = tiles.length;
+      });
+
+      // the lone product stays selected either way — only the step it would be chosen in goes away
+      if (productStep) { productStep.classList.toggle('is-hidden', count < 2); }
+      if (productDot) { productDot.classList.toggle('is-hidden', count < 2); }
+
+      document.dispatchEvent(new CustomEvent('product:change'));
+    }
+
+    showGridFor(document.querySelector('#categoryGrid .box-type-card.active').getAttribute('data-category'));
+
+    categoryCards.forEach(function (card) {
+      card.addEventListener('click', function () { showGridFor(card.getAttribute('data-category')); });
+    });
+
+    document.querySelectorAll('#stepProduct .product-tile').forEach(function (tile) {
+      tile.addEventListener('click', function () {
+        document.dispatchEvent(new CustomEvent('product:change'));
+      });
+    });
+  })();
+
+  // Box type is the one choice that reshapes the rest of the flow: picking Tube swaps every
+  // data-for="box" step out for the data-for="tube" ones (CSS does the hiding, off the
+  // body.box-type-tube class) and flips the 3D preview from the cuboid to the barrel. The tube
+  // steps' own answers are mirrored onto #box3dModel as data-tube-* attributes — the same
+  // attribute-driven pattern the box steps already use for construction/material/windows.
+  (function () {
+    var model = document.getElementById('box3dModel');
+    var widthInput = document.getElementById('dimWidth');
+    var lengthInput = document.getElementById('dimLength');
+    var sizeToggle = document.getElementById('sizeToggleSwitch');
+    if (!model || !widthInput || !lengthInput) { return; }
+
+    var TUBE_ATTRS = [
+      ['#stepTubeMaterial', 'data-tube-material', 'white'],
+      ['#stepTubeLid', 'data-tube-lid', 'black'],
+      ['#stepTubeFinish', 'data-tube-finish', 'none'],
+      ['#stepTubeEmbellishment', 'data-tube-embellishment', 'none']
+    ];
+
+    function isTube() {
+      var card = document.querySelector('#categoryGrid .box-type-card.active');
+      return !!card && card.getAttribute('data-category') === 'tubes';
+    }
+
+    function syncTubeAttrs() {
+      TUBE_ATTRS.forEach(function (entry) {
+        var active = document.querySelector(entry[0] + ' .active[' + entry[1] + ']');
+        model.setAttribute(entry[1], (active && active.getAttribute(entry[1])) || entry[2]);
+      });
+      document.dispatchEvent(new CustomEvent('tube:change'));
+    }
+
+    // A tube's cross-section is a circle, so Length is never its own input — it just tracks Width
+    // (kept in the DOM so the 3D model, dimension callouts and accordion summary need no special
+    // case), and the input event is replayed so all three pick the new value up.
+    function mirrorLength() {
+      if (!isTube() || lengthInput.value === widthInput.value) { return; }
+      lengthInput.value = widthInput.value;
+      lengthInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function syncBoxType() {
+      var tube = isTube();
+      model.setAttribute('data-box-type', tube ? 'tube' : 'box');
+      document.body.classList.toggle('box-type-tube', tube);
+
+      // the standard sizes are box P-codes, so the tube flow drops that mode along with its segment
+      if (tube && sizeToggle) {
+        var options = sizeToggle.querySelectorAll('.toggle-option');
+        if (options[1] && options[1].classList.contains('active') && options[0]) { options[0].click(); }
+      }
+
+      // replaying the Width input re-runs updateSize() for free: tube geometry, the dimension
+      // callouts, the pills' Width/Diameter wording and the 2D dieline all refresh off it
+      widthInput.dispatchEvent(new Event('input', { bubbles: true }));
+      document.dispatchEvent(new CustomEvent('boxtype:change'));
+    }
+
+    widthInput.addEventListener('input', mirrorLength);
+    document.querySelectorAll('#categoryGrid .box-type-card').forEach(function (card) {
+      card.addEventListener('click', syncBoxType);
+    });
+    TUBE_ATTRS.forEach(function (entry) {
+      document.querySelectorAll(entry[0] + ' [' + entry[1] + ']').forEach(function (card) {
+        card.addEventListener('click', syncTubeAttrs);
+      });
+    });
+
+    syncTubeAttrs();
+    syncBoxType();
   })();
 
   (function () {
@@ -2885,8 +3522,23 @@
       if (pill) { pill.style.setProperty('--pill-angle', (-angle) + 'deg'); }
     }
 
+    function isTube() { return model.getAttribute('data-box-type') === 'tube'; }
+
     function updateDimLines() {
       var hw = wPx / 2, hh = hPx / 2, hd = dPx / 2;
+
+      // A barrel has no corners to hang the callouts off, so they anchor to the bearing that faces
+      // the camera at rest (45 degrees, the model sitting at rotateY(-45deg)) — the tube's stand-in
+      // for the box's near vertical corner. Height runs down that line of the barrel; diameter is the
+      // 2r-long tangent chord centred on the same bearing at the bottom, so it reads as a measurement
+      // taken across the front of the tube instead of a line buried inside it.
+      if (isTube()) {
+        var f = hw / Math.SQRT2;
+        setLine(lineHeight, [f, hh, f], [f, -hh, f]);
+        setLine(lineWidth, [f + f, hh, 0], [0, hh, f + f], DIM_LINE_OFFSET);
+        return;
+      }
+
       // Each line is anchored to the box's own two corners, so it always lies exactly on
       // that edge (projected through the same rotX/rotY as the model) for any w/l/h and
       // any rotation — never a hardcoded position.
@@ -2958,6 +3610,102 @@
         ' L ' + x1 + ' ' + yPostBottom + ' Z');
     }
 
+    // ---------- tube geometry ----------
+    // A cylinder built the same way the box is: flat divs in a preserve-3d scene. Each barrel is a
+    // TUBE_SEGMENTS-sided prism whose panels are rotated around Y and pushed out by the polygon's
+    // apothem (not its radius — that is what makes neighbouring panels meet edge-to-edge instead of
+    // leaving gaps). The panels are created once and only re-sized/re-shaded afterwards.
+    var TUBE_SEGMENTS = 40;
+    var TUBE_LIGHT_DEG = 30;   // key light's bearing in model space, between the front and right faces
+    var TUBE_SPEC_EXP = { none: 4, matte: 2.5, glossy: 26 }; // highlight tightness per Finish choice
+
+    var tubeWalls = [
+      { el: document.querySelector('.b3d-tube-wall'), metal: false },
+      { el: document.querySelector('.b3d-tube-lid-wall'), metal: true },
+      { el: document.querySelector('.b3d-tube-base-wall'), metal: true }
+    ];
+
+    function buildTubeShell() {
+      tubeWalls.forEach(function (wall) {
+        if (!wall.el || wall.el.children.length) { return; }
+        for (var i = 0; i < TUBE_SEGMENTS; i++) {
+          var seg = document.createElement('div');
+          seg.className = 'b3d-tube-seg';
+          seg.style.setProperty('--a', (i * 360 / TUBE_SEGMENTS) + 'deg');
+          wall.el.appendChild(seg);
+        }
+      });
+    }
+
+    // The box's flat faces get their four brightness values straight from CSS; a barrel needs the
+    // same idea sampled continuously, which is the only reason this lives in JS. Both the diffuse
+    // falloff and the specular lobe are evaluated at each panel's two edge angles rather than at its
+    // centre, so the CSS gradients between them join up seamlessly panel to panel — sampling the
+    // centre instead leaves a visible facet band down the barrel. The metal caps use a harder
+    // falloff and their own fixed, tight highlight; the Finish choice only shapes the paper body.
+    function shadeTube() {
+      var finish = model.getAttribute('data-tube-finish') || 'none';
+      var exp = TUBE_SPEC_EXP[finish] || TUBE_SPEC_EXP.none;
+      var light = TUBE_LIGHT_DEG * Math.PI / 180;
+      var step = 2 * Math.PI / TUBE_SEGMENTS;
+
+      tubeWalls.forEach(function (wall) {
+        if (!wall.el) { return; }
+
+        // a panel's local +X edge sits half a segment further round the circle than its centre
+        function shadeAt(angle) {
+          var nd = Math.cos(angle - light);
+          var lambert = 0.5 + 0.5 * nd;
+          return {
+            shadow: (wall.metal ? 0.66 : 0.48) * Math.pow(1 - lambert, wall.metal ? 0.7 : 0.85),
+            spec: Math.pow(Math.max(0, nd), wall.metal ? 22 : exp) * (wall.metal ? 0.8 : 0.62)
+          };
+        }
+
+        Array.prototype.forEach.call(wall.el.children, function (seg, i) {
+          var centre = i * step;
+          var a = shadeAt(centre - step / 2);
+          var b = shadeAt(centre + step / 2);
+          seg.style.setProperty('--sh-a', a.shadow.toFixed(3));
+          seg.style.setProperty('--sh-b', b.shadow.toFixed(3));
+          seg.style.setProperty('--sp-a', a.spec.toFixed(3));
+          seg.style.setProperty('--sp-b', b.spec.toFixed(3));
+        });
+      });
+    }
+
+    function updateTubeSize() {
+      var r = wPx / 2;
+      var capR = r * 1.045;                        // caps slip *over* the barrel, so a hair wider
+      var lidH = Math.max(6, hPx * 0.11);
+      var baseH = Math.max(4, hPx * 0.055);
+      var half = Math.PI / TUBE_SEGMENTS;
+      var panel = function (radius) { return 2 * radius * Math.tan(half) + 0.7; }; // +0.7px overlap kills seams
+      var apothem = function (radius) { return radius * Math.cos(half); };
+
+      stage.style.setProperty('--th', hPx + 'px');
+      stage.style.setProperty('--tapo', apothem(r) + 'px');
+      stage.style.setProperty('--tlh', lidH + 'px');
+      stage.style.setProperty('--tbh', baseH + 'px');
+      stage.style.setProperty('--disc-d', (capR * 2) + 'px');
+      stage.style.setProperty('--stamp-d', Math.min(r * 0.62, hPx * 0.24) + 'px');
+
+      [
+        [tubeWalls[0].el, hPx, r],
+        [tubeWalls[1].el, lidH, capR],
+        [tubeWalls[2].el, baseH, capR]
+      ].forEach(function (entry) {
+        if (!entry[0]) { return; }
+        entry[0].style.setProperty('--seg-h', entry[1] + 'px');
+        entry[0].style.setProperty('--seg-w', panel(entry[2]) + 'px');
+        entry[0].style.setProperty('--seg-r', apothem(entry[2]) + 'px');
+      });
+    }
+
+    buildTubeShell();
+    shadeTube();
+    document.addEventListener('tube:change', shadeTube);
+
     function updateSize() {
       var w = parseFloat(widthInput.value) || 1;
       var l = parseFloat(lengthInput.value) || 1;
@@ -2981,10 +3729,11 @@
       stage.style.setProperty('--slant', slant + 'px');
       stage.style.setProperty('--pitch-deg', pitchDeg.toFixed(2) + 'deg');
 
-      if (pillWidth) { pillWidth.textContent = 'Width: ' + w + ' cm'; }
+      if (pillWidth) { pillWidth.textContent = (isTube() ? 'Diameter: ' : 'Width: ') + w + ' cm'; }
       if (pillLength) { pillLength.textContent = 'Length: ' + l + ' cm'; }
       if (pillHeight) { pillHeight.textContent = 'Height: ' + h + ' cm'; }
 
+      updateTubeSize();
       updateHangSlotMask();
       updateDimLines();
       updateDieline(w, l, h);
@@ -2997,6 +3746,7 @@
     function updateDieline(w, l, h) {
       var svg = document.getElementById('dielineSvg');
       if (!svg) { return; }
+      if (isTube()) { return updateTubeDieline(w, h, svg); }
 
       var flapH = Math.min(w, l) * 0.5;
       var glueW = Math.min(w, l) * 0.25;
@@ -3052,6 +3802,40 @@
         '<path d="' + outline + '" fill="#fff" stroke="#2a2a2a" stroke-width="' + (viewW * 0.004) + '"/>' +
         '<g stroke="#8a8a8a" stroke-width="' + (viewW * 0.0022) + '" stroke-dasharray="' + (viewW * 0.012) + ' ' + (viewW * 0.008) + '">' + foldLines + '</g>' +
         labelEls;
+    }
+
+    // 2D view for the tube: the flat wrap (circumference x height) plus the two cap discs, drawn in
+    // the same solid-cut / dashed-fold language as the box net above.
+    function updateTubeDieline(diameter, h, svg) {
+      var circ = Math.PI * diameter;
+      var overlap = diameter * 0.18;   // glue lap where the wrap closes on itself
+      var pad = Math.max(circ, h) * 0.06;
+      var gap = diameter * 0.35;
+
+      var viewW = circ + overlap + gap + diameter + pad * 2;
+      var viewH = Math.max(h, diameter * 2 + gap) + pad * 2;
+      svg.setAttribute('viewBox', '0 0 ' + viewW + ' ' + viewH);
+
+      var ox = pad, oy = pad;
+      var stroke = viewW * 0.004;
+      var fontSize = viewW * 0.022;
+      var discX = ox + circ + overlap + gap + diameter / 2;
+      var discR = diameter / 2;
+
+      function label(x, y, text, room) {
+        if (room <= fontSize * (text.length * 0.62 + 1)) { return ''; }
+        return '<text x="' + x + '" y="' + y + '" font-size="' + fontSize +
+          '" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,.4)">' + text + '</text>';
+      }
+
+      svg.innerHTML =
+        '<rect x="' + ox + '" y="' + oy + '" width="' + (circ + overlap) + '" height="' + h + '" fill="#fff" stroke="#2a2a2a" stroke-width="' + stroke + '"/>' +
+        '<line x1="' + (ox + circ) + '" y1="' + oy + '" x2="' + (ox + circ) + '" y2="' + (oy + h) + '" stroke="#8a8a8a" stroke-width="' + (viewW * 0.0022) + '" stroke-dasharray="' + (viewW * 0.012) + ' ' + (viewW * 0.008) + '"/>' +
+        '<circle cx="' + discX + '" cy="' + (oy + discR) + '" r="' + discR + '" fill="#fff" stroke="#2a2a2a" stroke-width="' + stroke + '"/>' +
+        '<circle cx="' + discX + '" cy="' + (oy + diameter + gap + discR) + '" r="' + discR + '" fill="#fff" stroke="#2a2a2a" stroke-width="' + stroke + '"/>' +
+        label(ox + circ / 2, oy + h / 2, 'Wrap', circ) +
+        label(discX, oy + discR, 'Lid', diameter) +
+        label(discX, oy + diameter + gap + discR, 'Base', diameter);
     }
 
     [
@@ -3135,7 +3919,7 @@
 
   (function () {
     var canvasImage = document.getElementById('canvasImage');
-    var boxTypeCards = document.querySelectorAll('#stepBoxType .box-type-card');
+    var productTiles = document.querySelectorAll('#stepProduct .product-tile');
     var constructionCards = document.querySelectorAll('#stepConstruction .construction-card');
     var windowsCards = document.querySelectorAll('#stepWindows .box-type-card');
     var materialCards = document.querySelectorAll('#stepMaterial .material-card');
@@ -3165,23 +3949,23 @@
     }
 
     function refreshCanvas() {
-      var boxType = activeDataValue('#stepBoxType', 'data-box-type');
+      var product = activeDataValue('#stepProduct .product-tile-grid.active', 'data-product');
       var construction = activeDataValue('#stepConstruction', 'data-construction');
       var windows = activeDataValue('#stepWindows', 'data-windows');
       var material = activeDataValue('#stepMaterial', 'data-material');
 
       var comboImage = null;
-      if (boxType === 'folding' && CONSTRUCTION_COMBO_IMAGE[construction]) {
+      if (product === 'product-box' && CONSTRUCTION_COMBO_IMAGE[construction]) {
         comboImage = CONSTRUCTION_COMBO_IMAGE[construction];
-      } else if (boxType === 'folding' && windows === 'windowing') {
+      } else if (product === 'product-box' && windows === 'windowing') {
         comboImage = COMBO_IMAGE_BY_MATERIAL[material];
       }
       setCanvasImage(comboImage || baseImage);
     }
 
-    boxTypeCards.forEach(function (card) {
-      card.addEventListener('click', function () {
-        var thumb = card.querySelector('.box-type-card-thumb img');
+    productTiles.forEach(function (tile) {
+      tile.addEventListener('click', function () {
+        var thumb = tile.querySelector('.product-tile-thumb img');
         if (thumb) { baseImage = thumb.getAttribute('src'); }
         refreshCanvas();
       });
@@ -3439,15 +4223,39 @@
       if (step.id === 'stepAdditional') {
         var parts = [];
         step.querySelectorAll('.build-box-subfield').forEach(function (sub) {
-          var active = sub.querySelector('.box-type-card.active .box-type-card-label');
-          if (active) { parts.push(active.textContent.trim()); }
+          var active = sub.querySelector('.box-type-card.active');
+          if (active) { parts.push(cardLabel(active)); }
         });
         return parts.join(', ');
       }
+      if (step.id === 'stepProduct') {
+        var tile = step.querySelector('.product-tile-grid.active .product-tile.active .product-tile-label');
+        return tile ? tile.textContent.trim() : '';
+      }
       var activeCard = step.querySelector('.box-type-card.active, .construction-card.active, .material-card.active');
-      if (!activeCard) { return ''; }
-      var labelEl = activeCard.querySelector('.box-type-card-label, .material-card-label, span');
-      return labelEl ? labelEl.textContent.trim() : '';
+      return activeCard ? cardLabel(activeCard) : '';
+    }
+
+    // The card's own name only — never its description, and never the little "For retail"/"Premium"
+    // tag nested inside the label. A bare `span` in the selector list can't do this: querySelector
+    // returns the first match in *document order*, which for a thumbed card is the (textless) thumb
+    // wrapper and for a no-thumb card is the wrapper holding name *and* description.
+    function cardLabel(card) {
+      var labelEl = card.querySelector('.box-type-card-label, .material-card-label') ||
+                    card.querySelector(':scope > span');
+      if (!labelEl) { return ''; }
+      var tag = labelEl.querySelector('.box-type-card-tag');
+      var text = labelEl.textContent;
+      if (tag) { text = text.replace(tag.textContent, ''); }
+      return text.trim();
+    }
+
+    // Steps tagged data-for="box"/"tube" drop out of the flow for the other box type, so the badges
+    // count visible steps only — otherwise the tube flow would read 1, 3, 10, 11, 12, 13, 14.
+    function isStepVisible(step) {
+      if (step.classList.contains('is-hidden')) { return false; }
+      var only = step.getAttribute('data-for');
+      return !only || only === (document.body.classList.contains('box-type-tube') ? 'tube' : 'box');
     }
 
     function updateHeader(step, index) {
@@ -3469,8 +4277,16 @@
     }
 
     function updateAllHeaders() {
-      steps.forEach(updateHeader);
+      var visibleIndex = 0;
+      steps.forEach(function (step) {
+        if (!isStepVisible(step)) { return; }
+        updateHeader(step, visibleIndex);
+        visibleIndex++;
+      });
     }
+
+    document.addEventListener('boxtype:change', updateAllHeaders);
+    document.addEventListener('product:change', updateAllHeaders);
 
     steps.forEach(function (step, index) {
       var header = step.querySelector('.build-box-accordion-header');
