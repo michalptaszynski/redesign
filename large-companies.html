@@ -823,21 +823,21 @@
     align-items: center;
     justify-content: center;
     flex: none;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-sm);
     background: var(--color-bg-muted-hover);
     color: var(--color-text-primary);
   }
 
-  .lc-tbl-icon svg { width: 24px; height: 24px; }
+  .lc-tbl-icon svg { width: 20px; height: 20px; }
 
   .lc-tbl-head h3 {
     margin: 0;
     font-weight: 500;
-    font-size: 1.75rem;
-    line-height: 1.16;
-    letter-spacing: -0.04em;
+    font-size: 1.375rem;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
     color: var(--color-text-primary);
   }
 
@@ -848,6 +848,23 @@
     grid-template-columns: 1fr 1.3fr;
     gap: var(--space-8);
   }
+
+  /* wiersze wjeżdżają od dołu przy wejściu w kadr — raz, bez animacji wyjścia */
+  .lc-tbl-row {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lc-tbl-row.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* drobny stagger w obrębie grupy, gdy cała wjedzie naraz */
+  .lc-tbl-row:nth-child(2) { transition-delay: 0.07s; }
+  .lc-tbl-row:nth-child(3) { transition-delay: 0.14s; }
 
   .lc-tbl-cols {
     padding-bottom: var(--space-4);
@@ -897,7 +914,7 @@
       padding: var(--space-5) 0;
     }
     .lc-tbl-row:first-of-type { border-top: 1px solid var(--color-border-default); }
-    .lc-tbl-head h3 { font-size: 1.5rem; }
+    .lc-tbl-head h3 { font-size: 1.25rem; }
   }
 
   /* ---------- SOLUTIONS — WARIANT ALTERNATYWNY (przypięty nagłówek na środku
@@ -1015,10 +1032,12 @@
 
   @media (prefers-reduced-motion: reduce) {
     /* sticky zostaje, znika samo wejście */
-    .lc-zig-card {
+    .lc-zig-card,
+    .lc-tbl-row {
       opacity: 1;
       transform: none;
       transition: none;
+      transition-delay: 0s;
     }
   }
 
@@ -3422,16 +3441,17 @@
       painInput.addEventListener('change', function () {
         document.body.classList.toggle('pain-tabs', painInput.checked);
         try { localStorage.setItem('lcPainTabs', painInput.checked ? '1' : '0'); } catch (e) {}
+        observeCards();
         /* wskaźnik aktywnego taba liczy się z offsetWidth — dopóki sekcja
            była ukryta, wychodziło 0. Skrypt tabów przelicza go na resize. */
         window.dispatchEvent(new Event('resize'));
       });
     }
 
-    /* wejście kafli — raz na kafel, przy 15% widoczności */
+    /* wejście kafli i wierszy tabeli — raz na element, przy 15% widoczności */
     var observer = null;
     function observeCards() {
-      var cards = document.querySelectorAll('.lc-zig-card:not(.is-in)');
+      var cards = document.querySelectorAll('.lc-zig-card:not(.is-in), .lc-tbl-row:not(.is-in)');
       if (!cards.length) { return; }
 
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.IntersectionObserver) {
