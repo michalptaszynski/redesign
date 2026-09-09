@@ -130,6 +130,70 @@
     .sticky-bar { display: none; }
   }
 
+  /* ---------- INTRO (jednorazowa sekwencja wejścia) ----------
+     Stan startowy trzyma klasa .lc-intro-armed na <html>, ustawiana inline
+     w <head> ZANIM cokolwiek się namaluje — inaczej treść mrugnęłaby przed
+     ukryciem. Bez tej klasy (powtórna wizyta, reduced-motion, brak JS)
+     wszystko jest po prostu widoczne i nic się nie animuje. */
+  .lc-intro {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    background: var(--color-bg-page);
+    text-align: center;
+  }
+
+  .lc-intro-armed .lc-intro { display: flex; }
+
+  .lc-intro-line {
+    margin: 0;
+    max-width: 22ch;
+    font-weight: var(--type-h1-weight);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  /* każde słowo osobno — animujemy spany, nie podmieniamy treści, więc
+     tekst od pierwszej klatki stoi na docelowej pozycji */
+  .lc-word {
+    display: inline-block;
+    will-change: opacity, transform, filter;
+  }
+
+  .lc-intro-armed .lc-word,
+  .lc-intro-armed [data-intro] { opacity: 0; }
+
+  html.lc-intro-armed,
+  html.lc-intro-armed body { overflow: hidden; }
+
+  /* lewy dolny róg: prawy zajmuje pływający gear ustawień */
+  .lc-intro-skip {
+    position: fixed;
+    left: var(--space-6);
+    bottom: var(--space-6);
+    z-index: 201;
+    display: none;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    font-size: var(--type-eyebrow-size);
+    letter-spacing: var(--type-eyebrow-tracking);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .lc-intro-armed .lc-intro-skip { display: block; }
+  .lc-intro-skip:hover { color: var(--color-text-primary); }
+
+
+
   /* ---------- SCROLL REVEAL ---------- */
   /* „dojazd" sekcji — te same wartości co .cta-section.reveal na index.html
      (80px + sprężysty cubic-bezier przez 1s). Wcześniej strona miała tu
@@ -283,42 +347,65 @@
      wysokość jest wspólna dla obu, dlatego siedzi na rzędzie, a nie na
      aspect-ratio poszczególnych paneli — inaczej różne szerokości dałyby
      różne wysokości */
+  /* pas zdjęć pod hero — pełna szerokość ekranu, zapętlony w lewo.
+     Ta sama mechanika co marquee z logotypami: dwa identyczne zestawy
+     obok siebie i przesunięcie toru o -50%, więc szew nigdy nie wypada
+     w kadrze. */
   .lc-hero-media {
-    display: grid;
-    grid-template-columns: 1fr 1.9fr;
-    gap: var(--space-5);
-    height: clamp(280px, 34vw, 520px);
+    position: relative;
+    left: 50%;
+    width: 100vw;
     margin-top: var(--space-16);
+    transform: translateX(-50%);
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0, black 96px, black calc(100% - 96px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 96px, black calc(100% - 96px), transparent 100%);
   }
 
-  .lc-hero-ph {
+  .lc-hero-track {
+    display: flex;
+    width: max-content;
+    animation: lc-hero-scroll 48s linear infinite;
+  }
+
+  /* -50% = dokładnie jeden zestaw, stąd bezszwowa pętla */
+  @keyframes lc-hero-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .lc-hero-set {
+    display: flex;
+    gap: var(--space-5);
+    padding-right: var(--space-5);
+  }
+
+  .lc-hero-card {
+    flex: none;
     overflow: hidden;
-    height: 100%;
+    height: clamp(220px, 26vw, 380px);
     border-radius: var(--radius-lg);
     background: var(--color-bg-muted);
   }
 
-  .lc-hero-ph img {
+  .lc-hero-card img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  /* globus (cobe) w pierwszym panelu hero — celowo większy od panelu i
-     przycięty jego krawędziami. Tło zostaje z .lc-hero-ph, żeby oba panele
-     hero czytały się jako para. */
+  /* proporcje mieszane, żeby pas nie wyglądał jak równy rządek kafelków */
+  .lc-hero-card-wide     { aspect-ratio: 16 / 10; }
+  .lc-hero-card-square   { aspect-ratio: 1 / 1; }
+  .lc-hero-card-portrait { aspect-ratio: 4 / 5; }
+
+  /* globus jedzie razem z pasem — jest jedną z kart */
   .lc-globe-media {
     position: relative;
     overflow: hidden;
   }
 
-  /* wycentrowany na WŁASNEJ wysokości, nie na wysokości kontenera: offset
-     w % od `bottom` liczy się od kontenera, więc przy zmianie jego proporcji
-     (portret na desktopie, pasek na mobile) globus uciekał poza kadr */
-  /* top w px, nie w %: 56px ma być stałym odstępem od górnej krawędzi kafla
-     niezależnie od jego wysokości — przy `top: 50%` + translate w % offset
-     zmieniałby się z rozmiarem panelu i globusa */
   .lc-globe-stage {
     position: absolute;
     left: 50%;
@@ -328,25 +415,18 @@
     transform: translateX(-50%);
   }
 
-  /* cobe wstawia własny wrapper (position:relative; 100%x100%) MIĘDZY stage
-     a canvas, więc selektor musi być potomkiem, nie dzieckiem */
   .lc-globe-stage canvas {
     display: block;
     width: 100%;
     height: 100%;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .lc-hero-track { animation: none; }
+  }
+
   @media (max-width: 900px) {
-    .lc-hero-media {
-      grid-template-columns: 1fr;
-      height: auto;
-      gap: var(--space-4);
-      margin-top: var(--space-12);
-    }
-    .lc-hero-ph { height: auto; aspect-ratio: 16 / 10; }
-    /* panel z globusem dostaje więcej wysokości i lekko niższy kadr: przy
-       16/10 markery lądowały na samej górnej krawędzi i były przycięte */
-    .lc-globe-media { aspect-ratio: 4 / 3; }
+    .lc-hero-media { margin-top: var(--space-12); }
   }
 
   @media (max-width: 700px) {
@@ -558,12 +638,14 @@
     color: var(--color-text-primary);
   }
 
+  /* rozmiar i tak był ten sam co w .lc-solve-cell p (15px/1.5) — różnił je
+     tylko kolor, a jaśniejszy --color-text-secondary czytał się jako większy */
   .lc-pain p {
     margin: 0;
     font-size: 0.9375rem;
     line-height: 1.5;
     letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
+    color: var(--color-text-muted);
   }
 
   /* TODO: pusta powierzchnia do podmiany na realne zdjęcie.
@@ -707,6 +789,62 @@
       gap: var(--space-5);
     }
     .lc-solve-cell h3 { font-size: 1.5rem; }
+  }
+
+  /* ---------- SCROLL CAROUSEL (komponent współdzielony: Products i Proof).
+     Mieszkał wcześniej w bloku COMPLIANCE — po przebudowie tamtej sekcji na
+     siatkę wyleciał razem z nią i strzałki w obu pozostałych karuzelach
+     zostały bez stylu. ---------- */
+  .scroll-carousel {
+    position: relative;
+  }
+
+  .scroll-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    /* BYŁO: białe tło + --color-text-primary, który na ciemnej stronie jest
+       prawie biały — czyli biała strzałka na białej pigułce, niewidoczna. */
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-full);
+    background: rgba(8, 9, 10, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  }
+
+  .scroll-carousel-nav.prev { left: var(--space-8); }
+  .scroll-carousel-nav.next { right: var(--space-8); }
+
+  .scroll-carousel-nav svg { width: 20px; height: 20px; }
+
+  .scroll-carousel-nav::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav { display: flex; }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 700px) {
+    .scroll-carousel-nav.prev { left: var(--space-5); }
+    .scroll-carousel-nav.next { right: var(--space-5); }
   }
 
   /* ---------- PRODUCT GRID (packaging.html .product-card recipe: square
@@ -1062,92 +1200,62 @@
     }
   }
 
-  /* ---------- COMPLIANCE (ten sam komponent co sekcja Support na
-     q4-packaging.html: .scroll-carousel + karty media-card, tor full-bleed) ---------- */
-  .scroll-carousel {
-    position: relative;
-  }
-
-  .scroll-carousel-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%) scale(1);
-    opacity: 1;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    /* BYŁO: białe tło + --color-text-primary, który na ciemnej stronie jest
-       prawie biały — czyli biała strzałka na białej pigułce, niewidoczna.
-       Teraz ciemna pigułka z jasną strzałką: czyta się i na zdjęciach,
-       i na tle strony. */
-    border: 1px solid var(--color-border-hover);
-    border-radius: var(--radius-full);
-    background: rgba(8, 9, 10, 0.82);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: var(--color-text-primary);
-    cursor: pointer;
-    z-index: 3;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
-  }
-
-  .scroll-carousel-nav.prev { left: var(--space-8); }
-  .scroll-carousel-nav.next { right: var(--space-8); }
-
-  /* 200 = połowa 400px .lc-comp-visual — karty mają podpis pod zdjęciem,
-     więc domyślne top:50% wypadłoby na tekście (guideline pkt 1.2) */
-  .lc-comp-carousel .scroll-carousel-nav { top: 200px; }
-
-  .scroll-carousel-nav svg { width: 20px; height: 20px; }
-
-  .scroll-carousel-nav::after {
-    content: "";
-    position: absolute;
-    inset: -8px;
-  }
-
-  .scroll-carousel.has-overflow .scroll-carousel-nav { display: flex; }
-
-  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
-    transform: translateY(-50%) scale(0);
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .lc-comp-track {
-    display: flex;
+  /* ---------- COMPLIANCE (siatka 4x3, kafle tekstowe przeplatane
+     zdjęciami — układ z załącznika) ---------- */
+  .lc-comp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-4);
-    overflow-x: auto;
-    padding-bottom: var(--space-2);
-    /* .container ogranicza stronę do --max-w, a tor jest full-bleed (100vw) —
-       sam var(--space-8) ustawiałby karty względem krawędzi EKRANU, nie
-       treści sekcji, i powyżej 1344px karty rozjeżdżały się z nagłówkiem */
-    padding-left: calc((100vw - min(100vw, var(--max-w))) / 2 + var(--space-8));
-    padding-right: calc((100vw - min(100vw, var(--max-w))) / 2 + var(--space-8));
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    box-sizing: border-box;
   }
 
-  .lc-comp {
-    flex: 0 0 auto;
-    width: 320px;
+  .lc-comp-tile {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-muted);
   }
 
-  .lc-comp-visual { height: 400px; }
+  /* kafel tekstowy: tytuł u góry, opis u dołu */
+  .lc-comp-tile-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--space-6);
+  }
 
-  @media (max-width: 700px) {
-    .scroll-carousel-nav.prev { left: var(--space-5); }
-    .scroll-carousel-nav.next { right: var(--space-5); }
-    .lc-comp-track {
-      padding-left: calc((100vw - min(100vw, var(--max-w))) / 2 + var(--space-5));
-      padding-right: calc((100vw - min(100vw, var(--max-w))) / 2 + var(--space-5));
-    }
+  .lc-comp-tile h3 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .lc-comp-tile p {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.44;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .lc-comp-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 1100px) {
+    .lc-comp-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 560px) {
+    /* kwadrat na 2 kolumnach schodzi poniżej 160px i opis przestaje się
+       mieścić — jedna kolumna, kafle tekstowe niższe niż kwadrat */
+    .lc-comp-grid { grid-template-columns: 1fr; }
+    .lc-comp-tile-text { aspect-ratio: auto; gap: var(--space-6); }
   }
 
   /* ---------- BRIEF FORM (jedna karta, wszystkie pola widoczne od razu;
@@ -1763,23 +1871,53 @@
     box-shadow: none;
   }
 </style>
+
+<script>
+  /* Musi pójść przed pierwszym malowaniem: ustawia stan startowy sekwencji.
+     Sekwencja leci raz na sesję i nigdy przy prefers-reduced-motion. */
+  (function () {
+    /* ONCE_PER_SESSION = false -> intro leci przy KAŻDYM wejściu.
+       Tak jest na czas pracy nad stroną: przy true (zachowanie docelowe,
+       zgodne ze specyfikacją) flaga w sessionStorage przeżywa również twarde
+       odświeżenie, więc podczas przeglądania widzi się animację dokładnie raz
+       na kartę i wygląda to, jakby przestała działać.
+       Przed publikacją: przestaw na true. */
+    var ONCE_PER_SESSION = false;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* ?nointro w adresie pomija sekwencję — przydatne przy pracy nad resztą strony */
+    var skipped = window.location.search.indexOf('nointro') !== -1;
+
+    var seen = false;
+    if (ONCE_PER_SESSION) {
+      try { seen = !!window.sessionStorage.getItem('lcIntroSeen'); } catch (e) {}
+    }
+
+    if (!seen && !skipped && !reduce) { document.documentElement.classList.add('lc-intro-armed'); }
+  })();
+</script>
 </head>
 <body>
 
-<div class="announcement-bar">
+<div class="lc-intro" aria-hidden="true">
+  <p class="lc-intro-line">Twelve suppliers. One partner.</p>
+</div>
+<button class="lc-intro-skip" type="button">Skip intro (Esc)</button>
+
+<div class="announcement-bar" data-intro="chrome">
   <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
   <button class="announcement-copy" aria-label="Copy code">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
   </button>
 </div>
 
-<div id="ph-sticky-bar"></div>
+<div id="ph-sticky-bar" data-intro="chrome"></div>
 
 <div class="container">
-  <div id="ph-nav-wrapper"></div>
+  <div id="ph-nav-wrapper" data-intro="chrome"></div>
   <script src="nav-header.js"></script>
 
-  <nav class="pkg-breadcrumb">
+  <nav class="pkg-breadcrumb" data-intro="chrome">
     <a href="index.html">Packhelp</a>
     <span>/</span>
     <span class="current">Large companies</span>
@@ -1788,25 +1926,61 @@
   <!-- ============ HERO ============ -->
   <header class="lc-hero">
     <div class="lc-hero-inner">
-      <span class="lc-hero-badge">
+      <span class="lc-hero-badge" data-intro="badge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
         120+ production sites across 14 markets
       </span>
 
-      <h1>Packaging for teams running hundreds of SKUs across a dozen markets.</h1>
-      <p class="lc-hero-sub">One contract, one team, a network of 120 production sites. Instead of twelve suppliers, twelve quality standards and twelve separate risks.</p>
+      <h1 data-intro="heading">Packaging for hundreds of SKUs across a dozen markets.</h1>
+      <p class="lc-hero-sub" data-intro="sub">One contract, one team, a network of 120 production sites. Instead of twelve suppliers, twelve quality standards and twelve separate risks.</p>
 
-      <div class="lc-hero-buttons">
+      <div class="lc-hero-buttons" data-intro="cta">
         <a href="contact.html" class="btn-pill lg">Book a specialist call<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
         <a href="#lc-brief" class="btn-pill lg secondary">Tell us about your project<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
       </div>
 
-      <div class="lc-hero-media">
-        <div class="lc-hero-ph lc-globe-media">
-          <div class="lc-globe-stage"><canvas id="lcGlobe" aria-hidden="true"></canvas></div>
+      <div class="lc-hero-media" data-intro="media">
+        <div class="lc-hero-track">
+          <div class="lc-hero-set">
+        <div class="lc-hero-card lc-hero-card-portrait lc-globe-media">
+          <div class="lc-globe-stage"><canvas class="lc-globe-canvas" aria-hidden="true"></canvas></div>
         </div>
-        <div class="lc-hero-ph">
+        <div class="lc-hero-card lc-hero-card-wide">
           <img src="assets/enterprise/hero-desk-quote.jpg" alt="A packaging quote open on a desktop monitor next to a printed copy, keyboard and coffee" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-square">
+          <img src="assets/q4/support02.png" alt="Stack of kraft shipping boxes for a single brand" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-wide">
+          <img src="assets/samplepacks/Packhelp_0475.jpg" alt="Flat printed box blanks laid out on a bench" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-portrait">
+          <img src="assets/q4/support04.png" alt="Person carrying a stack of branded shipping boxes" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-square">
+          <img src="assets/q4/support01.jpg" alt="Kraft boxes printed with material codes and recycling marks" loading="lazy" decoding="async">
+        </div>
+          </div>
+          <div class="lc-hero-set" aria-hidden="true">
+        <div class="lc-hero-card lc-hero-card-portrait lc-globe-media">
+          <div class="lc-globe-stage"><canvas class="lc-globe-canvas" aria-hidden="true"></canvas></div>
+        </div>
+        <div class="lc-hero-card lc-hero-card-wide">
+          <img src="assets/enterprise/hero-desk-quote.jpg" alt="A packaging quote open on a desktop monitor next to a printed copy, keyboard and coffee" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-square">
+          <img src="assets/q4/support02.png" alt="Stack of kraft shipping boxes for a single brand" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-wide">
+          <img src="assets/samplepacks/Packhelp_0475.jpg" alt="Flat printed box blanks laid out on a bench" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-portrait">
+          <img src="assets/q4/support04.png" alt="Person carrying a stack of branded shipping boxes" loading="lazy" decoding="async">
+        </div>
+        <div class="lc-hero-card lc-hero-card-square">
+          <img src="assets/q4/support01.jpg" alt="Kraft boxes printed with material codes and recycling marks" loading="lazy" decoding="async">
+        </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2200,65 +2374,51 @@
       <p class="lc-sub">What lands with every order, without a surcharge and without having to ask.</p>
     </div>
 
-    <div class="scroll-carousel lc-comp-carousel">
-      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
-      </button>
-      <div class="lc-comp-track">
-
-        <div class="lc-comp">
-          <div class="lc-comp-visual media-card-visual">
-            <img src="assets/q4/support02.png" alt="Stack of kraft shipping boxes for a single brand" loading="lazy" decoding="async">
-          </div>
-          <h3 class="media-card-title">Carbon footprint per SKU</h3>
-          <p class="media-card-desc">Calculated to a GHG Protocol&ndash;aligned methodology, ready to drop into your report.</p>
-        </div>
-
-        <div class="lc-comp">
-          <div class="lc-comp-visual media-card-visual">
-            <img src="assets/samplepacks/Packhelp_0475.jpg" alt="Flat kraft and printed box blanks with certification marks on the panel" loading="lazy" decoding="async">
-          </div>
-          <h3 class="media-card-title">Certificates of origin</h3>
-          <p class="media-card-desc">FSC and PEFC across the whole chain, each one traceable back to the mill.</p>
-        </div>
-
-        <div class="lc-comp">
-          <div class="lc-comp-visual media-card-visual">
-            <img src="assets/main-segment/industries/industries-logistics.png" alt="Unprinted white mailer boxes laid out on a neutral background" loading="lazy" decoding="async">
-          </div>
-          <h3 class="media-card-title">Declarations of conformity</h3>
-          <p class="media-card-desc">PPWR, EUDR and the local rules that apply in each of your delivery markets.</p>
-        </div>
-
-        <div class="lc-comp">
-          <div class="lc-comp-visual media-card-visual">
-            <img src="assets/q4/support01.jpg" alt="Kraft boxes printed with material codes and recycling marks" loading="lazy" decoding="async">
-          </div>
-          <h3 class="media-card-title">Material and recycling data</h3>
-          <p class="media-card-desc">Grammage, material codes and recycling marks per SKU, in the format your packaging filings ask for.</p>
-        </div>
-
-        <div class="lc-comp">
-          <div class="lc-comp-visual media-card-visual">
-            <img src="assets/custom-packaging/ecommerce/ecommerce-food.jpg" alt="Moulded fibre food containers stacked on a purple background" loading="lazy" decoding="async">
-          </div>
-          <h3 class="media-card-title">Food-contact documentation</h3>
-          <p class="media-card-desc">Migration test reports and food-contact declarations for every material that touches a product.</p>
-        </div>
-
-        <div class="lc-comp">
-          <div class="lc-comp-visual media-card-visual">
-            <img src="assets/q4/support04.png" alt="Person carrying a stack of branded shipping boxes" loading="lazy" decoding="async">
-          </div>
-          <h3 class="media-card-title">Audited production network</h3>
-          <p class="media-card-desc">Every plant in the network passes a quality and social audit before it runs your work.</p>
-        </div>
-
+    <div class="lc-comp-grid">
+      <div class="lc-comp-tile lc-comp-tile-text">
+        <h3>Carbon footprint per SKU</h3>
+        <p>Calculated to a GHG Protocol&ndash;aligned methodology, ready to drop into your report.</p>
       </div>
-      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
-      </button>
+      <div class="lc-comp-tile">
+        <img src="assets/q4/support02.png" alt="Stack of kraft shipping boxes for a single brand" loading="lazy" decoding="async">
+      </div>
+      <div class="lc-comp-tile">
+        <img src="assets/samplepacks/Packhelp_0475.jpg" alt="Flat kraft and printed box blanks with certification marks on the panel" loading="lazy" decoding="async">
+      </div>
+      <div class="lc-comp-tile lc-comp-tile-text">
+        <h3>Certificates of origin</h3>
+        <p>FSC and PEFC across the whole chain, each one traceable back to the mill.</p>
+      </div>
+      <div class="lc-comp-tile">
+        <img src="assets/main-segment/industries/industries-logistics.png" alt="Unprinted white mailer boxes laid out on a neutral background" loading="lazy" decoding="async">
+      </div>
+      <div class="lc-comp-tile lc-comp-tile-text">
+        <h3>Declarations of conformity</h3>
+        <p>PPWR, EUDR and the local rules that apply in each of your delivery markets.</p>
+      </div>
+      <div class="lc-comp-tile lc-comp-tile-text">
+        <h3>Material and recycling data</h3>
+        <p>Grammage, material codes and recycling marks per SKU, in the format your packaging filings ask for.</p>
+      </div>
+      <div class="lc-comp-tile">
+        <img src="assets/q4/support01.jpg" alt="Kraft boxes printed with material codes and recycling marks" loading="lazy" decoding="async">
+      </div>
+      <div class="lc-comp-tile">
+        <img src="assets/q4/support04.png" alt="Person carrying a stack of branded shipping boxes" loading="lazy" decoding="async">
+      </div>
+      <div class="lc-comp-tile">
+        <img src="assets/custom-packaging/ecommerce/ecommerce-food.jpg" alt="Moulded fibre food containers stacked on a purple background" loading="lazy" decoding="async">
+      </div>
+      <div class="lc-comp-tile lc-comp-tile-text">
+        <h3>Food-contact documentation</h3>
+        <p>Migration test reports and food-contact declarations for every material that touches a product.</p>
+      </div>
+      <div class="lc-comp-tile lc-comp-tile-text">
+        <h3>Audited production network</h3>
+        <p>Every plant in the network passes a quality and social audit before it runs your work.</p>
+      </div>
     </div>
+
   </section>
 
   <!-- ============ FAQ + BRIEF FORM ============ -->
@@ -2859,9 +3019,11 @@
   import createGlobe from './cobe.js';
 
   (function () {
-    var canvas = document.getElementById('lcGlobe');
-    var stage = canvas && canvas.parentElement;
-    if (!canvas || !stage) return;
+    /* pas zdjęć jest zduplikowany dla bezszwowej pętli, więc globusów jest
+       dwa — jedna instancja cobe na canvas, obie napędzane jedną pętlą rAF */
+    var canvases = [].slice.call(document.querySelectorAll('.lc-globe-canvas'));
+    if (!canvases.length) return;
+    var stages = canvases.map(function (c) { return c.parentElement; });
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -2882,20 +3044,21 @@
       { location: [54.6872, 25.2797], size: 0.025 }  // Wilno
     ];
 
-    var globe = null;
+    var globes = [];
     var raf = null;
     var phi = 4.6;          /* Europa z przodu na starcie */
     var staticFrames = 0;   /* przy reduced-motion renderujemy tylko tyle klatek,
                                ile trzeba, żeby złapać doładowaną mapę */
 
     function build() {
-      var rect = stage.getBoundingClientRect();
+      var rect = stages[0].getBoundingClientRect();
       if (!rect.width) return false;
 
-      if (globe) { globe.destroy(); globe = null; }
+      globes.forEach(function (g) { try { g.destroy(); } catch (e) {} });
+      globes = [];
 
       try {
-        globe = createGlobe(canvas, {
+        globes = canvases.map(function (canvas) { return createGlobe(canvas, {
           devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
           width: rect.width * 2,
           height: rect.height * 2,
@@ -2910,17 +3073,17 @@
           markerColor: [0.153, 0.341, 1],   /* PH Blue #2757FF */
           glowColor: [0.05, 0.05, 0.06],
           markers: markers
-        });
+        }); });
       } catch (e) {
-        globe = null;   /* brak WebGL-a — kafel zostaje z samą powierzchnią */
+        globes = [];   /* brak WebGL-a — kafel zostaje z samą powierzchnią */
       }
 
       staticFrames = 0;
-      return !!globe;
+      return globes.length > 0;
     }
 
     function frame() {
-      if (!globe) { raf = null; return; }
+      if (!globes.length) { raf = null; return; }
 
       if (reduce) {
         if (staticFrames > 120) { raf = null; return; }
@@ -2929,12 +3092,12 @@
         phi += 0.0022;
       }
 
-      globe.update({ phi: phi });
+      globes.forEach(function (g) { g.update({ phi: phi }); });
       raf = requestAnimationFrame(frame);
     }
 
     function start() {
-      if (!globe && !build()) { return; }
+      if (!globes.length && !build()) { return; }
       if (raf === null) { raf = requestAnimationFrame(frame); }
     }
 
@@ -2953,17 +3116,165 @@
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             start();
-            if (ro) { ro.observe(stage); }
+            if (ro) { ro.observe(stages[0]); }
           } else {
             stop();
           }
         });
-      }, { rootMargin: '200px' }).observe(stage);
+      }, { rootMargin: '200px' }).observe(stages[0]);
     } else {
       start();
     }
   })();
 </script>
 
+<script>
+  /* ============ INTRO ============
+     Web Animations API — projekt nie ma bundlera ani zewnętrznego JS-u, więc
+     żadnego Framer Motion / GSAP. Wszystko jedzie na opacity, transform
+     i filter; zero animacji top/height/margin.
+     Wszystkie czasy są w ms, względem startu sekwencji. */
+  (function () {
+    var T = {
+      wordDuration:    500,
+      wordStagger:     110,
+      phase1End:      1200,   /* koniec wypisywania linii */
+      revealStart:    1700,   /* po pauzie 500 ms: linia gaśnie, hero wchodzi */
+      introFade:       400,
+      contentDuration: 600,
+      headingLineStagger: 90,
+      /* offsety treści liczone od revealStart */
+      content: { chrome: 0, badge: 80, heading: 160, sub: 320, cta: 420, media: 520 }
+    };
+
+    var SOFT = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+    var root = document.documentElement;
+    if (!root.classList.contains('lc-intro-armed')) { return; }
+
+    var intro = document.querySelector('.lc-intro');
+    var line = document.querySelector('.lc-intro-line');
+    var skip = document.querySelector('.lc-intro-skip');
+    if (!intro || !line) { root.classList.remove('lc-intro-armed'); return; }
+
+    /* każde słowo w osobnym inline-block spanie — układ się nie rusza,
+       spany tylko odsłaniają się w miejscu */
+    function splitWords(el) {
+      var words = el.textContent.split(/(\s+)/);
+      el.textContent = '';
+      var spans = [];
+      words.forEach(function (w) {
+        if (/^\s+$/.test(w)) { el.appendChild(document.createTextNode(w)); return; }
+        var span = document.createElement('span');
+        span.className = 'lc-word';
+        span.textContent = w;
+        el.appendChild(span);
+        spans.push(span);
+      });
+      return spans;
+    }
+
+    /* grupuje spany w linie po realnym offsetTop, więc łamanie nagłówka
+       przy dowolnej szerokości samo się rozwiązuje */
+    function groupByLine(spans) {
+      var lines = [], last = null;
+      spans.forEach(function (s) {
+        var top = s.offsetTop;
+        if (last === null || Math.abs(top - last) > 4) { lines.push([]); last = top; }
+        lines[lines.length - 1].push(s);
+      });
+      return lines;
+    }
+
+    function reveal(el, delay, duration) {
+      return el.animate(
+        [{ opacity: 0, filter: 'blur(8px)', transform: 'translateY(16px)' },
+         { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' }],
+        { duration: duration, delay: delay, easing: SOFT, fill: 'both' }
+      );
+    }
+
+    var running = [];
+    var timers = [];
+    var done = false;
+
+    function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+    function track(anim) { running.push(anim); return anim; }
+
+    function finish() {
+      if (done) { return; }
+      done = true;
+      timers.forEach(clearTimeout);
+
+      /* cancel(), NIE finish(): animacje mają fill:'both', więc po
+         zakończeniu DALEJ nakładałyby swoje wartości końcowe na elementy.
+         cancel() zdejmuje fill; elementy wracają do zwykłego CSS, który po
+         usunięciu .lc-intro-armed jest już stanem docelowym. */
+      running.forEach(function (a) { try { a.cancel(); } catch (e) {} });
+
+      intro.style.display = 'none';
+      root.classList.remove('lc-intro-armed');
+      if (skip) { skip.style.display = 'none'; }
+      document.removeEventListener('keydown', onKey);
+      try { window.sessionStorage.setItem('lcIntroSeen', '1'); } catch (e) {}  /* czytane tylko przy ONCE_PER_SESSION = true */
+    }
+
+    function onKey(e) { if (e.key === 'Escape') { finish(); } }
+    document.addEventListener('keydown', onKey);
+    if (skip) { skip.addEventListener('click', finish); }
+
+    function play() {
+      if (done) { return; }
+      window.scrollTo(0, 0);
+
+      /* faza 1 — linia intro słowo po słowie */
+      var introWords = splitWords(line);
+      introWords.forEach(function (w, i) {
+        track(w.animate(
+          [{ opacity: 0, filter: 'blur(10px)', transform: 'translateY(8px)' },
+           { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' }],
+          { duration: T.wordDuration, delay: i * T.wordStagger, easing: SOFT, fill: 'both' }
+        ));
+      });
+
+      /* faza 3 — linia gaśnie. Strona ZOSTAJE NA MIEJSCU: żadnego panelu
+         wjeżdżającego z dołu, żadnego ruchu dokumentu — pojawiają się
+         wyłącznie elementy hero. */
+      at(T.revealStart, function () {
+        /* warstwa jest fixed inset:0 — sama przezroczystość nie przepuszcza
+           kliknięć, więc trzeba ją wyłączyć jawnie, zanim zniknie */
+        intro.style.pointerEvents = 'none';
+        track(intro.animate([{ opacity: 1 }, { opacity: 0 }],
+          { duration: T.introFade, easing: 'ease', fill: 'both' }));
+
+        Object.keys(T.content).forEach(function (key) {
+          var delay = T.content[key];
+          document.querySelectorAll('[data-intro="' + key + '"]').forEach(function (el) {
+            if (key !== 'heading') { track(reveal(el, delay, T.contentDuration)); return; }
+            /* nagłówek wchodzi linia po linii */
+            groupByLine(splitWords(el)).forEach(function (lineSpans, i) {
+              lineSpans.forEach(function (span) {
+                track(reveal(span, delay + i * T.headingLineStagger, T.contentDuration));
+              });
+            });
+            el.style.opacity = '1';
+          });
+        });
+      });
+
+      /* koniec sekwencji — zdejmujemy blokadę scrolla i sprzątamy stan */
+      at(T.revealStart + T.content.media + T.contentDuration, finish);
+    }
+
+    /* dopiero po fontach, żeby słowa nie mrugnęły w foncie zastępczym */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(play);
+    } else {
+      play();
+    }
+  })();
+</script>
+
 </body>
+
 </html>
