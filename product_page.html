@@ -738,12 +738,15 @@
   /* ---------- "Other value" custom-quantity row, same tiles shape as
      .pp-qty-row but expands a small form instead of just selecting. ---------- */
   .pp-qty-other { border-radius: 8px; border: 1px solid transparent; background: var(--gray-100); transition: background-color .15s ease; }
-  .pp-qty-other.open,
   .pp-qty-other.active {
     background: #fff;
     border-color: var(--gray-500);
     box-shadow: 0 2px 2px rgba(0,0,0,.08);
   }
+  /* Expanded but not (yet) the selected quantity: same darker gray as a
+     hovered tier row, rather than the white "selected" look above -- open
+     is a distinct state from active and shouldn't read as already chosen. */
+  .pp-qty-other.open:not(.active) { background: var(--gray-300); }
 
   .pp-qty-other-toggle {
     display: flex;
@@ -843,6 +846,10 @@
 
   body.pp-qty-style-input #ppQuantityGrid { display: none; }
 
+  /* Children keep their natural height so the dropdown scrolls instead of
+     squashing the rows to fit its max-height. */
+  body.pp-qty-style-input #ppQtyInputWrap.open #ppQuantityGrid > * { flex: none; }
+
   body.pp-qty-style-input #ppQtyInputWrap.open #ppQuantityGrid {
     display: flex;
     position: absolute;
@@ -930,6 +937,10 @@
     background: #fff;
     box-shadow: inset 0 0 0 1px var(--gray-600), 0 2px 2px rgba(0,0,0,.08);
   }
+  /* Same darker gray as :hover above, held for as long as the popover is
+     open -- expanded but not (yet) the selected quantity shouldn't look
+     identical to the idle cell once the pointer moves away. */
+  .pp-qty-cell-other.open:not(.active) .pp-qty-cell-other-btn { background: var(--gray-300); }
 
   .pp-qty-cell-other-arrow { flex: none; width: 16px; height: 16px; color: var(--gray-500); transition: transform .2s ease; }
   .pp-qty-cell-other.open .pp-qty-cell-other-arrow { transform: rotate(180deg); }
@@ -949,6 +960,154 @@
     box-shadow: 0 8px 24px rgba(0,0,0,.12);
   }
   .pp-qty-cell-other-popover[hidden] { display: none; }
+
+  /* ---------- "long list" variant of the Other widget (opt-in via gear
+     panel): clicking Other opens a bigger dropdown instead of a bare number
+     field -- a "type in your quantity" input on top of a long, scrollable
+     list of ready quantities with unit price + total. Row typography is the
+     same .pp-qty-value/.pp-qty-unit/.pp-qty-total trio as the tier rows, and
+     the rows are generated in JS off the same tier curve that prices custom
+     quantities, so the two can never drift apart. ---------- */
+  .pp-qty-longlist { display: flex; flex-direction: column; }
+  .pp-qty-longlist[hidden] { display: none; }
+
+  /* Positioning root is sized to the input alone (padding moved to
+     margin-bottom below the field) so the Apply button's top:50% actually
+     centers on the input's text, not on input+gap together. */
+  .pp-qty-longlist-field { position: relative; margin: 0 var(--space-4) var(--space-4); }
+  .pp-qty-longlist .pp-qty-longlist-input { flex: none; width: 100%; height: 48px; padding-right: 84px; }
+
+  /* Apply sits inside the field, revealed as soon as anything is typed --
+     the list below still answers most picks, so it only appears when the
+     user is actually going for a number of their own. Styled as a small
+     pill in the brand blue (radius-full/color-accent, same tokens as
+     .btn-pill) rather than the neutral gray used elsewhere on this page --
+     it's the one action that commits a value the picker doesn't already
+     offer, so it reads as the primary affordance inside the field. */
+  .pp-qty-longlist-apply {
+    position: absolute;
+    top: 50%;
+    right: var(--space-2);
+    transform: translateY(-50%);
+    height: 32px;
+    padding: 0 var(--space-4);
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-on-accent);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .pp-qty-longlist-apply:hover { background: var(--color-accent-hover); }
+  .pp-qty-longlist-apply[hidden] { display: none; }
+  .pp-qty-longlist-input::placeholder { color: var(--gray-500); }
+  /* No native spinner: at full width its arrows sit right where the eye
+     lands, and the list below is the way to pick a value anyway. */
+  .pp-qty-longlist-input { appearance: textfield; -moz-appearance: textfield; }
+  .pp-qty-longlist-input::-webkit-outer-spin-button,
+  .pp-qty-longlist-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  /* 8px padding + 5 rows + half of the sixth (44px each) -- the clipped row
+     is the affordance that says the list keeps going. */
+  .pp-qty-longlist-rows {
+    max-height: 250px;
+    /* Last child of the rounded card, so it carries the bottom corners
+       itself rather than the card clipping it (clipping would make the card
+       a scroll container and let scrollIntoView push its own header away). */
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    overflow-y: auto;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--gray-300);
+  }
+
+  /* Same value+prices pair as the tier rows above (.pp-qty-row), just with
+     one addition: .pp-qty-prices gets a fixed width here (scoped below) so
+     the pair's own left edge -- and with it the per-piece rate sitting at
+     that edge -- lands at the same x in every row instead of drifting with
+     the total's digit count. The pair as a whole still hugs the row's right
+     edge via this space-between, matching the reference: per-piece rate
+     reads mid-row, total flush right, both anchored together as one block. */
+  .pp-qty-longlist-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 var(--space-4);
+    border: none;
+    background: none;
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .pp-qty-longlist-row:hover { background: var(--gray-100); }
+  .pp-qty-longlist-row.active { background: var(--gray-100); }
+  .pp-qty-longlist-row[hidden] { display: none; }
+
+  .pp-qty-longlist-row .pp-qty-prices {
+    flex: none;
+    width: 150px;
+    justify-content: space-between;
+  }
+  .pp-qty-longlist-row .pp-qty-unit { text-align: left; }
+  .pp-qty-longlist-row .pp-qty-total { text-align: right; }
+
+  /* Row for a quantity at/above the last real tier's pricing curve -- past it
+     the "rate" is just a flat extrapolation, not a quoted number, so the row
+     points to a real quote instead of guessing a price. Plain second flex
+     child, same as .pp-qty-prices above it, so it lands flush right too. */
+  .pp-qty-longlist-quote-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-full);
+    background: var(--yellow-light);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+    transition: filter .15s ease;
+  }
+  .pp-qty-longlist-row:hover .pp-qty-longlist-quote-badge { filter: brightness(0.96); }
+
+  .pp-qty-longlist-empty { padding: var(--space-3) var(--space-4); font-size: 13px; color: var(--gray-500); }
+  .pp-qty-longlist-empty[hidden] { display: none; }
+
+  /* Label swap: the small-form Other row says "Other value", the long-list
+     one asks the user to choose from the list below it. */
+  .pp-qty-other-label-long { display: none; }
+  body.pp-qty-other-long .pp-qty-other-label-default { display: none; }
+  body.pp-qty-other-long .pp-qty-other-label-long { display: inline; }
+
+  /* Horizontal picker: the same panel as a popover, spanning the whole
+     configurator column rather than the narrow Other cell -- which is why it
+     hangs off #ppQtyPicker (the full-width, position:relative row) instead of
+     off the cell, absolutely positioned so it takes no grid track. */
+  .pp-qty-cell-other-popover-long {
+    display: block;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    right: 0;
+    width: auto;
+    padding: var(--space-3) 0 0;
+    overflow: hidden;
+  }
+  .pp-qty-cell-other-popover-long .pp-qty-longlist-field { margin: 0 var(--space-4) var(--space-3); }
+
+  /* Input style renders #ppQuantityGrid as a floating dropdown with its own
+     max-height -- let it grow while the long list is expanded inside it, so
+     the rows don't end up in a scroll area nested in another scroll area. */
+  body.pp-qty-style-input #ppQtyInputWrap.open:has(.pp-qty-other.open) #ppQuantityGrid { max-height: min(60vh, 460px); }
+  body.pp-qty-style-input .pp-qty-longlist-rows { max-height: 206px; } /* 4 rows + half */
 
   /* ---------- USPs (tick list, cta-usps adapted for a light background) ---------- */
   .pp-usps {
@@ -1898,13 +2057,24 @@
         </button>
         <div class="pp-qty-other" id="ppQtyOther">
           <button type="button" class="pp-qty-other-toggle" id="ppQtyOtherToggle">
-            <span class="pp-qty-value">Other value</span>
+            <span class="pp-qty-value">
+              <span class="pp-qty-other-label-default">Other value</span>
+              <span class="pp-qty-other-label-long">Choose other value</span>
+            </span>
             <svg class="pp-qty-other-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
           </button>
           <form class="pp-qty-other-form" id="ppQtyOtherForm" hidden>
             <input type="number" min="1" class="pp-qty-other-input" id="ppQtyOtherInput" placeholder="Quantity">
             <button type="submit" class="pp-qty-other-apply">Apply</button>
           </form>
+          <div class="pp-qty-longlist" id="ppQtyOtherLong" hidden>
+            <form class="pp-qty-longlist-field">
+              <input type="number" min="1" class="pp-qty-other-input pp-qty-longlist-input" placeholder="Type in your quantity">
+              <button type="submit" class="pp-qty-longlist-apply" hidden>Apply</button>
+            </form>
+            <div class="pp-qty-longlist-rows"></div>
+            <p class="pp-qty-longlist-empty" hidden>No ready quantity matches — press Enter to use the number you typed.</p>
+          </div>
         </div>
       </div>
       </div>
@@ -1938,6 +2108,14 @@
             <input type="number" min="1" class="pp-qty-other-input" id="ppQtyPickerOtherInput" placeholder="Quantity">
             <button type="submit" class="pp-qty-other-apply">Apply</button>
           </form>
+        </div>
+        <div class="pp-qty-cell-other-popover pp-qty-cell-other-popover-long pp-qty-longlist" id="ppQtyPickerOtherLong" hidden>
+          <form class="pp-qty-longlist-field">
+            <input type="number" min="1" class="pp-qty-other-input pp-qty-longlist-input" placeholder="Type in your quantity">
+            <button type="submit" class="pp-qty-longlist-apply" hidden>Apply</button>
+          </form>
+          <div class="pp-qty-longlist-rows"></div>
+          <p class="pp-qty-longlist-empty" hidden>No ready quantity matches — press Enter to use the number you typed.</p>
         </div>
       </div>
     </section>
@@ -2631,6 +2809,16 @@
   </div>
   <div class="site-settings-row">
     <div>
+      <p class="site-settings-label">Short "Other" field</p>
+      <p class="site-settings-desc">Use a plain number field for the quantity picker's "Other" instead of the long dropdown — a type-in field over a scrollable list of ready quantities with prices</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleQtyOtherLong">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
       <p class="site-settings-label">Hide related products under config</p>
       <p class="site-settings-desc">Hide the "Pairs well with..." mini-section with two related products below the configurator and options table</p>
     </div>
@@ -2741,6 +2929,26 @@
     });
 
     applyQtyStyle(localStorage.getItem('qtyStyle') || 'horizontal');
+
+    var qtyOtherLongToggle = document.getElementById('toggleQtyOtherLong');
+
+    // The long list is now the default -- the toggle instead opts INTO the
+    // old default (bare number field), so checked means short.
+    function applyQtyOtherLong(short) {
+      document.body.classList.toggle('pp-qty-other-long', !short);
+      qtyOtherLongToggle.checked = short;
+      // Switching the mode while an Other panel is open would leave the wrong
+      // panel showing, so collapse both (defined by the quantity script below,
+      // hence the guard on the initial call).
+      if (window.ppCloseQtyOtherPanels) { window.ppCloseQtyOtherPanels(); }
+    }
+
+    applyQtyOtherLong(localStorage.getItem('qtyOtherLong') === 'short');
+
+    qtyOtherLongToggle.addEventListener('change', function () {
+      applyQtyOtherLong(qtyOtherLongToggle.checked);
+      localStorage.setItem('qtyOtherLong', qtyOtherLongToggle.checked ? 'short' : 'long');
+    });
 
     var relatedUnderConfigToggle = document.getElementById('toggleRelatedUnderConfig');
 
@@ -2980,6 +3188,9 @@
     var cellOtherValueEl = document.getElementById('ppQtyPickerOtherValue');
     var cellOtherUnitEl = document.getElementById('ppQtyPickerOtherUnit');
 
+    var otherLong = document.getElementById('ppQtyOtherLong');
+    var cellOtherLong = document.getElementById('ppQtyPickerOtherLong');
+
     var inputWrap = document.getElementById('ppQtyInputWrap');
     var inputBtn = document.getElementById('ppQtyInputBtn');
     var inputValueEl = document.getElementById('ppQtyInputValue');
@@ -3034,8 +3245,10 @@
       cells.forEach(function (c) { c.classList.remove('active'); });
       otherRow.classList.remove('active', 'open');
       otherForm.hidden = true;
+      otherLong.hidden = true;
       cellOther.classList.remove('active', 'open');
       cellOtherForm.hidden = true;
+      cellOtherLong.hidden = true;
       inputWrap.classList.remove('open');
     }
 
@@ -3072,10 +3285,205 @@
       });
     });
 
+    // ---------- "long list" Other dropdown (opt-in via gear panel) ----------
+    // Same panel in both pickers: a type-in field over a scrollable list of
+    // ready quantities. The rows are built here rather than hand-written in
+    // the markup so their unit price/total come from the same tier curve
+    // that prices any custom quantity -- and so the list only exists once.
+    // Starts at the lowest real tier (30) on purpose: below it the tier curve
+    // runs into the 1-piece prototype price, so a "15" row would quote more
+    // than the 30 row right above it.
+    // Every step the pickers themselves never show -- the quantities already
+    // on screen before the panel opens are filtered out per picker below, so
+    // the long list only ever adds values, never repeats them.
+    // Nothing below 30 on purpose: under the lowest real tier the price curve
+    // runs into the 1-piece prototype rate, so a "15" row would quote more
+    // than the 30 the picker already shows.
+    var LONG_QUANTITIES = [30, 45, 60, 75, 90, 100, 120, 150, 200, 250, 300,
+                           350, 400, 500, 600, 750, 900, 1000, 1250, 1500, 2000,
+                           2500, 3000, 4000, 5000, 7500, 10000];
+
+    // At and beyond the top of the list the "rate" is just the last real
+    // tier's price held flat, not an actual quote -- past that point the row
+    // sends people to a real quote instead of a made-up number.
+    var QUOTE_THRESHOLD = 10000;
+
+    function totalForTier(qty) {
+      var card = document.querySelector('#ppQuantityGrid .pp-qty-row[data-qty="' + qty + '"]');
+      return card ? card.getAttribute('data-total') : null;
+    }
+
+    // A quantity that happens to be one of the tiers selects that tier (so the
+    // tier row above lights up); anything else goes through the custom path.
+    // Typing/Apply-ing a quantity at or past the quote threshold takes the
+    // same route as clicking the quote-badge row itself, so every way of
+    // committing that number lands in the same place.
+    function applyLongQuantity(qty) {
+      if (qty >= QUOTE_THRESHOLD) { window.location.href = 'get-a-quote.html'; return; }
+      var tierTotal = totalForTier(qty);
+      if (tierTotal) { selectTier(qty, tierTotal); } else { selectCustom(qty); }
+    }
+
+    function longRowMarkup(qty) {
+      var unit = findUnitForQty(qty);
+      var total = totalForTier(qty) || (qty * unit).toFixed(2);
+      // Same .pp-qty-prices wrapper as the tier rows: per-piece rate first,
+      // total second -- the fixed width on .pp-qty-longlist-row .pp-qty-prices
+      // is what keeps the pair (and the per-piece rate inside it) aligned.
+      return '<span class="pp-qty-value">' + qty + '</span>' +
+             '<span class="pp-qty-prices">' +
+               '<span class="pp-qty-unit">€' + unit.toFixed(2) + '/piece</span>' +
+               '<span class="pp-qty-total">€' + total + '</span>' +
+             '</span>';
+    }
+
+    function makeLongRow(qty) {
+      if (qty >= QUOTE_THRESHOLD) {
+        var link = document.createElement('a');
+        link.className = 'pp-qty-longlist-row';
+        link.href = 'get-a-quote.html';
+        link.setAttribute('data-qty', qty);
+        link.innerHTML =
+          '<span class="pp-qty-value">' + qty + '</span>' +
+          '<span class="pp-qty-longlist-quote-badge">Get a quote</span>';
+        return link;
+      }
+
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'pp-qty-longlist-row';
+      row.setAttribute('data-qty', qty);
+      row.innerHTML = longRowMarkup(qty);
+      row.addEventListener('click', function () { applyLongQuantity(qty); });
+      return row;
+    }
+
+    // selector: the picker whose own quantities this panel must not repeat --
+    // read from the DOM rather than hard-coded, so the two lists can't drift
+    // apart when a tier is edited.
+    function buildLongPanel(panel, selector) {
+      var rowsWrap = panel.querySelector('.pp-qty-longlist-rows');
+      var empty = panel.querySelector('.pp-qty-longlist-empty');
+      var field = panel.querySelector('.pp-qty-longlist-field');
+      var input = panel.querySelector('.pp-qty-longlist-input');
+      var applyBtn = panel.querySelector('.pp-qty-longlist-apply');
+
+      // type="number" inputs bump their value on mouse-wheel while focused --
+      // the whole point of this field is picking one exact quantity, so a
+      // stray scroll silently changing it (and not even the list below it,
+      // which scrolls the ordinary way) would be actively misleading.
+      input.addEventListener('wheel', function (e) {
+        if (document.activeElement === input) { e.preventDefault(); }
+      }, { passive: false });
+
+      var shown = Array.prototype.map.call(document.querySelectorAll(selector), function (el) {
+        return Number(el.getAttribute('data-qty'));
+      });
+
+      LONG_QUANTITIES.filter(function (qty) { return shown.indexOf(qty) === -1; })
+        .forEach(function (qty) { rowsWrap.appendChild(makeLongRow(qty)); });
+
+      // A typed quantity that isn't on the list gets its own row, slotted in
+      // between the neighbouring values instead of appended at the end, so its
+      // price reads in context. Only one such row exists at a time.
+      var typedRow = null;
+
+      function dropTypedRow() {
+        if (typedRow) { rowsWrap.removeChild(typedRow); typedRow = null; }
+      }
+
+      function syncTypedRow(qty) {
+        dropTypedRow();
+        if (!qty) { return; }
+        var existing = rowsWrap.querySelector('.pp-qty-longlist-row[data-qty="' + qty + '"]');
+        if (existing) { return; }
+        typedRow = makeLongRow(qty);
+        typedRow.classList.add('pp-qty-longlist-row-typed');
+        var before = null;
+        Array.prototype.some.call(rowsWrap.children, function (row) {
+          if (Number(row.getAttribute('data-qty')) > qty) { before = row; return true; }
+          return false;
+        });
+        rowsWrap.insertBefore(typedRow, before);
+      }
+
+      function refresh() {
+        var q = input.value.trim();
+        var qty = Math.round(Number(q));
+        if (!isFinite(qty) || qty <= 0) { qty = 0; }
+
+        applyBtn.hidden = q.length < 1;
+        syncTypedRow(qty);
+
+        var visible = 0;
+        Array.prototype.forEach.call(rowsWrap.children, function (row) {
+          var value = row.getAttribute('data-qty');
+          // The typed value always stays visible; the rest narrow to the
+          // quantities that start with what was typed.
+          var match = !q || row === typedRow || value.indexOf(q) === 0;
+          row.hidden = !match;
+          if (match) { visible++; }
+        });
+        empty.hidden = visible > 0;
+      }
+
+      input.addEventListener('input', refresh);
+
+      field.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var qty = Math.round(Number(input.value));
+        if (!isFinite(qty) || qty <= 0) { return; }
+        applyLongQuantity(qty);
+      });
+
+      // Opened from a row near the fold the panel would land mostly below it
+      // (worst in the "input" style, where it expands inside a dropdown that
+      // already hangs down) -- bring it into view instead.
+      panel.ppRevealTimer = null;
+      panel.ppReveal = function () {
+        clearTimeout(panel.ppRevealTimer);
+        panel.ppRevealTimer = setTimeout(function () {
+          panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }, 60);
+      };
+
+      panel.ppReset = function () {
+        input.value = '';
+        dropTypedRow();
+        applyBtn.hidden = true;
+        empty.hidden = true;
+        rowsWrap.scrollTop = 0;
+        Array.prototype.forEach.call(rowsWrap.children, function (row) { row.hidden = false; });
+      };
+      panel.ppFocus = function () { input.focus(); };
+    }
+
+    buildLongPanel(otherLong, '#ppQuantityGrid .pp-qty-row');
+    buildLongPanel(cellOtherLong, '#ppQtyPicker .pp-qty-cell');
+
+    function longMode() { return document.body.classList.contains('pp-qty-other-long'); }
+
+    // Collapse both Other widgets -- used by the gear panel when the mode is
+    // switched while one of them is open.
+    window.ppCloseQtyOtherPanels = function () {
+      otherRow.classList.remove('open');
+      otherForm.hidden = true;
+      otherLong.hidden = true;
+      otherLong.ppReset();
+      cellOther.classList.remove('open');
+      cellOtherForm.hidden = true;
+      cellOtherLong.hidden = true;
+      cellOtherLong.ppReset();
+    };
+
     otherToggle.addEventListener('click', function () {
       var open = otherRow.classList.toggle('open');
-      otherForm.hidden = !open;
-      if (open) { otherInput.focus(); }
+      var long = longMode();
+      otherForm.hidden = !open || long;
+      otherLong.hidden = !open || !long;
+      if (open) {
+        if (long) { otherLong.ppReset(); otherLong.ppFocus(); otherLong.ppReveal(); } else { otherInput.focus(); }
+      }
     });
 
     otherForm.addEventListener('submit', function (e) {
@@ -3087,8 +3495,12 @@
 
     cellOtherBtn.addEventListener('click', function () {
       var open = cellOther.classList.toggle('open');
-      cellOtherForm.hidden = !open;
-      if (open) { cellOtherInput.focus(); }
+      var long = longMode();
+      cellOtherForm.hidden = !open || long;
+      cellOtherLong.hidden = !open || !long;
+      if (open) {
+        if (long) { cellOtherLong.ppReset(); cellOtherLong.ppFocus(); cellOtherLong.ppReveal(); } else { cellOtherInput.focus(); }
+      }
     });
 
     cellOtherForm.addEventListener('submit', function (e) {
@@ -3099,9 +3511,12 @@
     });
 
     document.addEventListener('click', function (e) {
-      if (!cellOther.contains(e.target) && cellOther.classList.contains('open')) {
+      // The long panel hangs off #ppQtyPicker, not off the cell, so it has to
+      // be excluded from the outside-click test explicitly.
+      if (!cellOther.contains(e.target) && !cellOtherLong.contains(e.target) && cellOther.classList.contains('open')) {
         cellOther.classList.remove('open');
         cellOtherForm.hidden = true;
+        cellOtherLong.hidden = true;
       }
     });
 
