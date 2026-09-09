@@ -140,23 +140,54 @@
     position: fixed;
     inset: 0;
     z-index: 200;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-8);
+    overflow: hidden;
     background: var(--color-bg-page);
     text-align: center;
   }
 
-  .lc-intro-armed .lc-intro { display: flex; }
+  .lc-intro-armed .lc-intro { display: block; }
 
   .lc-intro-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: min(90vw, 22ch);
     margin: 0;
-    max-width: 22ch;
+    transform: translate(-50%, -50%);
     font-weight: var(--type-h1-weight);
     font-size: clamp(2rem, 4vw, 3.5rem);
     line-height: 1.1;
     letter-spacing: -0.02em;
     color: var(--color-text-primary);
+  }
+
+  /* globus w całości POD tekstem — własny łuk u góry, nic go nie ucina;
+     schodzi do zera maską gradientową przy dolnej krawędzi ekranu */
+  .lc-intro-globe {
+    position: absolute;
+    left: 50%;
+    top: 46vh;
+    width: max(91vw, 84vh);   /* 130vw/120vh pomniejszone o 30% */
+    aspect-ratio: 1 / 1;
+    transform: translateX(-50%);
+    opacity: 0.6;
+    /* stopy w vh, nie w %: procenty liczą się od wysokości ELEMENTU (tu ~1900px),
+       a widoczny jest tylko jego górny fragment — gradient wypadał wtedy grubo
+       poniżej ekranu i nie było go w ogóle widać */
+    /* Maska wygasza też GÓRĘ. cobe maluje słabą poświatę na całej powierzchni
+       canvasu, nie tylko na kuli, więc jego górna krawędź rysowała się na tle
+       strony jako prosta pozioma linia — wyglądało to jak prostokąt
+       przykrywający globus. Sama kula zaczyna się ok. 10% niżej niż canvas,
+       więc wygaszenie do 14vh jej nie dotyka. */
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14vh, #000 36vh, transparent 56vh);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14vh, #000 36vh, transparent 56vh);
+  }
+
+  .lc-intro-globe canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   /* każde słowo osobno — animujemy spany, nie podmieniamy treści, więc
@@ -399,27 +430,6 @@
   .lc-hero-card-wide     { aspect-ratio: 16 / 10; }
   .lc-hero-card-square   { aspect-ratio: 1 / 1; }
   .lc-hero-card-portrait { aspect-ratio: 4 / 5; }
-
-  /* globus jedzie razem z pasem — jest jedną z kart */
-  .lc-globe-media {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .lc-globe-stage {
-    position: absolute;
-    left: 50%;
-    top: 56px;
-    width: 200%;
-    aspect-ratio: 1 / 1;
-    transform: translateX(-50%);
-  }
-
-  .lc-globe-stage canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
 
   @media (prefers-reduced-motion: reduce) {
     .lc-hero-track { animation: none; }
@@ -789,6 +799,227 @@
       gap: var(--space-5);
     }
     .lc-solve-cell h3 { font-size: 1.5rem; }
+  }
+
+  /* ---------- PAIN — WARIANT ALTERNATYWNY (lista tabelaryczna zamiast tabów:
+     każda grupa to nagłówek z ikoną i licznikiem, pod nim wiersze
+     nazwa / opis. Bez rozwijania. Włączany trybikiem w rogu). ---------- */
+  /* wersja tabelaryczna jest DOMYŚLNA; taby są teraz wariantem spod trybika */
+  #lc-challenges { display: none; }
+  body.pain-tabs #lc-challenges { display: block; }
+  body.pain-tabs #lc-challenges-alt { display: none; }
+
+  .lc-tbl-group + .lc-tbl-group { margin-top: var(--space-20); }
+
+  .lc-tbl-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .lc-tbl-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-muted-hover);
+    color: var(--color-text-primary);
+  }
+
+  .lc-tbl-icon svg { width: 24px; height: 24px; }
+
+  .lc-tbl-head h3 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.75rem;
+    line-height: 1.16;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+  }
+
+  /* wiersz nagłówków kolumn i wiersze danych dzielą tę samą siatkę */
+  .lc-tbl-cols,
+  .lc-tbl-row {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: var(--space-8);
+  }
+
+  .lc-tbl-cols {
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .lc-tbl-cols span {
+    font-size: var(--type-eyebrow-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    opacity: 0.7;
+  }
+
+  .lc-tbl-row {
+    align-items: baseline;
+    padding: var(--space-6) 0;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .lc-tbl-row dt {
+    margin: 0;
+    font-weight: 400;
+    font-size: 1.0625rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .lc-tbl-row dd {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .lc-tbl-list { margin: 0; }
+
+  @media (max-width: 700px) {
+    /* dwie kolumny nie mieszczą się — nazwa nad opisem, nagłówki kolumn
+       przestają cokolwiek opisywać, więc znikają */
+    .lc-tbl-cols { display: none; }
+    .lc-tbl-row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+      padding: var(--space-5) 0;
+    }
+    .lc-tbl-row:first-of-type { border-top: 1px solid var(--color-border-default); }
+    .lc-tbl-head h3 { font-size: 1.5rem; }
+  }
+
+  /* ---------- SOLUTIONS — WARIANT ALTERNATYWNY (przypięty nagłówek na środku
+     + kafle mijające go zygzakiem). Włączany trybikiem w rogu; obie wersje
+     siedzą w DOM-ie, przełącza je klasa .solve-alt na <body>. ---------- */
+  #lc-solutions-alt { display: none; }
+  body.solve-alt #lc-solutions { display: none; }
+  body.solve-alt #lc-solutions-alt { display: block; }
+
+  /* padding-top jak w .lc-section (§7 rhythm) plus zapas: wyśrodkowanie
+     nagłówka przez translateY(-50%) wyciąga go o połowę własnej wysokości
+     ponad górną krawędź sekcji i bez tego wchodził na sekcję wyżej */
+  .lc-zig { padding: var(--space-40) var(--space-8) 0; }
+
+  .lc-zig-stage {
+    position: relative;
+    max-width: 1216px;
+    margin: 0 auto;
+  }
+
+  /* nagłówek przypina się na środku ekranu i stoi tam przez całą sekcję */
+  .lc-zig-center {
+    position: sticky;
+    top: 50vh;
+    z-index: 1;
+    transform: translateY(-50%);
+    text-align: center;
+  }
+
+  /* typografia dokładnie ta sama co w pozostałych sekcjach — .section-badge,
+     .lc-h2 i .lc-sub; tu tylko wyśrodkowanie */
+  .lc-zig-center .lc-sub {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* kafle mają WYŻSZY z-index niż nagłówek — przechodząc przez środek
+     ekranu przycinają go swoją krawędzią. To jest sedno efektu. */
+  .lc-zig-cards {
+    position: relative;
+    z-index: 2;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .lc-zig-card {
+    /* --x: ręcznie dobrane wcięcie, na przemian prawa/lewa strona.
+       Celowo NIE siatka — nieregularność jest częścią designu. */
+    width: 300px;
+    margin-left: var(--x);
+    margin-top: 40vh;
+    padding: 20px 20px 40px;
+    border-radius: 20px;
+    /* te same powierzchnie co kafle w sekcji "Before we talk about us" */
+    background: var(--color-bg-muted);
+  }
+
+  .lc-zig-card:first-child { margin-top: 30vh; }
+
+  /* slot na zdjęcie — do podmiany na <img> bez ruszania layoutu */
+  .lc-zig-media {
+    aspect-ratio: 4 / 5;
+    margin-bottom: var(--space-5);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-bg-muted-hover);
+  }
+
+  .lc-zig-card h3 {
+    margin: 0 0 var(--space-2);
+    font-weight: 500;
+    font-size: 1.125rem;
+    line-height: 1.24;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .lc-zig-card p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* wejście kafla — raz, przez IntersectionObserver */
+  .lc-zig-card {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lc-zig-card.is-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  @media (max-width: 767px) {
+    /* bez sticky i bez nakładania: nagłówek na górze, kafle w kolumnie */
+    .lc-zig { padding: var(--space-24) var(--space-5) 0; }
+    .lc-zig-center {
+      position: static;
+      transform: none;
+      margin-bottom: var(--space-12);
+    }
+    .lc-zig-card {
+      width: auto;
+      margin-left: 0;
+      margin-top: var(--space-8);
+    }
+    .lc-zig-card:first-child { margin-top: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* sticky zostaje, znika samo wejście */
+    .lc-zig-card {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   /* ---------- SCROLL CAROUSEL (komponent współdzielony: Products i Proof).
@@ -1895,12 +2126,28 @@
 
     if (!seen && !skipped && !reduce) { document.documentElement.classList.add('lc-intro-armed'); }
   })();
+
+  /* wybór wariantu sekcji "How we solve it" — nakładany przed pierwszym
+     malowaniem, żeby nie mrugnęła najpierw domyślna wersja */
+  (function () {
+    try {
+      var solveAlt = localStorage.getItem('lcSolveAlt') === '1';
+      var painTabs = localStorage.getItem('lcPainTabs') === '1';
+      if (solveAlt || painTabs) {
+        document.addEventListener('DOMContentLoaded', function () {
+          if (solveAlt) { document.body.classList.add('solve-alt'); }
+          if (painTabs) { document.body.classList.add('pain-tabs'); }
+        });
+      }
+    } catch (e) {}
+  })();
 </script>
 </head>
 <body>
 
 <div class="lc-intro" aria-hidden="true">
   <p class="lc-intro-line">Twelve suppliers. One partner.</p>
+  <div class="lc-intro-globe"><canvas class="lc-globe-canvas"></canvas></div>
 </div>
 <button class="lc-intro-skip" type="button">Skip intro (Esc)</button>
 
@@ -1942,8 +2189,8 @@
       <div class="lc-hero-media" data-intro="media">
         <div class="lc-hero-track">
           <div class="lc-hero-set">
-        <div class="lc-hero-card lc-hero-card-portrait lc-globe-media">
-          <div class="lc-globe-stage"><canvas class="lc-globe-canvas" aria-hidden="true"></canvas></div>
+        <div class="lc-hero-card lc-hero-card-portrait">
+          <img src="assets/samplepacks/Packhelp_0669.jpg" alt="Two branded mailer boxes, one open on a warm background" loading="lazy" decoding="async">
         </div>
         <div class="lc-hero-card lc-hero-card-wide">
           <img src="assets/enterprise/hero-desk-quote.jpg" alt="A packaging quote open on a desktop monitor next to a printed copy, keyboard and coffee" loading="lazy" decoding="async">
@@ -1962,8 +2209,8 @@
         </div>
           </div>
           <div class="lc-hero-set" aria-hidden="true">
-        <div class="lc-hero-card lc-hero-card-portrait lc-globe-media">
-          <div class="lc-globe-stage"><canvas class="lc-globe-canvas" aria-hidden="true"></canvas></div>
+        <div class="lc-hero-card lc-hero-card-portrait">
+          <img src="assets/samplepacks/Packhelp_0669.jpg" alt="Two branded mailer boxes, one open on a warm background" loading="lazy" decoding="async">
         </div>
         <div class="lc-hero-card lc-hero-card-wide">
           <img src="assets/enterprise/hero-desk-quote.jpg" alt="A packaging quote open on a desktop monitor next to a printed copy, keyboard and coffee" loading="lazy" decoding="async">
@@ -2089,6 +2336,104 @@
 
   </section>
 
+  <!-- ============ PAIN — wariant alternatywny (trybik w rogu) ============ -->
+  <section class="lc-section reveal" id="lc-challenges-alt">
+    <div class="lc-section-head">
+      <span class="section-badge">Before we talk about us</span>
+      <h2 class="lc-h2 lc-h2-sm">Sound familiar?</h2>
+      <p class="lc-sub">Check whether we&rsquo;ve understood what your team is actually dealing with.</p>
+    </div>
+
+    <div class="lc-tbl-group">
+      <div class="lc-tbl-head">
+        <span class="lc-tbl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+        <h3>Operations</h3>
+      </div>
+      <div class="lc-tbl-cols"><span>Challenge</span><span>What it looks like</span></div>
+      <dl class="lc-tbl-list">
+        <div class="lc-tbl-row">
+          <dt>A range that grows faster than the team</dt>
+          <dd>Every dimension or artwork change becomes its own project, quote and queue.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Data that drifts apart</dt>
+          <dd>One price in the sheet, another in the system, a third on the invoice.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Four teams, four criteria</dt>
+          <dd>Procurement, marketing, finance and sustainability all have to say yes.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="lc-tbl-group">
+      <div class="lc-tbl-head">
+        <span class="lc-tbl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><line x1="2" y1="12" x2="22" y2="12"/></svg></span>
+        <h3>Supply chain</h3>
+      </div>
+      <div class="lc-tbl-cols"><span>Challenge</span><span>What it looks like</span></div>
+      <dl class="lc-tbl-list">
+        <div class="lc-tbl-row">
+          <dt>One supplier is one risk</dt>
+          <dd>One line goes down at your sole partner and there is nothing to ship in.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Lead times without a guarantee</dt>
+          <dd>The delivery date for packaging is a range, not a date. Planning runs on a buffer.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Deliveries into several countries at once</dt>
+          <dd>Different warehouses, calendars and paperwork in every market you ship to.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="lc-tbl-group">
+      <div class="lc-tbl-head">
+        <span class="lc-tbl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span>
+        <h3>ESG &amp; regulation</h3>
+      </div>
+      <div class="lc-tbl-cols"><span>Challenge</span><span>What it looks like</span></div>
+      <dl class="lc-tbl-list">
+        <div class="lc-tbl-row">
+          <dt>Regulation moves faster than the pack</dt>
+          <dd>PPWR, EUDR, CBAM. A design signed off this year may need reworking the next.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Carbon footprint per SKU</dt>
+          <dd>The report needs data that sits with suppliers, in odd formats, or nowhere.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Auditing the whole supplier network</dt>
+          <dd>A dozen partners to verify, and the greenwashing risk lands on your brand.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="lc-tbl-group">
+      <div class="lc-tbl-head">
+        <span class="lc-tbl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg></span>
+        <h3>Finance</h3>
+      </div>
+      <div class="lc-tbl-cols"><span>Challenge</span><span>What it looks like</span></div>
+      <dl class="lc-tbl-list">
+        <div class="lc-tbl-row">
+          <dt>Capital frozen in stock</dt>
+          <dd>Minimum runs force a buffer. The money sits in a warehouse instead of working.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Prepayment with every new supplier</dt>
+          <dd>Diversifying costs you twice &mdash; once operationally, once in cash flow.</dd>
+        </div>
+        <div class="lc-tbl-row">
+          <dt>Pressure on unit cost</dt>
+          <dd>Finance expects a reduction, marketing a new finish. Same box, both jobs.</dd>
+        </div>
+      </dl>
+    </div>
+
+  </section>
+
   <!-- ============ SOLUTIONS ============ -->
   <section class="lc-section reveal" id="lc-solutions">
     <div class="lc-section-head">
@@ -2144,6 +2489,43 @@
     </div>
 
 
+  </section>
+
+  <!-- ============ SOLUTIONS — wariant alternatywny (trybik w rogu) ============ -->
+  <section class="lc-zig" id="lc-solutions-alt">
+    <div class="lc-zig-stage">
+
+      <!-- nagłówek PRZED kaflami w DOM-ie; nakładanie robi wyłącznie z-index -->
+      <div class="lc-zig-center">
+        <span class="section-badge">How it works</span>
+        <h2 class="lc-h2">How we solve it</h2>
+        <p class="lc-sub">Four answers to the four groups of problems above.</p>
+      </div>
+
+      <ul class="lc-zig-cards">
+        <li class="lc-zig-card" style="--x: 66%">
+          <div class="lc-zig-media"></div>
+          <h3>A network of plants, not a single factory</h3>
+          <p>The same SKU can be produced at several sites across Europe. A line going down doesn&rsquo;t stop your shipments, and you still talk to one team about it.</p>
+        </li>
+        <li class="lc-zig-card" style="--x: 10%">
+          <div class="lc-zig-media"></div>
+          <h3>One contract, one team, one invoice</h3>
+          <p>A dedicated account manager and a technologist run the whole range. Specs, prices and order history live in one place, open to every team that needs them.</p>
+        </li>
+        <li class="lc-zig-card" style="--x: 60%">
+          <div class="lc-zig-media"></div>
+          <h3>Stock held here, released on call-off</h3>
+          <p>We produce the full run, store it, and release it in batches when you need it &mdash; to whichever warehouses you name, in as many countries as you ship to.</p>
+        </li>
+        <li class="lc-zig-card" style="--x: 28%">
+          <div class="lc-zig-media"></div>
+          <h3>Compliance paperwork as standard</h3>
+          <p>Every order comes with the reporting data attached: material composition, carbon footprint, certificates and declarations of conformity.</p>
+        </li>
+      </ul>
+
+    </div>
   </section>
 
   <!-- ============ PRODUCTS ============ -->
@@ -2990,6 +3372,95 @@
     });
   })();
 
+
+  /* wariant sekcji "How we solve it" — wiersz w panelu spod trybika.
+     Panel tworzy nav-header.js na DOMContentLoaded, więc dokładamy się
+     do niego po nim. */
+  (function () {
+    var KEY = 'lcSolveAlt';
+
+    function mount() {
+      var panel = document.getElementById('siteSettingsPanel');
+      if (!panel) { return; }
+
+      var row = document.createElement('div');
+      row.className = 'site-settings-row';
+      row.innerHTML =
+        '<div>' +
+          '<p class="site-settings-label">How we solve it</p>' +
+          '<p class="site-settings-desc">Scroll variant: pinned heading with cards passing over it</p>' +
+        '</div>' +
+        '<label class="site-toggle">' +
+          '<input type="checkbox" id="toggleSolveAlt">' +
+          '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
+        '</label>';
+      panel.appendChild(row);
+
+      var input = row.querySelector('#toggleSolveAlt');
+      input.checked = document.body.classList.contains('solve-alt');
+      input.addEventListener('change', function () {
+        document.body.classList.toggle('solve-alt', input.checked);
+        try { localStorage.setItem(KEY, input.checked ? '1' : '0'); } catch (e) {}
+        observeCards();
+      });
+
+      var painRow = document.createElement('div');
+      painRow.className = 'site-settings-row';
+      painRow.innerHTML =
+        '<div>' +
+          '<p class="site-settings-label">Sound familiar?</p>' +
+          '<p class="site-settings-desc">Tabbed variant: one group at a time</p>' +
+        '</div>' +
+        '<label class="site-toggle">' +
+          '<input type="checkbox" id="togglePainTabs">' +
+          '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
+        '</label>';
+      panel.appendChild(painRow);
+
+      var painInput = painRow.querySelector('#togglePainTabs');
+      painInput.checked = document.body.classList.contains('pain-tabs');
+      painInput.addEventListener('change', function () {
+        document.body.classList.toggle('pain-tabs', painInput.checked);
+        try { localStorage.setItem('lcPainTabs', painInput.checked ? '1' : '0'); } catch (e) {}
+        /* wskaźnik aktywnego taba liczy się z offsetWidth — dopóki sekcja
+           była ukryta, wychodziło 0. Skrypt tabów przelicza go na resize. */
+        window.dispatchEvent(new Event('resize'));
+      });
+    }
+
+    /* wejście kafli — raz na kafel, przy 15% widoczności */
+    var observer = null;
+    function observeCards() {
+      var cards = document.querySelectorAll('.lc-zig-card:not(.is-in)');
+      if (!cards.length) { return; }
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.IntersectionObserver) {
+        cards.forEach(function (c) { c.classList.add('is-in'); });
+        return;
+      }
+
+      if (!observer) {
+        observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-in');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15 });
+      }
+      cards.forEach(function (c) { observer.observe(c); });
+    }
+
+    /* nav-header.js montuje panel na DOMContentLoaded — wchodzimy po nim */
+    function init() { mount(); observeCards(); }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 0); });
+    } else {
+      setTimeout(init, 0);
+    }
+  })();
+
   /* scroll reveal */
   (function () {
     var observer = new IntersectionObserver(function (entries) {
@@ -3006,7 +3477,7 @@
 </script>
 
 <script type="module">
-  /* Globus w kaflu "A network of plants" — cobe (vendored: cobe.js).
+  /* Globus na ekranie intro — cobe (vendored: cobe.js).
 
      UWAGA na wersję API: dokumentacja na cobe.vercel.app pokazuje jeszcze 0.6.x
      z opcją `onRender` i własną pętlą renderowania w środku. W 2.0.1 tego NIE MA
@@ -3019,8 +3490,8 @@
   import createGlobe from './cobe.js';
 
   (function () {
-    /* pas zdjęć jest zduplikowany dla bezszwowej pętli, więc globusów jest
-       dwa — jedna instancja cobe na canvas, obie napędzane jedną pętlą rAF */
+    /* globus żyje teraz wyłącznie na warstwie intro; querySelectorAll zostaje,
+       bo obsługuje dowolną ich liczbę i jedną wspólną pętlę rAF */
     var canvases = [].slice.call(document.querySelectorAll('.lc-globe-canvas'));
     if (!canvases.length) return;
     var stages = canvases.map(function (c) { return c.parentElement; });
@@ -3084,6 +3555,10 @@
 
     function frame() {
       if (!globes.length) { raf = null; return; }
+
+      /* po zakończeniu intra warstwa dostaje display:none — pętla nie ma
+         wtedy czego rysować i tylko zjadałaby GPU */
+      if (!stages[0].getBoundingClientRect().width) { raf = null; return; }
 
       if (reduce) {
         if (staticFrames > 120) { raf = null; return; }
