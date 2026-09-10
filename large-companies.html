@@ -1294,9 +1294,21 @@
 
   /* TODO: puste powierzchnie do podmiany na realne zdjęcia */
   .lc-solve-media {
+    overflow: hidden;
     aspect-ratio: 16 / 9;
     border-radius: var(--radius-xl);
     background: var(--color-bg-muted);
+  }
+
+  /* Te same pliki co w wariancie split, ale tam kadr jest pionowy (5/6),
+     a tu poziomy — środek zdjęcia wypadałby na niczym. --pos przesuwa kadr
+     na to, co w danym ujęciu jest istotne. */
+  .lc-solve-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--pos, center);
   }
 
   /* pionowa linia jest krawędzią kolumny tekstu, nie osobnym elementem —
@@ -3790,7 +3802,7 @@
 
     <div class="lc-solve-grid">
       <div class="lc-solve-cell">
-        <div class="lc-solve-media"></div>
+        <div class="lc-solve-media"><img src="assets/enterprise/solve-plants-exterior.jpg" alt="Side wall of a production hall with two red service doors" style="--pos: center 88%" loading="lazy" decoding="async"></div>
         <div class="lc-solve-body">
           <h3>A network of plants, not a single factory</h3>
           <div class="lc-solve-note">
@@ -3801,7 +3813,7 @@
       </div>
 
       <div class="lc-solve-cell">
-        <div class="lc-solve-media"></div>
+        <div class="lc-solve-media"><img src="assets/enterprise/solve-one-team-desk.jpg" alt="A person working at a desk with a notebook and a mug" style="--pos: center 74%" loading="lazy" decoding="async"></div>
         <div class="lc-solve-body">
           <h3>One contract, one team, one invoice</h3>
           <div class="lc-solve-note">
@@ -3812,7 +3824,7 @@
       </div>
 
       <div class="lc-solve-cell">
-        <div class="lc-solve-media"></div>
+        <div class="lc-solve-media"><img src="assets/enterprise/solve-stock-transit.jpg" alt="A lorry leaving a mountain road tunnel" style="--pos: center 72%" loading="lazy" decoding="async"></div>
         <div class="lc-solve-body">
           <h3>Stock held here, released on call-off</h3>
           <div class="lc-solve-note">
@@ -3823,7 +3835,7 @@
       </div>
 
       <div class="lc-solve-cell">
-        <div class="lc-solve-media"></div>
+        <div class="lc-solve-media"><img src="assets/enterprise/solve-compliance-city.jpg" alt="A city skyline seen across a lake, with flowers in the foreground" style="--pos: center 28%" loading="lazy" decoding="async"></div>
         <div class="lc-solve-body">
           <h3>Compliance paperwork as standard</h3>
           <div class="lc-solve-note">
