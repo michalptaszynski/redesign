@@ -372,6 +372,7 @@
      zniknąłby). */
   .ap {
     --u: 0.06944cqw;              /* 1440 * 0.06944cqw = 100cqw */
+    --ov: 0.107em;   /* optyczne wyrównanie tekstu — patrz komentarz niżej */
     --ap-line: var(--gray-300);
     --ap-surface: var(--white);
     --ap-ink: var(--rich-blue);
@@ -437,7 +438,8 @@
 
   .ap-tab {
     position: relative;
-    padding: calc(18 * var(--u)) 0 calc(14 * var(--u));
+    /* symetrycznie: 18/14 podnosiło etykietę o 2px względem środka pola */
+    padding: calc(16 * var(--u)) 0;
     border: 0;
     background: none;
     font: inherit;
@@ -471,7 +473,7 @@
     display: inline-flex;
     align-items: center;
     gap: calc(8 * var(--u));
-    padding: calc(4 * var(--u)) calc(10 * var(--u));
+    padding: calc(4 * var(--u) + var(--ov)) calc(10 * var(--u)) calc(4 * var(--u) - var(--ov));
     border-radius: var(--radius-full);
     background: var(--gray-100);
     font-size: calc(13 * var(--u));
@@ -569,8 +571,9 @@
     display: flex;
     align-items: center;
     gap: calc(8 * var(--u));
+    box-sizing: border-box;
     height: calc(40 * var(--u));
-    padding: 0 calc(16 * var(--u));
+    padding: calc(2 * var(--ov)) calc(16 * var(--u)) 0;
     border: 1px solid var(--ap-line);
     border-radius: calc(4 * var(--u));
     background: var(--ap-surface);
@@ -584,6 +587,9 @@
   .ap-filter svg { width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
 
   .ap-export {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-left: auto;
     padding: calc(4 * var(--u)) calc(8 * var(--u));
     border: 0;
@@ -655,6 +661,9 @@
   }
 
   .ap-reset { white-space: nowrap; }
+  .ap-reset, .ap-more, .ap-export {
+    padding: calc(4 * var(--u) + var(--ov)) calc(8 * var(--u)) calc(4 * var(--u) - var(--ov));
+  }
   .ap-more { letter-spacing: 0.08em; }
   .ap-reset:hover, .ap-more:hover { border-color: var(--ap-ink); }
 
@@ -760,6 +769,38 @@
 
   .ap-pages button.is-current { background: var(--ap-ink); border-color: var(--ap-ink); color: var(--white); }
   .ap-pages .ap-gap { border: 0; cursor: default; }
+
+  /* ---- optyczne wyrównanie tekstu w pigułkach ----
+     ABC Favorit ma ascent na tyle większy od descent, że pasmo liter siada
+     ok. 0.107em NAD geometrycznym środkiem pola. Zmierzone w izolacji na
+     czystej pigułce 160x40: 1,5px przy foncie 14px, i identycznie dla
+     line-height 1, 1.3 oraz normal — czyli interlinia tego nie rusza,
+     bo przesunięcie zależy od (ascent - descent - wysokość wersalika).
+     Kompensujemy asymetrycznym paddingiem: tyle samo dodane u góry, ile
+     odjęte u dołu, więc wysokość pola zostaje bez zmian. */
+
+  /* line-height: 1 na jednowierszowych pigułkach, przyciskach i etykietach —
+     ta sama zasada, jaką trzyma components.css (.btn-pill, .nav-badge).
+     Przy 1.3 nadmiar interlinii rozkłada się wokół pudełka ascent/descent
+     fontu, a nie wokół widocznego pasma wersalików, więc tekst optycznie
+     wjeżdżał do góry.
+     Reguła MUSI stać po blokach komponentów: one deklarują `font: inherit`,
+     a ten skrót resetuje line-height do wartości dziedziczonej (1.3) i zjadał
+     tę deklarację, gdy stała wyżej. */
+  .ap-locale,
+  .ap-tab,
+  .ap-search,
+  .ap-filter,
+  .ap-export,
+  .ap-reset,
+  .ap-more,
+  .ap-menu button,
+  .ap-status,
+  .ap-pages button,
+  .ap-perpage,
+  .ap-perpage span,
+  .ap-table th,
+  .ap-title { line-height: 1; }
 
   /* kursor-duch prowadzący animację; poza nią niewidoczny */
   .ap-cursor {
@@ -1750,6 +1791,7 @@
     /* 0.1913 * 0.7 — karta o 30% mniejsza; jedna liczba skaluje całość,
        bo wszystkie wymiary w środku liczą się z --cu */
     --cu: 0.1339cqw;
+    --ov: 0.107em;   /* optyczne wyrównanie tekstu — patrz komentarz niżej */
     --sku-green: #1d9e75;
     --sku-green-soft: #5dcaa5;
     --sku-green-bg: #e6f6ec;
@@ -1810,7 +1852,7 @@
     display: inline-flex;
     align-items: center;
     gap: calc(5 * var(--cu));
-    padding: calc(5 * var(--cu)) calc(12 * var(--cu));
+    padding: calc(5 * var(--cu) + var(--ov)) calc(12 * var(--cu)) calc(5 * var(--cu) - var(--ov));
     border-radius: var(--radius-full);
     background: var(--sku-green-bg);
     color: var(--sku-green-ink);
@@ -1840,8 +1882,9 @@
     display: flex;
     align-items: center;
     flex: none;
+    box-sizing: border-box;
     width: 0;
-    padding: 0 calc(14 * var(--cu));
+    padding: calc(2 * var(--ov)) calc(14 * var(--cu)) 0;
     overflow: hidden;
     border-radius: var(--radius-full);
     background: var(--sku-green);
@@ -1860,8 +1903,9 @@
     display: flex;
     align-items: center;
     flex: none;
+    box-sizing: border-box;
     width: 0;
-    padding: 0;
+    padding: calc(2 * var(--ov)) 0 0;
     overflow: hidden;
     border-radius: 0 var(--radius-full) var(--radius-full) 0;
     background: var(--sku-green-soft);
@@ -1871,7 +1915,7 @@
     transition: width .7s cubic-bezier(.16, 1, .3, 1) 1.5s, padding .7s cubic-bezier(.16, 1, .3, 1) 1.5s;
   }
 
-  .sku.is-run .sku-bar-extra { width: var(--w); padding: 0 calc(12 * var(--cu)); }
+  .sku.is-run .sku-bar-extra { width: var(--w); padding: calc(2 * var(--ov)) calc(12 * var(--cu)) 0; }
 
   .sku-down {
     display: flex;
@@ -1893,8 +1937,9 @@
     display: inline-flex;
     align-items: center;
     gap: calc(5 * var(--cu));
+    box-sizing: border-box;
     height: calc(34 * var(--cu));
-    padding: 0 calc(14 * var(--cu));
+    padding: calc(2 * var(--ov)) calc(14 * var(--cu)) 0;
     border: 1px solid color-mix(in srgb, var(--color-danger) 25%, transparent);
     border-radius: var(--radius-full);
     background: color-mix(in srgb, var(--color-danger) 8%, var(--white));
@@ -2026,6 +2071,9 @@
   /* ---- karta „Stored run" — oś czasu partii ---- */
   .tl-seg {
     display: flex;
+    /* bez align-items dzieci rozciągały się na pełną wysokość (stretch),
+       a tekst siadał przy górnej krawędzi — zmierzone 6,7px w górę */
+    align-items: center;
     gap: calc(2 * var(--cu));
     padding: calc(3 * var(--cu));
     border: 1px solid var(--gray-300);
@@ -2033,7 +2081,9 @@
   }
 
   .tl-seg span {
-    padding: calc(4 * var(--cu)) calc(10 * var(--cu));
+    display: flex;
+    align-items: center;
+    padding: calc(4 * var(--cu) + var(--ov)) calc(10 * var(--cu)) calc(4 * var(--cu) - var(--ov));
     border-radius: calc(7 * var(--cu));
     font-size: calc(13 * var(--cu));
     color: var(--gray-500);
@@ -2075,6 +2125,7 @@
     left: var(--l);
     display: flex;
     align-items: center;
+    box-sizing: border-box;
     width: 0;
     height: 100%;
     /* padding też startuje od zera — przy content-box sam width: 0 zostawiał
@@ -2094,7 +2145,7 @@
                 padding .6s cubic-bezier(.16, 1, .3, 1);
   }
 
-  .sku.is-run .tl-bar { width: var(--w); padding: 0 calc(12 * var(--cu)); }
+  .sku.is-run .tl-bar { width: var(--w); padding: calc(2 * var(--ov)) calc(12 * var(--cu)) 0; }
 
   .tl-bar-store {
     justify-content: flex-start;
@@ -2104,7 +2155,7 @@
     color: var(--gray-600);
   }
 
-  .sku.is-run .tl-bar-store { padding: 0 calc(14 * var(--cu)); }
+  .sku.is-run .tl-bar-store { padding: calc(2 * var(--ov)) calc(14 * var(--cu)) 0; }
 
   /* partia jeszcze niezaplanowana — kontur zamiast wypełnienia */
   .tl-bar-plan {
@@ -2202,7 +2253,7 @@
     display: inline-flex;
     align-items: center;
     gap: calc(6 * var(--cu));
-    padding: calc(6 * var(--cu)) calc(12 * var(--cu));
+    padding: calc(6 * var(--cu) + var(--ov)) calc(12 * var(--cu)) calc(6 * var(--cu) - var(--ov));
     border: 1px solid var(--gray-300);
     border-radius: var(--radius-full);
     background: var(--white);
@@ -2227,6 +2278,26 @@
   }
 
   .sku.is-run .rp-carbon-val { opacity: 1; transform: none; }
+
+  /* to samo w kartach — jednowierszowe pigułki, paski i etykiety */
+  .sku-badge,
+  .sku-bar,
+  .sku-bar-extra,
+  .sku-pill,
+  .sku-moved,
+  .sku-avatar,
+  .sku-name,
+  .sku-contact,
+  .sku-item-name,
+  .sku-num,
+  .sku-date,
+  .sku-th,
+  .tl-bar,
+  .tl-seg span,
+  .tl-name,
+  .tl-months,
+  .rp-tag,
+  .rp-note { line-height: 1; }
 
   .sku:not(.is-run) .rp-donut circle,
   .sku:not(.is-run) .rp-tag,
