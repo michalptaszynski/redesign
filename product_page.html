@@ -345,7 +345,13 @@
     /* mobile always uses the "below" arrangement regardless of the
        desktop gear-panel choice -- a slim vertical column reads poorly
        next to a full-width mobile image. */
-    .pp-gallery-outer { position: static; height: 60vh; min-height: 360px; top: 0; flex-direction: column; }
+    /* min-width:0 is load-bearing: as a grid item it otherwise keeps the
+       default min-width:auto, and its min-content width is the whole
+       thumbnail row laid out unwrapped (10 x 48px + gaps = 552px). That
+       blew the single "1fr" column out to 552px inside a 358px container
+       -- with body's overflow-x:clip silently hiding it, so the image,
+       headline and every config control sat cut off past the right edge. */
+    .pp-gallery-outer { position: static; height: 60vh; min-height: 360px; top: 0; flex-direction: column; min-width: 0; }
     .pp-gallery-outer .pp-gallery { flex: 1; min-height: 0; order: 1; }
     .pp-gallery-outer .pp-gallery-thumbs {
       order: 2;
@@ -356,8 +362,74 @@
     }
   }
 
+  /* ---------- gallery arrows + dots: the mobile stand-in for the thumbnail
+     strip (hidden there), so the photos stay reachable without a second
+     scrollable row under the image. Both are display:none until the mobile
+     block below turns them on. ---------- */
+  /* Same button as .scroll-carousel-nav on the product carousels below. */
+  .pp-gallery-nav {
+    position: absolute;
+    top: 50%;
+    z-index: 4;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .pp-gallery-nav svg { width: 16px; height: 16px; }
+  .pp-gallery-nav::after { content: ""; position: absolute; inset: -8px; }
+  .pp-gallery-nav.prev { left: var(--space-2); }
+  .pp-gallery-nav.next { right: var(--space-2); }
+
+  .pp-gallery-dots {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    flex: none;
+    padding: var(--space-3) 0 0;
+  }
+
+  .pp-gallery-dot {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    flex: none;
+    border: none;
+    border-radius: 50%;
+    background: var(--gray-400);
+    cursor: pointer;
+    transition: background-color .2s ease, transform .2s ease;
+  }
+
+  .pp-gallery-dot.active { background: var(--color-text-primary); transform: scale(1.34); }
+
   @media (max-width: 700px) {
-    .pp-breadcrumb { padding: var(--space-6) var(--space-4) 0; }
+    /* One scrollable line instead of a wrapping block -- the five levels
+       ("Packhelp / Packaging / Boxes / Mailer Boxes / Custom Mailer Box")
+       otherwise broke mid-crumb across three ragged lines. */
+    .pp-breadcrumb {
+      padding: var(--space-6) var(--space-4) 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .pp-breadcrumb::-webkit-scrollbar { display: none; }
+    .pp-breadcrumb > * { flex: none; white-space: nowrap; }
+
     .announcement-bar { padding: 0.75rem var(--space-4) calc(0.75rem + 20px); }
   }
 
@@ -1157,6 +1229,13 @@
   .pp-cta-delivery-to { display: flex; align-items: flex-start; gap: var(--space-1); font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-primary); }
   .pp-cta-delivery-to a { color: var(--color-text-primary); text-decoration: none; border-bottom: 1px solid rgba(0,6,26,.25); padding-bottom: 1px; }
 
+  /* Beside the nowrap price group there is only ~190px left for this row,
+     so "Delivery to:" and the address fought over one line and both broke
+     mid-phrase (with the link's underline stranded on the fragment). */
+  @media (max-width: 700px) {
+    .pp-cta-delivery-to { flex-direction: column; gap: 2px; }
+  }
+
   .pp-cta-dates { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; list-style: none; font-size: 13px; letter-spacing: -0.02em; }
   .pp-cta-dates li { display: flex; align-items: center; gap: var(--space-1); }
   .pp-cta-date { position: relative; padding-left: 12px; line-height: 1.32; color: var(--color-text-primary); }
@@ -1289,6 +1368,30 @@
 
   @media (max-width: 900px) { .pp-sticky-summary { display: none; } }
 
+  /* Mobile brings the bar back, edge to edge (JS skips the config-column
+     alignment below 700px) and without the Delivery group -- at 358px the
+     price and the CTA are all that fit. */
+  @media (max-width: 700px) {
+    .pp-sticky-summary {
+      display: flex;
+      gap: var(--space-3);
+      padding: 0 var(--space-4) env(safe-area-inset-bottom, 0px);
+      border-left: none;
+      border-right: none;
+    }
+
+    .pp-sticky-summary > .pp-sticky-summary-group { display: none; }
+    .pp-sticky-summary-right { flex: 1; justify-content: space-between; gap: var(--space-3); }
+    .pp-sticky-summary-price-group { text-align: left; }
+    .pp-sticky-summary-price { font-size: 22px; }
+    .pp-sticky-summary-right .btn-pill { flex: none; }
+
+    /* The shared prototype gear sits at bottom:24px, which lands it right
+       on top of the bar's CTA -- only this page has a mobile bottom bar,
+       so it is lifted here rather than in components.css. */
+    .site-settings-btn { bottom: calc(72px + var(--space-4) + env(safe-area-inset-bottom, 0px)); }
+  }
+
   /* ---------- contact modal ---------- */
   .pp-modal-backdrop {
     position: fixed;
@@ -1383,6 +1486,54 @@
 
   @media (max-width: 700px) {
     .pp-layout { padding: var(--space-4); }
+
+    .pp-heading { font-size: 2rem; }
+
+    /* Last thing in .pp-mobile-intro -- its bottom margin stacked on top of
+       .pp-layout's 16px grid gap before the gallery. */
+    .pp-subheading { margin: 0; }
+
+    /* Thumbnails give way to arrows-on-the-photo + dots underneath. */
+    .pp-gallery-outer .pp-gallery-thumbs { display: none; }
+    .pp-gallery-nav { display: flex; }
+    .pp-gallery-dots { display: flex; order: 3; }
+
+    /* JS lifts the switcher out of .pp-gallery-main up to here, so it sits
+       above the photo panel rather than floating on top of the picture.
+       Only its positioning changes -- the track and pills keep their
+       desktop look. */
+    .pp-gallery-outer .pp-gallery-view-switcher {
+      position: static;
+      order: 0;
+      flex: none;
+      align-self: flex-start;
+      /* .pp-gallery-outer's own 16px flex gap is the whole spacing here --
+         an extra margin on top of it read as a gulf. */
+      margin-bottom: 0;
+    }
+
+    /* The IKEA-style hotspot pin is a hover affordance -- on touch it just
+       pulses over the photo with no way to reveal its popover. */
+    .pp-gallery-outer .pp-gallery-pin { display: none; }
+
+    /* Same reason: the flex gap already separates these from the photo. */
+    .pp-gallery-dots { padding-top: 0; }
+
+    /* Title and description are lifted above the gallery here (see JS), so
+       the USP row that trailed them is dropped rather than stranded. */
+    .pp-usps { display: none; }
+
+    /* Four per row filling the width, instead of the fixed 104px chips
+       wrapping to three-and-a-stray. */
+    .pp-chip-group {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .pp-chip { width: auto; min-height: 0; }
+    .pp-chip-media { width: 100%; height: auto; aspect-ratio: 1 / 1; }
+    .pp-chip-media.pp-chip-media-icon img { width: 70%; }
   }
 
   /* ---------- specification / FAQ section ---------- */
@@ -1570,6 +1721,7 @@
     body.pp-spec-vertical .pp-spec-section { grid-template-columns: 1fr; }
     body.pp-spec-vertical #ppSpecToggle.toggle-switch { flex-direction: row; flex-wrap: wrap; gap: var(--space-5); }
   }
+
 
   /* ---------- bottom carousels (Related products / Alternatives / Merchandise) ----------
      .category-item/.category-thumb/.category-title/.category-desc + .scroll-carousel,
@@ -1794,6 +1946,12 @@
     .pp-spec-section { padding: 0 var(--space-4); }
     .pp-brands-heading { font-size: 1.75rem; }
     .pp-brands-col { flex-direction: column; }
+
+    /* 160px of section rhythm is a fifth of a phone screen -- between the
+       carousels it read as the page having simply ended. */
+    .pp-spec-section,
+    .pp-brands-section,
+    .pp-carousel-section { margin-top: var(--space-16); }
   }
 
   /* ---------- editor section (statement-section, copied from index.html) ---------- */
@@ -1871,6 +2029,10 @@
   .statement-video-inner video { display: block; width: 100%; height: 100%; object-fit: contain; }
 
   @media (max-width: 700px) {
+    /* 32px side padding here while every other section on this page sits
+       at 16px left the whole editor block visibly indented against the
+       rest; the 160px top also read as a dead band on a phone. */
+    .statement-section { padding: var(--space-16) var(--space-4) var(--space-16); }
     .statement { font-size: 1.5rem; line-height: 1.32; letter-spacing: -0.02em; }
     .statement-section > .btn-pill.lg { width: 100%; }
   }
@@ -1885,6 +2047,17 @@
     border-radius: var(--radius-sm); transform: translate(-50%, -50%) rotate(-8deg); transition: width .3s ease, height .3s ease, transform .3s ease;
   }
   .deco-square:hover::before { width: 200px; height: 200px; transform: translate(-50%, -50%) rotate(0deg); }
+
+  /* Same shrink index.html applies. .deco-square has height:0, so its
+     ::before spills over the lines above and below it -- at 64px against
+     mobile's 24px type that landed squarely on top of the words. Has to
+     sit after the base rules above, not in the earlier .statement mobile
+     block, since it matches their specificity exactly. */
+  @media (max-width: 700px) {
+    .deco-square { width: 32px; }
+    .deco-square::before { width: 32px; height: 32px; }
+    .deco-square:hover::before { width: 100px; height: 100px; }
+  }
 
   /* ---------- generic scroll reveal ---------- */
   .reveal { opacity: 0; transform: translateY(-16px); transition: opacity 0.8s ease, transform 0.8s ease; }
@@ -1917,9 +2090,71 @@
   @media (max-width: 700px) {
     .site-footer { padding: 3rem 0 0; }
     .footer-inner { padding: 0 var(--space-4); }
-    .footer-bottom-inner { padding: 1.5rem var(--space-4); }
+    /* Clears the fixed CTA bar, which is showing again by the time the
+       footer is on screen and would otherwise sit on the last row. */
+    .footer-bottom-inner { padding: 1.5rem var(--space-4) calc(1.5rem + 72px); }
     .footer-newsletter { flex-direction: column; align-items: stretch; }
     .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* ---------- mobile: the Specification / Options / Product description /
+     Popular questions tabs collapse into a stack of accordions, all shut on
+     arrival. Headers are built by JS and live in the DOM at every width --
+     this hides them everywhere but mobile. ---------- */
+  .pp-spec-acc-header { display: none; }
+
+  @media (max-width: 700px) {
+    /* Matches the specificity of body.pp-spec-vertical #ppSpecToggle
+       .toggle-switch (which sets display:flex) and wins on source order --
+       a bare #ppSpecToggle loses to it. */
+    body #ppSpecToggle.toggle-switch.pp-spec-tabs { display: none; }
+
+    /* The section is a grid with a 48px gap (body.pp-spec-vertical), which
+       pushed the accordion rows 48px apart instead of letting their
+       borders meet. The id here outranks that class selector. */
+    body #ppSpecSection.pp-spec-section { display: block; }
+
+    /* Closes the list. As a border on the section itself it sat on the
+       border box and ran the full width, while every header's own
+       border-top stops at the section's 16px padding -- a block ::after
+       lives inside that padding, so the last line matches the rest. */
+    body #ppSpecSection.pp-spec-section::after {
+      content: "";
+      display: block;
+      border-top: 1px solid var(--color-border-default);
+    }
+
+    /* The bottom carousels scroll by swipe here -- the overlaid arrows
+       just sit on the artwork. */
+    .scroll-carousel.has-overflow .scroll-carousel-nav { display: none; }
+
+    .pp-spec-acc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      width: 100%;
+      padding: var(--space-5) 0;
+      border: none;
+      border-top: 1px solid var(--color-border-default);
+      background: none;
+      font: inherit;
+      /* Matches .pp-pairs-heading ("Pairs well with...") above it. */
+      font-size: 1.375rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: var(--color-text-primary);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .pp-spec-acc-header svg { width: 20px; height: 20px; flex: none; transition: transform .2s ease; }
+    .pp-spec-acc-header.open svg { transform: rotate(180deg); }
+
+    /* Ties with .pp-spec-panel.active on specificity and wins on source
+       order, so the tab logic's own active panel still starts closed. */
+    .pp-spec-section .pp-spec-panel { display: none; }
+    .pp-spec-section .pp-spec-panel.pp-acc-open { display: block; padding-bottom: var(--space-6); }
   }
 </style>
 </head>
@@ -1972,6 +2207,13 @@
           </span>
         </div>
 
+        <button type="button" class="pp-gallery-nav prev" id="ppGalleryPrev" aria-label="Previous photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+        <button type="button" class="pp-gallery-nav next" id="ppGalleryNext" aria-label="Next photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+
         <div class="pp-gallery-view-switcher" id="ppGalleryViewSwitch">
           <button type="button" class="pp-view-option active" data-value="gallery">Gallery</button>
           <button type="button" class="pp-view-option" data-value="3d">3D view</button>
@@ -1979,6 +2221,7 @@
         </div>
       </div>
     </div>
+    <div class="pp-gallery-dots" id="ppGalleryDots"></div>
   </div>
 
   <div class="pp-config-col" id="ppConfigCol">
@@ -2413,31 +2656,6 @@
     <button type="button" class="pp-spec-show-more" id="ppSpecShowMore">Show more</button>
   </div>
 
-  <div class="pp-spec-panel" id="ppSpecPanelDescription">
-    <div class="pp-description-list">
-      <div class="pp-description-item">
-        <h3>Protect your products with robust materials</h3>
-        <p>Your custom mailer box is constructed from corrugated cardboard, available in kraft, white, or a white-brown combination. For enhanced durability, options include corrugated bleached cardboard and corrugated cardboard coated. This range of materials, with grammages from 358 gsm to 510 gsm, provides a sturdy enclosure for your items during transit, ensuring they arrive securely.</p>
-      </div>
-      <div class="pp-description-item">
-        <h3>Create a memorable unboxing experience</h3>
-        <p>Customise the interior of your mailer box to extend your brand's presence. With print coverage options for the inside, outside, or both, you can apply your design across all visible surfaces. Choose between multicolour muted, saturated, or premium printing to match your brand's aesthetic, making every unboxing a distinctive moment for your customers.</p>
-      </div>
-      <div class="pp-description-item">
-        <h3>Sizes to fit your specific needs</h3>
-        <p>Available in small, medium, and large, these mailer boxes are designed to accommodate a variety of products. Each box maintains a dimensional tolerance of ±2-4mm, ensuring a consistent fit for your items. Furthermore, all sizes are engineered to fit standard courier and parcel-locker dimensions, simplifying your shipping logistics.</p>
-      </div>
-      <div class="pp-description-item">
-        <h3>Enhance your design with professional finishes</h3>
-        <p>Apply a glossy or matte foil finish to your mailer box to give it a distinct look. These finishes add a layer of visual texture and can highlight specific elements of your design, creating a polished presentation.</p>
-      </div>
-      <div class="pp-description-item">
-        <h3>Secure your contents with reliable closures</h3>
-        <p>For added security and convenience, custom mailer boxes can be equipped with a single or double adhesive strip. This feature provides a strong seal for transit and offers an easy-open solution for recipients.</p>
-      </div>
-    </div>
-  </div>
-
   <div class="pp-spec-panel" id="ppSpecPanelOptions">
     <div class="pp-spec-groups">
       <div class="pp-spec-group">
@@ -2479,6 +2697,31 @@
           <li><span class="pp-spec-thumb"></span><span class="pp-spec-text"><span class="pp-spec-term">Glossy foil</span><span class="pp-spec-desc">An intense shine that boosts contrast and highlights key elements of your design.</span></span></li>
           <li><span class="pp-spec-thumb"></span><span class="pp-spec-text"><span class="pp-spec-term">Matte foil</span><span class="pp-spec-desc">A subtle, gloss-free finish for a refined, premium look.</span></span></li>
         </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-spec-panel" id="ppSpecPanelDescription">
+    <div class="pp-description-list">
+      <div class="pp-description-item">
+        <h3>Protect your products with robust materials</h3>
+        <p>Your custom mailer box is constructed from corrugated cardboard, available in kraft, white, or a white-brown combination. For enhanced durability, options include corrugated bleached cardboard and corrugated cardboard coated. This range of materials, with grammages from 358 gsm to 510 gsm, provides a sturdy enclosure for your items during transit, ensuring they arrive securely.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Create a memorable unboxing experience</h3>
+        <p>Customise the interior of your mailer box to extend your brand's presence. With print coverage options for the inside, outside, or both, you can apply your design across all visible surfaces. Choose between multicolour muted, saturated, or premium printing to match your brand's aesthetic, making every unboxing a distinctive moment for your customers.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Sizes to fit your specific needs</h3>
+        <p>Available in small, medium, and large, these mailer boxes are designed to accommodate a variety of products. Each box maintains a dimensional tolerance of ±2-4mm, ensuring a consistent fit for your items. Furthermore, all sizes are engineered to fit standard courier and parcel-locker dimensions, simplifying your shipping logistics.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Enhance your design with professional finishes</h3>
+        <p>Apply a glossy or matte foil finish to your mailer box to give it a distinct look. These finishes add a layer of visual texture and can highlight specific elements of your design, creating a polished presentation.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Secure your contents with reliable closures</h3>
+        <p>For added security and convenience, custom mailer boxes can be equipped with a single or double adhesive strip. This feature provides a strong seal for transit and offers an easy-open solution for recipients.</p>
       </div>
     </div>
   </div>
@@ -3108,19 +3351,108 @@
       pin.hidden = false;
     }
 
-    thumbs.forEach(function (thumb) {
-      thumb.addEventListener('mouseenter', function () {
-        thumbs.forEach(function (t) { t.classList.remove('active'); });
-        thumb.classList.add('active');
-        mainImg.src = thumb.querySelector('img').src;
-        mainImg.alt = thumb.querySelector('img').alt;
-        // The plain studio product shot (data-fit="contain") must always
-        // stay fully visible; lifestyle photos fill edge-to-edge (cover,
-        // the default) with no grey letterboxing.
-        mainImg.style.objectFit = thumb.getAttribute('data-fit') || 'cover';
-        updatePin(thumb);
-      });
+    var dotsEl = document.getElementById('ppGalleryDots');
+    var dots = [];
+
+    function show(index) {
+      var i = (index + thumbs.length) % thumbs.length;
+      var thumb = thumbs[i];
+      thumbs.forEach(function (t) { t.classList.remove('active'); });
+      thumb.classList.add('active');
+      mainImg.src = thumb.querySelector('img').src;
+      mainImg.alt = thumb.querySelector('img').alt;
+      // The plain studio product shot (data-fit="contain") must always
+      // stay fully visible; lifestyle photos fill edge-to-edge (cover,
+      // the default) with no grey letterboxing.
+      mainImg.style.objectFit = thumb.getAttribute('data-fit') || 'cover';
+      updatePin(thumb);
+      dots.forEach(function (d, di) { d.classList.toggle('active', di === i); });
+    }
+
+    function currentIndex() {
+      for (var i = 0; i < thumbs.length; i++) {
+        if (thumbs[i].classList.contains('active')) { return i; }
+      }
+      return 0;
+    }
+
+    thumbs.forEach(function (thumb, i) {
+      thumb.addEventListener('mouseenter', function () { show(i); });
     });
+
+    // One dot per photo, doubling as a tap target for that photo.
+    if (dotsEl) {
+      thumbs.forEach(function (thumb, i) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'pp-gallery-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Photo ' + (i + 1));
+        dot.addEventListener('click', function () { show(i); });
+        dotsEl.appendChild(dot);
+        dots.push(dot);
+      });
+    }
+
+    var prevBtn = document.getElementById('ppGalleryPrev');
+    var nextBtn = document.getElementById('ppGalleryNext');
+    if (prevBtn) { prevBtn.addEventListener('click', function () { show(currentIndex() - 1); }); }
+    if (nextBtn) { nextBtn.addEventListener('click', function () { show(currentIndex() + 1); }); }
+  })();
+
+  // ---------- mobile: lift the Gallery/3D/2D switcher out of the photo and
+  // sit it above the panel. The node is moved, never cloned, so its active
+  // state and click handler survive every breakpoint change. ----------
+  (function () {
+    var switchEl = document.getElementById('ppGalleryViewSwitch');
+    var outer = document.getElementById('ppGalleryOuter');
+    if (!switchEl || !outer) { return; }
+
+    var homeParent = switchEl.parentNode;
+    var homeNext = switchEl.nextSibling;
+    var isMobile = window.matchMedia('(max-width: 700px)');
+
+    function place() {
+      if (isMobile.matches) { outer.insertBefore(switchEl, outer.firstChild); }
+      else { homeParent.insertBefore(switchEl, homeNext); }
+    }
+
+    place();
+    isMobile.addEventListener('change', place);
+  })();
+
+  // ---------- mobile: title + description move above the gallery, so the
+  // page opens on what the product IS rather than on the photo panel.
+  // Same move-don't-clone approach as the switcher above. ----------
+  (function () {
+    var layout = document.querySelector('.pp-layout');
+    var gallery = document.getElementById('ppGalleryOuter');
+    var heading = document.querySelector('.pp-heading');
+    var subheading = document.querySelector('.pp-subheading');
+    if (!layout || !gallery || !heading || !subheading) { return; }
+
+    var moved = [heading, subheading].map(function (node) {
+      return { node: node, parent: node.parentNode, next: node.nextSibling };
+    });
+    var isMobile = window.matchMedia('(max-width: 700px)');
+
+    // Both go into one wrapper rather than straight into .pp-layout: as two
+    // separate grid items the layout's own 16px gap would set the space
+    // between title and description, instead of .pp-heading's 8px margin.
+    var intro = document.createElement('div');
+    intro.className = 'pp-mobile-intro';
+
+    function place() {
+      if (isMobile.matches) {
+        moved.forEach(function (entry) { intro.appendChild(entry.node); });
+        layout.insertBefore(intro, gallery);
+      } else {
+        moved.forEach(function (entry) { entry.parent.insertBefore(entry.node, entry.next); });
+        if (intro.parentNode) { intro.parentNode.removeChild(intro); }
+      }
+    }
+
+    place();
+    isMobile.addEventListener('change', place);
   })();
 
   // ---------- Gallery / 3D view / 2D view switcher -- visual control only,
@@ -3542,16 +3874,29 @@
     var cta = document.getElementById('ppCta');
     if (!summaryBar || !configCol || !cta) { return; }
 
+    var isMobileBar = window.matchMedia('(max-width: 700px)');
+
     function positionBar() {
+      if (isMobileBar.matches) {
+        summaryBar.style.left = '0px';
+        summaryBar.style.width = '100%';
+        return;
+      }
       var rect = configCol.getBoundingClientRect();
       summaryBar.style.left = rect.left + 'px';
       summaryBar.style.width = rect.width + 'px';
     }
 
+    // Visible whenever the CTA block itself is off screen -- including
+    // once it has scrolled back off the top, which is why this tests the
+    // whole rect rather than only "has the CTA been reached yet".
     function onScroll() {
-      var ctaReached = cta.getBoundingClientRect().top <= window.innerHeight;
-      summaryBar.classList.toggle('pp-hidden', ctaReached);
+      var rect = cta.getBoundingClientRect();
+      var ctaVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      summaryBar.classList.toggle('pp-hidden', ctaVisible);
     }
+
+    isMobileBar.addEventListener('change', function () { positionBar(); onScroll(); });
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', function () { positionBar(); onScroll(); });
@@ -3616,6 +3961,43 @@
     });
 
     moveIndicator(toggle.querySelector('.toggle-option.active'));
+  })();
+
+  // ---------- mobile: one accordion header per tab, inserted above its
+  // panel. The headers stay in the DOM at every width (CSS hides them off
+  // mobile), so nothing has to be built or torn down on resize. Panels are
+  // in tab order in the source, which is what makes this stack read the
+  // same top-to-bottom as the tab row does left-to-right. ----------
+  (function () {
+    var toggle = document.getElementById('ppSpecToggle');
+    if (!toggle) { return; }
+
+    var panels = {
+      spec: document.getElementById('ppSpecPanelSpec'),
+      options: document.getElementById('ppSpecPanelOptions'),
+      description: document.getElementById('ppSpecPanelDescription'),
+      faq: document.getElementById('ppSpecPanelFaq')
+    };
+
+    toggle.querySelectorAll('.toggle-option').forEach(function (option) {
+      var panel = panels[option.getAttribute('data-target')];
+      if (!panel) { return; }
+
+      var header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'pp-spec-acc-header';
+      header.setAttribute('aria-expanded', 'false');
+      header.innerHTML = '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+      header.firstChild.textContent = option.textContent;
+
+      header.addEventListener('click', function () {
+        var open = panel.classList.toggle('pp-acc-open');
+        header.classList.toggle('open', open);
+        header.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      panel.parentNode.insertBefore(header, panel);
+    });
   })();
 
   // ---------- FAQ accordion (grid-template-rows:0fr trick, same as index.html) ----------
