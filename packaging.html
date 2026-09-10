@@ -1078,6 +1078,84 @@
     padding: var(--space-4) var(--space-8) var(--space-16);
   }
 
+  /* The sleeved-mailer shot is a JPEG, so unlike the cutout PNGs around it
+     it carries an opaque white square that reads as a panel against the
+     card's #F8F8F8. Multiply drops white to the backdrop instead -- keying
+     the white out of the file itself would also eat the sleeve's own white
+     label. */
+  [data-product="sleeved-mailer-box"] .product-card-img { mix-blend-mode: multiply; }
+
+  /* ---------- pagination under the product grid ---------- */
+  .pkg-page-hidden { display: none; }
+
+  .pkg-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding-top: var(--space-12);
+  }
+
+  .pkg-page-numbers { display: flex; align-items: center; gap: var(--space-2); }
+
+  .pkg-page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex: none;
+    padding: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+  }
+
+  .pkg-page-btn:hover { border-color: var(--color-border-hover); }
+
+  .pkg-page-btn.is-current {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .pkg-page-arrow svg { width: 20px; height: 20px; }
+
+  .pkg-page-next {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+  }
+
+  .pkg-page-next:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+  }
+
+  /* After .pkg-page-next so a spent next arrow greys out like the prev one. */
+  .pkg-page-btn[disabled] {
+    border-color: transparent;
+    background: var(--color-bg-muted);
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+
+  .pkg-page-status {
+    display: none;
+    margin: 0;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-page-status-current { font-weight: 500; color: var(--color-text-primary); }
+
   /* ---------- CATEGORY CAROUSELS (alternate listing style, gear panel) --
      one horizontally-scrolling row per root category instead of a single
      grid; #pkgTilesSection (Categories/Industries toggle + tile strip) and
@@ -1996,6 +2074,24 @@
     .product-card-gallery-nav.prev { left: 0; }
     .product-card-gallery-nav.next { right: 0; }
 
+    /* Mobile pages through the set without wrapping, so the arrow that
+       has nowhere left to go is dropped rather than shown as a no-op.
+       data-gallery-pos is set by initProductGalleries; desktop ignores it
+       and keeps both arrows, since it still cycles. */
+    .product-card-media[data-gallery-pos="start"] .product-card-gallery-nav.prev,
+    .product-card-media[data-gallery-pos="end"] .product-card-gallery-nav.next {
+      display: none;
+    }
+
+    /* Once the set has been advanced there is a full-bleed lifestyle photo
+       behind the arrows instead of the cutout's white space, so the disc
+       comes back -- and stays for the rest of the run, including the last
+       frame where only the left arrow is left. */
+    .product-card-media[data-gallery-pos]:not([data-gallery-pos="start"]) .product-card-gallery-nav {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
     /* Filter bar: pills scroll in one row, "Filters" pill (funnel icon,
        see JS) leads them, and the view switcher rides along at the end
        of that same row instead of wrapping onto its own line. The bar
@@ -2082,7 +2178,14 @@
     .active-filter-chip {
       height: 40px;
       padding: 0 var(--space-4);
+      font-size: 13px;
     }
+
+    /* Numbered pages do not fit a phone -- the count collapses to
+       "1 of 5" between the two arrows. */
+    .pkg-pagination { gap: var(--space-4); padding-top: var(--space-8); }
+    .pkg-page-numbers { display: none; }
+    .pkg-page-status { display: block; }
 
     /* 48px -> 24px between the category tiles and the filter row below
        them. */
@@ -2478,13 +2581,27 @@
 
   <section class="pkg-products">
     <div class="product-grid" id="pkgProductGrid">
-      <a class="product-card" href="product_page.html">
-        <div class="product-card-media" data-gallery='["assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-hover-cycle='["assets/packaging/Custom%20Mailer%20Box.png","assets/packaging/Custom%20Mailer%20Box_2.png","assets/packaging/Custom%20Mailer%20Box_3.png","assets/packaging/Custom%20Mailer%20Box_4.png"]'><img class="product-card-img" src="assets/packaging/Custom%20Mailer%20Box.png" alt=""></div>
+      <a class="product-card" data-product="mailer-box" href="product_page.html">
+        <div class="product-card-media" data-gallery='[{"src":"assets/packaging/mailer_box_normal_color.png","fit":"contain"},{"src":"assets/packaging/mailer_box_premium_color.png","fit":"contain"},"assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-legacy-gallery='["assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-legacy-src="assets/packaging/Custom%20Mailer%20Box.png" data-hover-cycle='["assets/packaging/Custom%20Mailer%20Box.png","assets/packaging/Custom%20Mailer%20Box_2.png","assets/packaging/Custom%20Mailer%20Box_3.png","assets/packaging/Custom%20Mailer%20Box_4.png"]'><img class="product-card-img" src="assets/packaging/mailer_box_one_color.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Mailer Box</h3>
           <p class="product-card-price">From €0.49 piece</p>
         </div>
       </a>
+      <div class="product-card" data-product="hot-stamping">
+        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/mailer_box_hot_stamping_foil.png" alt="" data-legacy-src="assets/packaging/Custom%20Mailer%20Box%20with%20Hot%20Stamping.png"></div>
+        <div class="product-card-info">
+          <h3 class="product-card-name">Custom Mailer Box with Hot Stamping</h3>
+          <p class="product-card-price">From €0.99 piece</p>
+        </div>
+      </div>
+      <div class="product-card" data-product="sleeved-mailer-box">
+        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/sleeved_mailer_box.jpg" alt=""></div>
+        <div class="product-card-info">
+          <h3 class="product-card-name">Custom Sleeved Mailer Box</h3>
+          <p class="product-card-price">From €0.65 piece</p>
+        </div>
+      </div>
       <a class="product-card" href="product_page.html">
         <div class="product-card-media" data-gallery='["assets/packaging/poly_mailer_1.avif","assets/packaging/poly_mailer_2.avif","assets/packaging/poly_mailer_3.avif"]'><img class="product-card-img" src="assets/packaging/Custom%20Recycled%20Poly%20Mailer.png" alt=""></div>
         <div class="product-card-info">
@@ -2586,14 +2703,7 @@
           <p class="product-card-price">From €1.05 piece</p>
         </div>
       </div>
-      <div class="product-card">
-        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Mailer%20Box%20with%20Hot%20Stamping.png" alt=""></div>
-        <div class="product-card-info">
-          <h3 class="product-card-name">Custom Mailer Box with Hot Stamping</h3>
-          <p class="product-card-price">From €0.99 piece</p>
-        </div>
-      </div>
-      <div class="product-card">
+      <div class="product-card" data-legacy-anchor="hot-stamping">
         <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Rigid%20Magnetic%20Box.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Rigid Magnetic Box</h3>
@@ -2622,6 +2732,17 @@
         </div>
       </div>
     </div>
+
+    <nav class="pkg-pagination" id="pkgPagination" aria-label="Product pages" hidden>
+      <button type="button" class="pkg-page-btn pkg-page-arrow" id="pkgPagePrev" aria-label="Previous page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+      <div class="pkg-page-numbers" id="pkgPageNumbers"></div>
+      <p class="pkg-page-status"><span class="pkg-page-status-current" id="pkgPageCurrent">1</span> of <span id="pkgPageTotal">1</span></p>
+      <button type="button" class="pkg-page-btn pkg-page-arrow pkg-page-next" id="pkgPageNext" aria-label="Next page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </nav>
   </section>
 
   <section class="pkg-seo reveal">
@@ -3228,6 +3349,68 @@
     var descToggle = document.getElementById('pkgDescToggle');
     var productGrid = document.getElementById('pkgProductGrid');
     var defaultProductGridHTML = productGrid.innerHTML;
+    // Read before the first applyProductLineup() below, not down beside the
+    // rest of the line-up code -- the function declaration hoists, a var
+    // assignment does not, so a saved preference was still undefined by the
+    // time the grid was first laid out.
+    var legacyProducts = localStorage.getItem('legacyProducts') === '1';
+
+    // ---------- pagination ----------
+    // Pages whatever tiles are in the grid right now, so it follows the
+    // filtered/category renders as well as the default line-up. Tiles the
+    // line-up toggle has switched off carry the `hidden` attribute and are
+    // left out of the count entirely rather than paged as blanks.
+    var PAGE_SIZE = 12;
+    var pagination = document.getElementById('pkgPagination');
+    var pageNumbersEl = document.getElementById('pkgPageNumbers');
+    var pageCurrentEl = document.getElementById('pkgPageCurrent');
+    var pageTotalEl = document.getElementById('pkgPageTotal');
+    var pagePrevBtn = document.getElementById('pkgPagePrev');
+    var pageNextBtn = document.getElementById('pkgPageNext');
+    var currentPage = 1;
+    var totalPages = 1;
+
+    function renderPageNumbers() {
+      pageNumbersEl.innerHTML = '';
+      for (var p = 1; p <= totalPages; p++) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pkg-page-btn' + (p === currentPage ? ' is-current' : '');
+        btn.textContent = p;
+        if (p === currentPage) { btn.setAttribute('aria-current', 'page'); }
+        btn.addEventListener('click', (function (page) {
+          return function () { goToPage(page); };
+        })(p));
+        pageNumbersEl.appendChild(btn);
+      }
+      pageCurrentEl.textContent = currentPage;
+      pageTotalEl.textContent = totalPages;
+      pagePrevBtn.disabled = currentPage === 1;
+      pageNextBtn.disabled = currentPage === totalPages;
+    }
+
+    function applyPagination(resetPage) {
+      var tiles = Array.prototype.filter.call(productGrid.children, function (el) { return !el.hidden; });
+      totalPages = Math.max(1, Math.ceil(tiles.length / PAGE_SIZE));
+      if (resetPage) { currentPage = 1; }
+      if (currentPage > totalPages) { currentPage = totalPages; }
+      tiles.forEach(function (el, i) {
+        el.classList.toggle('pkg-page-hidden', Math.floor(i / PAGE_SIZE) + 1 !== currentPage);
+      });
+      pagination.hidden = totalPages < 2;
+      renderPageNumbers();
+    }
+
+    function goToPage(page) {
+      if (page < 1 || page > totalPages || page === currentPage) { return; }
+      currentPage = page;
+      applyPagination(false);
+      productGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    pagePrevBtn.addEventListener('click', function () { goToPage(currentPage - 1); });
+    pageNextBtn.addEventListener('click', function () { goToPage(currentPage + 1); });
+
 
     // Category product lists (boxesProducts & co.) mostly don't carry their
     // own photo -- reuse whatever the root "Packaging" grid already has for
@@ -3341,9 +3524,23 @@
         // screen. Desktop's hover handler always calls show(0) before any
         // arrow is reachable, so `started` is already true by then.
         var started = false;
+        // Most frames are full-bleed lifestyle photography, sized for the
+        // CSS default object-fit:cover. A few (product-cutout renders,
+        // transparent background, sometimes a wide two-box composite) crop
+        // badly under cover -- letterboxed slices of the render read as two
+        // photos stacked on top of each other. Those frames opt into
+        // {src, fit:"contain"} instead of a bare string, matching how the
+        // base pre-hover .product-card-img itself is always shown.
         function show(i) {
           idx = (i + gallery.length) % gallery.length;
-          galleryImg.src = gallery[idx];
+          var frame = gallery[idx];
+          if (typeof frame === 'string') {
+            galleryImg.src = frame;
+            galleryImg.style.objectFit = '';
+          } else {
+            galleryImg.src = frame.src;
+            galleryImg.style.objectFit = frame.fit || '';
+          }
           started = true;
         }
 
@@ -3375,16 +3572,73 @@
           // On mobile the crossfade image is only ever revealed here, on
           // the first tap -- CSS keeps it hidden by default so the base
           // cutout stays the first photo shown either way.
+          // Mobile walks a flat strip instead of cycling: position 0 is the
+          // base cutout still showing through, 1..n are the gallery frames.
+          // Stepping back to 0 hides the crossfade again, which is what
+          // makes "scroll to the end and back" land on the photo it started
+          // from rather than on gallery[0].
+          var pos = 0;
+
+          function renderMobile() {
+            if (pos === 0) {
+              galleryImg.style.opacity = '';
+            } else {
+              show(pos - 1);
+              galleryImg.style.opacity = '1';
+            }
+            media.setAttribute('data-gallery-pos', pos === 0 ? 'start' : (pos === gallery.length ? 'end' : 'mid'));
+          }
+
+          function step(delta) {
+            var next = pos + delta;
+            if (next < 0 || next > gallery.length) { return; }
+            pos = next;
+            renderMobile();
+          }
+
+          renderMobile();
+
           prevBtn.addEventListener('click', function (e) {
             e.preventDefault(); e.stopPropagation();
+            if (isMobileGallery.matches) { step(-1); return; }
             show(started ? idx - 1 : gallery.length - 1);
-            if (isMobileGallery.matches) { galleryImg.style.opacity = '1'; }
           });
           nextBtn.addEventListener('click', function (e) {
             e.preventDefault(); e.stopPropagation();
+            if (isMobileGallery.matches) { step(1); return; }
             show(started ? idx + 1 : 0);
-            if (isMobileGallery.matches) { galleryImg.style.opacity = '1'; }
           });
+
+          // Swipe. Listeners stay passive so a vertical drag scrolls the
+          // page as usual -- only a clearly horizontal gesture is claimed.
+          var startX = null, startY = null, swiped = false;
+
+          media.addEventListener('touchstart', function (e) {
+            swiped = false;
+            if (e.touches.length !== 1) { startX = null; return; }
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+          }, { passive: true });
+
+          media.addEventListener('touchend', function (e) {
+            if (startX === null || !isMobileGallery.matches) { return; }
+            var touch = e.changedTouches[0];
+            var dx = touch.clientX - startX;
+            var dy = touch.clientY - startY;
+            startX = null;
+            if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) { return; }
+            swiped = true;
+            step(dx < 0 ? 1 : -1);
+          }, { passive: true });
+
+          // The whole card is an <a> -- without this a swipe that ends in a
+          // synthetic click would navigate to the product page.
+          media.addEventListener('click', function (e) {
+            if (!swiped) { return; }
+            swiped = false;
+            e.preventDefault();
+            e.stopPropagation();
+          }, true);
 
           media.appendChild(prevBtn);
           media.appendChild(nextBtn);
@@ -3566,9 +3820,11 @@
       });
     }
 
+    applyProductLineup();
     initProductGalleries();
     initProductHoverCycle();
     injectListDetails();
+    applyPagination(true);
 
     // Shared by renderProducts and buildCategoryCarousels (the "carousels
     // instead of grid" listing style) so the two never drift apart.
@@ -3629,9 +3885,12 @@
         var rootCardsHTML = Array.prototype.map.call(temp.children, function (el) { return el.outerHTML; });
         insertBuildBoxTile(rootCardsHTML);
         productGrid.innerHTML = rootCardsHTML.join('');
+        // the restored default markup is the current line-up again
+        applyProductLineup();
         initProductGalleries();
         initProductHoverCycle();
         injectListDetails();
+        applyPagination(true);
         return;
       }
 
@@ -3666,6 +3925,7 @@
       initProductGalleries();
       initProductHoverCycle();
       injectListDetails();
+      applyPagination(true);
     }
 
     function renderHeader(node) {
@@ -4067,6 +4327,57 @@
       document.body.classList.toggle('pkg-tile-hover-cycle', style === 'cycle');
     };
 
+    // "Previous product line-up" (gear panel). The current line-up is what
+    // the markup ships, so this walks the live tiles back to the older one
+    // instead: legacy photos come from data-legacy-* parked on the nodes,
+    // Hot Stamping returns to the slot marked data-legacy-anchor, and the
+    // Sleeved tile (which did not exist before) is hidden. Re-applied after
+    // any grid re-render, since that restores the default markup.
+    function applyProductLineup(root) {
+      var scope = root || productGrid;
+      var mailerCard = scope.querySelector('[data-product="mailer-box"]');
+      var hot = scope.querySelector('[data-product="hot-stamping"]');
+      var sleeved = scope.querySelector('[data-product="sleeved-mailer-box"]');
+      if (!mailerCard || !hot || !sleeved) { return; }
+
+      // data-product marks the card; the gallery attributes live on its media.
+      var mailer = mailerCard.querySelector('.product-card-media');
+      var hotImg = hot.querySelector('.product-card-img');
+      var mailerImg = mailer.querySelector('.product-card-img');
+
+      // Stash the current (default) values the first time through, so the
+      // toggle can go back and forth without the markup being re-read.
+      if (!mailer.hasAttribute('data-current-src')) {
+        mailer.setAttribute('data-current-src', mailerImg.getAttribute('src'));
+        mailer.setAttribute('data-current-gallery', mailer.getAttribute('data-gallery'));
+        hot.setAttribute('data-current-src', hotImg.getAttribute('src'));
+        hot.setAttribute('data-current-next', '');
+      }
+
+      if (legacyProducts) {
+        mailerImg.src = mailer.getAttribute('data-legacy-src');
+        mailer.setAttribute('data-gallery', mailer.getAttribute('data-legacy-gallery'));
+        hotImg.src = hotImg.getAttribute('data-legacy-src');
+        var anchor = scope.querySelector('[data-legacy-anchor="hot-stamping"]');
+        if (anchor) { anchor.parentNode.insertBefore(hot, anchor); }
+        sleeved.hidden = true;
+      } else {
+        mailerImg.src = mailer.getAttribute('data-current-src');
+        mailer.setAttribute('data-gallery', mailer.getAttribute('data-current-gallery'));
+        hotImg.src = hot.getAttribute('data-current-src');
+        sleeved.parentNode.insertBefore(hot, sleeved);
+        sleeved.hidden = false;
+      }
+    }
+
+    window.phSetLegacyProducts = function (on) {
+      legacyProducts = on;
+      localStorage.setItem('legacyProducts', on ? '1' : '0');
+      applyProductLineup();
+      initProductGalleries();
+      applyPagination(true);
+    };
+
     // "Category carousels instead of grid" listing style (gear panel): one
     // horizontally-scrolling row per root category instead of a single
     // grid. Only "Boxes" has its own real product list (boxesProducts);
@@ -4356,6 +4667,16 @@
   </div>
   <div class="site-settings-row">
     <div>
+      <p class="site-settings-label">Previous product line-up</p>
+      <p class="site-settings-desc">Restores the older top-of-grid tiles: the original "Custom Mailer Box" photos, "with Hot Stamping" back in its old slot with its old shot, and no "Custom Sleeved Mailer Box"</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleLegacyProducts">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
       <p class="site-settings-label">Category carousels instead of grid</p>
       <p class="site-settings-desc">One scrollable row per category instead of a single product grid; hides the Categories/Industries toggle and tile strip, adds a "Categories" filter pill</p>
     </div>
@@ -4434,6 +4755,13 @@
 
     tileHoverStyleToggle.addEventListener('change', function () {
       window.phSetTileHoverStyle(tileHoverStyleToggle.checked ? 'cycle' : 'gallery');
+    });
+
+    var legacyProductsToggle = document.getElementById('toggleLegacyProducts');
+    legacyProductsToggle.checked = localStorage.getItem('legacyProducts') === '1';
+
+    legacyProductsToggle.addEventListener('change', function () {
+      window.phSetLegacyProducts(legacyProductsToggle.checked);
     });
 
     var listingStyleToggle = document.getElementById('toggleListingStyle');
