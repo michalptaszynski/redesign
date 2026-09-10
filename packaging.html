@@ -1075,7 +1075,11 @@
 
   /* ---------- PRODUCT GRID ---------- */
   .pkg-products {
-    padding: var(--space-4) var(--space-8) var(--space-16);
+    /* .pkg-seo right below has no top padding of its own, so this bottom
+       padding is the entire visual gap between the grid and it -- bumped
+       one step past the --space-16 used elsewhere on this page since that
+       read as too tight against the SEO copy's own dense two-column text. */
+    padding: var(--space-4) var(--space-8) var(--space-20);
   }
 
   /* The sleeved-mailer shot is a JPEG, so unlike the cutout PNGs around it
@@ -1095,6 +1099,12 @@
     gap: var(--space-2);
     padding-top: var(--space-12);
   }
+
+  /* Author styles beat the UA stylesheet's [hidden]{display:none} even at
+     equal specificity -- without this, the flex above stayed in effect and
+     a single-page category (e.g. the 7-product Mailer Boxes list) showed
+     the pager anyway despite JS setting the hidden attribute. */
+  .pkg-pagination[hidden] { display: none; }
 
   .pkg-page-numbers { display: flex; align-items: center; gap: var(--space-2); }
 
@@ -1165,7 +1175,9 @@
      already established for the category tile strip and product grid. ---------- */
   #pkgCategoryCarousels {
     display: none;
-    padding: var(--space-4) var(--space-8) var(--space-16);
+    /* Matches .pkg-products' own bottom padding -- this replaces that
+       section entirely in carousels mode, same gap before .pkg-seo. */
+    padding: var(--space-4) var(--space-8) var(--space-20);
     box-sizing: border-box;
   }
 
@@ -1346,11 +1358,15 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+    /* --img-scale lets a specific tile's photo run smaller than the tile
+       itself (set inline per-image, see productCardHTML) without touching
+       the file -- default 1 leaves every other tile exactly as it was. */
+    transform: scale(var(--img-scale, 1));
     transition: transform 0.3s ease;
   }
 
   .product-card:hover .product-card-img {
-    transform: scale(1.08);
+    transform: scale(calc(var(--img-scale, 1) * 1.08));
   }
 
   /* Lifestyle-photo hover gallery -- opt-in per card via data-gallery on
@@ -2582,7 +2598,7 @@
   <section class="pkg-products">
     <div class="product-grid" id="pkgProductGrid">
       <a class="product-card" data-product="mailer-box" href="product_page.html">
-        <div class="product-card-media" data-gallery='[{"src":"assets/packaging/mailer_box_normal_color.png","fit":"contain"},{"src":"assets/packaging/mailer_box_premium_color.png","fit":"contain"},"assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-legacy-gallery='["assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-legacy-src="assets/packaging/Custom%20Mailer%20Box.png" data-hover-cycle='["assets/packaging/Custom%20Mailer%20Box.png","assets/packaging/Custom%20Mailer%20Box_2.png","assets/packaging/Custom%20Mailer%20Box_3.png","assets/packaging/Custom%20Mailer%20Box_4.png"]'><img class="product-card-img" src="assets/packaging/mailer_box_one_color.png" alt=""></div>
+        <div class="product-card-media" data-gallery='[{"src":"assets/packaging/mailer_box_white_on_kraft.png","fit":"contain"},{"src":"assets/packaging/mailer_box_normal_color.png","fit":"contain"},{"src":"assets/packaging/mailer_box_premium_color.png","fit":"contain"},"assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-legacy-gallery='["assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-legacy-src="assets/packaging/Custom%20Mailer%20Box.png" data-hover-cycle='["assets/packaging/Custom%20Mailer%20Box.png","assets/packaging/Custom%20Mailer%20Box_2.png","assets/packaging/Custom%20Mailer%20Box_3.png","assets/packaging/Custom%20Mailer%20Box_4.png"]'><img class="product-card-img" src="assets/packaging/mailer_box_one_color.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Mailer Box</h3>
           <p class="product-card-price">From €0.49 piece</p>
@@ -2598,7 +2614,7 @@
       <div class="product-card" data-product="sleeved-mailer-box">
         <div class="product-card-media"><img class="product-card-img" src="assets/packaging/sleeved_mailer_box.jpg" alt=""></div>
         <div class="product-card-info">
-          <h3 class="product-card-name">Custom Sleeved Mailer Box</h3>
+          <h3 class="product-card-name">Plain Mailer Box with Custom Sleeve</h3>
           <p class="product-card-price">From €0.65 piece</p>
         </div>
       </div>
@@ -3165,29 +3181,30 @@
   })();
 
   (function () {
+    // Reconciled against the live packhelp.co.uk/packaging/boxes/mailer-boxes/
+    // grid (2026-09-10): same 7 products, same order, same type/moq per
+    // tile. The live grid's 8th tile, "Plain Mailer Box with Custom
+    // Stamp", is deliberately left out (explicit ask). Three of these had
+    // no photo at all before (rendered as a blank tile, no fallback in
+    // rootProductImages) -- downloaded their real listing thumbnails from
+    // the live grid so every tile here now has one.
+    // Custom Mailer Box, Custom Mailer Box with Hot Stamping and Plain
+    // Mailer Box with Custom Sleeve all already exist as real, fully-built
+    // tiles in the root grid (gallery arrows, swipe, hover-cycle, the
+    // works) -- see rootProductTiles below, which clones that exact
+    // markup in wherever one of these three names comes up again, instead
+    // of this array describing a second, simplified copy of them that can
+    // silently drift out of sync (lost its swipe arrows once already).
+    // Name here has to match the root tile's h3 text exactly for that
+    // lookup to hit, so these three carry no img/hoverImages of their own.
     var mailerBoxesProducts = [
       { name: 'Custom Mailer Box', type: 'Customisable', moq: 30, price: 0.49 },
-      { name: 'Custom E-commerce Mailer Box', type: 'Customisable', moq: 30, price: 0.52 },
-      { name: 'Custom Mailer Box Inserts', type: 'Customisable', moq: 240, price: 0.28 },
       { name: 'Custom Mailer Box with Hot Stamping', type: 'Customisable', moq: 120, price: 0.99 },
       { name: 'Plain E-commerce Mailer Box', type: 'Plain', moq: 30, price: 0.38 },
-      {
-        name: 'Plain Mailer Box with Custom Sleeve',
-        type: 'Customisable',
-        moq: 30,
-        price: 0.65,
-        img: 'https://cdn-pim.packhelp.com/assets/d0f438f9-26bc-4854-9ac4-6317cd338d14/852084-sleeved-mailer?w=640&fit=min&auto=format',
-        hoverImages: [
-          'https://cdn-pim.packhelp.com/assets/4e5dffc9-7c79-4efb-8b9d-bd396d6a7a9c/1841480-sleeved-mailer-box-1?w=1920&h=1459&fit=min&auto=format',
-          'https://cdn-pim.packhelp.com/assets/948ec8da-687e-4d46-bad7-e0d789f040d9/2758183-sleeved-mailer-box-2?w=1920&h=1459&fit=min&auto=format',
-          'https://cdn-pim.packhelp.com/assets/ceef21a7-cc6a-4888-950d-29f13361f56d/2973577-sleeved-mailer-box-3?w=1920&h=1459&fit=min&auto=format'
-        ]
-      },
-      { name: 'Plain Mailer Box', type: 'Plain', moq: 30, price: 0.33 },
-      { name: 'Pre-Printed Full-Colour Mailer Box', type: 'Pre-printed', moq: 30, price: 0.58 },
-      { name: 'Custom Book Wrap Mailer', type: 'Customisable', moq: 30, price: 0.68 },
-      { name: 'Pre-Printed Economic Mailer Box', type: 'Pre-printed', moq: 30, price: 0.45 },
-      { name: 'Plain Mailer Box with Custom Stamp', type: 'Bundle', moq: null, price: 0.55 }
+      { name: 'Plain Mailer Box with Custom Sleeve', type: 'Customisable', moq: 30, price: 0.65 },
+      { name: 'Plain Mailer Box', type: 'Plain', moq: 30, price: 0.33, img: 'assets/packaging/plain_mailer_box.png', imgScale: 0.93 },
+      { name: 'Pre-Printed Full-Colour Mailer Box', type: 'Pre-printed', moq: 30, price: 0.58, img: 'assets/packaging/pre_printed_full_colour_mailer_box.png', imgScale: 0.93 },
+      { name: 'Pre-Printed Economic Mailer Box', type: 'Pre-printed', moq: 30, price: 0.45, img: 'assets/packaging/pre_printed_economic_mailer_box.png', imgScale: 0.88 }
     ];
 
     var shippingBoxesProducts = [
@@ -3425,6 +3442,26 @@
         if (nameEl && imgEl) {
           map[nameEl.textContent.trim()] = imgEl.getAttribute('src');
         }
+      });
+      return map;
+    })();
+
+    // A handful of category products (Custom Mailer Box and friends, see
+    // mailerBoxesProducts above) already exist as a real, gallery-enabled
+    // tile in the root grid -- data-gallery/data-hover-cycle, the arrows,
+    // everything. Reusing that exact markup wherever the same name comes
+    // up again (instead of productCardHTML() re-describing a second, bare
+    // copy) is what makes it one entity: initProductGalleries() then wires
+    // up the very same swipe/arrow behaviour after every render, category
+    // view included, because the attributes it looks for are right there
+    // in the cloned HTML.
+    var rootProductTiles = (function () {
+      var temp = document.createElement('div');
+      temp.innerHTML = defaultProductGridHTML;
+      var map = {};
+      temp.querySelectorAll('.product-card[data-product]').forEach(function (card) {
+        var nameEl = card.querySelector('.product-card-name');
+        if (nameEl) { map[nameEl.textContent.trim()] = card.outerHTML; }
       });
       return map;
     })();
@@ -3829,8 +3866,9 @@
     // Shared by renderProducts and buildCategoryCarousels (the "carousels
     // instead of grid" listing style) so the two never drift apart.
     function productCardHTML(product) {
+      var scaleAttr = product.imgScale ? ' style="--img-scale: ' + product.imgScale + '"' : '';
       var mediaImg = product.img
-        ? '<img class="product-card-img" src="' + product.img + '" alt="">'
+        ? '<img class="product-card-img" src="' + product.img + '"' + scaleAttr + ' alt="">'
         : '';
       // Most catalog products don't have a built PDP yet, so the card is a
       // plain, non-clickable div -- product.href opts a specific product
@@ -3895,7 +3933,9 @@
       }
 
       var sortedProducts = enrichAndSortProducts(products);
-      var cardsHTML = sortedProducts.map(productCardHTML);
+      var cardsHTML = sortedProducts.map(function (product) {
+        return rootProductTiles[product.name] || productCardHTML(product);
+      });
       insertBuildBoxTile(cardsHTML);
 
       productGrid.innerHTML = cardsHTML.join('');
@@ -4668,7 +4708,7 @@
   <div class="site-settings-row">
     <div>
       <p class="site-settings-label">Previous product line-up</p>
-      <p class="site-settings-desc">Restores the older top-of-grid tiles: the original "Custom Mailer Box" photos, "with Hot Stamping" back in its old slot with its old shot, and no "Custom Sleeved Mailer Box"</p>
+      <p class="site-settings-desc">Restores the older top-of-grid tiles: the original "Custom Mailer Box" photos, "with Hot Stamping" back in its old slot with its old shot, and no "Plain Mailer Box with Custom Sleeve"</p>
     </div>
     <label class="site-toggle">
       <input type="checkbox" id="toggleLegacyProducts">
