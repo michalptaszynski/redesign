@@ -275,7 +275,8 @@
   .lc-section { padding: var(--space-40) var(--space-8) 0; }
   .lc-section.lc-section-cont { padding-top: var(--space-16); }
 
-  /* Pas pod sekcją "How we solve it".
+  /* Pełnoszerokościowy pas ze zdjęciem (używany pod "How we solve it"
+     i pod "Working together").
      Szerokość jak .cta-section/.cta-card na home page ("At any scale"):
      pełna szerokość okna minus rynna space-3 z każdej strony, zaokrąglony
      narożnik --radius-2xl. Ten sam trick co w .lc-hero-media — left: 50%
@@ -284,7 +285,7 @@
      page (.statement-video-mock: 16/9 z max-height 640px).
      Kolor tła jest wpisany na sztywno, nie z tokenu: ma zostać ciemny również
      w jasnym motywie (widać go, dopóki zdjęcie się nie doładuje). */
-  .lc-solve-video {
+  .lc-band {
     position: relative;
     left: 50%;
     width: calc(100vw - var(--space-6));   /* 2 × space-3, jak padding .cta-section */
@@ -298,7 +299,9 @@
 
   /* zdjęcie jest o 20% wyższe niż kadr i jeździ w nim na scrollu (paralaksa).
      Nadmiar rozłożony po równi góra/dół, żeby w spoczynku kadr był wyśrodkowany. */
-  .lc-solve-video img {
+  /* > img, nie img: pas może nieść dodatkowe warstwy (np. zrzut panelu),
+     a te reguły dotyczą wyłącznie zdjęcia tła */
+  .lc-band > img {
     position: absolute;
     top: -10%;
     left: 0;
@@ -309,8 +312,59 @@
     will-change: transform;
   }
 
+  /* wariant o 240px wyższy, z warstwą zrzutu wystającą poza dolną krawędź */
+  .lc-band-shot {
+    aspect-ratio: auto;
+    /* max-height z .lc-band przycinał wynik z powrotem do 640px */
+    max-height: none;
+    height: calc(min(640px, (100vw - var(--space-6)) * 9 / 16) + 240px);
+  }
+
+  /* Zakotwiczony górą, nie dołem: przy szerokości contentu zrzut jest wyższy
+     niż pas, więc to dolna krawędź ma z niego schodzić poza kadr, a górna
+     ma stać w stałej odległości od góry niezależnie od szerokości okna.
+     Szerokość liczona tym samym wzorem co treść sekcji (.container: min(100vw,
+     --max-w) minus dwa paddingi), więc zrzut trzyma linię z nagłówkami. */
+  .lc-shot {
+    position: absolute;
+    left: 50%;
+    top: 120px;
+    z-index: 1;
+    width: calc(min(100vw, var(--max-w)) - var(--space-8) * 2);
+    transform: translateX(-50%);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+    will-change: translate;
+  }
+
+  .lc-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 700px) {
+    .lc-shot {
+      top: 88px;
+      width: calc(100vw - var(--space-5) * 2);
+    }
+
+    /* Na telefonie zrzut jest wąski, więc i niski — przy wysokości pasa liczonej
+       jako "+240px" mieścił się w nim w całości i przestawał wystawać poza dolną
+       krawędź. Tu wysokość liczy się z samego zrzutu: górny odstęp + jego
+       wysokość (proporcja pliku 2880x2552) minus 40px zwisu. */
+    .lc-band-shot {
+      height: calc(88px + (100vw - var(--space-5) * 2) * 2552 / 2880 - 40px);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .lc-solve-video img { top: 0; height: 100%; transform: none !important; }
+    .lc-shot { translate: none !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc-band > img { top: 0; height: 100%; transform: none !important; }
   }
 
   /* dwa "slidery" na zdjęciu: szklany pasek, wypełnienie do wartości,
@@ -2969,15 +3023,17 @@
   <!-- placeholder pod "How we solve it" — poza trzema wariantami sekcji,
        więc widoczny niezależnie od tego, który jest włączony -->
   <section class="lc-section reveal">
-    <div class="lc-solve-video">
+    <div class="lc-band">
       <img src="assets/enterprise/solve-team-office.jpg" alt="Three colleagues laughing over a laptop in an office" loading="lazy" decoding="async">
 
       <div class="lc-solve-stats">
-        <div class="lc-solve-stat" style="--v: 4%">
+        <!-- data-from/data-to: wartość jedzie ze scrollem. Statyczne --v i tekst
+             to stan końcowy — tak wygląda pasek bez JS-u i przy reduced-motion. -->
+        <div class="lc-solve-stat" style="--v: 4%" data-from="100" data-to="4">
           <span class="lc-solve-stat-label">Risk of running out of packaging</span>
           <span class="lc-solve-stat-value">4%</span>
         </div>
-        <div class="lc-solve-stat" style="--v: 98%">
+        <div class="lc-solve-stat" style="--v: 98%" data-from="0" data-to="98">
           <span class="lc-solve-stat-label">Deliveries on time</span>
           <span class="lc-solve-stat-value">98%</span>
         </div>
@@ -3140,6 +3196,16 @@
           <h3>Stock and call-offs</h3>
         </div>
         <p>Standing stock held here, released on demand, with a quarterly cost review. You order against it instead of forecasting a year ahead.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lc-section reveal">
+    <div class="lc-band lc-band-shot">
+      <img src="assets/enterprise/working-together-field.jpg" alt="A field of blue flowers below a mountain ridge" loading="lazy" decoding="async">
+
+      <div class="lc-shot">
+        <img src="assets/enterprise/whitelabel-panel.png" alt="Admin panel listing users, their sellers and roles" loading="lazy" decoding="async">
       </div>
     </div>
   </section>
@@ -4006,18 +4072,89 @@
 </script>
 
 <script>
-  /* ============ PARALAKSA ZDJĘCIA W PASIE POD "HOW WE SOLVE IT" ============
+  /* ============ SLIDERY W PASIE — WARTOŚĆ STEROWANA SCROLLEM ============
+     Pierwszy pasek spada ze 100% do swojej wartości, drugi rośnie od zera.
+     Jedna zmienna --v napędza i wypełnienie, i pozycję uchwytu, a liczba
+     obok liczy się z tego samego postępu, więc nie da się ich rozjechać. */
+  (function () {
+    var stats = [].slice.call(document.querySelectorAll('.lc-solve-stat[data-from]'));
+    if (!stats.length) { return; }
+
+    var band = stats[0].closest('.lc-band');
+    if (!band) { return; }
+
+    /* przy reduced-motion zostaje stan końcowy z HTML-a */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+
+    var raf = null;
+
+    function paint(t) {
+      stats.forEach(function (el) {
+        var from = parseFloat(el.getAttribute('data-from'));
+        var to = parseFloat(el.getAttribute('data-to'));
+        var v = from + (to - from) * t;
+        el.style.setProperty('--v', v.toFixed(2) + '%');
+        el.querySelector('.lc-solve-stat-value').textContent = Math.round(v) + '%';
+      });
+    }
+
+    function update() {
+      raf = null;
+
+      var rect = band.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+
+      /* 0 = górna krawędź pasa dopiero wjechała na ekran,
+         1 = pas doszedł do środka ekranu */
+      var t = (vh - rect.top) / (vh * 0.5 + rect.height * 0.5);
+      if (t < 0) { t = 0; } else if (t > 1) { t = 1; }
+
+      paint(t);
+    }
+
+    function onScroll() { if (raf === null) { raf = requestAnimationFrame(update); } }
+
+    if (window.IntersectionObserver) {
+      var listening = false;
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting === listening) { return; }
+          listening = entry.isIntersecting;
+          if (listening) {
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll);
+          } else {
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onScroll);
+          }
+          update();
+        });
+      }, { rootMargin: '200px 0px' }).observe(band);
+    } else {
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    update();
+  })();
+</script>
+
+<script>
+  /* ============ PARALAKSA ZDJĘĆ W PASACH .lc-band ============
      Zdjęcie jest o 20% wyższe niż jego kadr; przesuwamy je w pionie w zakresie
      tego nadmiaru, proporcjonalnie do pozycji pasa względem środka ekranu.
      Liczone tylko wtedy, gdy pas jest w widoku, i tylko raz na klatkę. */
   (function () {
-    var band = document.querySelector('.lc-solve-video');
-    if (!band) { return; }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+    [].forEach.call(document.querySelectorAll('.lc-band'), setup);
 
-    var img = band.querySelector('img');
+  function setup(band) {
+    var img = band.querySelector(':scope > img');
     if (!img) { return; }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+    /* warstwa na wierzchu (zrzut) jedzie w przeciwną stronę niż tło — stąd
+       wrażenie głębi. Ruch trzeba ograniczyć tym, ile zrzutu wystaje poza
+       dolną krawędź, inaczej wjeżdżając w górę odsłoniłby tło pod sobą. */
+    var shot = band.querySelector('.lc-shot');
 
     var raf = null;
     var visible = false;
@@ -4035,6 +4172,16 @@
       /* nadmiar wysokości zdjęcia = 20% kadru, więc w jedną stronę 10% */
       var shift = progress * rect.height * 0.1;
       img.style.transform = 'translate3d(0, ' + shift.toFixed(2) + 'px, 0)';
+
+      if (shot) {
+        /* offsetTop/offsetHeight to wartości układu — translate ich nie rusza,
+           więc zwis liczy się tak samo w każdej klatce */
+        var overhang = shot.offsetTop + shot.offsetHeight - band.clientHeight;
+        var range = Math.max(0, Math.min(28, overhang - 8));
+        /* translate, NIE transform: element ma w CSS translateX(-50%) do
+           wyśrodkowania i keyframe/transform by je skasował */
+        shot.style.translate = '0 ' + (-progress * range).toFixed(2) + 'px';
+      }
     }
 
     function onScroll() { if (raf === null) { raf = requestAnimationFrame(update); } }
@@ -4059,6 +4206,7 @@
     }
 
     update();
+  }
   })();
 </script>
 
