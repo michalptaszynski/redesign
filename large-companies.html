@@ -1183,8 +1183,7 @@
     .lc-logos-track { animation: none; }
   }
 
-  /* ---------- PAIN TABS (toolbar toggle + 3 kafle w jednym panelu; hover
-     rozsuwa kafel i odsłania w nim zdjęcie — układ z załącznika) ---------- */
+  /* ---------- PAIN TABS (toolbar toggle + 3 równe kafle w jednym panelu) ---------- */
   .lc-toolbar {
     display: flex;
     align-items: center;
@@ -1210,19 +1209,7 @@
     padding: var(--space-8);
     border-radius: var(--radius-lg);
     background: var(--color-bg-muted);
-    transition: flex-grow 0.5s cubic-bezier(.16, 1, .3, 1);
   }
-
-  .lc-pain:hover { flex-grow: 1.9; }
-
-  /* pierwszy kafel jest rozwinięty od razu, bez najeżdżania — dzięki temu
-     sekcja od startu pokazuje, że kafle mają coś w środku */
-  .lc-pain:first-child { flex-grow: 1.9; }
-
-  /* ...ale zwija się, gdy użytkownik rozwija któryś z pozostałych.
-     :not(:hover) zamiast osobnej reguły na .lc-pain:hover — inaczej te dwie
-     biłyby się o kafel, na którym właśnie stoi kursor */
-  .lc-pain-grid:hover .lc-pain:first-child:not(:hover) { flex-grow: 1; }
 
   .lc-pain-body {
     flex: 1 1 auto;
@@ -1267,63 +1254,9 @@
     color: var(--color-text-muted);
   }
 
-  /* TODO: pusta powierzchnia do podmiany na realne zdjęcie.
-     width (nie flex-basis) animuje się przewidywalnie razem z margin-left,
-     więc kafel rozsuwa się i odsłania zdjęcie w jednym ruchu */
-  .lc-pain-media {
-    flex: none;
-    overflow: hidden;
-    width: 0;
-    margin-left: 0;
-    opacity: 0;
-    border-radius: var(--radius-md);
-    background: var(--color-bg-muted-hover);
-    transition: width 0.5s cubic-bezier(.16, 1, .3, 1),
-                margin-left 0.5s cubic-bezier(.16, 1, .3, 1),
-                opacity 0.35s ease;
-  }
-
-  .lc-pain-media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .lc-pain:hover .lc-pain-media,
-  .lc-pain:first-child .lc-pain-media {
-    width: 42%;
-    margin-left: var(--space-8);
-    opacity: 1;
-  }
-
-  .lc-pain-grid:hover .lc-pain:first-child:not(:hover) .lc-pain-media {
-    width: 0;
-    margin-left: 0;
-    opacity: 0;
-  }
-
   @media (max-width: 900px) {
-    /* hover nie istnieje na dotyku — kafle stackują się, a zdjęcie jest
-       widoczne na stałe pod tekstem zamiast chować się za interakcją */
     .lc-pain-grid { flex-direction: column; }
-    .lc-pain { flex: 1 1 auto; flex-direction: column; min-height: 0; }
-    .lc-pain:hover,
-    .lc-pain:first-child,
-    .lc-pain-grid:hover .lc-pain:first-child:not(:hover) { flex-grow: 1; }
-    .lc-pain-media,
-    .lc-pain:hover .lc-pain-media,
-    .lc-pain:first-child .lc-pain-media,
-    .lc-pain-grid:hover .lc-pain:first-child:not(:hover) .lc-pain-media {
-      width: auto;
-      height: 200px;
-      margin: var(--space-8) 0 0;
-      opacity: 1;
-    }
-
-    /* na mobile media są widoczne zawsze, więc kafel bez zdjęcia pokazywał
-       pusty szary prostokąt zamiast niczego */
-    .lc-pain-media:empty { display: none; }
+    .lc-pain { flex: 1 1 auto; min-height: 0; }
 
     /* four tabs don't fit a phone: the toolbar scrolls sideways and bleeds to
        the page edge instead of clipping the last option (body has
@@ -1341,10 +1274,7 @@
     .lc-toolbar .toggle-option { white-space: nowrap; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .lc-pain,
-    .lc-pain-media { transition: none; }
-  }
+
 
   /* ---------- SOLUTIONS (cztery pełnowymiarowe wiersze: zdjęcie po lewej,
      pionowa linia, po prawej tytuł → ikona → opis) ---------- */
@@ -3584,10 +3514,6 @@
             <p>Every dimension or artwork change becomes its own project, quote and queue.</p>
           </div>
         </div>
-        <!-- TODO: wrzuć zdjęcie ze stosem pudełek jako
-             assets/enterprise/pain-range-outgrows.jpg, odkomentuj <img> tutaj
-             ORAZ pole img w painTabs niżej — plik jeszcze nie istnieje -->
-        <div class="lc-pain-media"><!-- <img src="assets/enterprise/pain-range-outgrows.jpg" alt="A wall of stacked cardboard shipping boxes" loading="lazy" decoding="async"> --></div>
       </div>
       <div class="lc-pain">
         <div class="lc-pain-body">
@@ -3597,7 +3523,6 @@
             <p>One price in the sheet, another in the system, a third on the invoice.</p>
           </div>
         </div>
-        <div class="lc-pain-media"></div>
       </div>
       <div class="lc-pain">
         <div class="lc-pain-body">
@@ -3607,7 +3532,6 @@
             <p>Procurement, marketing, finance and sustainability all have to say yes.</p>
           </div>
         </div>
-        <div class="lc-pain-media"><img src="assets/enterprise/pain-four-teams.jpg" alt="Two colleagues going through a printed spec at a desk" loading="lazy" decoding="async"></div>
       </div>
     </div>
 
@@ -5130,9 +5054,9 @@
 
     var painTabs = {
       ops: [
-        { icon: 'grid',   title: 'A range that grows faster than the team', body: 'Every dimension or artwork change becomes its own project, quote and queue.', /* img: 'assets/enterprise/pain-range-outgrows.jpg', alt: 'A wall of stacked cardboard shipping boxes' */ },
+        { icon: 'grid',   title: 'A range that grows faster than the team', body: 'Every dimension or artwork change becomes its own project, quote and queue.' },
         { icon: 'branch', title: 'Data that drifts apart', body: 'One price in the sheet, another in the system, a third on the invoice.' },
-        { icon: 'users',  title: 'Four teams, four criteria', body: 'Procurement, marketing, finance and sustainability all have to say yes.', img: 'assets/enterprise/pain-four-teams.jpg', alt: 'Two colleagues going through a printed spec at a desk' }
+        { icon: 'users',  title: 'Four teams, four criteria', body: 'Procurement, marketing, finance and sustainability all have to say yes.' }
       ],
       supply: [
         { icon: 'alert', title: 'One supplier is one risk', body: 'One line goes down at your sole partner and there is nothing to ship in.' },
@@ -5178,9 +5102,6 @@
                      '<h3>' + item.title + '</h3>' +
                      '<p>' + item.body + '</p>' +
                    '</div>' +
-                 '</div>' +
-                 '<div class="lc-pain-media">' +
-                   (item.img ? '<img src="' + item.img + '" alt="' + item.alt + '" loading="lazy" decoding="async">' : '') +
                  '</div>' +
                '</div>';
       }).join('');
