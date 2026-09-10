@@ -334,15 +334,449 @@
     transform: translateX(-50%);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+    /* 4px biała obwódka + miękki cień. box-shadow, nie border: nie rusza
+       układu i sam podąża za border-radius, więc panel zostaje w linii
+       z szerokością contentu. */
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, .4), 0 24px 60px rgba(0, 0, 0, .28);
     will-change: translate;
   }
 
-  .lc-shot img {
+  /* > img: reguła jest dla zrzutu wstawionego jako obrazek. Jako selektor
+     potomka łapała też logotyp w odwzorowanym panelu (.ap-logo) i rozciągała
+     go na całą wolną szerokość — .lc-shot img ma wyższą specyficzność niż
+     .ap-logo, więc wygrywała mimo poprawnej reguły niżej. */
+  .lc-shot > img {
     display: block;
     width: 100%;
     height: auto;
   }
+
+  /* ---------- ADMIN PANEL (.ap) — odwzorowanie panelu white-label ----------
+     Panel zastępuje zrzut PNG, więc ma skalować się jak obrazek, a nie
+     przelewać jak layout: WSZYSTKIE wymiary są w em, a bazowy font-size
+     liczy się z szerokości kontenera (cqw). Dzięki temu przy 1216px wychodzi
+     ~13px, przy 1036px ~11px, a proporcje zostają te same na każdej
+     szerokości. Zmiana jednej liczby niżej skaluje cały panel. */
+  .lc-shot { container-type: inline-size; }
+
+  /* ---------- ADMIN PANEL (.ap) — odwzorowanie panelu white-label ----------
+     Panel zastępuje zrzut PNG, więc ma skalować się jak obrazek, a nie
+     przelewać jak layout. Stąd --u: jednostka równa 1px z projektu (szerokość
+     projektowa 1440), liczona z szerokości kontenera. Wszystkie wymiary są
+     wielokrotnością --u, więc wartości z Figmy wpisuje się tu wprost, a panel
+     i tak skaluje się proporcjonalnie na każdej szerokości.
+
+     Kolory biorą PRYMITYWY z tokens.css, nie tokeny semantyczne: panel jest
+     powierzchnią zawsze jasną i nie może się odwrócić razem z motywem strony
+     (--color-border-default w dark mode to ciemny grafit — na białym panelu
+     zniknąłby). */
+  .ap {
+    --u: 0.06944cqw;              /* 1440 * 0.06944cqw = 100cqw */
+    --ap-line: var(--gray-300);
+    --ap-surface: var(--white);
+    --ap-ink: var(--rich-blue);
+    --ap-muted: var(--gray-500);
+
+    position: relative;
+    font-size: calc(14 * var(--u));
+    background: var(--ap-surface);
+    color: var(--ap-ink);
+    font-family: inherit;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    user-select: none;
+  }
+
+  .ap-top {
+    display: flex;
+    align-items: center;
+    gap: calc(24 * var(--u));
+    padding: calc(20 * var(--u)) calc(24 * var(--u)) 0;
+  }
+
+  /* logotyp z repo (ten sam plik co w nav-header.js) — brand blue sprowadzony
+     do czerni jednym filtrem, żeby nie trzymać drugiej kopii pliku */
+  .ap-logo {
+    display: block;
+    height: calc(24 * var(--u));
+    width: auto;
+    margin-right: auto;
+    filter: brightness(0);
+  }
+
+  .ap-top a {
+    font-size: calc(14 * var(--u));
+    font-weight: 450;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .ap-locale {
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    min-width: calc(80 * var(--u));
+    padding: calc(8 * var(--u)) calc(12 * var(--u));
+    border: 1px solid var(--ap-line);
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-surface);
+    font-size: calc(14 * var(--u));
+    font-weight: 450;
+  }
+
+  .ap-locale svg { width: calc(16 * var(--u)); height: calc(16 * var(--u)); margin-left: auto; }
+  .ap-cart { display: inline-flex; }
+  .ap-cart svg { width: calc(22 * var(--u)); height: calc(22 * var(--u)); }
+
+  .ap-tabs {
+    display: flex;
+    gap: calc(32 * var(--u));
+    padding: 0 calc(24 * var(--u));
+    border-bottom: 1px solid var(--ap-line);
+  }
+
+  .ap-tab {
+    position: relative;
+    padding: calc(18 * var(--u)) 0 calc(14 * var(--u));
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: calc(14 * var(--u));
+    color: var(--ap-muted);
+    cursor: pointer;
+  }
+
+  .ap-tab.is-active { color: var(--ap-ink); font-weight: 500; }
+
+  .ap-tab.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: calc(2 * var(--u));
+    background: var(--ap-ink);
+  }
+
+  /* min-height trzyma stałą wysokość panelu przy przełączaniu zakładek —
+     bez tego krótkie "Roles (2)" skracałoby panel i zmieniało kadrowanie pasa */
+  .ap-body {
+    padding: calc(24 * var(--u)) calc(24 * var(--u)) calc(16 * var(--u));
+    min-height: calc(1010 * var(--u));
+  }
+
+  .ap-view[hidden] { display: none; }
+
+  .ap-status {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    padding: calc(4 * var(--u)) calc(10 * var(--u));
+    border-radius: var(--radius-full);
+    background: var(--gray-100);
+    font-size: calc(13 * var(--u));
+    white-space: nowrap;
+  }
+
+  .ap-status::before {
+    content: "";
+    width: calc(8 * var(--u));
+    height: calc(8 * var(--u));
+    border-radius: 50%;
+    background: var(--blue-600);
+  }
+
+  .ap-status.is-shipped { background: #e6f6ec; }
+  .ap-status.is-shipped::before { background: #1e9e5a; }
+
+  /* kropka "w toku" pulsuje, "wysłane" stoi — ruch ma znaczyć, że coś trwa,
+     więc dotyczy tylko statusu niezakończonego */
+  @keyframes apPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+  }
+
+  .ap-status:not(.is-shipped)::before {
+    animation: apPulse 1.8s ease-in-out infinite;
+  }
+
+  /* rozsunięcie w czasie, żeby trzy kropki nie mrugały do taktu */
+  .ap-table tbody tr:nth-child(2) .ap-status:not(.is-shipped)::before { animation-delay: .35s; }
+  .ap-table tbody tr:nth-child(3) .ap-status:not(.is-shipped)::before { animation-delay: .7s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* ten sam selektor co wyżej, nie samo .ap-status::before — reguła
+       zapalająca puls ma :not(), czyli wyższą specyficzność, i wygrywała
+       nawet wewnątrz media query */
+    .ap-status:not(.is-shipped)::before { animation: none; }
+  }
+
+  .ap-reset[disabled], .ap-add[disabled] {
+    color: var(--ap-muted);
+    cursor: default;
+  }
+
+  .ap-add {
+    padding: calc(4 * var(--u)) calc(8 * var(--u));
+    border: 0;
+    border-radius: calc(4 * var(--u));
+    background: var(--gray-200);
+    font: inherit;
+    font-size: calc(14 * var(--u));
+    font-weight: 500;
+    color: var(--ap-muted);
+    cursor: default;
+  }
+
+  .ap-link { color: inherit; text-decoration: underline; text-underline-offset: 0.18em; }
+  .ap-num { font-weight: 500; }
+
+  /* szeryf — panel administracyjny odróżnia nagłówek listy krojem, tak jak
+     na wzorcu. To jedyne miejsce na stronie z szeryfem, więc stack jest
+     lokalny i systemowy, bez dociągania pliku fontu. */
+  .ap-title {
+    margin: 0 0 calc(16 * var(--u));
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: calc(26 * var(--u));
+    letter-spacing: -0.01em;
+  }
+
+  .ap-toolbar {
+    display: flex;
+    align-items: center;
+    gap: calc(12 * var(--u));
+    margin-bottom: calc(20 * var(--u));
+  }
+
+  .ap-search {
+    display: flex;
+    align-items: center;
+    gap: calc(10 * var(--u));
+    width: calc(440 * var(--u));
+    height: calc(40 * var(--u));
+    padding: 0 calc(16 * var(--u));
+    border: 1px solid var(--ap-line);
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-surface);
+    color: var(--ap-muted);
+    font-size: calc(14 * var(--u));
+  }
+
+  .ap-search svg { width: calc(16 * var(--u)); height: calc(16 * var(--u)); flex: none; }
+
+  .ap-filter {
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    height: calc(40 * var(--u));
+    padding: 0 calc(16 * var(--u));
+    border: 1px solid var(--ap-line);
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-surface);
+    font: inherit;
+    font-size: calc(14 * var(--u));
+    font-weight: 450;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .ap-filter svg { width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
+
+  .ap-export {
+    margin-left: auto;
+    padding: calc(4 * var(--u)) calc(8 * var(--u));
+    border: 0;
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-ink);
+    color: var(--white);
+    font: inherit;
+    font-size: calc(14 * var(--u));
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .ap-table { width: 100%; border-collapse: collapse; }
+
+  .ap-table th {
+    padding: 0 0 calc(12 * var(--u));
+    border-bottom: 1px solid var(--ap-line);
+    font-size: calc(11 * var(--u));
+    font-weight: 450;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ap-muted);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .ap-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(10 * var(--u));
+    border: 0;
+    padding: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+
+  .ap-sort svg { width: calc(12 * var(--u)); height: calc(12 * var(--u)); transition: transform .3s ease; }
+  .ap-sort[data-dir="asc"] svg { transform: rotate(180deg); }
+
+  .ap-table td { padding: calc(12 * var(--u)) 0; font-size: calc(14 * var(--u)); vertical-align: middle; }
+  .ap-table tbody tr { background: var(--ap-surface); transition: background .15s ease; }
+  .ap-table tbody tr:nth-child(even) { background: var(--gray-100); }
+  .ap-table tbody tr:hover { background: var(--gray-200); }
+
+  .ap-when { color: var(--gray-600); white-space: nowrap; }
+  .ap-user b { display: block; font-weight: 500; }
+  .ap-user span { display: block; margin-top: calc(3 * var(--u)); font-size: calc(13 * var(--u)); color: var(--ap-muted); }
+  .ap-orders { color: inherit; text-decoration: underline; text-underline-offset: 0.18em; }
+
+  .ap-actions { display: flex; align-items: center; justify-content: flex-end; gap: calc(8 * var(--u)); padding-right: calc(2 * var(--u)); }
+
+  .ap-reset, .ap-more {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: calc(4 * var(--u)) calc(8 * var(--u));
+    border: 1px solid var(--ap-line);
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-surface);
+    font: inherit;
+    font-size: calc(14 * var(--u));
+    font-weight: 450;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .ap-reset { white-space: nowrap; }
+  .ap-more { letter-spacing: 0.08em; }
+  .ap-reset:hover, .ap-more:hover { border-color: var(--ap-ink); }
+
+  /* menu pod ••• i jego tooltip — pozycjonowane względem komórki akcji */
+  .ap-cell-more { position: relative; }
+
+  .ap-menu {
+    position: absolute;
+    top: calc(100% + 6 * var(--u));
+    right: 0;
+    z-index: 3;
+    min-width: calc(200 * var(--u));
+    padding: calc(16 * var(--u)) calc(18 * var(--u));
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-surface);
+    box-shadow: 0 calc(8 * var(--u)) calc(32 * var(--u)) rgba(0, 0, 0, .18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(calc(-6 * var(--u)));
+    transition: opacity .18s ease, transform .18s ease, visibility .18s;
+  }
+
+  .ap-cell-more.is-open .ap-menu { opacity: 1; visibility: visible; transform: none; }
+
+  .ap-menu button {
+    display: flex;
+    align-items: center;
+    gap: calc(10 * var(--u));
+    width: 100%;
+    padding: calc(10 * var(--u)) 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: calc(14 * var(--u));
+    color: var(--ap-muted);
+    text-align: left;
+    cursor: default;
+  }
+
+  .ap-menu button svg { width: calc(15 * var(--u)); height: calc(15 * var(--u)); flex: none; }
+
+  .ap-tip {
+    position: absolute;
+    right: calc(8 * var(--u));
+    bottom: calc(100% + 6 * var(--u));
+    z-index: 4;
+    width: calc(220 * var(--u));
+    padding: calc(14 * var(--u)) calc(15 * var(--u));
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-ink);
+    color: var(--white);
+    font-size: calc(13 * var(--u));
+    line-height: 1.35;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .18s ease, visibility .18s;
+  }
+
+  .ap-tip a { display: block; margin-top: calc(8 * var(--u)); color: var(--white); }
+  .ap-menu button:hover ~ .ap-tip, .ap-cell-more.is-tip .ap-tip { opacity: 1; visibility: visible; }
+
+  /* w zakładce Teams tooltip wisi przy wyłączonym "Delete team", a nie przy
+     pozycji menu — tip jest rodzeństwem .ap-actions, nie samego przycisku */
+  .ap-actions:has(.ap-reset[disabled]:hover) + .ap-tip { opacity: 1; visibility: visible; }
+
+  .ap-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(16 * var(--u));
+    padding: calc(24 * var(--u)) calc(24 * var(--u)) calc(28 * var(--u));
+  }
+
+  .ap-perpage { display: flex; align-items: center; gap: calc(12 * var(--u)); font-size: calc(14 * var(--u)); }
+
+  .ap-perpage span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: calc(80 * var(--u));
+    padding: calc(8 * var(--u)) calc(12 * var(--u));
+    border: 1px solid var(--ap-line);
+    border-radius: calc(4 * var(--u));
+  }
+
+  .ap-pages { display: flex; gap: calc(8 * var(--u)); }
+
+  .ap-pages button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: calc(36 * var(--u));
+    height: calc(36 * var(--u));
+    padding: 0 calc(8 * var(--u));
+    border: 1px solid var(--ap-line);
+    border-radius: calc(4 * var(--u));
+    background: var(--ap-surface);
+    font: inherit;
+    font-size: calc(14 * var(--u));
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .ap-pages button.is-current { background: var(--ap-ink); border-color: var(--ap-ink); color: var(--white); }
+  .ap-pages .ap-gap { border: 0; cursor: default; }
+
+  /* kursor-duch prowadzący animację; poza nią niewidoczny */
+  .ap-cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    width: calc(20 * var(--u));
+    height: calc(20 * var(--u));
+    margin: calc(-3 * var(--u)) 0 0 calc(-3 * var(--u));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+
+  .ap-cursor svg { width: 100%; height: 100%; filter: drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
+  .ap.is-playing .ap-cursor { opacity: 1; }
 
   @media (max-width: 700px) {
     .lc-shot {
@@ -1319,7 +1753,10 @@
      pozycji; hover albo klik zmienia aktywną pozycję i opis pod spodem) ---------- */
   .lc-sw-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* minmax(0, 1fr), nie 1fr: .lc-sw-media ma container-type: inline-size,
+       czyli zerową szerokość intrinsic — WebKit liczył z niej ścieżkę i kolumna
+       zapadała się do ~178px (Chromium 486px). */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-16);
     /* stretch, nie start: prawa kolumna musi mieć wysokość zdjęcia, żeby
        opis dało się dokleić do jego dolnej krawędzi */
@@ -1328,9 +1765,448 @@
 
   /* TODO: puste powierzchnie do podmiany na realne zdjęcia */
   .lc-sw-media {
+    position: relative;
+    overflow: hidden;
+    /* width: 100% jest tu obowiązkowe, nie kosmetyczne: przy
+       container-type: inline-size WebKit nie brał szerokości ze ścieżki gridu
+       i element wychodził 0px szerokości (Chromium liczył poprawnie). */
+    width: 100%;
     aspect-ratio: 5 / 6;
     border-radius: var(--radius-xl);
     background: var(--color-bg-muted);
+  }
+
+  /* zdjęcie zmienia się razem z zaznaczoną pozycją listy; pozycje bez własnego
+     kadru zostawiają samą szarą powierzchnię */
+  .lc-sw-media img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+
+  .lc-sw-media img[src] { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc-sw-media img { transition: none; }
+  }
+
+  /* ---------- KARTA SKU NA ZDJĘCIU (.sku) ----------
+     Ta sama zasada co w panelu admina: --cu to 1px z projektu (karta ma 460px
+     szerokości i zajmuje 88% panelu), więc wszystkie wymiary skalują się
+     razem z kadrem zamiast przelewać na wąskim ekranie.
+     Kolory z prymitywów tokens.css — karta leży na zdjęciu i ma zostać jasna
+     niezależnie od motywu strony. Zieleń ta sama, co status „Shipped"
+     w panelu admina. */
+  .lc-sw-media { container-type: inline-size; }
+
+  .sku {
+    /* 0.1913 * 0.7 — karta o 30% mniejsza; jedna liczba skaluje całość,
+       bo wszystkie wymiary w środku liczą się z --cu */
+    --cu: 0.1339cqw;
+    --sku-green: #1d9e75;
+    --sku-green-soft: #5dcaa5;
+    --sku-green-bg: #e6f6ec;
+    --sku-green-ink: #04342c;
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    box-sizing: border-box;
+    width: calc(460 * var(--cu));
+    padding: calc(24 * var(--cu));
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--gray-300);
+    border-radius: calc(20 * var(--cu));
+    background: var(--white);
+    /* ta sama obwódka co wokół panelu admina, zamiast cienia */
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, .4);
+    color: var(--rich-blue);
+    font-size: calc(14 * var(--cu));
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    user-select: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .35s ease, visibility .35s;
+  }
+
+  .sku.is-on { opacity: 1; visibility: visible; }
+
+  .sku-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(12 * var(--cu));
+  }
+
+  .sku-id { display: flex; align-items: center; gap: calc(12 * var(--cu)); }
+
+  .sku-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: calc(38 * var(--cu));
+    height: calc(38 * var(--cu));
+    border-radius: calc(10 * var(--cu));
+    background: var(--gray-100);
+  }
+
+  .sku-icon svg { width: calc(20 * var(--cu)); height: calc(20 * var(--cu)); }
+
+  .sku p { margin: 0; }
+  .sku-name { font-size: calc(17 * var(--cu)); font-weight: 500; }
+  .sku-sub { font-size: calc(13 * var(--cu)); color: var(--gray-500); }
+
+  .sku-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(5 * var(--cu));
+    padding: calc(5 * var(--cu)) calc(12 * var(--cu));
+    border-radius: var(--radius-full);
+    background: var(--sku-green-bg);
+    color: var(--sku-green-ink);
+    font-size: calc(13 * var(--cu));
+    white-space: nowrap;
+  }
+
+  .sku-badge svg { width: calc(15 * var(--cu)); height: calc(15 * var(--cu)); }
+
+  .sku-grid {
+    /* odstęp po nagłówku karty — wcześniej wnosił go akapit "Made at 3 sites" */
+    margin-top: calc(24 * var(--cu));
+    display: grid;
+    grid-template-columns: calc(96 * var(--cu)) minmax(0, 1fr);
+    row-gap: calc(14 * var(--cu));
+    align-items: center;
+  }
+
+  .sku-site { font-size: calc(14 * var(--cu)); font-weight: 500; }
+  .sku-site span { font-weight: 400; color: var(--gray-500); }
+
+  /* --w napędza szerokość paska; animacja to przejście z 0% do wartości
+     docelowej, odpalane klasą .is-run na karcie */
+  .sku-track { display: flex; height: calc(34 * var(--cu)); width: 100%; }
+
+  .sku-bar {
+    display: flex;
+    align-items: center;
+    flex: none;
+    width: 0;
+    padding: 0 calc(14 * var(--cu));
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    background: var(--sku-green);
+    color: var(--white);
+    font-size: calc(13 * var(--cu));
+    white-space: nowrap;
+    transition: width .8s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  .sku.is-run .sku-bar { width: var(--w); }
+
+  /* pasek Brna dzieli się na własną produkcję i przejęty wolumen Lyonu */
+  .sku-track-split .sku-bar { border-radius: var(--radius-full) 0 0 var(--radius-full); }
+
+  .sku-bar-extra {
+    display: flex;
+    align-items: center;
+    flex: none;
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 0 var(--radius-full) var(--radius-full) 0;
+    background: var(--sku-green-soft);
+    color: var(--sku-green-ink);
+    font-size: calc(13 * var(--cu));
+    white-space: nowrap;
+    transition: width .7s cubic-bezier(.16, 1, .3, 1) 1.5s, padding .7s cubic-bezier(.16, 1, .3, 1) 1.5s;
+  }
+
+  .sku.is-run .sku-bar-extra { width: var(--w); padding: 0 calc(12 * var(--cu)); }
+
+  .sku-down {
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--cu));
+    opacity: 0;
+    transition: opacity .45s ease 1s;
+  }
+
+  .sku.is-run .sku-down { opacity: 1; }
+
+  /* reset ma być natychmiastowy: przy zdjęciu .is-run opóźnienia z przejść
+     trzymały pasek Brna na docelowej szerokości i restart startował z połowy */
+  .sku:not(.is-run) .sku-bar,
+  .sku:not(.is-run) .sku-bar-extra,
+  .sku:not(.is-run) .sku-down { transition: none; }
+
+  .sku-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(5 * var(--cu));
+    height: calc(34 * var(--cu));
+    padding: 0 calc(14 * var(--cu));
+    border: 1px solid color-mix(in srgb, var(--color-danger) 25%, transparent);
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--color-danger) 8%, var(--white));
+    color: var(--color-danger);
+    font-size: calc(13 * var(--cu));
+    white-space: nowrap;
+  }
+
+  .sku-pill svg { width: calc(15 * var(--cu)); height: calc(15 * var(--cu)); }
+
+  .sku-moved {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(4 * var(--cu));
+    font-size: calc(13 * var(--cu));
+    color: var(--gray-500);
+    white-space: nowrap;
+  }
+
+  .sku-moved svg { width: calc(15 * var(--cu)); height: calc(15 * var(--cu)); }
+
+  .sku-divider {
+    margin: calc(24 * var(--cu)) 0 calc(20 * var(--cu));
+    border-top: 1px solid var(--gray-300);
+  }
+
+  .sku-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: calc(44 * var(--cu));
+    height: calc(44 * var(--cu));
+    border-radius: 50%;
+    background: var(--blue-50);
+    color: var(--blue-600);
+    font-size: calc(14 * var(--cu));
+    font-weight: 500;
+  }
+
+  .sku-contact { font-size: calc(15 * var(--cu)); font-weight: 500; }
+
+  /* ---- karta „Your range" — ten sam szkielet .sku, inna zawartość ---- */
+  .sku-avatars { display: flex; }
+
+  .sku-avatars .sku-avatar {
+    width: calc(36 * var(--cu));
+    height: calc(36 * var(--cu));
+    border: calc(2 * var(--cu)) solid var(--white);
+    font-size: calc(13 * var(--cu));
+  }
+
+  .sku-avatars .sku-avatar + .sku-avatar {
+    margin-left: calc(-10 * var(--cu));
+    background: var(--olive-100);
+    color: var(--olive-600);
+  }
+
+  .sku-tbl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) calc(72 * var(--cu)) calc(88 * var(--cu));
+    column-gap: calc(12 * var(--cu));
+    align-items: center;
+    margin-top: calc(20 * var(--cu));
+  }
+
+  .sku-tbl > * { padding: calc(12 * var(--cu)) 0; border-bottom: 1px solid var(--gray-300); }
+  .sku-tbl > .sku-th { padding: 0 0 calc(8 * var(--cu)); font-size: calc(12 * var(--cu)); color: var(--gray-500); }
+  .sku-tbl > .sku-last { border-bottom: 0; }
+  .sku-num { text-align: right; font-size: calc(15 * var(--cu)); font-weight: 500; }
+  .sku-date { text-align: right; font-size: calc(13 * var(--cu)); color: var(--gray-500); }
+  .sku-th-num { text-align: right; }
+
+  .sku-item { display: flex; align-items: center; gap: calc(10 * var(--cu)); min-width: 0; }
+
+  /* pionowy pasek koloru — wjeżdża od zera razem z wierszem */
+  .sku-tick {
+    flex: none;
+    width: calc(4 * var(--cu));
+    height: calc(34 * var(--cu));
+    background: var(--tick, var(--sku-green));
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform .45s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  .sku-item-name { font-size: calc(15 * var(--cu)); font-weight: 500; }
+
+  .sku-item-spec {
+    font-size: calc(13 * var(--cu));
+    color: var(--gray-500);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sku-more { margin-top: calc(6 * var(--cu)); font-size: calc(13 * var(--cu)); color: var(--gray-500); }
+
+  /* wiersze wjeżdżają z dołu po kolei. 28 * --cu, nie 6: przy --cu ok. 0.77px
+     na desktopie sześć jednostek dawało ledwie 4px drogi, czyli ruch, którego
+     praktycznie nie widać. */
+  .sku-tbl > .sku-cell {
+    opacity: 0;
+    transform: translateY(calc(28 * var(--cu)));
+    transition: opacity .45s ease, transform .55s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  .sku.is-run .sku-tbl > .sku-cell { opacity: 1; transform: none; }
+  .sku.is-run .sku-tick { transform: scaleY(1); }
+
+  .sku-tbl > .sku-r1 { transition-delay: .18s; }
+  .sku-tbl > .sku-r2 { transition-delay: .32s; }
+  .sku-tbl > .sku-r3 { transition-delay: .46s; }
+  .sku.is-run .sku-r1 .sku-tick { transition-delay: .34s; }
+  .sku.is-run .sku-r2 .sku-tick { transition-delay: .48s; }
+  .sku.is-run .sku-r3 .sku-tick { transition-delay: .62s; }
+
+  .sku-more {
+    opacity: 0;
+    transition: opacity .4s ease .8s;
+  }
+
+  .sku.is-run .sku-more { opacity: 1; }
+
+  .sku:not(.is-run) .sku-tbl > .sku-cell,
+  .sku:not(.is-run) .sku-tick,
+  .sku:not(.is-run) .sku-more { transition: none; }
+
+  /* ---- karta „Stored run" — oś czasu partii ---- */
+  .tl-seg {
+    display: flex;
+    gap: calc(2 * var(--cu));
+    padding: calc(3 * var(--cu));
+    border: 1px solid var(--gray-300);
+    border-radius: calc(10 * var(--cu));
+  }
+
+  .tl-seg span {
+    padding: calc(4 * var(--cu)) calc(10 * var(--cu));
+    border-radius: calc(7 * var(--cu));
+    font-size: calc(13 * var(--cu));
+    color: var(--gray-500);
+  }
+
+  .tl-seg .is-on { background: var(--rich-blue); color: var(--white); }
+
+  .tl-chart { position: relative; margin-top: calc(24 * var(--cu)); }
+
+  /* pionowe podziałki miesięcy — liczone od końca kolumny z nazwami */
+  .tl-grid {
+    position: absolute;
+    top: 0;
+    bottom: calc(30 * var(--cu));
+    left: calc(84 * var(--cu) + (100% - 84 * var(--cu)) * var(--at));
+    border-left: 1px solid var(--gray-300);
+  }
+
+  .tl-row {
+    display: grid;
+    grid-template-columns: calc(84 * var(--cu)) minmax(0, 1fr);
+    align-items: center;
+    height: calc(40 * var(--cu));
+  }
+
+  .tl-row + .tl-row { margin-top: calc(4 * var(--cu)); }
+  .tl-row.tl-r1 { margin-bottom: calc(8 * var(--cu)); }
+
+  .tl-name { font-size: calc(14 * var(--cu)); font-weight: 500; }
+  .tl-name span { font-weight: 400; color: var(--gray-500); }
+
+  .tl-track { position: relative; height: calc(34 * var(--cu)); }
+
+  /* --l to pozycja startu, --w docelowa szerokość: pasek rozjeżdża się
+     od lewej krawędzi swojego okna czasowego */
+  .tl-bar {
+    position: absolute;
+    top: 0;
+    left: var(--l);
+    display: flex;
+    align-items: center;
+    width: 0;
+    height: 100%;
+    /* padding też startuje od zera — przy content-box sam width: 0 zostawiał
+       19px kikuta (dwa paddingi + obramowanie) widocznego przed animacją */
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    background: var(--bg);
+    color: var(--fg, var(--white));
+    /* wyśrodkowane, nie dosunięte do lewej: pigułki mają różne szerokości,
+       więc liczby przy lewej krawędzi nie trzymały żadnej wspólnej linii,
+       a zaokrąglony koniec dodatkowo je optycznie ściągał */
+    justify-content: center;
+    font-size: calc(12 * var(--cu));
+    white-space: nowrap;
+    transition: width .6s cubic-bezier(.16, 1, .3, 1),
+                padding .6s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  .sku.is-run .tl-bar { width: var(--w); padding: 0 calc(12 * var(--cu)); }
+
+  .tl-bar-store {
+    justify-content: flex-start;
+    font-size: calc(13 * var(--cu));
+    border: 1px solid var(--gray-400);
+    background: var(--gray-100);
+    color: var(--gray-600);
+  }
+
+  .sku.is-run .tl-bar-store { padding: 0 calc(14 * var(--cu)); }
+
+  /* partia jeszcze niezaplanowana — kontur zamiast wypełnienia */
+  .tl-bar-plan {
+    border: calc(1.5 * var(--cu)) dashed var(--blue-600);
+    background: var(--white);
+    color: var(--blue-600);
+  }
+
+  .tl-months {
+    display: grid;
+    grid-template-columns: calc(84 * var(--cu)) repeat(4, minmax(0, 1fr));
+    margin-top: calc(16 * var(--cu));
+    font-size: calc(13 * var(--cu));
+    color: var(--gray-500);
+  }
+
+  .tl-months span + span { padding-left: calc(8 * var(--cu)); }
+
+  /* opóźnienia muszą objąć obie właściwości, inaczej padding wystartuje
+     natychmiast i pasek mrugnie zanim urośnie */
+  .sku.is-run .tl-r1 .tl-bar { transition-delay: .1s, .1s; }
+  .sku.is-run .tl-r2 .tl-bar { transition-delay: .3s, .3s; }
+  .sku.is-run .tl-r3 .tl-bar { transition-delay: .45s, .45s; }
+  .sku.is-run .tl-r4 .tl-bar { transition-delay: .6s, .6s; }
+
+  .tl-months, .tl-grid {
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+
+  .sku.is-run .tl-months { opacity: 1; transition-delay: .8s; }
+  .sku.is-run .tl-grid { opacity: 1; }
+
+  .sku:not(.is-run) .tl-bar,
+  .sku:not(.is-run) .tl-months,
+  .sku:not(.is-run) .tl-grid { transition: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* stan końcowy od razu — te same selektory co animujące, żeby wygrały
+       specyficznością wewnątrz media query */
+    .sku .sku-bar, .sku .sku-bar-extra, .sku .sku-down { transition: none; }
+    .sku .sku-bar { width: var(--w); }
+    .sku .sku-bar-extra { width: var(--w); padding: 0 calc(12 * var(--cu)); }
+    .sku .sku-down { opacity: 1; }
   }
 
   .lc-sw-panel {
@@ -1362,6 +2238,10 @@
   }
 
   .lc-sw-item[aria-selected="true"] { color: var(--color-text-primary); }
+
+  /* sam hover tylko rozjaśnia pozycję — nie zmienia już zaznaczenia */
+  .lc-sw-item:hover { color: var(--color-text-secondary); }
+  .lc-sw-item[aria-selected="true"]:hover { color: var(--color-text-primary); }
 
   /* margin-top:auto dokleja opis do dolnej krawędzi kolumny, czyli do dołu
      zdjęcia obok */
@@ -2988,23 +3868,170 @@
     </div>
 
     <div class="lc-sw-grid">
-      <!-- TODO: pusta powierzchnia do podmiany na realne zdjęcie -->
-      <div class="lc-sw-media"></div>
+      <div class="lc-sw-media">
+        <img id="lcSwImg" src="assets/enterprise/solve-plants-exterior.jpg" alt="Side wall of a production hall with two red service doors">
+
+        <div class="sku" data-card="plants" aria-hidden="true">
+          <div class="sku-row">
+            <div class="sku-id">
+              <span class="sku-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg></span>
+              <div>
+                <p class="sku-name">Mailer box M2</p>
+                <p class="sku-sub">SKU 4821</p>
+              </div>
+            </div>
+            <span class="sku-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>Shipping on time</span>
+          </div>
+
+          <div class="sku-grid">
+            <div class="sku-site">Pozna&#324; <span>PL</span></div>
+            <div class="sku-track"><div class="sku-bar" style="--w: 70%">Running</div></div>
+
+            <div class="sku-site">Lyon <span>FR</span></div>
+            <div class="sku-down">
+              <span class="sku-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg>Line down</span>
+              <span class="sku-moved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>moved to Brno</span>
+            </div>
+
+            <div class="sku-site">Brno <span>CZ</span></div>
+            <div class="sku-track sku-track-split">
+              <div class="sku-bar" style="--w: 55%">Running</div>
+              <div class="sku-bar-extra" style="--w: 45%">+ Lyon volume</div>
+            </div>
+          </div>
+
+          <div class="sku-divider"></div>
+
+          <div class="sku-row">
+            <div class="sku-id">
+              <span class="sku-avatar">AK</span>
+              <div>
+                <p class="sku-contact">Anna Kowalska</p>
+                <p class="sku-sub">Your contact for all 3 sites</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sku" data-card="range" aria-hidden="true">
+          <div class="sku-row">
+            <div class="sku-id">
+              <span class="sku-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="13" height="13" rx="2"/><path d="M8 8V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3"/></svg></span>
+              <div>
+                <p class="sku-name">Your range</p>
+                <p class="sku-sub">12 SKUs</p>
+              </div>
+            </div>
+            <div class="sku-avatars">
+              <span class="sku-avatar" title="Anna Kowalska, account manager">AK</span>
+              <span class="sku-avatar" title="Tomasz Nowak, packaging technologist">TN</span>
+            </div>
+          </div>
+
+          <div class="sku-tbl">
+            <span class="sku-th">Product and spec</span>
+            <span class="sku-th sku-th-num">Unit price</span>
+            <span class="sku-th sku-th-num">Last order</span>
+            <div class="sku-cell sku-r1">
+              <div class="sku-item">
+                <span class="sku-tick" style="--tick: var(--sku-green)"></span>
+                <div style="min-width: 0">
+                  <p class="sku-item-name">Mailer box M2</p>
+                  <p class="sku-item-spec">E-flute, 330&times;240&times;80, 2 colours</p>
+                </div>
+              </div>
+            </div>
+            <div class="sku-cell sku-r1 sku-num">&euro;0.84</div>
+            <div class="sku-cell sku-r1 sku-date">12 Aug</div>
+            <div class="sku-cell sku-r2">
+              <div class="sku-item">
+                <span class="sku-tick" style="--tick: var(--blue-600)"></span>
+                <div style="min-width: 0">
+                  <p class="sku-item-name">Shipping box XL</p>
+                  <p class="sku-item-spec">B-flute, 600&times;400&times;400, kraft</p>
+                </div>
+              </div>
+            </div>
+            <div class="sku-cell sku-r2 sku-num">&euro;1.92</div>
+            <div class="sku-cell sku-r2 sku-date">3 Sep</div>
+            <div class="sku-cell sku-r3 sku-last">
+              <div class="sku-item">
+                <span class="sku-tick" style="--tick: #ef9f27"></span>
+                <div style="min-width: 0">
+                  <p class="sku-item-name">Product box S</p>
+                  <p class="sku-item-spec">Folding carton, matte, insert</p>
+                </div>
+              </div>
+            </div>
+            <div class="sku-cell sku-r3 sku-last sku-num">&euro;0.41</div>
+            <div class="sku-cell sku-r3 sku-last sku-date">28 Jul</div>
+          </div>
+
+          <p class="sku-more">+ 9 more</p>
+        </div>
+
+        <div class="sku" data-card="stock" aria-hidden="true">
+          <div class="sku-row">
+            <div class="sku-id">
+              <span class="sku-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"/><path d="M8 21v-7h8v7"/><path d="M8 17h8"/></svg></span>
+              <p class="sku-name">Mailer box M2</p>
+            </div>
+            <div class="tl-seg"><span>Week</span><span class="is-on">Month</span></div>
+          </div>
+
+          <div class="tl-chart">
+            <span class="tl-grid" style="--at: .25"></span>
+            <span class="tl-grid" style="--at: .5"></span>
+            <span class="tl-grid" style="--at: .75"></span>
+
+            <div class="tl-row tl-r1">
+              <span class="tl-name">Storage</span>
+              <div class="tl-track">
+                <span class="tl-bar tl-bar-store" style="--l: 0; --w: 100%">Full run, 100,000 units</span>
+              </div>
+            </div>
+
+            <div class="tl-row tl-r2">
+              <span class="tl-name">Berlin <span>DE</span></span>
+              <div class="tl-track">
+                <span class="tl-bar" style="--l: 2%; --w: 21%; --bg: #ef9f27; --fg: #412402">15,000</span>
+                <span class="tl-bar" style="--l: 53%; --w: 19%; --bg: #ef9f27; --fg: #412402">10,000</span>
+              </div>
+            </div>
+
+            <div class="tl-row tl-r3">
+              <span class="tl-name">Madrid <span>ES</span></span>
+              <div class="tl-track">
+                <span class="tl-bar" style="--l: 27%; --w: 21%; --bg: #d4537e">15,000</span>
+              </div>
+            </div>
+
+            <div class="tl-row tl-r4">
+              <span class="tl-name">Warsaw <span>PL</span></span>
+              <div class="tl-track">
+                <span class="tl-bar tl-bar-plan" style="--l: 77%; --w: 21%">8,000</span>
+              </div>
+            </div>
+
+            <div class="tl-months"><span></span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span></div>
+          </div>
+        </div>
+      </div>
 
       <div class="lc-sw-panel">
         <ul class="lc-sw-list" role="tablist">
           <li>
-            <button class="lc-sw-item" type="button" role="tab" id="lcSw0" aria-selected="true" aria-controls="lcSwDesc" data-desc="The same SKU runs at several sites across Europe. A line going down doesn&rsquo;t stop your shipments, and you still talk to one team about it.">
+            <button class="lc-sw-item" type="button" role="tab" id="lcSw0" aria-selected="true" aria-controls="lcSwDesc" data-img="assets/enterprise/solve-plants-exterior.jpg" data-alt="Side wall of a production hall with two red service doors" data-card="plants" data-desc="The same SKU runs at several sites across Europe. A line going down doesn&rsquo;t stop your shipments, and you still talk to one team about it.">
               A network of plants
             </button>
           </li>
           <li>
-            <button class="lc-sw-item" type="button" role="tab" id="lcSw1" aria-selected="false" aria-controls="lcSwDesc" data-desc="A dedicated account manager and a technologist run the whole range. Specs, prices and order history live in one place.">
+            <button class="lc-sw-item" type="button" role="tab" id="lcSw1" aria-selected="false" aria-controls="lcSwDesc" data-img="assets/enterprise/solve-one-team-desk.jpg" data-alt="A person working at a desk with a notebook and a mug" data-card="range" data-desc="A dedicated account manager and a technologist run the whole range. Specs, prices and order history live in one place.">
               One contract, one team
             </button>
           </li>
           <li>
-            <button class="lc-sw-item" type="button" role="tab" id="lcSw2" aria-selected="false" aria-controls="lcSwDesc" data-desc="We produce the full run, store it, and release it in batches &mdash; to whichever warehouses you name, in as many countries as you ship to.">
+            <button class="lc-sw-item" type="button" role="tab" id="lcSw2" aria-selected="false" aria-controls="lcSwDesc" data-img="assets/enterprise/solve-stock-transit.jpg" data-alt="A lorry leaving a mountain road tunnel" data-card="stock" data-desc="We produce the full run, store it, and release it in batches &mdash; to whichever warehouses you name, in as many countries as you ship to.">
               Stock held on call-off
             </button>
           </li>
@@ -3205,7 +4232,466 @@
       <img src="assets/enterprise/working-together-field.jpg" alt="A field of blue flowers below a mountain ridge" loading="lazy" decoding="async">
 
       <div class="lc-shot">
-        <img src="assets/enterprise/whitelabel-panel.png" alt="Admin panel listing users, their sellers and roles" loading="lazy" decoding="async">
+        <div class="ap" role="img" aria-label="White-label admin panel: a list of users with their team, role and order history">
+          <div class="ap-top">
+            <img class="ap-logo" src="assets/logo-packhelp.1iheyVke.svg" alt="" aria-hidden="true">
+
+            <a href="#lc-brief" tabindex="-1">Back to shop</a>
+            <a href="#lc-brief" tabindex="-1">Account</a>
+            <span class="ap-locale">PL<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+            <span class="ap-cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></svg></span>
+          </div>
+
+          <div class="ap-tabs">
+            <button class="ap-tab is-active" type="button" tabindex="-1" data-target="orders">Orders</button>
+            <button class="ap-tab" type="button" tabindex="-1" data-target="teams">Teams</button>
+            <button class="ap-tab" type="button" tabindex="-1" data-target="users">Users</button>
+            <button class="ap-tab" type="button" tabindex="-1" data-target="roles">Roles</button>
+          </div>
+
+          <div class="ap-body">
+            <div class="ap-view" data-view="orders">
+              <h3 class="ap-title">Orders (<span class="ap-count">2945</span>)</h3>
+              <div class="ap-toolbar"><div class="ap-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search by order number or team&hellip;</div><button class="ap-filter" type="button" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Filter</button><button class="ap-export" type="button" tabindex="-1">CSV Export</button></div>
+              <table class="ap-table">
+                <thead>
+                  <tr>
+                    <th><button class="ap-sort" type="button" tabindex="-1" data-dir="desc">Created at<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg></button></th>
+                    <th>Order number</th>
+                    <th>Team</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Amount total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-num">8173920</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Marketing</a></td>
+            <td class="ap-user"><b>John Smith</b><span>john.smith23@packhelp.com</span></td>
+            <td><span class="ap-status">In progress</span></td>
+            <td>&euro;12,480.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-num">6226120</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Operations</a></td>
+            <td class="ap-user"><b>Maria Davis</b><span>maria.davis9@packhelp.com</span></td>
+            <td><span class="ap-status">In progress</span></td>
+            <td>&euro;3,900.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-num">5213920</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Supply chain</a></td>
+            <td class="ap-user"><b>Silvia Bertran</b><span>silvia.b@packhelp.com</span></td>
+            <td><span class="ap-status">In progress</span></td>
+            <td>&euro;28,150.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-num">3766120</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Marketing</a></td>
+            <td class="ap-user"><b>Roman Garcia</b><span>roman.garcia@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;7,320.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-num">5213921</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Finance</a></td>
+            <td class="ap-user"><b>Robert Muller</b><span>robert.muller@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;1,180.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-num">3766121</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Operations</a></td>
+            <td class="ap-user"><b>Maria Davis</b><span>maria.davis9@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;16,700.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-num">5213922</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Marketing</a></td>
+            <td class="ap-user"><b>Ida Novak</b><span>ida.novak@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;940.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-num">3766122</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Supply chain</a></td>
+            <td class="ap-user"><b>Ana Robinson</b><span>ana.robinson@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;22,060.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-num">3766123</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Operations</a></td>
+            <td class="ap-user"><b>Tom Bauer</b><span>tom.bauer@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;5,410.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-num">3766124</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Finance</a></td>
+            <td class="ap-user"><b>Lena Fischer</b><span>lena.fischer@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;8,875.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-num">5213923</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Marketing</a></td>
+            <td class="ap-user"><b>Ewa Zielinska</b><span>ewa.z@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;3,240.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-num">3766125</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Operations</a></td>
+            <td class="ap-user"><b>Nils Andersen</b><span>nils.a@packhelp.com</span></td>
+            <td><span class="ap-status is-shipped">Shipped</span></td>
+            <td>&euro;11,600.00</td>
+            <td><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Order details</button></div></td>
+          </tr>
+                </tbody>
+              </table>
+            <div class="ap-foot">
+              <div class="ap-perpage">Items per page:<span>15<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:1em;height:1em"><path d="m6 9 6 6 6-6"/></svg></span></div>
+              <nav class="ap-pages">
+              <button type="button" tabindex="-1">&lsaquo;</button>
+              <button type="button" tabindex="-1" class="is-current">1</button>
+              <button type="button" tabindex="-1">2</button>
+              <button type="button" tabindex="-1">3</button>
+              <button type="button" tabindex="-1">4</button>
+              <button type="button" tabindex="-1">5</button>
+              <button type="button" tabindex="-1" class="ap-gap">&hellip;</button>
+              <button type="button" tabindex="-1">38</button>
+              <button type="button" tabindex="-1">&rsaquo;</button>
+              </nav>
+            </div>
+            </div>
+
+            <div class="ap-view" data-view="teams" hidden>
+              <h3 class="ap-title">Teams (<span class="ap-count">842</span>)</h3>
+              <div class="ap-toolbar"><div class="ap-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search by team ID or name&hellip;</div><button class="ap-filter" type="button" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Filter</button><button class="ap-export" type="button" tabindex="-1">CSV Export</button><button class="ap-add" type="button" tabindex="-1" disabled>Add team</button></div>
+              <table class="ap-table">
+                <thead>
+                  <tr>
+                    <th>Team ID</th>
+                    <th>Team</th>
+                    <th>Country</th>
+                    <th>Users</th>
+                    <th>Orders</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+          <tr>
+            <td class="ap-when">#2340</td>
+            <td>Marketing</td>
+            <td>GB</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">12</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#918</td>
+            <td>Operations</td>
+            <td>FR</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">24</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div>
+              <div class="ap-tip">This option is not available in the admin panel. Open the shared spreadsheet to do it.<a href="#lc-brief">Spreadsheet file</a></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#6773</td>
+            <td>Supply chain</td>
+            <td>GB</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">9</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#725</td>
+            <td>Finance</td>
+            <td>DE</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">6</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#8922</td>
+            <td>Packaging design</td>
+            <td>FR</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">4</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#918</td>
+            <td>Quality</td>
+            <td>GB</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">7</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#5631</td>
+            <td>Sustainability</td>
+            <td>GB</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">3</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#918</td>
+            <td>Procurement</td>
+            <td>FR</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">18</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#2340</td>
+            <td>Logistics</td>
+            <td>GB</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">11</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#725</td>
+            <td>Customer care</td>
+            <td>DE</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">21</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#8922</td>
+            <td>Retail ops</td>
+            <td>FR</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">5</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">#918</td>
+            <td>E-commerce</td>
+            <td>GB</td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">14</a></td>
+            <td><a class="ap-link" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1" disabled>Delete team</button><button class="ap-reset" type="button" tabindex="-1">Team details</button></div></td>
+          </tr>
+                </tbody>
+              </table>
+            <div class="ap-foot">
+              <div class="ap-perpage">Items per page:<span>15<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:1em;height:1em"><path d="m6 9 6 6 6-6"/></svg></span></div>
+              <nav class="ap-pages">
+              <button type="button" tabindex="-1">&lsaquo;</button>
+              <button type="button" tabindex="-1" class="is-current">1</button>
+              <button type="button" tabindex="-1">2</button>
+              <button type="button" tabindex="-1">3</button>
+              <button type="button" tabindex="-1">4</button>
+              <button type="button" tabindex="-1">5</button>
+              <button type="button" tabindex="-1" class="ap-gap">&hellip;</button>
+              <button type="button" tabindex="-1">14</button>
+              <button type="button" tabindex="-1">&rsaquo;</button>
+              </nav>
+            </div>
+            </div>
+
+            <div class="ap-view" data-view="users" hidden>
+              <h3 class="ap-title">Users (<span class="ap-count">902</span>)</h3>
+
+            <div class="ap-toolbar">
+              <div class="ap-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search by e-mail or name&hellip;</div>
+              <button class="ap-filter" type="button" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Filter</button>
+              <button class="ap-export" type="button" tabindex="-1">CSV Export</button>
+            </div>
+
+            <table class="ap-table">
+              <thead>
+                <tr>
+                  <th><button class="ap-sort" type="button" tabindex="-1" data-dir="desc">User since<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg></button></th>
+                  <th>User</th>
+                  <th>Team</th>
+                  <th>Role</th>
+                  <th>Orders</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-user"><b>John Smith</b><span>john.smith23@packhelp.com</span></td>
+            <td>Marketing</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-user"><b>Maria Davis</b><span>maria.davis9@packhelp.com</span></td>
+            <td>Operations</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-user"><b>Roman Garcia</b><span>roman.garcia@packhelp.com</span></td>
+            <td>Marketing</td>
+            <td>Admin</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-user"><b>Ana Robinson</b><span>ana.robinson@packhelp.com</span></td>
+            <td>Supply chain</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div>
+            <div class="ap-menu"><button type="button" tabindex="-1">Assign to team <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg></button><button type="button" tabindex="-1">Change e-mail <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg></button><button type="button" tabindex="-1">Delete user <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg></button></div>
+            <div class="ap-tip">This option is not available in the admin panel. Open the shared spreadsheet to do it.<a href="#lc-brief">Spreadsheet file</a></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-user"><b>Ida Novak</b><span>ida.novak@packhelp.com</span></td>
+            <td>Marketing</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-user"><b>Tom Bauer</b><span>tom.bauer@packhelp.com</span></td>
+            <td>Operations</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-user"><b>Lena Fischer</b><span>lena.fischer@packhelp.com</span></td>
+            <td>Finance</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-user"><b>Piotr Kowal</b><span>piotr.kowal@packhelp.com</span></td>
+            <td>Operations</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-user"><b>Sara Lindqvist</b><span>sara.l@packhelp.com</span></td>
+            <td>Supply chain</td>
+            <td>Admin</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-user"><b>Marc Dubois</b><span>marc.dubois@packhelp.com</span></td>
+            <td>Finance</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">25.03.2024, 10:30</td>
+            <td class="ap-user"><b>Ewa Zielinska</b><span>ewa.z@packhelp.com</span></td>
+            <td>Marketing</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+          <tr>
+            <td class="ap-when">22.03.2024, 04:53</td>
+            <td class="ap-user"><b>Nils Andersen</b><span>nils.a@packhelp.com</span></td>
+            <td>Operations</td>
+            <td>User</td>
+            <td><a class="ap-orders" href="#lc-brief" tabindex="-1">Orders history</a></td>
+            <td class="ap-cell-more"><div class="ap-actions"><button class="ap-reset" type="button" tabindex="-1">Reset password</button><button class="ap-more" type="button" tabindex="-1" aria-label="More">&#8226;&#8226;&#8226;</button></div></td>
+          </tr>
+              </tbody>
+            </table>
+            <div class="ap-foot">
+            <div class="ap-perpage">Items per page:<span>12<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:1em;height:1em"><path d="m6 9 6 6 6-6"/></svg></span></div>
+            <nav class="ap-pages">
+              <button type="button" tabindex="-1">&lsaquo;</button>
+              <button type="button" tabindex="-1" class="is-current">1</button>
+              <button type="button" tabindex="-1">2</button>
+              <button type="button" tabindex="-1">3</button>
+              <button type="button" tabindex="-1">4</button>
+              <button type="button" tabindex="-1">5</button>
+              <button type="button" tabindex="-1" class="ap-gap">&hellip;</button>
+              <button type="button" tabindex="-1">16</button>
+              <button type="button" tabindex="-1">&rsaquo;</button>
+            </nav>
+          </div>
+            </div>
+
+            <div class="ap-view" data-view="roles" hidden>
+              <h3 class="ap-title">Roles (<span class="ap-count">2</span>)</h3>
+              <table class="ap-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Number of users</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Admin</td>
+                    <td><a class="ap-link" href="#lc-brief" tabindex="-1">10</a></td>
+                  </tr>
+                  <tr>
+                    <td>User</td>
+                    <td><a class="ap-link" href="#lc-brief" tabindex="-1">892</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            <div class="ap-foot">
+              <div class="ap-perpage">Items per page:<span>15<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:1em;height:1em"><path d="m6 9 6 6 6-6"/></svg></span></div>
+              <nav class="ap-pages">
+              <button type="button" tabindex="-1">&lsaquo;</button>
+              <button type="button" tabindex="-1" class="is-current">1</button>
+              <button type="button" tabindex="-1">&rsaquo;</button>
+              </nav>
+            </div>
+            </div>
+          </div>
+
+          <div class="ap-cursor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5 19 11l-6.1 1.4L10.5 19 5 2.5Z" fill="#fff" stroke="#0d0d0d" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        </div>
       </div>
     </div>
   </section>
@@ -4031,17 +5517,68 @@
     function mountSplitList() {
       var items = [].slice.call(document.querySelectorAll('.lc-sw-item'));
       var desc = document.getElementById('lcSwDesc');
+      var img = document.getElementById('lcSwImg');
+      var cards = [].slice.call(document.querySelectorAll('.lc-sw-media .sku'));
       if (!items.length || !desc) { return; }
+
+      /* każda pozycja listy może mieć własną kartę (data-card); pokazujemy tę
+         pasującą, resztę chowamy, a animacja odtwarza się od nowa przy każdym
+         powrocie na daną pozycję */
+      function showCard(name) {
+        cards.forEach(function (c) {
+          var on = !!name && c.getAttribute('data-card') === name;
+          c.classList.toggle('is-on', on);
+          c.classList.remove('is-run');
+          if (!on) { return; }
+          /* wymuszony reflow — bez niego przeglądarka sklei zdjęcie klas
+             i przejście nie wystartuje od zera */
+          void c.offsetWidth;
+          c.classList.add('is-run');
+        });
+      }
+
+      /* start: pierwsza pozycja jest zaznaczona w HTML-u, więc kartę odpalamy
+         dopiero, gdy sekcja wjedzie w widok — inaczej animacja zdążyłaby
+         przelecieć zanim ktokolwiek na nią spojrzy */
+      var grid = document.querySelector('.lc-sw-grid');
+      if (cards.length && grid && window.IntersectionObserver) {
+        new IntersectionObserver(function (entries, obs) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) { return; }
+            var sel = items.filter(function (i) { return i.getAttribute('aria-selected') === 'true'; })[0];
+            showCard(sel && sel.getAttribute('data-card'));
+            obs.unobserve(entry.target);
+          });
+        }, { threshold: 0.35 }).observe(grid);
+      } else if (cards.length) {
+        showCard(items[0].getAttribute('data-card'));
+      }
 
       function select(el) {
         if (el.getAttribute('aria-selected') === 'true') { return; }
         items.forEach(function (i) { i.setAttribute('aria-selected', 'false'); });
         el.setAttribute('aria-selected', 'true');
         desc.innerHTML = el.getAttribute('data-desc');
+
+        showCard(el.getAttribute('data-card'));
+
+        if (!img) { return; }
+        /* removeAttribute, nie src="" — pusty src to żądanie do adresu strony,
+           a reguła [src] gasi wtedy obrazek i zostaje sama szara powierzchnia */
+        var next = el.getAttribute('data-img');
+        if (next) {
+          img.setAttribute('src', next);
+          img.setAttribute('alt', el.getAttribute('data-alt') || '');
+        } else {
+          img.removeAttribute('src');
+          img.setAttribute('alt', '');
+        }
       }
 
+      /* tylko klik (i fokus z klawiatury) — na hover przełączanie odpalało
+         wymianę zdjęcia i restart animacji karty przy każdym przejechaniu
+         myszą po liście */
       items.forEach(function (el) {
-        el.addEventListener('mouseenter', function () { select(el); });
         el.addEventListener('focus', function () { select(el); });
         el.addEventListener('click', function () { select(el); });
       });
@@ -4068,6 +5605,159 @@
     }, { threshold: 0.15 });
 
     document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+<script>
+  /* ============ PANEL WHITE-LABEL — INTERAKCJE I DEMO ============
+     Panel jest dekoracją (role="img"), więc nic tu nie jest fokusowalne ani
+     nie zmienia stanu strony. Skrypt robi dwie rzeczy:
+     1. ożywia kontrolki, żeby dało się je klikać i modyfikować,
+     2. odgrywa scenkę z kursorem-duchem, gdy pas wjedzie w widok.
+     Scenka jedzie na setTimeout-ach trzymanych w jednej tablicy, więc
+     wyjście pasa z ekranu ją czyści i nic nie dogrywa się w tle. */
+  (function () {
+    var ap = document.querySelector('.ap');
+    if (!ap) { return; }
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---- 1. interakcje ---- */
+
+    /* menu wisi tylko przy jednym wierszu — bierzemy TĘ komórkę, nie pierwszą
+       z brzegu (querySelector('.ap-cell-more') trafiał w wiersz bez menu) */
+    var menu = ap.querySelector('.ap-menu');
+    var cell = menu ? menu.closest('.ap-cell-more') : null;
+
+    function closeMenu() {
+      if (cell) { cell.classList.remove('is-open', 'is-tip'); }
+    }
+
+    var tabs = [].slice.call(ap.querySelectorAll('.ap-tab'));
+    var views = [].slice.call(ap.querySelectorAll('.ap-view'));
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('is-active'); });
+        tab.classList.add('is-active');
+        var target = tab.getAttribute('data-target');
+        views.forEach(function (v) { v.hidden = v.getAttribute('data-view') !== target; });
+        closeMenu();
+      });
+    });
+
+    /* każda tabela ma własny nagłówek sortowania — pętla, nie querySelector,
+       bo ten brał tylko pierwszy widok i "Created at" w Orders nic by nie robiło */
+    [].slice.call(ap.querySelectorAll('.ap-sort')).forEach(function (sort) {
+      var tbody = sort.closest('table').querySelector('tbody');
+      if (!tbody) { return; }
+      sort.addEventListener('click', function () {
+        sort.setAttribute('data-dir', sort.getAttribute('data-dir') === 'desc' ? 'asc' : 'desc');
+        /* odwracamy kolejność wierszy — tabela jest atrapą, więc to wystarczy,
+           żeby kliknięcie miało widoczny skutek */
+        [].slice.call(tbody.children).reverse().forEach(function (tr) { tbody.appendChild(tr); });
+      });
+    });
+
+    [].slice.call(ap.querySelectorAll('.ap-more')).forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        /* menu wisi tylko przy jednym wierszu — pozostałe ••• otwierają to samo */
+        if (!cell) { return; }
+        cell.classList.toggle('is-open');
+        cell.classList.remove('is-tip');
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (cell && !cell.contains(e.target)) { closeMenu(); }
+    });
+
+    /* ---- 2. scenka z kursorem ---- */
+
+    var cursor = ap.querySelector('.ap-cursor');
+    if (!cursor || reduce) { return; }
+
+    var band = ap.closest('.lc-band');
+    var timers = [];
+
+    function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+    /* pozycja środka elementu względem panelu — panel skaluje się z szerokością
+       kontenera, więc liczymy to na żywo, a nie raz na starcie */
+    function moveTo(el, ms, offsetX, offsetY) {
+      var a = ap.getBoundingClientRect();
+      var r = el.getBoundingClientRect();
+      var x = r.left - a.left + r.width / 2 + (offsetX || 0);
+      var y = r.top - a.top + r.height / 2 + (offsetY || 0);
+      cursor.animate(
+        [{ translate: cursor.style.translate || '0 0' }, { translate: x + 'px ' + y + 'px' }],
+        { duration: ms, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'both' }
+      );
+      /* zapisujemy pozycję końcową, żeby następny ruch startował stąd,
+         a nie z zera */
+      at(ms, function () { cursor.style.translate = x + 'px ' + y + 'px'; });
+    }
+
+    function showTab(name) {
+      var tab = ap.querySelector('.ap-tab[data-target="' + name + '"]');
+      if (tab) { tab.click(); }
+    }
+
+    function reset() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      ap.classList.remove('is-playing');
+      cursor.style.translate = '';
+      cursor.getAnimations().forEach(function (a) { a.cancel(); });
+      closeMenu();
+      showTab('orders');   /* scenka startuje zawsze od domyślnej zakładki */
+    }
+
+    function play() {
+      reset();
+
+      /* scenka: zaczyna w Orders, przechodzi na Users i tam otwiera menu.
+         Elementy bierzemy z konkretnego widoku, a nie pierwsze z brzegu —
+         w DOM-ie są cztery komplety, w tym ukryte. */
+      var orders = ap.querySelector('.ap-view[data-view="orders"]');
+      var users = ap.querySelector('.ap-view[data-view="users"]');
+      var usersTab = ap.querySelector('.ap-tab[data-target="users"]');
+      var search = orders && orders.querySelector('.ap-search');
+      var filter = orders && orders.querySelector('.ap-filter');
+      var more = cell && cell.querySelector('.ap-more');
+      var item = cell && cell.querySelector('.ap-menu button');
+      if (!search || !filter || !users || !usersTab || !more || !item) { return; }
+
+      /* start: kursor stoi nad polem wyszukiwania, jeszcze niewidoczny */
+      var a = ap.getBoundingClientRect();
+      var r0 = search.getBoundingClientRect();
+      cursor.style.translate = (r0.left - a.left + 40) + 'px ' + (r0.top - a.top + r0.height / 2) + 'px';
+
+      at(200, function () { ap.classList.add('is-playing'); });
+      at(700, function () { moveTo(filter, 600); });
+      at(1600, function () { moveTo(usersTab, 650); });
+      at(2400, function () { showTab('users'); });
+      /* ••• liczymy dopiero TERAZ — w ukrytym widoku miał zerowy prostokąt */
+      at(2800, function () { moveTo(more, 750, 0, 6); });
+      at(3700, function () { cell.classList.add('is-open'); });
+      at(4200, function () { moveTo(item, 550, -20, 0); });
+      at(4850, function () { cell.classList.add('is-tip'); });
+      at(7400, function () {
+        closeMenu();
+        ap.classList.remove('is-playing');
+      });
+    }
+
+    if (window.IntersectionObserver && band) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { play(); } else { reset(); }
+        });
+      }, { threshold: 0.45 }).observe(band);
+    } else {
+      play();
+    }
   })();
 </script>
 
