@@ -154,6 +154,54 @@ Dla każdej karuzeli na stronie:
   trafił w 55 — 24 nadmiarowe podstawienia wylądowały w linkach stopki,
   zanim zostały zauważone i cofnięte przy grepowaniu wyniku.
 
+
+## 13. Animacje i makiety interfejsu
+
+Sprawdzaj **pomiarem w kolejnych klatkach**, nie wzrokiem — połowa błędów
+niżej wygląda jak „trochę inaczej niż chciałem", a nie jak awaria.
+
+- [ ] **Element z transformem w CSS a animacja.** Jeśli animujesz coś, co ma
+  już `transform` (full-bleed `translateX(-50%)`, wyśrodkowanie), animuj
+  właściwość `translate`, nie `transform`. Keyframe z `transform` kasuje
+  bazowe przesunięcie, a przy `fill: 'both'` trzyma ten stan długo po
+  animacji. Test: zmierz `getBoundingClientRect().x` w trakcie sekwencji —
+  ma się nie ruszyć.
+- [ ] **Stagger faktycznie działa.** Zmierz przesunięcie każdego wiersza w
+  3–4 klatkach. Jeśli wszystkie mają identyczną wartość w każdej próbce,
+  opóźnienia nie łapią (najczęściej: niezgodność nazw klas albo skrót
+  `transition` zerujący `transition-delay`).
+- [ ] **Pasek/pigułka o zerowej szerokości jest naprawdę niewidoczna.**
+  Przy `content-box` `width: 0` zostawia paddingi i obramowanie. Animuj
+  `padding` razem z `width`.
+- [ ] **Restart animacji startuje od zera.** Po zdjęciu klasy wymuś reflow i
+  dodaj `:not(.is-run) { transition: none }` — inaczej elementy z własnym
+  `transition-delay` zostają w pozycji końcowej.
+- [ ] **`prefers-reduced-motion` naprawdę wyłącza ruch.** Policz
+  `el.getAnimations()` w kontekście z wymuszonym `reduce`. Uwaga na
+  specyficzność: reguła w media query **nie** wygrywa automatycznie —
+  powtórz ten sam selektor, co w regule zapalającej animację.
+- [ ] **Makieta skaluje się jak obrazek.** Zmierz szerokość elementu na 1440,
+  1100 i 390 px — proporcja do kontenera ma być stała. I sprawdź to **w
+  WebKicie**: `container-type: inline-size` bez jawnego `width: 100%` daje
+  tam 0px przy poprawnym renderze w Chromium.
+- [ ] **Makieta nie wchodzi w tabulację.** `role="img"` na kontenerze,
+  `tabindex="-1"` na kontrolkach. Test: `querySelectorAll('[tabindex]:not([tabindex="-1"])')`
+  ma zwrócić 0.
+- [ ] **Tekst w pigułkach jest wyrównany optycznie.** Zmierz pasmo liter
+  względem środka pola (patrz guideline 10.3) — samo `align-items: center`
+  nie wystarcza, bo font ma asymetryczne ascent/descent.
+
+## 14. Zdjęcia użyte w kilku kadrach
+
+- [ ] **Ten sam plik w kadrze pionowym i poziomym potrzebuje dwóch
+  `object-position`.** Środek pionowego zdjęcia w kadrze 16/9 wypada zwykle
+  na niczym — sprawdź zrzut każdego wystąpienia, nie tylko pierwszego.
+- [ ] **Rendery produktowe: `contain`, nie `cover`.** Kwadratowy kafel
+  obcina po ~12% z boków pliku 4:3.
+- [ ] **Po podmianie zdjęcia przeskanuj repo pod kątem osieroconych plików**
+  (`grep -rn <nazwa> --exclude-dir=.git .`). Assety, które przestały być
+  używane, zostają w repo i nikt ich potem nie kojarzy.
+
 ## 11. Aktualizacja dokumentacji, jeśli strona jest nowa
 
 - Dopisz wiersz w `SITEMAP.md` (sekcja 1 lub 3, zależnie czy to Planned czy

@@ -594,6 +594,240 @@ Anatomia jednego kroku (accordion header + content), powtarzalna dla wszystkich 
 
 ---
 
+## 5.6 Kwalifikujący formularz-karta (`large-companies.html`)
+
+> **Uwaga (2026-09-10):** `large-companies.html` **nie używa już** wersji
+> trzykrokowej — formularz został spłaszczony do jednego kroku i wtopiony w
+> sekcję FAQ. Snippet zostaje jako wzorzec kwalifikacji wielokrokowej dla
+> następnej strony, ale nie skopiujesz go dziś jeden do jednego z tej strony.
+
+Karta z wielokrokowym formularzem osadzona **w sekcji landingu**, nie
+pełnoekranowy flow — inna rola niż `get-a-quote.html` (pkt 5.1: tamto jest
+osobną stroną zadaniową z uproszczoną nawigacją). Używaj, gdy strona
+marketingowa ma jednocześnie sprzedawać i kwalifikować lead: kroki 1–2 to
+same listy wyboru i chipy (bez pól otwartych — to odcina zapytania
+generowane masowo), a o kontakt pyta dopiero krok 3.
+
+```html
+<div class="lc-brief-card">
+  <div class="lc-progress" id="lcProgress"><i class="on"></i><i></i><i></i></div>
+  <p class="lc-selected" id="lcSelected" hidden></p>   <!-- co użytkownik dorzucił z sekcji produktów -->
+
+  <div class="lc-fstep" id="lcStep1">
+    <h3>Scale of the project</h3>
+    <p class="lc-fstep-hint">Jedno zdanie, dlaczego pytamy akurat o to.</p>
+    <div class="lc-field"><label for="lcVolume">Total annual volume</label><select id="lcVolume">…</select></div>
+    <div class="lc-row2"><!-- dwa pola obok siebie --></div>
+    <p class="lc-err" id="lcErr1" hidden>Fill in every field to continue.</p>
+    <div class="lc-factions"><button class="btn-pill lg" data-go="2">Continue<svg class="btn-arrow" …></svg></button></div>
+  </div>
+
+  <div class="lc-fstep" id="lcStep2" hidden>
+    <div class="lc-chips" id="lcTypes"><button class="lc-chip" aria-pressed="false">Shipping cartons</button>…</div>
+    <div class="lc-factions"><button class="btn-pill lg" data-go="3">Continue…</button><button class="lc-back" data-go="1">Back</button></div>
+  </div>
+
+  <div class="lc-fstep" id="lcStep3" hidden><!-- imię, rola, firma, e-mail --></div>
+
+  <div class="lc-outcome" id="lcSelfServe" hidden><!-- za mały wolumen → CTA do konfiguratora --></div>
+  <div class="lc-outcome" id="lcThanks" hidden><!-- potwierdzenie, treść zależna od scoringu --></div>
+</div>
+```
+
+Zasady, które trzymają ten wzorzec razem:
+- **Chowanie kroków przez atrybut `hidden`**, nie klasę — stan kroku jest w
+  DOM-ie, a nie w CSS-ie, więc `p.isVisible()` w testach i czytniki ekranu
+  widzą to samo co użytkownik.
+- **Scoring przed prośbą o kontakt.** Zbyt mały wolumen nie idzie do kolejki
+  sprzedażowej, tylko dostaje miękkie przekierowanie do `build-your-box.html`
+  (i furtkę „mimo to chcę porozmawiać"), bo lead poniżej progu obsłuży się
+  szybciej sam — patrz reguła MOQ w FAQ tej strony.
+- **Chipy to pigułki, nie kwadraty.** `.lc-chip` ma `--radius-full`, wysokość
+  40px (jak `.btn-pill.md`) i stan wybrany na `--color-accent` — akcent
+  zostaje zarezerwowany dla interakcji (pkt 2.1), a kształt zgadza się z
+  filtrami na katalogu, nie z prostokątnymi chipami z makiety.
+- **Pola formularza: 48px wysokości + `--radius-sm`**, dokładnie jak
+  `.quote-input` na `get-a-quote.html` — nie wymyślaj trzeciej wysokości
+  kontrolki.
+
+Kandydat do awansu do `components.css`, jeśli druga strona będzie
+potrzebowała osadzonego formularza kwalifikującego (dziś 1. wystąpienie).
+
+
+---
+
+## 5.7 Sekcje strony enterprise (`large-companies.html`)
+
+### Pełnoszerokościowy pas ze zdjęciem i paralaksą (`.lc-band`)
+
+```html
+<section class="lc-section reveal">
+  <div class="lc-band">
+    <img src="assets/enterprise/…jpg" alt="…" loading="lazy" decoding="async">
+  </div>
+</section>
+```
+
+```css
+.lc-band {
+  position: relative;
+  left: 50%;
+  width: calc(100vw - var(--space-6));   /* 2 × space-3, jak padding .cta-section */
+  transform: translateX(-50%);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  max-height: 640px;                     /* jak .statement-video-mock na HP */
+  border-radius: var(--radius-2xl);
+  background: #08090a;                   /* widać, zanim zdjęcie się doładuje */
+}
+
+/* zdjęcie o 20% wyższe niż kadr — nadmiar to droga paralaksy */
+.lc-band > img {                          /* > img, NIE img: pas może nieść warstwy */
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-band > img { top: 0; height: 100%; transform: none !important; }
+}
+```
+
+Skrypt: dla każdego `.lc-band` licz `progress` z pozycji pasa względem środka
+ekranu (−1 … 1), przesuwaj tło o `progress * wysokość * 0.1`, wpinaj `scroll`
+dopiero gdy pas jest w widoku i licz raz na klatkę przez `requestAnimationFrame`.
+
+### Szklane paski wartości sterowane scrollem
+
+```html
+<div class="lc-solve-stat" style="--v: 4%" data-from="100" data-to="4">
+  <span class="lc-solve-stat-label">Risk of running out of packaging</span>
+  <span class="lc-solve-stat-value">4%</span>
+</div>
+```
+
+Jedna zmienna `--v` napędza i wypełnienie (`::before { width: var(--v) }`),
+i pozycję uchwytu (`::after { left: var(--v) }`), i liczbę obok — nie da się
+ich rozjechać. Statyczne `--v` i tekst w HTML-u to **stan końcowy**: tak
+pasek wygląda bez JS-u i przy `prefers-reduced-motion`.
+
+Na jasnym zdjęciu: białe szkło + ciemny tekst, nie odwrotnie. Zmierzone —
+biały tekst na ciemnym szkle schodził do 4,5:1, ciemny na białym daje 12:1.
+
+### Makieta interfejsu skalowana jak obrazek
+
+```css
+.wrapper { container-type: inline-size; }
+
+.mock {
+  /* --u = 1px z projektu; 1440 * 0.06944cqw = 100cqw */
+  --u: 0.06944cqw;
+  --ov: 0.107em;              /* optyczne wyrównanie tekstu, patrz guideline 10.3 */
+  width: 100%;                /* obowiązkowe: bez tego WebKit daje 0px */
+  font-size: calc(14 * var(--u));
+  background: var(--white);   /* prymitywy, nie tokeny semantyczne */
+  color: var(--rich-blue);
+}
+
+.mock-btn {
+  /* padding asymetryczny: tyle dodane u góry, ile odjęte u dołu */
+  padding: calc(4 * var(--u) + var(--ov)) calc(8 * var(--u)) calc(4 * var(--u) - var(--ov));
+  border-radius: calc(4 * var(--u));
+}
+
+/* line-height MUSI stać za blokami z `font: inherit` — ten skrót je resetuje */
+.mock-btn, .mock-tab, .mock-pill { line-height: 1; }
+```
+
+```html
+<div class="mock" role="img" aria-label="Opis tego, co makieta pokazuje">
+  <button class="mock-btn" type="button" tabindex="-1">Reset password</button>
+</div>
+```
+
+`role="img"` + `tabindex="-1"` na kontrolkach: to ilustracja, nie interfejs.
+
+### Lista „split" — zdjęcie i karta per pozycja
+
+```html
+<div class="lc-sw-grid">
+  <div class="lc-sw-media">
+    <img id="lcSwImg" src="…" alt="…">
+    <div class="sku" data-card="plants" aria-hidden="true">…</div>
+    <div class="sku" data-card="range"  aria-hidden="true">…</div>
+  </div>
+
+  <div class="lc-sw-panel">
+    <ul class="lc-sw-list" role="tablist">
+      <li><button class="lc-sw-item" role="tab" aria-selected="true"
+                  data-img="…jpg" data-alt="…" data-card="plants"
+                  data-desc="…">A network of plants</button></li>
+    </ul>
+    <p class="lc-sw-desc" role="tabpanel" aria-live="polite">…</p>
+  </div>
+</div>
+```
+
+- przełączanie na `click` i `focus`, **nie na `mouseenter`**
+- brak zdjęcia → `img.removeAttribute('src')`, nie `src=""`
+- restart animacji karty: zdejmij klasę, wymuś reflow (`void el.offsetWidth`),
+  nałóż ponownie — i dodaj `:not(.is-run) { transition: none }`, żeby reset był
+  natychmiastowy, a nie czekał na własne opóźnienia
+
+### Wiersz przełącznika w panelu trybika
+
+```js
+var row = document.createElement('div');
+row.className = 'site-settings-row';
+row.innerHTML =
+  '<div>' +
+    '<p class="site-settings-label">Light mode</p>' +
+    '<p class="site-settings-desc">Krótko, co robi</p>' +
+  '</div>' +
+  '<label class="site-toggle">' +
+    '<input type="checkbox" id="toggleX">' +
+    '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
+  '</label>';
+panel.appendChild(row);
+```
+
+Dla wyboru z 3 opcji zamiast `.site-toggle` daj `<select class="site-settings-select">`.
+Odczyt stanu: `localStorage.getItem(k)` porównuj z `null`, nie `|| ''` —
+inaczej wariant bazowy wybrany świadomie jest nie do odróżnienia od braku wyboru.
+
+### Tryb jasny na stronie z lokalną ciemną paletą
+
+```css
+/* zamiast :root — specyficzność (0,1,1) bije :root z tokens.css (0,1,0) */
+html:not(.theme-light) {
+  --color-text-primary: #f7f8f8;
+  --color-bg-page:      #08090a;
+  /* … */
+}
+
+/* komponenty z kolorem zaszytym na sztywno w components.css */
+html:not(.theme-light) .lc-logos-content img { filter: invert(1); }
+```
+
+```html
+<script>
+  /* w <head>, PRZED pierwszym malowaniem */
+  (function () {
+    try {
+      if (localStorage.getItem('lcTheme') !== 'dark') {
+        document.documentElement.classList.add('theme-light');
+      }
+    } catch (e) {}
+  })();
+</script>
+```
+
+---
+
 ## Nawigacja i stopka — nie kopiuj stąd
 
 Nav (`.nav-row1`, `.sticky-bar`, `.quote-topbar`) **nigdy nie jest kopiowana inline** — każda strona dostaje tylko placeholder + `<script src="nav-header.js"></script>`, patrz `CLAUDE.md`. Markup nawigacji edytuje się wyłącznie w `nav-header.js`.

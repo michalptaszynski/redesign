@@ -693,6 +693,82 @@ zweryfikuj realną wysokość zwiniętego stanu w devtoolsach zamiast zakładać
 
 ---
 
+### 5.7 Strona enterprise / B2B (wzorzec: `large-companies.html`)
+
+Strona sprzedażowa dla dużych klientów. Odróżnia ją od `index.html` kilka
+rzeczy, które nie występują nigdzie indziej w repo — spisane niżej, żeby
+następna taka strona nie zaczynała od zera.
+
+**Kolejność sekcji:** hero (H1 + subhead + duet CTA + zapętlony pas zdjęć) →
+pasek klientów → „Sound familiar?" (problemy) → „How we solve it"
+(odpowiedzi) → pełnoszerokościowy pas ze zdjęciem → Products → „Working
+together" (etapy) → drugi pas ze zdjęciem → Proof (testimoniale) →
+Compliance → formularz + FAQ → final CTA.
+
+#### Warianty sekcji przełączane trybikiem
+
+Dwie sekcje mają po trzy warianty układu, przełączane `<select>` w panelu
+spod `.site-settings-btn` i zapamiętywane w `localStorage`. Wszystkie
+warianty siedzą w DOM-ie, przełącza je klasa na `<body>`.
+
+Zasada, którą łatwo złamać: **`getItem()` zwraca `null`, gdy klucza nie ma,
+i `''`, gdy użytkownik wybrał wariant bazowy.** Zapis `getItem(k) || ''`
+zlewa te dwa stany, więc domyślna wartość nadpisuje świadomy wybór
+użytkownika przy każdym wejściu. Porównuj z `null`.
+
+#### Pełnoszerokościowy pas ze zdjęciem (`.lc-band`)
+
+Pas na pełną szerokość okna minus rynna `space-3`, promień `--radius-2xl`,
+proporcja 16/9 z sufitem 640px (ta sama, co placeholder animacji edytora na
+HP). Zdjęcie w środku jest o 20% wyższe niż kadr i jeździ w nim na scrollu.
+Wariant `.lc-band-shot` jest o 240px wyższy i niesie warstwę wystającą poza
+dolną krawędź (zrzut interfejsu).
+
+Paralaksa liczy się tylko wtedy, gdy pas jest w widoku (IntersectionObserver)
+i raz na klatkę (rAF). Ruch warstwy na wierzchu **musi być ograniczony tym,
+ile jej wystaje poza kadr** — inaczej wjeżdżając w górę odsłania pod sobą
+tło i efekt ucięcia znika.
+
+#### Makiety interfejsu jako element strony (`.ap`, `.sku`)
+
+Zamiast zrzutu PNG strona renderuje interfejs kodem: panel administracyjny
+z czterema zakładkami i karty produktowe nakładane na zdjęcia. Trzy reguły:
+
+1. **Skala przez jednostkę projektową, nie przez media queries.** Makieta ma
+   zachowywać się jak obrazek — skalować proporcjonalnie, a nie przelewać.
+   Kontener dostaje `container-type: inline-size`, makieta definiuje
+   `--u: <100/szerokość projektowa>cqw` i **wszystkie** wymiary w środku są
+   wielokrotnością `--u`. Wartości z Figmy wpisuje się wtedy wprost.
+2. **Kolory z prymitywów, nie z tokenów semantycznych.** Makieta jest
+   powierzchnią zawsze jasną i nie może odwrócić się razem z motywem strony
+   — `--color-border-default` w dark mode to ciemny grafit, który na białym
+   panelu znika. Bierz `--gray-300`, `--white`, `--rich-blue`.
+3. **To dekoracja, nie interfejs.** Cały blok dostaje `role="img"` z opisem,
+   a kontrolki `tabindex="-1"` — nie wchodzą w kolejność tabulacji, bo
+   kliknięcie w nie niczego nie robi.
+
+#### Lista „split" ze zdjęciem i kartą per pozycja
+
+Panel po lewej jest jeden, a pozycje listy podmieniają jego zawartość przez
+`data-img` / `data-card` na przycisku. Pozycja bez tych atrybutów zostawia
+szarą powierzchnię. Dwie rzeczy:
+
+- **Zmiana tylko na klik i fokus, nie na hover.** Przy hoverze przejechanie
+  myszą po liście restartowało animacje kart przy każdej pozycji.
+- **Przy braku zdjęcia `removeAttribute('src')`, nie `src=""`** — pusty
+  `src` to żądanie pod adres samej strony.
+
+#### Tryb jasny na stronie z lokalną ciemną paletą
+
+Strona jest domyślnie ciemna, ale ma przełącznik trybu jasnego. Wzorzec:
+lokalne tokeny ciemne deklarujesz w `html:not(.theme-light)` zamiast w
+`:root` — specyficzność (0,1,1) bije `:root` z `tokens.css` (0,1,0), więc
+dodanie klasy po prostu odsłania wspólne tokeny i nie utrzymujesz drugiej
+palety. Klasę nakładasz skryptem w `<head>` **przed pierwszym malowaniem**,
+inaczej strona mrugnie w niewłaściwym motywie.
+
+---
+
 ## 7. Rytm odstępów między sekcjami — reguła ogólna
 
 Odstęp między sekcjami nie jest stałą liczbą — zależy od tego, czy sekcja **zaczyna nowy
@@ -785,4 +861,82 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
 | "Strona katalogu/kategorii produktów" | breadcrumb → title-row → tiles karuzela podkategorii → filters bar → product grid (z okazjonalnymi `.promo-card`) → pkg-seo. |
 | "Filtr w katalogu" | `.filter-radio` gdy wykluczający się wybór, `.filter-checkbox` gdy wielokrotny, dodaj `.filter-preview` gdy pomaga zdjęcie poglądowe. |
 | "Strona wyboru próbek / cart z listą do zaznaczenia" | Wzorzec `sample-packs.html` (pkt 5.5): dwie kolumny (akordeon grup + sticky summary card), segmentowany `.toggle-switch` na pełną szerokość dla podkategorii wariantów, opcjonalny tryb Grid przez `.site-settings-btn`. |
+| "Pas ze zdjęciem na całą szerokość" | `.lc-band` (pkt 5.7): 100vw minus rynna space-3, promień 2xl, 16/9 z sufitem 640px, zdjęcie o 20% wyższe od kadru z paralaksą na scrollu. Wariant `.lc-band-shot` — o 240px wyższy, z warstwą wystającą poza dolną krawędź. |
+| "Makieta panelu/aplikacji w sekcji" | Renderuj kodem, nie wstawiaj PNG (pkt 5.7): kontener `container-type: inline-size`, wymiary jako wielokrotności `--u` (1px z projektu), kolory z prymitywów, `role="img"` + `tabindex="-1"`. |
+| "Lista, gdzie klik zmienia zdjęcie/kartę obok" | Wzorzec split (pkt 5.7): jeden panel medialny, pozycje niosą `data-img` / `data-card`. Przełączanie na klik i fokus, **nie na hover**. |
+| "Przełącznik trybu jasnego na ciemnej stronie" | Lokalne tokeny w `html:not(.theme-light)` zamiast `:root` + klasa nakładana w `<head>` przed pierwszym malowaniem (pkt 5.7). |
 | "Sekcja linkująca do kilku produktów/podstron" (np. "pokaż najczęściej sprzedawane produkty", "dodaj sekcję linkującą do X, Y, Z") | `.media-card` (pkt 3.1) — ale najpierw sprawdź checklistę: jeśli pozycje mają realne zdjęcia → karty w `.scroll-carousel` (dużo pozycji) albo statycznym gridzie (mało); jeśli to strony bez sensownego zdjęcia (np. regulaminy, polityki) → zwykła tekstowa lista linków, nie karty. Bez badge, chyba że ktoś wprost o niego poprosi. |
+
+---
+
+## 10. Pułapki, które już nas kosztowały czas
+
+Każda z nich została złapana pomiarem w headless-browserze, nie na oko.
+Wszystkie są łatwe do powtórzenia na następnej stronie.
+
+### 10.1 Keyframe z `transform` KASUJE transform elementu
+
+Web Animations API i CSS-owe `transition` podmieniają całą właściwość
+`transform`, a nie dokładają się do niej. Element, który ma w CSS
+`translateX(-50%)` (full-bleed, wyśrodkowanie), po animacji transformem
+traci to przesunięcie — a przy `fill: 'both'` trzyma ten stan długo po
+starcie. Pas zdjęć w hero stał przez ~2 s przesunięty o pół ekranu w prawo.
+
+**Animuj `translate`** — to osobna właściwość, składana z `transform`, więc
+bazowe przesunięcie zostaje nietknięte.
+
+### 10.2 `font: inherit` resetuje `line-height`
+
+Skrót `font` ustawia też `line-height`. Deklaracja `line-height: 1` stojąca
+**wyżej** w arkuszu jest przez niego zjadana. Reguła musi stać za blokami
+komponentów, które używają `font: inherit`.
+
+### 10.3 Tekst w pigułce siada nad środkiem pola
+
+ABC Favorit ma ascent na tyle większy od descent, że pasmo liter siada ok.
+`0.107em` nad geometrycznym środkiem. Zmierzone w izolacji: 1,5px przy
+foncie 14px, **identycznie dla `line-height` 1, 1.3 i normal** — interlinia
+tego nie rusza, bo przesunięcie zależy od `(ascent − descent − wysokość
+wersalika)`. Kompensuj asymetrycznym paddingiem: tyle samo dodane u góry,
+ile odjęte u dołu, wtedy wysokość pola zostaje bez zmian.
+
+### 10.4 `container-type: inline-size` bez jawnej szerokości znika w WebKicie
+
+Containment zeruje intrinsic width. Element bez `width` dostawał w Safari
+**0px** szerokości, przy poprawnym renderze w Chromium. Zawsze dokładaj
+`width: 100%`, a ścieżkom gridu `minmax(0, 1fr)`.
+
+### 10.5 Selektor potomka łapie zagnieżdżone elementy
+
+`.lc-shot img { width: 100% }` napisane dla zrzutu jako obrazka rozciągnęło
+później logotyp wewnątrz odwzorowanego panelu na całą szerokość — i wygrało
+specyficznością z poprawną regułą `.ap-logo`. Ta sama pułapka dwa razy w tej
+samej sesji (`.lc-band img`). **Zawężaj do dziecka: `> img`.**
+
+### 10.6 `:not()` bije regułę w media query
+
+`@media (prefers-reduced-motion: reduce) { .x::before { animation: none } }`
+przegrywa z `.x:not(.y)::before { animation: ... }`, bo `:not()` podnosi
+specyficzność. Media query nie daje żadnej przewagi w kaskadzie — w bloku
+`reduce` powtarzaj **ten sam selektor**, co w regule zapalającej animację.
+
+### 10.7 `transition` w skrócie zeruje `transition-delay`
+
+Stagger zapisany osobną regułą niżej działa, ale tylko jeśli nazwy klas się
+zgadzają — literówka w nazwie (`r1` w markupie kontra `.sku-r1` w CSS) daje
+animację, która wygląda jak brak staggera, a nie jak błąd. Sprawdzaj
+pomiarem `dy` w kilku klatkach, nie wzrokiem.
+
+### 10.8 Pasek o zerowej szerokości z paddingiem nie jest zerowy
+
+Przy `content-box` `width: 0` zostawia dwa paddingi i obramowanie — pigułki
+były widoczne jako kikuty, zanim wystartowała animacja. Animuj `padding`
+razem z `width` (i dodaj opóźnienia do obu).
+
+### 10.9 `object-fit: cover` w kadrze o innej proporcji niż plik
+
+Kwadratowy kafel obcinał po ~12% z boków renderów 4:3 — u mailer boxa
+znikała krawędź otwartego wieka. Do renderów produktowych używaj `contain`.
+Przy zdjęciach użytych raz w kadrze pionowym i raz w poziomym każde
+wystąpienie potrzebuje własnego `object-position` — środek pionowego pliku
+wypada w poziomym kadrze na niczym.

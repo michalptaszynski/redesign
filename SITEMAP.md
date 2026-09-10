@@ -32,6 +32,7 @@ konsoliduje/upraszcza).
 | `impressum.html` | `/impressum/` | Dane firmy, adres, kontakt, godziny pracy — proste karty label/value, bez zdjęć (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
 | `custom-mailer-box.html` | `/p/custom-mailer-box/custom/` | Pierwsza strona produktowa (PDP) w repo — hero z opcjami (material-card swatches, print/production pills, quantity ladder z build-your-box.html), specyfikacja, rich description, showcase gallery, FAQ (8 realnych pytań), cross-sell. Copy wyciągnięte z żywego `packhelp.com/en-us/p/custom-mailer-box/custom/` (przez jina.ai reader — packhelp.co.uk geo-redirectuje na PL mirror przy zapytaniach z tej sieci) + PL JSON (`zapakuj.to`, ProductPageApp astro-island props) przetłumaczony dla brakujących sekcji (FAQ, rich description). Wszystkie zdjęcia to `.ph-media` placeholdery na wyraźną prośbę użytkownika, mimo że realne CDN URL-e były dostępne. CTA-y kierują do `build-your-box.html` (konfigurator) zamiast duplikować jego logikę (zbudowane 2026-08-03). |
 | `sample-pack.html` | — | **New concept**, patrz sekcja 3 |
+| `large-companies.html` | `/large-companies/` | Landing dla klientów enterprise/kontraktowych. Strona istnieje na live sajcie, ale copy **nie** jest z niej zaadaptowane — powstało z zewnętrznej makiety (Claude artifact „Sales Touch") dostarczonej przez użytkownika i przełożonej na nasz design system, tak samo jak `q4-packaging.html`. Patrz sekcja 3 po listę decyzji translacyjnych. |
 
 ## 2. Planned — realne strony/sekcje z packhelp.co.uk, jeszcze nie zbudowane
 
@@ -70,7 +71,6 @@ podanym URL zamiast wymyślać od zera.
 
 ### Solutions / platforma (`/...`)
 - Small and Medium Companies — `/small-medium-companies/`
-- Large Companies — `/large-companies/`
 - Marketplaces — `/marketplaces/`
 - 3PL & Fulfillments — `/3pl-fullfilment/`
 - Design Services — `/design-services/`
@@ -85,7 +85,7 @@ podanym URL zamiast wymyślać od zera.
 - Help Center — `/help/` (+ podstrony typu return policy)
 - Sustainability Hub — `/sustainability-2/`, Progress Reports, Supply Chain,
   Eco Badge
-- Wholesale Packaging — `/large-companies/` (alias)
+- Wholesale Packaging — `/large-companies/` (alias, zbudowane jako `large-companies.html`)
 - Sign In — `/auth/login/`
 - Pozostałe case studies: Kuyichi, Psi Bufet, Your KAYA, Fluus, XLASH
 - Prawne: Terms of Service, Privacy Policy, Whistleblowing Policy
@@ -117,6 +117,41 @@ podanym URL zamiast wymyślać od zera.
   tej zasady. Layout celowo wąski (`max-width: 720px`) nawet na desktopie —
   strona zoptymalizowana pod mobile (95% ruchu wg brief), nie pod pełną
   szerokość 1280px.
+- **`large-companies.html`** — landing dla klientów kontraktowych/
+  enterprise ("Sales Touch"). Ma odpowiednik na live sajcie
+  (`/large-companies/`), ale zbudowany został z zewnętrznej makiety
+  dostarczonej przez użytkownika, nie z live copy — dlatego decyzje
+  translacyjne są tu warte zapisania, tak jak przy `q4-packaging.html`:
+  makieta miała własny system wizualny (kraft + granat, dwa kroje z
+  szeryfowym Source Serif, ostre rogi, cztery ciemne sekcje), a strona
+  odtwarza jej **strukturę i logikę**, nie jej styl. Konkretnie: jeden krój
+  (ABC Favorit), białe tło, jedna ciemna sekcja na całą stronę (pkt 2.1
+  guideline) przypisana do case studies — hero, formularz i stopka, które w
+  makiecie też były ciemne, wróciły na biel; ilustracje SVG konstrukcji
+  opakowań zastąpione prawdziwymi zdjęciami produktów z `assets/packaging/`
+  (pkt 2.5); zakładki problemów to `.toggle-switch` z osobną listą per tab
+  (pkt 5.2.1); formularz to trzykrokowa karta kwalifikująca **przed**
+  pytaniem o kontakt (wolumen ≤5 000 szt. → miękkie przekierowanie do
+  `build-your-box.html`, >50 000 szt./>20 SKU/>3 rynki → kolejka
+  priorytetowa) — inna rola niż pełnoekranowy flow `get-a-quote.html`, więc
+  osobny komponent, nie duplikat tamtego. Nawigacja: wariant pełny, bo to
+  strona ofertowa zachęcająca do eksploracji katalogu, nie zamknięty flow.
+
+  **Stan po przebudowie (2026-09-10)** — powyższy akapit opisuje pierwszą
+  wersję i część jego ustaleń już nie obowiązuje. Aktualnie: strona jest
+  **ciemna domyślnie**, z przełącznikiem trybu jasnego spod trybika (lokalne
+  tokeny w `html:not(.theme-light)`, patrz guideline 5.7) — czyli wyjątek od
+  reguły „jedna ciemna sekcja" z pkt 2.1, świadomy i ograniczony do tej
+  strony. Formularz jest **jednokrokowy**, wtopiony w sekcję FAQ. Dwie
+  sekcje mają po trzy warianty układu przełączane trybikiem
+  („How we solve it": rows / pinned scroll / split list; „Sound familiar?":
+  tabela / taby / split grid), domyślnie split list i split grid. Doszły:
+  animowana sekwencja wejścia (ekran z globusem cobe jako opcja, domyślnie
+  wyłączona), dwa pełnoszerokościowe pasy ze zdjęciem i paralaksą, panel
+  administracyjny **odwzorowany kodem** zamiast zrzutu PNG (cztery zakładki,
+  scenka z kursorem) oraz cztery karty-makiety nakładane na zdjęcia w liście
+  split. Wzorce opisane w guideline 5.7, snippety w `COMPONENT_SNIPPETS.md`
+  5.7, pułapki implementacyjne w guideline 10.
 - **`sample-pack.html`** — dedykowana strona produktowa (PDP) dla "Sample
   Pack" — jednego, uniwersalnego produktu próbek obejmującego wszystkie
   kategorie (materiały/print/wykończenia), a nie osobnej strony próbek per
