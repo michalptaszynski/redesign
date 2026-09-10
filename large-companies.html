@@ -30,7 +30,7 @@
      Zasada nie znika, tylko się odwraca: teraz jedną WYRÓŻNIONĄ powierzchnią
      jest rozjaśniona karta Proof na ciemnej stronie.
      ---------------------------------------------------------------------- */
-  :root {
+  html:not(.theme-light) {
     /* ---- paleta Linear (linear.app, dark mode) ----
        Wartości zdjęte 2026-09-09 z ich własnych tokenów w
        static.linear.app/web/_next/static/css/index.*.css, nie z pipety —
@@ -172,6 +172,11 @@
     aspect-ratio: 1 / 1;
     transform: translateX(-50%);
     opacity: 0.6;
+  }
+
+  /* na białym tle ta sama kula gubi kontrast — 0.6 czytało się jak nic */
+  html.theme-light .lc-intro-globe {
+    opacity: 0.9;
     /* stopy w vh, nie w %: procenty liczą się od wysokości ELEMENTU (tu ~1900px),
        a widoczny jest tylko jego górny fragment — gradient wypadał wtedy grubo
        poniżej ekranu i nie było go w ogóle widać */
@@ -197,8 +202,11 @@
     will-change: opacity, transform, filter;
   }
 
-  .lc-intro-armed .lc-word,
-  .lc-intro-armed [data-intro] { opacity: 0; }
+  /* .lc-hero-armed = samo wejście hero (zawsze, gdy animacja ma lecieć).
+     .lc-intro-armed = dodatkowo ekran z globusem PRZED hero — opcja z trybika,
+     domyślnie wyłączona. */
+  .lc-hero-armed .lc-word,
+  .lc-hero-armed [data-intro] { opacity: 0; }
 
   html.lc-intro-armed,
   html.lc-intro-armed body { overflow: hidden; }
@@ -266,6 +274,119 @@
      space-16 or less. Two speeds, not one constant. */
   .lc-section { padding: var(--space-40) var(--space-8) 0; }
   .lc-section.lc-section-cont { padding-top: var(--space-16); }
+
+  /* Pas pod sekcją "How we solve it".
+     Szerokość jak .cta-section/.cta-card na home page ("At any scale"):
+     pełna szerokość okna minus rynna space-3 z każdej strony, zaokrąglony
+     narożnik --radius-2xl. Ten sam trick co w .lc-hero-media — left: 50%
+     plus translateX(-50%) — tyle że o rynnę węższy.
+     Proporcja i sufit wysokości jak w placeholderze animacji edytora na home
+     page (.statement-video-mock: 16/9 z max-height 640px).
+     Kolor tła jest wpisany na sztywno, nie z tokenu: ma zostać ciemny również
+     w jasnym motywie (widać go, dopóki zdjęcie się nie doładuje). */
+  .lc-solve-video {
+    position: relative;
+    left: 50%;
+    width: calc(100vw - var(--space-6));   /* 2 × space-3, jak padding .cta-section */
+    transform: translateX(-50%);
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    max-height: 640px;
+    border-radius: var(--radius-2xl);
+    background: #08090a;
+  }
+
+  /* zdjęcie jest o 20% wyższe niż kadr i jeździ w nim na scrollu (paralaksa).
+     Nadmiar rozłożony po równi góra/dół, żeby w spoczynku kadr był wyśrodkowany. */
+  .lc-solve-video img {
+    position: absolute;
+    top: -10%;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 120%;
+    object-fit: cover;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc-solve-video img { top: 0; height: 100%; transform: none !important; }
+  }
+
+  /* dwa "slidery" na zdjęciu: szklany pasek, wypełnienie do wartości,
+     pionowa kreska uchwytu w tym samym miejscu, podpis z lewej, wynik z prawej.
+     Wartość siedzi w jednej zmiennej --v, z której liczą się i wypełnienie,
+     i pozycja uchwytu — nie da się ich rozjechać. */
+  .lc-solve-stats {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+  }
+
+  .lc-solve-stat {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    box-sizing: border-box;
+    width: min(620px, 100%);
+    padding: var(--space-4) var(--space-5);
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    /* białe szkło + ciemny tekst. Kolory są wpisane na sztywno, nie z tokenów:
+       pasek leży na zdjęciu, więc ma wyglądać tak samo w obu motywach. */
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #00061a;
+    font-size: 1.0625rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .lc-solve-stat::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--v);
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  .lc-solve-stat::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--v);
+    width: 2px;
+    margin-left: -1px;
+    background: #fff;
+  }
+
+  .lc-solve-stat > span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .lc-solve-stat-value { font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 700px) {
+    .lc-solve-stats { gap: var(--space-2); padding: var(--space-4); }
+    .lc-solve-stat {
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      font-size: 0.9375rem;
+    }
+  }
 
   .lc-section-head { max-width: 44rem; margin: 0 0 var(--space-12); }
 
@@ -663,6 +784,7 @@
      więc kafel rozsuwa się i odsłania zdjęcie w jednym ruchu */
   .lc-pain-media {
     flex: none;
+    overflow: hidden;
     width: 0;
     margin-left: 0;
     opacity: 0;
@@ -671,6 +793,13 @@
     transition: width 0.5s cubic-bezier(.16, 1, .3, 1),
                 margin-left 0.5s cubic-bezier(.16, 1, .3, 1),
                 opacity 0.35s ease;
+  }
+
+  .lc-pain-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .lc-pain:hover .lc-pain-media,
@@ -703,6 +832,10 @@
       margin: var(--space-8) 0 0;
       opacity: 1;
     }
+
+    /* na mobile media są widoczne zawsze, więc kafel bez zdjęcia pokazywał
+       pusty szary prostokąt zamiast niczego */
+    .lc-pain-media:empty { display: none; }
 
     /* four tabs don't fit a phone: the toolbar scrolls sideways and bleeds to
        the page edge instead of clipping the last option (body has
@@ -804,10 +937,13 @@
   /* ---------- PAIN — WARIANT ALTERNATYWNY (lista tabelaryczna zamiast tabów:
      każda grupa to nagłówek z ikoną i licznikiem, pod nim wiersze
      nazwa / opis. Bez rozwijania. Włączany trybikiem w rogu). ---------- */
-  /* wersja tabelaryczna jest DOMYŚLNA; taby są teraz wariantem spod trybika */
-  #lc-challenges { display: none; }
+  /* wersja tabelaryczna jest DOMYŚLNA; taby i siatka to warianty spod trybika */
+  #lc-challenges,
+  #lc-challenges-grid { display: none; }
   body.pain-tabs #lc-challenges { display: block; }
-  body.pain-tabs #lc-challenges-alt { display: none; }
+  body.pain-grid #lc-challenges-grid { display: block; }
+  body.pain-tabs #lc-challenges-alt,
+  body.pain-grid #lc-challenges-alt { display: none; }
 
   .lc-tbl-group + .lc-tbl-group { margin-top: var(--space-20); }
 
@@ -917,12 +1053,95 @@
     .lc-tbl-head h3 { font-size: 1.25rem; }
   }
 
+  /* ---------- PAIN — WARIANT 3 (zdjęcie po lewej, po prawej siatka
+     krótkich punktów zakończona kaflem CTA; układ z załącznika) ---------- */
+  .lc-pg-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: stretch;
+  }
+
+  .lc-pg-media {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-muted);
+    min-height: 420px;
+  }
+
+  /* absolutnie, NIE w przepływie: zdjęcie 800x1200 rozciągnięte w gridzie
+     podniosło panel z 640px (wysokość listy) do 894px i pociągnęło za sobą
+     całą sekcję. Tak panel trzyma wysokość placeholdera, a zdjęcie się w niej
+     kadruje. */
+  .lc-pg-media img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .lc-pg-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .lc-pg-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-8);
+    min-height: 148px;
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-muted);
+    /* ten sam rozmiar co .lc-step p — 15px/1.5, nie 17px */
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .lc-pg-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    align-self: flex-start;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--color-bg-muted-hover);
+    color: var(--color-text-primary);
+  }
+
+  .lc-pg-check svg { width: 12px; height: 12px; }
+
+  @media (max-width: 900px) {
+    .lc-pg-grid { grid-template-columns: 1fr; gap: var(--space-8); }
+    .lc-pg-media { min-height: 260px; }
+  }
+
+  @media (max-width: 560px) {
+    .lc-pg-list { grid-template-columns: 1fr; }
+    .lc-pg-item { min-height: 0; gap: var(--space-5); }
+  }
+
   /* ---------- SOLUTIONS — WARIANT ALTERNATYWNY (przypięty nagłówek na środku
      + kafle mijające go zygzakiem). Włączany trybikiem w rogu; obie wersje
      siedzą w DOM-ie, przełącza je klasa .solve-alt na <body>. ---------- */
-  #lc-solutions-alt { display: none; }
-  body.solve-alt #lc-solutions { display: none; }
+  #lc-solutions-alt,
+  #lc-solutions-sw { display: none; }
+  body.solve-alt #lc-solutions,
+  body.solve-sw #lc-solutions { display: none; }
   body.solve-alt #lc-solutions-alt { display: block; }
+  body.solve-sw #lc-solutions-sw { display: block; }
 
   /* padding-top jak w .lc-section (§7 rhythm) plus zapas: wyśrodkowanie
      nagłówka przez translateY(-50%) wyciąga go o połowę własnej wysokości
@@ -1033,12 +1252,95 @@
   @media (prefers-reduced-motion: reduce) {
     /* sticky zostaje, znika samo wejście */
     .lc-zig-card,
-    .lc-tbl-row {
+    .lc-tbl-row,
+    .lc-step {
       opacity: 1;
       transform: none;
       transition: none;
       transition-delay: 0s;
     }
+  }
+
+  /* ---------- SOLUTIONS — WARIANT 3 (zdjęcie po lewej, po prawej lista
+     pozycji; hover albo klik zmienia aktywną pozycję i opis pod spodem) ---------- */
+  .lc-sw-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    /* stretch, nie start: prawa kolumna musi mieć wysokość zdjęcia, żeby
+       opis dało się dokleić do jego dolnej krawędzi */
+    align-items: stretch;
+  }
+
+  /* TODO: puste powierzchnie do podmiany na realne zdjęcia */
+  .lc-sw-media {
+    aspect-ratio: 5 / 6;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-muted);
+  }
+
+  .lc-sw-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lc-sw-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .lc-sw-item {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    text-align: left;
+    font-family: inherit;
+    font-weight: 450;
+    font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+    line-height: 1.28;
+    letter-spacing: -0.04em;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .lc-sw-item[aria-selected="true"] { color: var(--color-text-primary); }
+
+  /* margin-top:auto dokleja opis do dolnej krawędzi kolumny, czyli do dołu
+     zdjęcia obok */
+  .lc-sw-desc {
+    margin: auto 0 0;
+    max-width: 40ch;
+    font-size: var(--type-subhead-size);
+    line-height: var(--type-subhead-line-height);
+    letter-spacing: var(--type-subhead-tracking);
+    color: var(--type-subhead-color);
+  }
+
+  @media (max-width: 900px) {
+    .lc-sw-grid { grid-template-columns: 1fr; gap: var(--space-10); }
+    .lc-sw-desc { margin-top: var(--space-8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc-sw-item { transition: none; }
+  }
+
+  /* wybór wariantu w panelu ustawień — trzy opcje nie mieszczą się już
+     w przełączniku dwustanowym */
+  .site-settings-select {
+    height: 2rem;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-muted);
+    font-family: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
   }
 
   /* ---------- SCROLL CAROUSEL (komponent współdzielony: Products i Proof).
@@ -1064,12 +1366,19 @@
        prawie biały — czyli biała strzałka na białej pigułce, niewidoczna. */
     border: 1px solid var(--color-border-hover);
     border-radius: var(--radius-full);
-    background: rgba(8, 9, 10, 0.82);
+    /* pigułka bierze kolor z tokenu tła, więc odwraca się razem z motywem;
+       na ciemnym była biała strzałka na białym tle i nic nie było widać */
+    background: color-mix(in srgb, var(--color-bg-page) 82%, transparent);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     color: var(--color-text-primary);
     cursor: pointer;
     z-index: 3;
+    /* na jasnym tle cień .45 czytał się jak brudna obwódka */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  }
+
+  html:not(.theme-light) .scroll-carousel-nav {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
   }
 
@@ -1136,15 +1445,23 @@
     border-radius: var(--radius-md);
   }
 
+  /* contain, NIE cover: kafel jest kwadratowy, a rendery produktów są 4:3,
+     więc cover ucinał im po ~12% z każdego boku (u mailer boxa znikała
+     krawędź otwartego wieka).
+     --img-scale, żeby hover mnożył bazowe pomniejszenie zamiast je kasować.
+     .93, nie .7: contain sam zmniejsza obraz o 25% względem cover, więc
+     dodatkowe .7 dałoby razem połowę pierwotnej wielkości. */
   .lc-product-visual img {
+    --img-scale: .93;
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    transform: scale(var(--img-scale));
     transition: transform .5s cubic-bezier(.16,1,.3,1);
   }
 
-  .lc-product:hover .lc-product-visual img { transform: scale(1.04); }
+  .lc-product:hover .lc-product-visual img { --img-scale: .97; }
 
   .lc-product h3 {
     margin: var(--space-5) 0 var(--space-4);
@@ -1189,7 +1506,7 @@
   .lc-product-note {
     max-width: 40rem;
     margin: var(--space-10) 0 0;
-    font-size: 0.9375rem;
+    font-size: var(--type-eyebrow-size);
     line-height: 1.5;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
@@ -1216,6 +1533,17 @@
     align-items: center;
     padding: var(--space-16) 0;
     border-bottom: 1px solid var(--color-border-default);
+
+    /* wjazd przy wejściu w kadr — te same wartości co .lc-tbl-row */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lc-step.is-in {
+    opacity: 1;
+    transform: none;
   }
 
   .lc-step-num {
@@ -1313,49 +1641,11 @@
     flex: 0 0 auto;
     width: calc((min(100vw, var(--max-w)) - var(--space-8) * 2) * 2 / 3);
     padding: var(--space-12);
-    border: 1px solid var(--case-line);
     border-radius: var(--radius-2xl);
-    background: var(--case-bg);
-
-    /* Każda karta ma własną paletę, ale jej wnętrze (nazwa, cytat, kreska,
-       kafelki liczb) dalej sięga po zwykłe tokeny — karta po prostu nadpisuje
-       je LOKALNIE dla swoich potomków. Dzięki temu żadna reguła niżej nie
-       musi wiedzieć, na jakim tle stoi. */
-    --color-text-primary: var(--case-fg);
-    --color-text-muted:   var(--case-fg-muted);
-    --color-border-default: var(--case-line);
-    --color-bg-muted-hover: var(--case-tile);
-  }
-
-  /* ciemny grafit — tekst jasny */
-  .lc-case-a {
-    --case-bg: #2D2D2D;
-    --case-fg: #F7F8F8;
-    --case-fg-muted: rgba(247, 248, 248, .62);
-    --case-line: rgba(255, 255, 255, .14);
-    --case-tile: rgba(255, 255, 255, .07);
-  }
-
-  /* pomarańcz i limonka są jasne — tekst musi zejść na ciemny, inaczej
-     biały na #F4551E ma ok. 2.9:1 */
-  .lc-case-b {
-    --case-bg: #F4551E;
-    --case-fg: #1A0B04;
-    /* .88, nie .68: pomarańcz jest jasny, więc przygaszony tekst szybko
-       schodzi poniżej AA — przy .68 podpisy miały 3.25:1 */
-    --case-fg-muted: rgba(26, 11, 4, .88);
-    --case-line: rgba(26, 11, 4, .2);
-    /* kafelek liczb tylko musnięty ciemnym — każdy krok w dół po tle zbija
-       kontrast podpisu, a przy .07 wychodziło 4.44:1, czyli tuż pod AA */
-    --case-tile: rgba(26, 11, 4, .035);
-  }
-
-  .lc-case-c {
-    --case-bg: #EDFB63;
-    --case-fg: #14180A;
-    --case-fg-muted: rgba(20, 24, 10, .66);
-    --case-line: rgba(20, 24, 10, .18);
-    --case-tile: rgba(20, 24, 10, .07);
+    /* to samo szare tło co kafle .lc-pain / .lc-pg-item — karty nie mają już
+       własnych palet, więc całe wnętrze (nazwa, cytat, kreska, kafelki liczb)
+       jedzie na zwykłych tokenach i samo odwraca się razem z motywem */
+    background: var(--color-bg-muted);
   }
 
   .lc-case-avatar {
@@ -2078,45 +2368,45 @@
 
   /* .btn-pill.secondary rysuje się czarnymi alfami; na ciemnym tle jest
      wtedy niewidzialny. To de facto .outline-light, więc kopiuje jego wartości. */
-  .btn-pill.secondary {
+  html:not(.theme-light) .btn-pill.secondary {
     color: var(--white);
     border-color: rgba(255,255,255,.35);
   }
-  .btn-pill.secondary:hover { background: rgba(255,255,255,.08); }
+  html:not(.theme-light) .btn-pill.secondary:hover { background: rgba(255,255,255,.08); }
 
   /* przypięty sticky-bar ma zaszyte rgba(255,255,255,.80) */
-  .sticky-bar.is-pinned {
+  html:not(.theme-light) .sticky-bar.is-pinned {
     background: rgba(8, 9, 10, 0.82);
     box-shadow: 0 1px 2px rgba(0,0,0,.4);
   }
 
   /* pigułki w announcement barze liczyły na jasnoniebieskie tło pod spodem */
-  .announcement-copy { background: rgba(255,255,255,.12); }
-  .announcement-copy:hover { background: rgba(255,255,255,.2); }
+  html:not(.theme-light) .announcement-copy { background: rgba(255,255,255,.12); }
+  html:not(.theme-light) .announcement-copy:hover { background: rgba(255,255,255,.2); }
 
   /* logotypy klientów to czarne SVG — na ciemnym tle znikają */
-  .lc-logos-content img { filter: invert(1); }
+  html:not(.theme-light) .lc-logos-content img { filter: invert(1); }
 
   /* PH Blue jako TEKST ma na Rich Blue ok. 3.2:1 — za mało. Te trzy miejsca
      używały --color-accent na tekście, więc schodzą na jaśniejszy krok tej
      samej palety (--color-accent-text). Wypełnione niebieskie CTA zostają
      bez zmian, bo tam blue jest tłem, a nie tekstem. */
-  .lc-step-num,
-  .lc-selected,
-  .nav-badge-new { color: var(--color-accent-text); }
+  html:not(.theme-light) .lc-step-num,
+  html:not(.theme-light) .lc-selected,
+  html:not(.theme-light) .nav-badge-new { color: var(--color-accent-text); }
 
   /* linki w treści nie miały nigdy własnego koloru — na białym tle domyślny
      przeglądarkowy #0000EE dawał 8.6:1 i nikomu nie przeszkadzał, na Rich Blue
      spada do 2.15:1 i jest praktycznie nieczytelny */
-  .faq-answer a,
-  .lc-solve-cell p a,
-  .lc-step p a,
-  .lc-pain p a { color: var(--color-accent-text); }
+  html:not(.theme-light) .faq-answer a,
+  html:not(.theme-light) .lc-solve-cell p a,
+  html:not(.theme-light) .lc-step p a,
+  html:not(.theme-light) .lc-pain p a { color: var(--color-accent-text); }
 
   /* aktywna pigułka w segmented toggle brała --color-bg-surface, czyli teraz
      kolor tła strony — na ciemnym „wybrane" musi być JAŚNIEJSZE od toru,
      nie ciemniejsze */
-  .toggle-indicator {
+  html:not(.theme-light) .toggle-indicator {
     background: rgba(255,255,255,.14);
     box-shadow: none;
   }
@@ -2143,21 +2433,46 @@
       try { seen = !!window.sessionStorage.getItem('lcIntroSeen'); } catch (e) {}
     }
 
-    if (!seen && !skipped && !reduce) { document.documentElement.classList.add('lc-intro-armed'); }
+    if (seen || skipped || reduce) { return; }
+
+    document.documentElement.classList.add('lc-hero-armed');
+
+    /* ekran z globusem i linią "Twelve suppliers. One partner." jest opcją,
+       nie domyślnym zachowaniem — bez niej strona od razu wchodzi w hero */
+    var intro = false;
+    try { intro = window.localStorage.getItem('lcIntroScreen') === '1'; } catch (e) {}
+    if (intro) { document.documentElement.classList.add('lc-intro-armed'); }
+  })();
+
+  /* motyw jasny — nakładany na <html> przed pierwszym malowaniem, żeby
+     ciemna strona nie mrugnęła na biało (albo odwrotnie). Klasa zdejmuje
+     lokalne tokeny tej strony i zostawia te z tokens.css. */
+  (function () {
+    try {
+      /* null = użytkownik nic nie wybrał -> jasny motyw jest domyślny */
+      if (localStorage.getItem('lcTheme') !== 'dark') {
+        document.documentElement.classList.add('theme-light');
+      }
+    } catch (e) {}
   })();
 
   /* wybór wariantu sekcji "How we solve it" — nakładany przed pierwszym
      malowaniem, żeby nie mrugnęła najpierw domyślna wersja */
   (function () {
     try {
-      var solveAlt = localStorage.getItem('lcSolveAlt') === '1';
-      var painTabs = localStorage.getItem('lcPainTabs') === '1';
-      if (solveAlt || painTabs) {
-        document.addEventListener('DOMContentLoaded', function () {
-          if (solveAlt) { document.body.classList.add('solve-alt'); }
-          if (painTabs) { document.body.classList.add('pain-tabs'); }
-        });
-      }
+      /* getItem zwraca null, gdy klucza nie ma, i '' gdy użytkownik wybrał
+         wariant bazowy (Rows / Table) — stąd porównanie z null, nie ||'' */
+      var solve = localStorage.getItem('lcSolveVariant');
+      var pain = localStorage.getItem('lcPainVariant');
+      if (solve === null) { solve = 'sw'; }
+      if (pain === null) { pain = 'grid'; }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        if (solve === 'alt') { document.body.classList.add('solve-alt'); }
+        if (solve === 'sw') { document.body.classList.add('solve-sw'); }
+        if (pain === 'tabs') { document.body.classList.add('pain-tabs'); }
+        if (pain === 'grid') { document.body.classList.add('pain-grid'); }
+      });
     } catch (e) {}
   })();
 </script>
@@ -2198,7 +2513,7 @@
       </span>
 
       <h1 data-intro="heading">Packaging for hundreds of SKUs across a dozen markets.</h1>
-      <p class="lc-hero-sub" data-intro="sub">One contract, one team, a network of 120 production sites. Instead of twelve suppliers, twelve quality standards and twelve separate risks.</p>
+      <p class="lc-hero-sub" data-intro="sub">One contract and one team instead of twelve suppliers and twelve separate risks.</p>
 
       <div class="lc-hero-buttons" data-intro="cta">
         <a href="contact.html" class="btn-pill lg">Book a specialist call<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
@@ -2329,7 +2644,10 @@
             <p>Every dimension or artwork change becomes its own project, quote and queue.</p>
           </div>
         </div>
-        <div class="lc-pain-media"></div>
+        <!-- TODO: wrzuć zdjęcie ze stosem pudełek jako
+             assets/enterprise/pain-range-outgrows.jpg, odkomentuj <img> tutaj
+             ORAZ pole img w painTabs niżej — plik jeszcze nie istnieje -->
+        <div class="lc-pain-media"><!-- <img src="assets/enterprise/pain-range-outgrows.jpg" alt="A wall of stacked cardboard shipping boxes" loading="lazy" decoding="async"> --></div>
       </div>
       <div class="lc-pain">
         <div class="lc-pain-body">
@@ -2349,7 +2667,7 @@
             <p>Procurement, marketing, finance and sustainability all have to say yes.</p>
           </div>
         </div>
-        <div class="lc-pain-media"></div>
+        <div class="lc-pain-media"><img src="assets/enterprise/pain-four-teams.jpg" alt="Two colleagues going through a printed spec at a desk" loading="lazy" decoding="async"></div>
       </div>
     </div>
 
@@ -2453,6 +2771,61 @@
 
   </section>
 
+  <!-- ============ PAIN — wariant 3 (trybik w rogu) ============
+       12 punktów z wariantu z tabami skondensowanych do 8. Dwa łączenia:
+       „Regulation that keeps moving" obejmuje PPWR/EUDR, ślad węglowy i audyt
+       sieci dostawców; „Capital frozen in stock" obejmuje zamrożony kapitał,
+       przedpłaty i presję na koszt jednostkowy. Pozostałe sześć to skróty
+       jeden do jednego. Żaden kafel nie jest CTA. -->
+  <section class="lc-section reveal" id="lc-challenges-grid">
+    <div class="lc-section-head">
+      <span class="section-badge">Before we talk about us</span>
+      <h2 class="lc-h2 lc-h2-sm">Sound familiar?</h2>
+      <p class="lc-sub">Check whether we&rsquo;ve understood what your team is actually dealing with.</p>
+    </div>
+
+    <div class="lc-pg-grid">
+      <div class="lc-pg-media">
+        <img src="assets/enterprise/pain-office-desk.jpg" alt="A woman sitting on an office desk with a clipboard of figures" loading="lazy" decoding="async">
+      </div>
+
+      <ul class="lc-pg-list">
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>A range that outgrows the team</span>
+          </li>
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>Data that drifts apart</span>
+          </li>
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>Four teams, four criteria</span>
+          </li>
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>One supplier is one risk</span>
+          </li>
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>Lead times without a guarantee</span>
+          </li>
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>Deliveries into several markets</span>
+          </li>
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>Regulation that keeps moving</span>
+          </li>
+          <li class="lc-pg-item">
+            <span class="lc-pg-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span>Capital frozen in stock</span>
+          </li>
+      </ul>
+    </div>
+  </section>
+
   <!-- ============ SOLUTIONS ============ -->
   <section class="lc-section reveal" id="lc-solutions">
     <div class="lc-section-head">
@@ -2547,6 +2920,65 @@
     </div>
   </section>
 
+  <!-- ============ SOLUTIONS — wariant 3 (trybik w rogu) ============ -->
+  <section class="lc-section reveal" id="lc-solutions-sw">
+    <div class="lc-section-head">
+      <span class="section-badge">How it works</span>
+      <h2 class="lc-h2">How we solve it</h2>
+    </div>
+
+    <div class="lc-sw-grid">
+      <!-- TODO: pusta powierzchnia do podmiany na realne zdjęcie -->
+      <div class="lc-sw-media"></div>
+
+      <div class="lc-sw-panel">
+        <ul class="lc-sw-list" role="tablist">
+          <li>
+            <button class="lc-sw-item" type="button" role="tab" id="lcSw0" aria-selected="true" aria-controls="lcSwDesc" data-desc="The same SKU runs at several sites across Europe. A line going down doesn&rsquo;t stop your shipments, and you still talk to one team about it.">
+              A network of plants
+            </button>
+          </li>
+          <li>
+            <button class="lc-sw-item" type="button" role="tab" id="lcSw1" aria-selected="false" aria-controls="lcSwDesc" data-desc="A dedicated account manager and a technologist run the whole range. Specs, prices and order history live in one place.">
+              One contract, one team
+            </button>
+          </li>
+          <li>
+            <button class="lc-sw-item" type="button" role="tab" id="lcSw2" aria-selected="false" aria-controls="lcSwDesc" data-desc="We produce the full run, store it, and release it in batches &mdash; to whichever warehouses you name, in as many countries as you ship to.">
+              Stock held on call-off
+            </button>
+          </li>
+          <li>
+            <button class="lc-sw-item" type="button" role="tab" id="lcSw3" aria-selected="false" aria-controls="lcSwDesc" data-desc="Every order comes with the reporting data attached: material composition, carbon footprint, certificates and declarations of conformity.">
+              Compliance as standard
+            </button>
+          </li>
+        </ul>
+
+        <p class="lc-sw-desc" id="lcSwDesc" role="tabpanel" aria-live="polite">The same SKU runs at several sites across Europe. A line going down doesn&rsquo;t stop your shipments, and you still talk to one team about it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- placeholder pod "How we solve it" — poza trzema wariantami sekcji,
+       więc widoczny niezależnie od tego, który jest włączony -->
+  <section class="lc-section reveal">
+    <div class="lc-solve-video">
+      <img src="assets/enterprise/solve-team-office.jpg" alt="Three colleagues laughing over a laptop in an office" loading="lazy" decoding="async">
+
+      <div class="lc-solve-stats">
+        <div class="lc-solve-stat" style="--v: 4%">
+          <span class="lc-solve-stat-label">Risk of running out of packaging</span>
+          <span class="lc-solve-stat-value">4%</span>
+        </div>
+        <div class="lc-solve-stat" style="--v: 98%">
+          <span class="lc-solve-stat-label">Deliveries on time</span>
+          <span class="lc-solve-stat-value">98%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ PRODUCTS ============ -->
   <section class="lc-section reveal" id="lc-products">
     <div class="lc-section-head">
@@ -2563,7 +2995,7 @@
 
       <div class="lc-product">
         <div class="lc-product-visual">
-          <img src="assets/packaging/Custom%20Phone%20Shipping%20Box.png" alt="Branded corrugated shipping box" loading="lazy" decoding="async">
+          <img src="assets/packaging/4149822-packhelp-cardboard-shipping-box-brown-3.avif" alt="Brown corrugated shipping box printed with product name and eco labels" loading="lazy" decoding="async">
         </div>
         <h3>Corrugated shipping carton</h3>
         <ul class="lc-spec">
@@ -2578,47 +3010,47 @@
 
       <div class="lc-product">
         <div class="lc-product-visual">
-          <img src="assets/packaging/Custom%20Snap%20Lock%20Product%20Box.png" alt="Branded snap lock product box" loading="lazy" decoding="async">
+          <img src="assets/packaging/eco-colour-mailer-box-white-kraft.png" alt="White and kraft mailer box, one closed and one open" loading="lazy" decoding="async">
         </div>
-        <h3>Product box with closure</h3>
+        <h3>Mailer box</h3>
         <ul class="lc-spec">
           <li><span>Minimum run</span><b>5,000 units</b></li>
-          <li><span>Lead time</span><b>14&ndash;18 days</b></li>
-          <li><span>Material</span><b>E or B microflute</b></li>
-          <li><span>Print</span><b>Offset, full colour</b></li>
-          <li><span>Certified</span><b>FSC, food contact</b></li>
+          <li><span>Lead time</span><b>12&ndash;16 days</b></li>
+          <li><span>Material</span><b>3-ply E-flute</b></li>
+          <li><span>Print</span><b>Full colour, outside</b></li>
+          <li><span>Certified</span><b>FSC, PPWR</b></li>
         </ul>
-        <button class="btn-pill sm secondary lc-product-btn" type="button" data-prod="Product box with closure">Add to enquiry</button>
+        <button class="btn-pill sm secondary lc-product-btn" type="button" data-prod="Mailer box">Add to enquiry</button>
       </div>
 
       <div class="lc-product">
         <div class="lc-product-visual">
-          <img src="assets/packaging/Custom%20Mailer%20Box%20with%20Hot%20Stamping.png" alt="Branded mailer box finished with hot stamping" loading="lazy" decoding="async">
+          <img src="assets/packaging/tote-bag.png" alt="Natural cotton tote bag with a full-colour printed panel" loading="lazy" decoding="async">
         </div>
-        <h3>Premium box with embellishment</h3>
+        <h3>Tote bag</h3>
         <ul class="lc-spec">
-          <li><span>Minimum run</span><b>5,000 units</b></li>
-          <li><span>Lead time</span><b>18&ndash;24 days</b></li>
-          <li><span>Material</span><b>350 gsm solid board</b></li>
-          <li><span>Print</span><b>Offset + hot stamping</b></li>
-          <li><span>Certified</span><b>FSC</b></li>
+          <li><span>Minimum run</span><b>2,500 units</b></li>
+          <li><span>Lead time</span><b>20&ndash;28 days</b></li>
+          <li><span>Material</span><b>280 gsm organic cotton</b></li>
+          <li><span>Print</span><b>Screen print, 1&ndash;6 colours</b></li>
+          <li><span>Certified</span><b>GOTS, OEKO-TEX</b></li>
         </ul>
-        <button class="btn-pill sm secondary lc-product-btn" type="button" data-prod="Premium box with embellishment">Add to enquiry</button>
+        <button class="btn-pill sm secondary lc-product-btn" type="button" data-prod="Tote bag">Add to enquiry</button>
       </div>
 
       <div class="lc-product">
         <div class="lc-product-visual">
-          <img src="assets/packaging/Custom%20Paper%20Mailer%20Bag.png" alt="Branded recycled paper mailing bag" loading="lazy" decoding="async">
+          <img src="assets/packaging/poly-mailer-black.png" alt="Black poly mailer bag printed in white" loading="lazy" decoding="async">
         </div>
-        <h3>Recycled courier mailer</h3>
+        <h3>Poly mailer</h3>
         <ul class="lc-spec">
           <li><span>Minimum run</span><b>25,000 units</b></li>
           <li><span>Lead time</span><b>10&ndash;14 days</b></li>
-          <li><span>Material</span><b>100% recycled paper</b></li>
-          <li><span>Print</span><b>Flexo, 1&ndash;2 colours</b></li>
-          <li><span>Certified</span><b>FSC, PPWR</b></li>
+          <li><span>Material</span><b>Recycled LDPE foil</b></li>
+          <li><span>Print</span><b>Screen print, Pantone</b></li>
+          <li><span>Certified</span><b>GRS, PPWR</b></li>
         </ul>
-        <button class="btn-pill sm secondary lc-product-btn" type="button" data-prod="Recycled courier mailer">Add to enquiry</button>
+        <button class="btn-pill sm secondary lc-product-btn" type="button" data-prod="Poly mailer">Add to enquiry</button>
       </div>
 
       <div class="lc-product">
@@ -2638,7 +3070,7 @@
 
       <div class="lc-product">
         <div class="lc-product-visual">
-          <img src="assets/packaging/Custom%20Rectangle%20Labels%20on%20Roll.png" alt="Branded rectangular labels on a roll" loading="lazy" decoding="async">
+          <img src="assets/packaging/branded-tapes.png" alt="Three rolls of printed packing tape: two solvent-free and one paper" loading="lazy" decoding="async">
         </div>
         <h3>Branded labels and tape</h3>
         <ul class="lc-spec">
@@ -2664,8 +3096,7 @@
   <section class="lc-section reveal">
     <div class="lc-section-head">
       <span class="section-badge">Working together</span>
-      <h2 class="lc-h2">From first call to standing call-offs</h2>
-      <p class="lc-sub">Usually eight to twelve weeks, depending on how much of the range moves at once.</p>
+      <h2 class="lc-h2">From first call to standing call-offs. Usually eight to twelve weeks, depending on how much of the range moves at once.</h2>
     </div>
 
     <div class="lc-steps">
@@ -2719,7 +3150,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
       </button>
     <div class="lc-case-grid">
-      <div class="lc-case lc-case-a">
+      <div class="lc-case">
         <div class="lc-case-avatar" style="--avatar-img:url('assets/enterprise/studycase-avatar-01.png')"></div>
         <p class="lc-case-name">Head of Procurement</p>
         <p class="lc-case-org">Cosmetics brand, 140 SKUs across 8 markets</p>
@@ -2733,7 +3164,7 @@
         </div>
       </div>
 
-      <div class="lc-case lc-case-b">
+      <div class="lc-case">
         <div class="lc-case-avatar" style="--avatar-img:url('assets/enterprise/studycase-avatar-02.png')"></div>
         <p class="lc-case-name">Sustainability Manager</p>
         <p class="lc-case-org">FMCG producer, preparing for PPWR</p>
@@ -2747,7 +3178,7 @@
         </div>
       </div>
 
-      <div class="lc-case lc-case-c">
+      <div class="lc-case">
         <div class="lc-case-avatar" style="--avatar-img:url('assets/enterprise/studycase-avatar-03.png')"></div>
         <p class="lc-case-name">Operations Director</p>
         <p class="lc-case-org">Electronics brand, nine markets served from one stock</p>
@@ -3141,9 +3572,9 @@
 
     var painTabs = {
       ops: [
-        { icon: 'grid',   title: 'A range that grows faster than the team', body: 'Every dimension or artwork change becomes its own project, quote and queue.' },
+        { icon: 'grid',   title: 'A range that grows faster than the team', body: 'Every dimension or artwork change becomes its own project, quote and queue.', /* img: 'assets/enterprise/pain-range-outgrows.jpg', alt: 'A wall of stacked cardboard shipping boxes' */ },
         { icon: 'branch', title: 'Data that drifts apart', body: 'One price in the sheet, another in the system, a third on the invoice.' },
-        { icon: 'users',  title: 'Four teams, four criteria', body: 'Procurement, marketing, finance and sustainability all have to say yes.' }
+        { icon: 'users',  title: 'Four teams, four criteria', body: 'Procurement, marketing, finance and sustainability all have to say yes.', img: 'assets/enterprise/pain-four-teams.jpg', alt: 'Two colleagues going through a printed spec at a desk' }
       ],
       supply: [
         { icon: 'alert', title: 'One supplier is one risk', body: 'One line goes down at your sole partner and there is nothing to ship in.' },
@@ -3190,7 +3621,9 @@
                      '<p>' + item.body + '</p>' +
                    '</div>' +
                  '</div>' +
-                 '<div class="lc-pain-media"></div>' +
+                 '<div class="lc-pain-media">' +
+                   (item.img ? '<img src="' + item.img + '" alt="' + item.alt + '" loading="lazy" decoding="async">' : '') +
+                 '</div>' +
                '</div>';
       }).join('');
     }
@@ -3396,30 +3829,76 @@
      Panel tworzy nav-header.js na DOMContentLoaded, więc dokładamy się
      do niego po nim. */
   (function () {
-    var KEY = 'lcSolveAlt';
+    var KEY = 'lcSolveVariant';
 
     function mount() {
       var panel = document.getElementById('siteSettingsPanel');
       if (!panel) { return; }
+
+      var introRow = document.createElement('div');
+      introRow.className = 'site-settings-row';
+      introRow.innerHTML =
+        '<div>' +
+          '<p class="site-settings-label">Intro screen</p>' +
+          '<p class="site-settings-desc">Play the globe and &ldquo;Twelve suppliers. One partner.&rdquo; before the hero</p>' +
+        '</div>' +
+        '<label class="site-toggle">' +
+          '<input type="checkbox" id="toggleIntroScreen">' +
+          '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
+        '</label>';
+      panel.appendChild(introRow);
+
+      var introInput = introRow.querySelector('#toggleIntroScreen');
+      try { introInput.checked = localStorage.getItem('lcIntroScreen') === '1'; } catch (e) {}
+      introInput.addEventListener('change', function () {
+        try { localStorage.setItem('lcIntroScreen', introInput.checked ? '1' : ''); } catch (e) {}
+        /* sekwencja odpala się tylko przy wejściu na stronę — bez przeładowania
+           przełącznik nie pokazałby żadnej różnicy */
+        window.location.reload();
+      });
+
+      var themeRow = document.createElement('div');
+      themeRow.className = 'site-settings-row';
+      themeRow.innerHTML =
+        '<div>' +
+          '<p class="site-settings-label">Light mode</p>' +
+          '<p class="site-settings-desc">Drop the page\'s dark tokens, use the ones from tokens.css</p>' +
+        '</div>' +
+        '<label class="site-toggle">' +
+          '<input type="checkbox" id="toggleLightTheme">' +
+          '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
+        '</label>';
+      panel.appendChild(themeRow);
+
+      var themeInput = themeRow.querySelector('#toggleLightTheme');
+      themeInput.checked = document.documentElement.classList.contains('theme-light');
+      themeInput.addEventListener('change', function () {
+        document.documentElement.classList.toggle('theme-light', themeInput.checked);
+        try { localStorage.setItem('lcTheme', themeInput.checked ? 'light' : 'dark'); } catch (e) {}
+        window.dispatchEvent(new Event('lc-theme-change'));
+      });
 
       var row = document.createElement('div');
       row.className = 'site-settings-row';
       row.innerHTML =
         '<div>' +
           '<p class="site-settings-label">How we solve it</p>' +
-          '<p class="site-settings-desc">Scroll variant: pinned heading with cards passing over it</p>' +
+          '<p class="site-settings-desc">Which layout the section uses</p>' +
         '</div>' +
-        '<label class="site-toggle">' +
-          '<input type="checkbox" id="toggleSolveAlt">' +
-          '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
-        '</label>';
+        '<select class="site-settings-select" id="selectSolveVariant">' +
+          '<option value="">Rows</option>' +
+          '<option value="alt">Pinned scroll</option>' +
+          '<option value="sw">Split list</option>' +
+        '</select>';
       panel.appendChild(row);
 
-      var input = row.querySelector('#toggleSolveAlt');
-      input.checked = document.body.classList.contains('solve-alt');
-      input.addEventListener('change', function () {
-        document.body.classList.toggle('solve-alt', input.checked);
-        try { localStorage.setItem(KEY, input.checked ? '1' : '0'); } catch (e) {}
+      var select = row.querySelector('#selectSolveVariant');
+      select.value = document.body.classList.contains('solve-alt') ? 'alt'
+                   : document.body.classList.contains('solve-sw') ? 'sw' : '';
+      select.addEventListener('change', function () {
+        document.body.classList.toggle('solve-alt', select.value === 'alt');
+        document.body.classList.toggle('solve-sw', select.value === 'sw');
+        try { localStorage.setItem(KEY, select.value); } catch (e) {}
         observeCards();
       });
 
@@ -3428,19 +3907,22 @@
       painRow.innerHTML =
         '<div>' +
           '<p class="site-settings-label">Sound familiar?</p>' +
-          '<p class="site-settings-desc">Tabbed variant: one group at a time</p>' +
+          '<p class="site-settings-desc">Which layout the section uses</p>' +
         '</div>' +
-        '<label class="site-toggle">' +
-          '<input type="checkbox" id="togglePainTabs">' +
-          '<span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>' +
-        '</label>';
+        '<select class="site-settings-select" id="selectPainVariant">' +
+          '<option value="">Table</option>' +
+          '<option value="tabs">Tabs</option>' +
+          '<option value="grid">Split grid</option>' +
+        '</select>';
       panel.appendChild(painRow);
 
-      var painInput = painRow.querySelector('#togglePainTabs');
-      painInput.checked = document.body.classList.contains('pain-tabs');
-      painInput.addEventListener('change', function () {
-        document.body.classList.toggle('pain-tabs', painInput.checked);
-        try { localStorage.setItem('lcPainTabs', painInput.checked ? '1' : '0'); } catch (e) {}
+      var painSelect = painRow.querySelector('#selectPainVariant');
+      painSelect.value = document.body.classList.contains('pain-tabs') ? 'tabs'
+                       : document.body.classList.contains('pain-grid') ? 'grid' : '';
+      painSelect.addEventListener('change', function () {
+        document.body.classList.toggle('pain-tabs', painSelect.value === 'tabs');
+        document.body.classList.toggle('pain-grid', painSelect.value === 'grid');
+        try { localStorage.setItem('lcPainVariant', painSelect.value); } catch (e) {}
         observeCards();
         /* wskaźnik aktywnego taba liczy się z offsetWidth — dopóki sekcja
            była ukryta, wychodziło 0. Skrypt tabów przelicza go na resize. */
@@ -3451,7 +3933,7 @@
     /* wejście kafli i wierszy tabeli — raz na element, przy 15% widoczności */
     var observer = null;
     function observeCards() {
-      var cards = document.querySelectorAll('.lc-zig-card:not(.is-in), .lc-tbl-row:not(.is-in)');
+      var cards = document.querySelectorAll('.lc-zig-card:not(.is-in), .lc-tbl-row:not(.is-in), .lc-step:not(.is-in)');
       if (!cards.length) { return; }
 
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.IntersectionObserver) {
@@ -3472,8 +3954,29 @@
       cards.forEach(function (c) { observer.observe(c); });
     }
 
+    /* lista w wariancie „split": hover albo klik zmienia aktywną pozycję.
+       Opis zmienia tylko textContent, więc nie ma przebudowy DOM-u. */
+    function mountSplitList() {
+      var items = [].slice.call(document.querySelectorAll('.lc-sw-item'));
+      var desc = document.getElementById('lcSwDesc');
+      if (!items.length || !desc) { return; }
+
+      function select(el) {
+        if (el.getAttribute('aria-selected') === 'true') { return; }
+        items.forEach(function (i) { i.setAttribute('aria-selected', 'false'); });
+        el.setAttribute('aria-selected', 'true');
+        desc.innerHTML = el.getAttribute('data-desc');
+      }
+
+      items.forEach(function (el) {
+        el.addEventListener('mouseenter', function () { select(el); });
+        el.addEventListener('focus', function () { select(el); });
+        el.addEventListener('click', function () { select(el); });
+      });
+    }
+
     /* nav-header.js montuje panel na DOMContentLoaded — wchodzimy po nim */
-    function init() { mount(); observeCards(); }
+    function init() { mount(); observeCards(); mountSplitList(); }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 0); });
     } else {
@@ -3493,6 +3996,63 @@
     }, { threshold: 0.15 });
 
     document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+<script>
+  /* ============ PARALAKSA ZDJĘCIA W PASIE POD "HOW WE SOLVE IT" ============
+     Zdjęcie jest o 20% wyższe niż jego kadr; przesuwamy je w pionie w zakresie
+     tego nadmiaru, proporcjonalnie do pozycji pasa względem środka ekranu.
+     Liczone tylko wtedy, gdy pas jest w widoku, i tylko raz na klatkę. */
+  (function () {
+    var band = document.querySelector('.lc-solve-video');
+    if (!band) { return; }
+
+    var img = band.querySelector('img');
+    if (!img) { return; }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+
+    var raf = null;
+    var visible = false;
+
+    function update() {
+      raf = null;
+
+      var rect = band.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+
+      /* -1 = pas tuż pod ekranem, 0 = na środku, 1 = tuż nad ekranem */
+      var progress = (vh / 2 - (rect.top + rect.height / 2)) / ((vh + rect.height) / 2);
+      if (progress < -1) { progress = -1; } else if (progress > 1) { progress = 1; }
+
+      /* nadmiar wysokości zdjęcia = 20% kadru, więc w jedną stronę 10% */
+      var shift = progress * rect.height * 0.1;
+      img.style.transform = 'translate3d(0, ' + shift.toFixed(2) + 'px, 0)';
+    }
+
+    function onScroll() { if (raf === null) { raf = requestAnimationFrame(update); } }
+
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting === visible) { return; }
+          visible = entry.isIntersecting;
+          if (visible) {
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll);
+            update();
+          } else {
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onScroll);
+          }
+        });
+      }, { rootMargin: '100px 0px' }).observe(band);
+    } else {
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    update();
   })();
 </script>
 
@@ -3548,6 +4108,10 @@
       globes.forEach(function (g) { try { g.destroy(); } catch (e) {} });
       globes = [];
 
+      /* kolory kuli idą za motywem — ciemna kula z ciemną poświatą byłaby
+         na białym tle czarną plamą */
+      var light = document.documentElement.classList.contains('theme-light');
+
       try {
         globes = canvases.map(function (canvas) { return createGlobe(canvas, {
           devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
@@ -3555,14 +4119,18 @@
           height: rect.height * 2,
           phi: phi,
           theta: 0.28,
-          dark: 1,
+          dark: light ? 0 : 1,
           diffuse: 1.1,
           scale: 1,
           mapSamples: 16000,
-          mapBrightness: 5,
-          baseColor: [0.17, 0.17, 0.20],
+          /* mapBrightness mnoży baseColor, więc na jasnym motywie < 1 daje
+             ciemne kropki lądów na jasnej kuli — odwrotność wersji dark.
+             Wartości dobrane pomiarem: przy baseColor jaśniejszym niż ~0.8
+             kula znikała na białym tle. */
+          mapBrightness: light ? 0.5 : 5,
+          baseColor: light ? [0.72, 0.74, 0.80] : [0.17, 0.17, 0.20],
           markerColor: [0.153, 0.341, 1],   /* PH Blue #2757FF */
-          glowColor: [0.05, 0.05, 0.06],
+          glowColor: light ? [1, 1, 1] : [0.05, 0.05, 0.06],
           markers: markers
         }); });
       } catch (e) {
@@ -3606,6 +4174,12 @@
       resizeTimer = setTimeout(function () { if (build()) { stop(); start(); } }, 150);
     }) : null;
 
+    /* kolory są zamrażane przy tworzeniu instancji — po zmianie motywu
+       kula musi powstać od nowa */
+    window.addEventListener('lc-theme-change', function () {
+      if (globes.length && build()) { stop(); start(); }
+    });
+
     if (window.IntersectionObserver) {
       new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
@@ -3637,7 +4211,6 @@
       revealStart:    1700,   /* po pauzie 500 ms: linia gaśnie, hero wchodzi */
       introFade:       400,
       contentDuration: 600,
-      headingLineStagger: 90,
       /* offsety treści liczone od revealStart */
       content: { chrome: 0, badge: 80, heading: 160, sub: 320, cta: 420, media: 520 }
     };
@@ -3645,12 +4218,18 @@
     var SOFT = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
     var root = document.documentElement;
-    if (!root.classList.contains('lc-intro-armed')) { return; }
+    if (!root.classList.contains('lc-hero-armed')) { return; }
+
+    /* ekran z globusem jest opcjonalny — bez niego lecimy od razu fazą hero */
+    var withIntro = root.classList.contains('lc-intro-armed');
 
     var intro = document.querySelector('.lc-intro');
     var line = document.querySelector('.lc-intro-line');
     var skip = document.querySelector('.lc-intro-skip');
-    if (!intro || !line) { root.classList.remove('lc-intro-armed'); return; }
+    if (withIntro && (!intro || !line)) {
+      root.classList.remove('lc-intro-armed');
+      withIntro = false;
+    }
 
     /* każde słowo w osobnym inline-block spanie — układ się nie rusza,
        spany tylko odsłaniają się w miejscu */
@@ -3681,10 +4260,18 @@
       return lines;
     }
 
+    /* UWAGA: animujemy `translate`, NIE `transform`.
+       Keyframe z `transform` PODMIENIA transform elementu, a nie dokłada się
+       do niego — a przy fill:'both' robi to jeszcze długo po starcie. Pas
+       zdjęć w hero (.lc-hero-media) ma w CSS translateX(-50%), którym robi
+       full-bleed; animacja transformem kasowała to na czas sekwencji i pas
+       stał przez ~2 s przesunięty o pół ekranu w prawo.
+       `translate` to osobna właściwość, składana z `transform`, więc bazowe
+       przesunięcie zostaje nietknięte. */
     function reveal(el, delay, duration) {
       return el.animate(
-        [{ opacity: 0, filter: 'blur(8px)', transform: 'translateY(16px)' },
-         { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' }],
+        [{ opacity: 0, filter: 'blur(8px)', translate: '0 16px' },
+         { opacity: 1, filter: 'blur(0px)', translate: '0 0' }],
         { duration: duration, delay: delay, easing: SOFT, fill: 'both' }
       );
     }
@@ -3707,8 +4294,9 @@
          usunięciu .lc-intro-armed jest już stanem docelowym. */
       running.forEach(function (a) { try { a.cancel(); } catch (e) {} });
 
-      intro.style.display = 'none';
+      if (intro) { intro.style.display = 'none'; }
       root.classList.remove('lc-intro-armed');
+      root.classList.remove('lc-hero-armed');
       if (skip) { skip.style.display = 'none'; }
       document.removeEventListener('keydown', onKey);
       try { window.sessionStorage.setItem('lcIntroSeen', '1'); } catch (e) {}  /* czytane tylko przy ONCE_PER_SESSION = true */
@@ -3718,18 +4306,61 @@
     document.addEventListener('keydown', onKey);
     if (skip) { skip.addEventListener('click', finish); }
 
+    /* to samo wejście, którym wchodzi linia intro — używa go teraz również
+       nagłówek hero (słowo po słowie, nie linia po linii) */
+    function revealWord(el, delay) {
+      return el.animate(
+        [{ opacity: 0, filter: 'blur(10px)', translate: '0 8px' },
+         { opacity: 1, filter: 'blur(0px)', translate: '0 0' }],
+        { duration: T.wordDuration, delay: delay, easing: SOFT, fill: 'both' }
+      );
+    }
+
+    function revealHero(base) {
+      Object.keys(T.content).forEach(function (key) {
+        var delay = base + T.content[key];
+        document.querySelectorAll('[data-intro="' + key + '"]').forEach(function (el) {
+          if (key !== 'heading') { track(reveal(el, delay, T.contentDuration)); return; }
+          /* nagłówek: słowo po słowie, tym samym rytmem co linia intro.
+             groupByLine dalej jest potrzebne — stagger liczy się dalej przez
+             kolejne linie, więc drugi wers nie startuje od zera. */
+          var i = 0;
+          groupByLine(splitWords(el)).forEach(function (lineSpans) {
+            lineSpans.forEach(function (span) {
+              track(revealWord(span, delay + i * T.wordStagger));
+              i++;
+            });
+          });
+          el.style.opacity = '1';
+        });
+      });
+    }
+
+    /* ile trwa najdłuższe wejście hero — po tym czasie sekwencja się kończy */
+    function heroTail() {
+      var words = 0;
+      document.querySelectorAll('[data-intro="heading"]').forEach(function (el) {
+        words = Math.max(words, el.textContent.trim().split(/\s+/).length);
+      });
+      return Math.max(T.content.media + T.contentDuration,
+                      T.content.heading + (words - 1) * T.wordStagger + T.wordDuration);
+    }
+
     function play() {
       if (done) { return; }
       window.scrollTo(0, 0);
 
+      if (!withIntro) {
+        /* bez ekranu z globusem: od razu hero */
+        revealHero(0);
+        at(heroTail(), finish);
+        return;
+      }
+
       /* faza 1 — linia intro słowo po słowie */
       var introWords = splitWords(line);
       introWords.forEach(function (w, i) {
-        track(w.animate(
-          [{ opacity: 0, filter: 'blur(10px)', transform: 'translateY(8px)' },
-           { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' }],
-          { duration: T.wordDuration, delay: i * T.wordStagger, easing: SOFT, fill: 'both' }
-        ));
+        track(revealWord(w, i * T.wordStagger));
       });
 
       /* faza 3 — linia gaśnie. Strona ZOSTAJE NA MIEJSCU: żadnego panelu
@@ -3742,23 +4373,11 @@
         track(intro.animate([{ opacity: 1 }, { opacity: 0 }],
           { duration: T.introFade, easing: 'ease', fill: 'both' }));
 
-        Object.keys(T.content).forEach(function (key) {
-          var delay = T.content[key];
-          document.querySelectorAll('[data-intro="' + key + '"]').forEach(function (el) {
-            if (key !== 'heading') { track(reveal(el, delay, T.contentDuration)); return; }
-            /* nagłówek wchodzi linia po linii */
-            groupByLine(splitWords(el)).forEach(function (lineSpans, i) {
-              lineSpans.forEach(function (span) {
-                track(reveal(span, delay + i * T.headingLineStagger, T.contentDuration));
-              });
-            });
-            el.style.opacity = '1';
-          });
-        });
+        revealHero(0);
       });
 
       /* koniec sekwencji — zdejmujemy blokadę scrolla i sprzątamy stan */
-      at(T.revealStart + T.content.media + T.contentDuration, finish);
+      at(T.revealStart + heroTail(), finish);
     }
 
     /* dopiero po fontach, żeby słowa nie mrugnęły w foncie zastępczym */
