@@ -1546,11 +1546,17 @@
     transform: none;
   }
 
+  /* pastylka wg przepisu .section-badge (padding, promień, rozmiar), ale
+     w wersji akcentowej — numer etapu zostaje niebieski, a nie szary */
   .lc-step-num {
-    display: block;
+    display: inline-block;
     margin-bottom: var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-accent-faint);
     font-size: var(--type-eyebrow-size);
     font-weight: 500;
+    line-height: 1.4;
     letter-spacing: -0.02em;
     color: var(--color-accent);
   }
