@@ -229,6 +229,21 @@
     gap: var(--space-2);
   }
 
+  /* Structural-only wrapper around .filter-pills -- transparent on
+     desktop (display:contents, so .filter-pills stays a direct flex
+     child of .pkg-filters-bar exactly as before). Mobile turns it into a
+     real positioned box so the scroll-fade edges below have something to
+     anchor to that isn't the scrolling element itself -- an absolutely
+     positioned descendant of the actual overflow:auto element scrolls
+     away with the content instead of staying pinned to the edge. */
+  .filter-pills-scroll {
+    display: contents;
+  }
+
+  .filter-pills-scroll .scroll-fade {
+    display: none;
+  }
+
   /* ---------- Product view switcher (grid-4 / grid-5 / list), right side
      of the filter bar -- present regardless of listing style (grid or
      category carousels) or filter-pills style. Only grid-4/grid-5/list
@@ -381,6 +396,21 @@
 
   .filter-pill-wrap {
     position: relative;
+  }
+
+  /* "Filters" pill (funnel icon, no chevron) -- mobile only, opens the
+     all-filters bottom sheet. Desktop already shows every pill inline,
+     so a catch-all button would be redundant there. */
+  .filter-pill-all {
+    display: none;
+    flex: none;
+  }
+
+  .filter-pill-all svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    opacity: .8;
   }
 
   /* ---------- Filter pills: alternate styles (gear panel) ---------- */
@@ -683,6 +713,160 @@
     font-weight: 500;
   }
 
+  /* ---------- Mobile filter bottom sheet ----------
+     Only ever opened on mobile (see the JS right after the desktop
+     filter-panel wiring) -- defined unconditionally same as .filter-panel
+     / .sort-menu above, since it's inert everywhere else without the
+     .open class. Visibility is deferred on close (not immediate) so the
+     slide-down/fade-out transitions get to finish first, same trick
+     .filter-panel already uses. */
+  .mobile-filter-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    visibility: hidden;
+    transition: visibility 0s linear .3s;
+  }
+
+  .mobile-filter-sheet.open {
+    visibility: visible;
+    transition: visibility 0s linear 0s;
+  }
+
+  .mobile-filter-sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 6, 26, .45);
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+
+  .mobile-filter-sheet.open .mobile-filter-sheet-overlay {
+    opacity: 1;
+  }
+
+  .mobile-filter-sheet-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background: var(--color-bg-surface);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, .15);
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.32, .72, 0, 1);
+  }
+
+  .mobile-filter-sheet.open .mobile-filter-sheet-panel {
+    transform: translateY(0);
+  }
+
+  .mobile-filter-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    padding: var(--space-6) var(--space-5) var(--space-4);
+  }
+
+  .mobile-filter-sheet-title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .mobile-filter-sheet-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    border: none;
+    border-radius: 50%;
+    background: var(--gray-100);
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .mobile-filter-sheet-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-filter-sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 var(--space-5) var(--space-4);
+  }
+
+  /* Bigger touch targets than the desktop dropdown's own compact rows --
+     the same .filter-radio/.filter-checkbox markup is moved in here as-is
+     (see JS), so this just re-tunes size/spacing for a full-width sheet.
+     No flex gap between rows (the options list's own gap is overridden
+     below) -- each row's own padding is the only spacing, so rows sit
+     closer together than the desktop dropdown's. */
+  .mobile-filter-sheet-body .filter-panel-options {
+    gap: 0;
+  }
+
+  .mobile-filter-sheet-body .filter-radio,
+  .mobile-filter-sheet-body .filter-checkbox {
+    padding: var(--space-2) 0;
+    margin: 0;
+    font-size: 1rem;
+    white-space: normal;
+  }
+
+  /* Active state reads blue here regardless of the desktop dropdown's own
+     radio color (see .filter-radio input:checked + .radio-dot above) --
+     checkboxes already use the same blue, radios are the one that
+     differs on desktop. */
+  .mobile-filter-sheet-body .filter-radio input:checked + .radio-dot,
+  .mobile-filter-sheet-body .filter-checkbox input:checked + .checkbox-box {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  /* Every group gets the divider, including the first -- it doubles as
+     the line under the sheet header on the all-filters sheet. */
+  .mobile-filter-sheet-group {
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .mobile-filter-sheet-group-title {
+    margin: var(--space-2) 0 var(--space-2);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .mobile-filter-sheet-footer {
+    flex: none;
+    padding: var(--space-4) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  /* Same CTA as the homepage hero's primary button (.btn-pill.lg,
+     index.html) -- just stretched full-width for the sheet footer
+     instead of hugging its own content. */
+  .btn-pill.lg.mobile-filter-sheet-cta {
+    width: 100%;
+  }
+
+  body.mobile-filter-sheet-locked {
+    overflow: hidden;
+  }
+
   /* ---------- CATEGORY TILES ---------- */
   .pkg-tiles-section {
     padding: 0 var(--space-8) var(--space-12);
@@ -757,12 +941,12 @@
   }
 
   .scroll-fade.left {
-    left: -8px;
+    left: -16px;
     background: linear-gradient(90deg, var(--color-bg-page) 0%, transparent 100%);
   }
 
   .scroll-fade.right {
-    right: -8px;
+    right: -16px;
     background: linear-gradient(270deg, var(--color-bg-page) 0%, transparent 100%);
   }
 
@@ -964,14 +1148,17 @@
   }
 
   .pkg-seo-inner {
-    max-width: calc(50% - 0.625rem);
-    margin: 0 auto;
+    max-width: 100%;
   }
 
   .pkg-seo-text {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+    column-count: 2;
+    column-gap: var(--space-12);
+  }
+
+  .pkg-seo-block {
+    margin-bottom: var(--space-4);
+    break-inside: avoid;
   }
 
   .pkg-seo-heading {
@@ -1055,7 +1242,7 @@
   }
 
   @media (max-width: 700px) {
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-8) var(--space-4); }
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-8) var(--space-2); }
   }
 
   .product-card {
@@ -1748,6 +1935,180 @@
     .promo-card-eyebrow {
       display: none;
     }
+
+    /* Promo tiles (deal/samples/build-box) ran the desktop 32px padding
+       on mobile too, which combined with the build-box tile's dimension
+       inputs and full-size heading made rows uneven against the plain
+       square product cards next to them. */
+    .promo-card.promo-wallet,
+    .promo-card.promo-samples,
+    .promo-card.promo-build-box {
+      padding: var(--space-5);
+    }
+
+    .promo-build-box .quick-box-tile-copy {
+      margin-bottom: var(--space-3);
+    }
+
+    .promo-build-box .quick-box-banner-heading {
+      font-size: 1.25rem;
+      line-height: 1.16;
+      letter-spacing: -0.02em;
+    }
+
+    .quick-box-tile-dims {
+      display: none;
+    }
+
+    /* Filled blue CTA in the build-box tile ran "md" (40px) while the
+       other promo tiles' buttons are "sm" (32px) -- match them so the
+       row of tiles doesn't have one taller button standing out. */
+    .promo-build-box .quick-box-tile-btn {
+      height: 2rem;
+      font-size: 0.8125rem;
+      padding: 0 var(--space-3);
+    }
+
+    /* SEO text: desktop's 2-column split (see .pkg-seo-text) is too
+       cramped at mobile widths -- back to a single stacked column. */
+    .pkg-seo-text {
+      column-count: 1;
+    }
+
+    /* Gallery prev/next controls are hover-only on desktop -- there's no
+       hover on touch, so on mobile they stay small but always visible.
+       The first photo shown stays the plain product cutout (same as
+       desktop's default) -- only tapping an arrow pages into the
+       lifestyle set, same as hovering does on desktop. */
+    .product-card-gallery-nav {
+      width: 32px;
+      height: 32px;
+      opacity: 1;
+      background: none;
+      box-shadow: none;
+    }
+
+    .product-card-gallery-nav svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .product-card-gallery-nav.prev { left: 0; }
+    .product-card-gallery-nav.next { right: 0; }
+
+    /* Filter bar: pills scroll in one row, "Filters" pill (funnel icon,
+       see JS) leads them, and the view switcher rides along at the end
+       of that same row instead of wrapping onto its own line. The bar
+       itself stays wrap (its default) rather than nowrap -- .filter-pills
+       does its own internal nowrap/overflow-x below, and the bar needs to
+       still let .active-filter-pills' flex-basis:100% force it onto a
+       second row underneath instead of squeezing in beside the pills. */
+    .pkg-filters-bar {
+      gap: var(--space-2);
+    }
+
+    .filter-pill-all {
+      display: inline-flex;
+    }
+
+    /* Wrapper bleeds past .pkg-filters-bar's own 16px side padding
+       (negative margin cancels it) so the scroll-fade edges below can
+       sit flush with the real viewport edge -- .filter-pills then holds
+       its own matching 16px padding to keep the same start inset for the
+       pills themselves. Without the bleed, the scrollable row could only
+       ever reach the padding's inner edge, never the real viewport edge,
+       so the last pill always looked clipped by a leftover strip of page
+       background rather than by the screen itself. */
+    .filter-pills-scroll {
+      display: block;
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0 calc(-1 * var(--space-4));
+    }
+
+    .filter-pills {
+      flex: none;
+      width: 100%;
+      flex-wrap: nowrap;
+      min-width: 0;
+      padding: 0 var(--space-4);
+      overflow-x: auto;
+      /* Explicit, not left to default -- overflow-x:auto with
+         overflow-y left as "visible" computes overflow-y to "auto" too
+         per spec, which quietly turned this into a vertical scroll
+         container as well and let the whole row get dragged up out of
+         view on touch. */
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .filter-pills::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Same fade used on the category carousel, sized down for the
+       shorter pill row -- flush with the wrapper's already-bled edges
+       rather than the carousel's own -16px bleed-past-its-own-edge,
+       since this wrapper already sits at the true viewport edge. */
+    .filter-pills-scroll .scroll-fade {
+      display: block;
+      width: 56px;
+    }
+
+    .filter-pills-scroll .scroll-fade.left {
+      left: 0;
+    }
+
+    .filter-pills-scroll .scroll-fade.right {
+      right: 0;
+    }
+
+    /* 32px -> 40px tall, 12px -> 16px side padding -- bigger tap targets
+       than the desktop pill. */
+    .filter-pill {
+      flex: none;
+      height: 40px;
+      padding: 0 var(--space-4);
+    }
+
+    .pkg-view-switcher {
+      flex: none;
+    }
+
+    /* 28px -> 40px tall, bigger side padding -- match the filter pills
+       above rather than the smaller desktop chip size. */
+    .active-filter-chip {
+      height: 40px;
+      padding: 0 var(--space-4);
+    }
+
+    /* 48px -> 24px between the category tiles and the filter row below
+       them. */
+    .pkg-tiles-section {
+      padding-bottom: var(--space-6);
+    }
+
+    /* 40px -> 32px between the page title row and the category tiles. */
+    .pkg-title-row {
+      padding-bottom: var(--space-8);
+    }
+
+    /* 140px -> 56px -- the desktop fade width swamps a 390px screen. */
+    .scroll-fade {
+      width: 56px;
+    }
+
+    /* Category tiles: bleed the full 16px (.scroll-fade.left/.right's own
+       -16px offset already reaches the true edge from .scroll-carousel --
+       .thumb-strip's -8px bleed was tuned for some other padding and
+       left the actual scrollable tiles clipped 8px short of it, inside
+       the section's own 16px page margin instead of the viewport). */
+    .thumb-strip {
+      margin: 0 calc(-1 * var(--space-4));
+      padding: var(--space-2) var(--space-4);
+    }
   }
 </style>
 </head>
@@ -1851,8 +2212,18 @@
   </section>
 
   <section class="pkg-filters-bar">
+    <div class="filter-pills-scroll">
     <div class="filter-pills">
-      <div class="filter-pill-wrap filter-pill-categories">
+      <button class="filter-pill filter-pill-all" id="mobileFiltersAllBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        Filters
+        <span class="filter-count" id="mobileFiltersAllCount" hidden>
+          <span class="filter-count-num">0</span>
+          <svg class="filter-count-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </span>
+      </button>
+
+      <div class="filter-pill-wrap filter-pill-categories" data-label="Categories">
         <button class="filter-pill" aria-expanded="false">
           Categories
           <span class="filter-count" hidden>
@@ -1879,7 +2250,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap">
+      <div class="filter-pill-wrap" data-label="Customisation">
         <button class="filter-pill" aria-expanded="false">
           Customisation
           <span class="filter-count" hidden>
@@ -1899,7 +2270,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap filter-pill-industry">
+      <div class="filter-pill-wrap filter-pill-industry" data-label="Industry">
         <button class="filter-pill" aria-expanded="false">
           Industry
           <span class="filter-count" hidden>
@@ -1926,7 +2297,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap" data-filter="size">
+      <div class="filter-pill-wrap" data-filter="size" data-label="Size">
         <button class="filter-pill" aria-expanded="false">
           Size
           <span class="filter-count" hidden>
@@ -1945,7 +2316,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap">
+      <div class="filter-pill-wrap" data-label="Use case">
         <button class="filter-pill" aria-expanded="false">
           Use case
           <span class="filter-count" hidden>
@@ -1992,7 +2363,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap" data-filter="type">
+      <div class="filter-pill-wrap" data-filter="type" data-label="Type">
         <button class="filter-pill" aria-expanded="false">
           Type
           <span class="filter-count" hidden>
@@ -2020,7 +2391,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap">
+      <div class="filter-pill-wrap" data-label="Sustainability">
         <button class="filter-pill" aria-expanded="false">
           Sustainability
           <span class="filter-count" hidden>
@@ -2042,7 +2413,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap">
+      <div class="filter-pill-wrap" data-label="Collections">
         <button class="filter-pill" aria-expanded="false">
           Collections
           <span class="filter-count" hidden>
@@ -2062,6 +2433,9 @@
         </div>
       </div>
     </div>
+    <div class="scroll-fade left"></div>
+    <div class="scroll-fade right"></div>
+    </div>
 
     <div class="pkg-view-switcher" id="pkgViewSwitcher">
       <button class="pkg-view-option active" data-view="grid-4" aria-label="4 per row" title="4 per row">
@@ -2077,6 +2451,28 @@
 
     <div class="active-filter-pills" id="activeFilterPills"></div>
   </section>
+
+  <!-- Mobile only: tapping a filter pill (or "Filters" itself) opens this
+       as a bottom sheet instead of the desktop dropdown -- see the JS
+       IIFE right after the desktop filter-panel wiring. Its body is
+       populated at open time by moving the real .filter-panel-options
+       node(s) in (not cloning), so mobile and desktop always share one
+       set of inputs/state. -->
+  <div class="mobile-filter-sheet" id="mobileFilterSheet">
+    <div class="mobile-filter-sheet-overlay" id="mobileFilterSheetOverlay"></div>
+    <div class="mobile-filter-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="mobileFilterSheetTitle">
+      <div class="mobile-filter-sheet-header">
+        <h3 class="mobile-filter-sheet-title" id="mobileFilterSheetTitle">Filters</h3>
+        <button class="mobile-filter-sheet-close" id="mobileFilterSheetClose" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="mobile-filter-sheet-body" id="mobileFilterSheetBody"></div>
+      <div class="mobile-filter-sheet-footer">
+        <button class="btn-pill lg mobile-filter-sheet-cta" id="mobileFilterSheetCta" type="button">Save</button>
+      </div>
+    </div>
+  </div>
 
   <section id="pkgCategoryCarousels"></section>
 
@@ -2391,6 +2787,7 @@
 
   (function () {
     var wraps = document.querySelectorAll('.filter-pill-wrap');
+    var isMobileFilters = window.matchMedia('(max-width: 700px)');
 
     function closeAll(except) {
       wraps.forEach(function (wrap) {
@@ -2406,6 +2803,9 @@
 
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
+        // Mobile swaps the inline dropdown for the bottom sheet below --
+        // openMobileFilterSheet is defined further down in this same IIFE.
+        if (isMobileFilters.matches) { openMobileFilterSheet(wrap); return; }
         var open = panel.classList.toggle('open');
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
         if (open) { closeAll(wrap); }
@@ -2416,10 +2816,28 @@
       if (!e.target.closest('.filter-pill-wrap')) { closeAll(); }
     });
 
+    // Mobile-only aggregate badge on the "Filters" pill itself -- sum of
+    // every wrap's own count below, so it reads the same total whether a
+    // selection was made in the desktop dropdown, the single-filter
+    // sheet, or the all-filters sheet.
+    var allCountBadge = document.getElementById('mobileFiltersAllCount');
+    var allCountBadgeNum = allCountBadge.querySelector('.filter-count-num');
+    var allInputs = [];
+
+    function updateAllCount() {
+      var count = 0;
+      allInputs.forEach(function (input) {
+        if (input.checked && !input.hasAttribute('data-any')) { count++; }
+      });
+      allCountBadgeNum.textContent = count;
+      allCountBadge.hidden = count === 0;
+    }
+
     wraps.forEach(function (wrap) {
       var badge = wrap.querySelector('.filter-count');
       var badgeNum = badge.querySelector('.filter-count-num');
       var inputs = wrap.querySelectorAll('.filter-panel input');
+      allInputs = allInputs.concat(Array.prototype.slice.call(inputs));
 
       function updateCount() {
         var count = 0;
@@ -2428,6 +2846,7 @@
         });
         badgeNum.textContent = count;
         badge.hidden = count === 0;
+        updateAllCount();
       }
 
       inputs.forEach(function (input) {
@@ -2448,6 +2867,160 @@
 
       updateCount();
     });
+
+    updateAllCount();
+
+    allCountBadge.addEventListener('click', function (e) {
+      e.stopPropagation();
+      allInputs.forEach(function (input) {
+        var shouldBeChecked = input.type === 'radio' && input.hasAttribute('data-any');
+        if (input.checked !== shouldBeChecked) {
+          input.checked = shouldBeChecked;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+
+    // ---------- Mobile filter bottom sheet ----------
+    // The desktop dropdown above stays untouched -- on mobile, a pill tap
+    // (or the "Filters" pill, see markup) instead opens this as a
+    // slide-up sheet. Its body is filled by *moving* the real
+    // .filter-panel-options node(s) in, not cloning them, so the single
+    // filter-count badge logic above and the desktop dropdown never drift
+    // out of sync with whatever got checked in the sheet.
+    var sheet = document.getElementById('mobileFilterSheet');
+    var sheetOverlay = document.getElementById('mobileFilterSheetOverlay');
+    var sheetTitle = document.getElementById('mobileFilterSheetTitle');
+    var sheetBody = document.getElementById('mobileFilterSheetBody');
+    var sheetCta = document.getElementById('mobileFilterSheetCta');
+    var sheetClose = document.getElementById('mobileFilterSheetClose');
+    var allFiltersBtn = document.getElementById('mobileFiltersAllBtn');
+    var movedNodes = [];
+    var restoreTimer = null;
+
+    function moveIntoSheet(node, target) {
+      movedNodes.push({ node: node, parent: node.parentNode, next: node.nextSibling });
+      target.appendChild(node);
+    }
+
+    function restoreMovedNodes() {
+      if (restoreTimer) { window.clearTimeout(restoreTimer); restoreTimer = null; }
+      movedNodes.forEach(function (entry) {
+        entry.parent.insertBefore(entry.node, entry.next);
+      });
+      movedNodes = [];
+      sheetBody.innerHTML = '';
+    }
+
+    function openSheet() {
+      sheet.classList.add('open');
+      document.body.classList.add('mobile-filter-sheet-locked');
+    }
+
+    function openMobileFilterSheet(wrap) {
+      restoreMovedNodes();
+      sheetTitle.textContent = wrap.getAttribute('data-label') || 'Filters';
+      sheetCta.textContent = 'Save';
+      var options = wrap.querySelector('.filter-panel-options');
+      if (options) { moveIntoSheet(options, sheetBody); }
+      openSheet();
+    }
+
+    function openMobileFilterSheetAll() {
+      restoreMovedNodes();
+      sheetTitle.textContent = 'Filters';
+      sheetCta.textContent = 'Show results';
+      wraps.forEach(function (wrap) {
+        // Categories only shows in the carousels listing style, Size/Type
+        // only once "Boxes" is the active category -- skip whichever of
+        // the 8 real filters isn't actually visible right now.
+        if (wrap.hidden || getComputedStyle(wrap).display === 'none') { return; }
+        var options = wrap.querySelector('.filter-panel-options');
+        if (!options) { return; }
+        var group = document.createElement('div');
+        group.className = 'mobile-filter-sheet-group';
+        var title = document.createElement('h4');
+        title.className = 'mobile-filter-sheet-group-title';
+        title.textContent = wrap.getAttribute('data-label') || '';
+        group.appendChild(title);
+        sheetBody.appendChild(group);
+        moveIntoSheet(options, group);
+      });
+      openSheet();
+    }
+
+    function closeMobileFilterSheet() {
+      sheet.classList.remove('open');
+      document.body.classList.remove('mobile-filter-sheet-locked');
+      // Deferred, not immediate -- lets the slide-down/fade-out play
+      // before the options nodes (and their contents) disappear from
+      // under it back into the desktop dropdowns.
+      restoreTimer = window.setTimeout(restoreMovedNodes, 300);
+    }
+
+    if (allFiltersBtn) {
+      allFiltersBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openMobileFilterSheetAll();
+      });
+    }
+
+    sheetClose.addEventListener('click', closeMobileFilterSheet);
+    sheetOverlay.addEventListener('click', closeMobileFilterSheet);
+    sheetCta.addEventListener('click', closeMobileFilterSheet);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sheet.classList.contains('open')) { closeMobileFilterSheet(); }
+    });
+  })();
+
+  // On mobile the view switcher (grid/list icons) rides along at the end
+  // of the scrollable pill row instead of sitting pinned outside it --
+  // .filter-pills is the actual overflow-x:auto container, so getting it
+  // to scroll with the pills means it has to physically become the last
+  // child there, not just look that way via CSS order. Desktop keeps its
+  // own separate, right-aligned slot (see .pkg-filters-bar), so the move
+  // only happens while the mobile breakpoint is actually active, and
+  // reverts if the viewport is resized back across it.
+  (function () {
+    var isMobileFiltersBar = window.matchMedia('(max-width: 700px)');
+    var filterPills = document.querySelector('.filter-pills');
+    var viewSwitcher = document.getElementById('pkgViewSwitcher');
+    var homeParent = viewSwitcher.parentNode;
+    var homeNext = viewSwitcher.nextSibling;
+
+    function layoutViewSwitcher() {
+      if (isMobileFiltersBar.matches) {
+        filterPills.appendChild(viewSwitcher);
+      } else {
+        homeParent.insertBefore(viewSwitcher, homeNext);
+      }
+    }
+
+    layoutViewSwitcher();
+    isMobileFiltersBar.addEventListener('change', layoutViewSwitcher);
+  })();
+
+  // Same scroll-fade treatment as the category carousel, just driven
+  // directly off scroll position instead of the carousel's disabled-nav
+  // state (there are no prev/next buttons here to key off of) -- hidden
+  // at each end so the fade never implies there's more to scroll toward
+  // when there isn't.
+  (function () {
+    var scrollEl = document.querySelector('.filter-pills');
+    var leftFade = document.querySelector('.filter-pills-scroll .scroll-fade.left');
+    var rightFade = document.querySelector('.filter-pills-scroll .scroll-fade.right');
+    if (!scrollEl || !leftFade || !rightFade) { return; }
+
+    function update() {
+      var maxScroll = scrollEl.scrollWidth - scrollEl.clientWidth;
+      leftFade.style.opacity = scrollEl.scrollLeft > 1 ? '1' : '0';
+      rightFade.style.opacity = scrollEl.scrollLeft < maxScroll - 1 ? '1' : '0';
+    }
+
+    scrollEl.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    update();
   })();
 
   (function () {
@@ -2739,6 +3312,12 @@
     var tileHoverStyle = localStorage.getItem('tileHoverStyle') === 'cycle' ? 'cycle' : 'gallery';
     document.body.classList.toggle('pkg-tile-hover-cycle', tileHoverStyle === 'cycle');
 
+    // No hover on touch, so on mobile the crossfade below only reveals
+    // itself once an arrow is actually tapped (mouseenter never fires) --
+    // the first photo shown stays the plain cutout, same as desktop's
+    // untouched default, instead of jumping straight to a lifestyle shot.
+    var isMobileGallery = window.matchMedia('(max-width: 700px)');
+
     // Opt-in per card via data-gallery="[...]" on .product-card-media --
     // crossfades the plain product cutout for a real lifestyle photo on
     // hover, with prev/next controls to page through the set. Re-run after
@@ -2755,12 +3334,25 @@
         media.appendChild(galleryImg);
 
         var idx = 0;
+        // Nothing has been shown yet on mobile (the base cutout is still
+        // up, see below) -- the very first tap, prev or next, resolves
+        // against the two natural boundary frames instead of idx's
+        // arithmetic, which only kicks in once a frame is actually on
+        // screen. Desktop's hover handler always calls show(0) before any
+        // arrow is reachable, so `started` is already true by then.
+        var started = false;
         function show(i) {
           idx = (i + gallery.length) % gallery.length;
           galleryImg.src = gallery[idx];
+          started = true;
         }
 
         media.closest('.product-card').addEventListener('mouseenter', function () {
+          // Mobile has no real hover -- skip so a browser's synthetic
+          // hover-on-first-tap (iOS Safari does this) can't sneak in a
+          // show(0) right before the arrow's own click handler runs,
+          // throwing off which photo a mobile tap actually lands on.
+          if (isMobileGallery.matches) { return; }
           // the cycle style (see initProductHoverCycle) takes over for
           // whichever card opts into it via data-hover-cycle
           if (media.hasAttribute('data-hover-cycle') && tileHoverStyle === 'cycle') { return; }
@@ -2780,8 +3372,19 @@
           nextBtn.setAttribute('aria-label', 'Next photo');
           nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
 
-          prevBtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); show(idx - 1); });
-          nextBtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); show(idx + 1); });
+          // On mobile the crossfade image is only ever revealed here, on
+          // the first tap -- CSS keeps it hidden by default so the base
+          // cutout stays the first photo shown either way.
+          prevBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            show(started ? idx - 1 : gallery.length - 1);
+            if (isMobileGallery.matches) { galleryImg.style.opacity = '1'; }
+          });
+          nextBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            show(started ? idx + 1 : 0);
+            if (isMobileGallery.matches) { galleryImg.style.opacity = '1'; }
+          });
 
           media.appendChild(prevBtn);
           media.appendChild(nextBtn);
