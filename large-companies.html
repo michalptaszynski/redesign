@@ -2401,7 +2401,11 @@
     height: 40px;
     /* BYŁO: białe tło + --color-text-primary, który na ciemnej stronie jest
        prawie biały — czyli biała strzałka na białej pigułce, niewidoczna. */
-    border: 1px solid var(--color-border-hover);
+    /* jasny outline: --color-border-default (#E7E7E7) zamiast wcześniejszego
+       --color-border-hover (#CFCFCF) — obwódka jest, ale nie czyta się już jako
+       drugi, ciemniejszy kontur wokół pigułki. W ciemnym motywie niżej wraca
+       mocniejszy stopień, bo prawie czarna pigułka na zdjęciu nie ma krawędzi. */
+    border: 1px solid var(--color-border-default);
     border-radius: var(--radius-full);
     /* pigułka bierze kolor z tokenu tła, więc odwraca się razem z motywem;
        na ciemnym była biała strzałka na białym tle i nic nie było widać */
@@ -2416,6 +2420,10 @@
   }
 
   html:not(.theme-light) .scroll-carousel-nav {
+    /* w ciemnym motywie pigułka jest prawie czarna (#080909 @82%) i na zdjęciu
+       zlewa się z tłem — obwódka jest jedyną rzeczą, która ją odcina, więc
+       bierze mocniejszy stopień niż jasny outline z reguły bazowej */
+    border-color: var(--color-border-hover);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
   }
 

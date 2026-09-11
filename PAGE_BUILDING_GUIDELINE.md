@@ -767,6 +767,20 @@ dodanie klasy po prostu odsłania wspólne tokeny i nie utrzymujesz drugiej
 palety. Klasę nakładasz skryptem w `<head>` **przed pierwszym malowaniem**,
 inaczej strona mrugnie w niewłaściwym motywie.
 
+**Współdzielony atom na stronie z motywem: stopniuj obwódkę per motyw, nie
+trzymaj jednej wartości dla obu.** `.scroll-carousel-nav` miało tu przez chwilę
+`border: 1px solid var(--color-border-hover)` w regule bazowej — a `hover` to
+`--gray-400` (#CFCFCF), czyli w trybie jasnym wyraźny szary pierścień wokół
+białej pigułki, którego nie ma żadna inna strona w repo (tam `border: none`).
+Docelowo: baza bierze **jaśniejszy stopień** `--color-border-default` (#E7E7E7),
+a `html:not(.theme-light) .scroll-carousel-nav` podbija samo `border-color`
+do `--color-border-hover` (#34343A w lokalnej palecie), bo tam prawie czarna
+pigułka na zdjęciu nie ma żadnej innej krawędzi. Reguła ogólna: to, ile obwódki
+potrzeba, zależy od kontrastu pigułki z tłem, więc różnicuj per motyw —
+i nadpisuj `border-color`, nie cały skrót `border`. (Tło
+`color-mix(… var(--color-bg-page) …)` i `backdrop-filter` zostają w bazie —
+one odwracają się razem z motywem same z siebie.)
+
 ---
 
 ## 7. Rytm odstępów między sekcjami — reguła ogólna
