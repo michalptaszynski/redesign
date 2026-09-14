@@ -2626,19 +2626,17 @@
         <div class="build-box-step-content">
         <h3 class="build-box-field-label">Print</h3>
         <p class="build-box-field-desc">Choose whether to print your design on the box</p>
-        <div class="material-card-grid">
-          <button class="material-card active" data-customization="plain">
-            <span class="material-card-image"><img id="plainCardImage" src="assets/build/material-kraft.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">Plain</span>
-              <span class="material-card-desc">No print, left in its natural material finish.</span>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-customization="custom">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Custom</span>
+              <span class="box-type-card-desc">Fully personalise the print to match your brand.</span>
             </span>
           </button>
-          <button class="material-card" data-customization="custom">
-            <span class="material-card-image"><img id="customCardImage" src="assets/build/custom-kraft.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">Custom</span>
-              <span class="material-card-desc">Fully personalize the print to match your brand.</span>
+          <button class="box-type-card no-thumb" data-customization="plain">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Plain</span>
+              <span class="box-type-card-desc">No print, left in its natural material finish.</span>
             </span>
           </button>
         </div>
@@ -4415,35 +4413,6 @@
     materialCards.forEach(function (card) {
       card.addEventListener('click', refreshCanvas);
     });
-  })();
-
-  (function () {
-    var plainCardImage = document.getElementById('plainCardImage');
-    var customCardImage = document.getElementById('customCardImage');
-    var materialCards = document.querySelectorAll('#stepMaterial .material-card');
-    if (!plainCardImage || !customCardImage || !materialCards.length) { return; }
-
-    var CUSTOM_IMAGE_BY_MATERIAL = {
-      'kraft': 'assets/build/custom-kraft.png',
-      'white': 'assets/build/custom-white.png',
-      'premium-white': 'assets/build/custom-white.png'
-    };
-
-    function syncCustomizationImages() {
-      var activeMaterial = document.querySelector('#stepMaterial .material-card.active');
-      if (!activeMaterial) { return; }
-      var materialKey = activeMaterial.getAttribute('data-material') || 'kraft';
-      var materialThumb = activeMaterial.querySelector('.material-card-image img');
-
-      if (materialThumb) { plainCardImage.setAttribute('src', materialThumb.getAttribute('src')); }
-      customCardImage.setAttribute('src', CUSTOM_IMAGE_BY_MATERIAL[materialKey] || CUSTOM_IMAGE_BY_MATERIAL.kraft);
-    }
-
-    materialCards.forEach(function (card) {
-      card.addEventListener('click', syncCustomizationImages);
-    });
-
-    syncCustomizationImages();
   })();
 
   (function () {
