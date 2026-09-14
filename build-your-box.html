@@ -855,6 +855,13 @@
     color: var(--color-text-primary);
   }
 
+  /* Shape (labels): a drawn outline in the thumb slot instead of a photo */
+  .shape-card .box-type-card-thumb svg {
+    width: 56px;
+    height: 56px;
+    color: var(--color-text-primary);
+  }
+
   .quantity-card {
     justify-content: space-between;
   }
@@ -1104,6 +1111,11 @@
     object-fit: cover;
   }
 
+  /* label materials have no photo yet — the image slot is an empty placeholder that takes the
+     card's own background (grey while inactive, white once selected), so it never reads as a
+     white block sitting on a grey tile */
+  .material-card-image.blank { background: transparent; }
+
   .material-card-text {
     padding: 0 16px 16px;
   }
@@ -1257,16 +1269,26 @@
   }
 
   /* ---------- per-box-type step sets ----------
-     Every step carries data-for="box" or data-for="tube" unless it applies to both (Box Type,
-     Dimensions, Quantity). The Tube box type swaps the whole middle of the flow: body.box-type-tube
+     Every step carries data-for="box", "tube" or "labels" unless it applies to every flow (Category,
+     Product, Size, Quantity). The Tubes category swaps the whole middle of the flow: body.box-type-tube
      drops Construction / Closure / Windows / Material Color / Customization / Additional options and
-     reveals Material / Lid colour / Finish / Embellishment instead. The dots in #stepDots carry the
-     same attribute so the progress rail matches, and the accordion badges renumber themselves off
-     the visible steps only (see isStepVisible() in the accordion script). */
+     reveals Material / Lid colour / Finish / Embellishment instead. The Labels product (Accessories
+     category) does the same via body.box-type-labels: Type / Shape / Size / Material / Adhesive /
+     Fixed options. The dots in #stepDots carry the same attribute so the progress rail matches, and
+     the accordion badges renumber themselves off the visible steps only (see isStepVisible() in the
+     accordion script). */
   /* hide-only, never re-show: an element left alone keeps whatever display its own rules give it
      (flex for a step, block for a dot or a label), so no per-element "put it back" rule is needed */
   body:not(.box-type-tube) [data-for="tube"],
-  body.box-type-tube [data-for="box"] { display: none; }
+  body:not(.box-type-labels) [data-for="labels"],
+  body.box-type-tube [data-for="box"],
+  body.box-type-labels [data-for="box"] { display: none; }
+
+  /* labels only: the Shape step relabels Width as Diameter and drops Height for a circular label */
+  body:not(.label-shape-circular) [data-shape="circular"],
+  body.label-shape-circular [data-shape="rectangular"] { display: none; }
+  body.box-type-labels.label-shape-circular .dimension-field[data-dim="height"],
+  body.box-type-labels.label-shape-circular .build-box-dim-line.dim-height { display: none; }
 
   /* a category with only one product has nothing to choose, so the Product step (and its dot) drop
      out entirely rather than showing a one-item grid — set by the category controller */
@@ -1279,6 +1301,32 @@
   body.box-type-tube .dimension-field[data-dim="length"],
   body.box-type-tube #sizeToggleSwitch,
   body.box-type-tube .build-box-dim-line.dim-length { display: none; }
+
+  /* a label is flat, so it has no Length either; standard sizes are box P-codes and go too */
+  body.box-type-labels .dimension-field[data-dim="length"],
+  body.box-type-labels #sizeToggleSwitch,
+  body.box-type-labels .build-box-dim-line.dim-length { display: none; }
+
+  /* ---------- fixed options (labels) ----------
+     Read-only "key: value" rows for the print settings every label ships with. A <dl>, so the
+     pairs stay semantic; the muted key and the primary value are the whole design. */
+  .fixed-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+  }
+  .fixed-options-list > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.3em;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+  }
+  .fixed-options-list dt { color: var(--color-text-muted); }
+  .fixed-options-list dt::after { content: ':'; }
+  .fixed-options-list dd { margin: 0; color: var(--color-text-primary); }
 
   /* ---------- lid colour ----------
      Same stacked .box-type-card rows the Finish and Embellishment steps use, minus the description
@@ -2034,6 +2082,8 @@
   <nav class="build-box-dots" id="stepDots" aria-label="Configuration steps">
     <button class="build-box-dot active" data-target="stepCategory" aria-label="Category"></button>
     <button class="build-box-dot" data-target="stepProduct" aria-label="Product"></button>
+    <button class="build-box-dot" data-for="labels" data-target="stepLabelType" aria-label="Type"></button>
+    <button class="build-box-dot" data-for="labels" data-target="stepLabelShape" aria-label="Shape"></button>
     <button class="build-box-dot" data-for="box" data-target="stepConstruction" aria-label="Construction"></button>
     <button class="build-box-dot" data-target="stepSize" aria-label="Size"></button>
     <button class="build-box-dot" data-for="box" data-target="stepClosure" aria-label="Closure"></button>
@@ -2043,6 +2093,9 @@
     <button class="build-box-dot" data-for="tube" data-target="stepTubeLid" aria-label="Lid colour"></button>
     <button class="build-box-dot" data-for="tube" data-target="stepTubeFinish" aria-label="Finish"></button>
     <button class="build-box-dot" data-for="tube" data-target="stepTubeEmbellishment" aria-label="Embellishment"></button>
+    <button class="build-box-dot" data-for="labels" data-target="stepLabelMaterial" aria-label="Material"></button>
+    <button class="build-box-dot" data-for="labels" data-target="stepLabelAdhesive" aria-label="Adhesive"></button>
+    <button class="build-box-dot" data-for="labels" data-target="stepLabelFixed" aria-label="Fixed options"></button>
     <button class="build-box-dot" data-for="box" data-target="stepCustomization" aria-label="Customization"></button>
     <button class="build-box-dot" data-for="box" data-target="stepAdditional" aria-label="Additional options"></button>
     <button class="build-box-dot" data-target="stepQuantity" aria-label="Quantity"></button>
@@ -2219,11 +2272,11 @@
               <span class="box-type-card-desc">Cylindrical tubes with metal lids for posters and gifting.</span>
             </span>
           </button>
-          <button class="box-type-card" data-category="labels">
+          <button class="box-type-card" data-category="accessories">
             <span class="box-type-card-thumb"><img src="assets/build/prod-labels.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Labels</span>
-              <span class="box-type-card-desc">Printed labels on a roll for sealing and branding.</span>
+              <span class="box-type-card-label">Accessories</span>
+              <span class="box-type-card-desc">Labels, tissue and packing paper, cards and tape to finish the unboxing.</span>
             </span>
           </button>
           <a class="box-type-card category-more" href="packaging.html">
@@ -2302,12 +2355,89 @@
               <span class="product-tile-label">Tube</span>
             </button>
           </div>
-          <div class="product-tile-grid" data-category="labels">
+          <!-- Packing Paper and Card have no plain studio shot in the repo yet — empty frames, same
+               as Paper Mailing Bag above; drop a 400x400 PNG into assets/build and reference it. -->
+          <div class="product-tile-grid" data-category="accessories">
             <button class="product-tile active" data-product="labels">
               <span class="product-tile-thumb"><img src="assets/build/prod-labels.png" alt=""></span>
               <span class="product-tile-label">Labels</span>
             </button>
+            <button class="product-tile" data-product="tissue-paper">
+              <span class="product-tile-thumb"><img src="assets/build/prod-tissue-paper.png" alt=""></span>
+              <span class="product-tile-label">Tissue Paper</span>
+            </button>
+            <button class="product-tile" data-product="packing-paper">
+              <span class="product-tile-thumb"></span>
+              <span class="product-tile-label">Packing Paper</span>
+            </button>
+            <button class="product-tile" data-product="card">
+              <span class="product-tile-thumb"></span>
+              <span class="product-tile-label">Card</span>
+            </button>
+            <button class="product-tile" data-product="tape">
+              <span class="product-tile-thumb"><img src="assets/build/prod-tape.png" alt=""></span>
+              <span class="product-tile-label">Tape</span>
+            </button>
           </div>
+        </div>
+      </section>
+
+      <!-- ---------- Labels-only steps, part 1 ----------
+           Type and Shape sit before Size so the labels flow reads Category -> Product -> Type ->
+           Shape -> Size -> Material -> Adhesive -> Fixed options -> Quantity once the other flows'
+           steps drop out (body.box-type-labels, see the <style> block). Part 2 is after the tube
+           steps. -->
+      <section class="build-box-step" id="stepLabelType" data-for="labels">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">3</span>
+          <span class="build-box-accordion-title">Type<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Type</h3>
+        <p class="build-box-field-desc">Choose how your labels are supplied</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-label-type="reel">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Reel</span>
+              <span class="box-type-card-desc">Wound on a roll, ready for hand or machine application.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-label-type="sheet">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Sheet</span>
+              <span class="box-type-card-desc">Supplied flat on sheets, easy to peel off one at a time.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepLabelShape" data-for="labels">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">4</span>
+          <span class="build-box-accordion-title">Shape<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Shape</h3>
+        <p class="build-box-field-desc">Pick the outline of the label</p>
+        <div class="box-type-grid">
+          <button class="box-type-card shape-card active" data-label-shape="rectangular">
+            <span class="box-type-card-thumb"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="14" width="44" height="28" rx="5"/></svg></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Rectangular</span>
+              <span class="box-type-card-desc">Straight edges with rounded corners; the classic label.</span>
+            </span>
+          </button>
+          <button class="box-type-card shape-card" data-label-shape="circular">
+            <span class="box-type-card-thumb"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="28" cy="28" r="19"/></svg></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Circular</span>
+              <span class="box-type-card-desc">A round label for seals, jar lids and closures.</span>
+            </span>
+          </button>
+        </div>
         </div>
       </section>
 
@@ -2348,13 +2478,15 @@
       <section class="build-box-step" id="stepSize">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">3</span>
-          <span class="build-box-accordion-title">Dimensions<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title"><span data-for="box">Dimensions</span><span data-for="tube">Dimensions</span><span data-for="labels">Size</span><span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Dimensions</h3>
+        <h3 class="build-box-field-label"><span data-for="box">Dimensions</span><span data-for="tube">Dimensions</span><span data-for="labels">Size</span></h3>
         <p class="build-box-field-desc" data-for="box">Enter a custom size, or pick from our standard box sizes</p>
         <p class="build-box-field-desc" data-for="tube">Enter the diameter and the height of the tube you need</p>
+        <p class="build-box-field-desc" data-for="labels" data-shape="rectangular">Enter the width and height of a single label</p>
+        <p class="build-box-field-desc" data-for="labels" data-shape="circular">Enter the diameter of a single label</p>
         <div class="toggle-switch" id="sizeToggleSwitch">
           <div class="toggle-indicator" id="sizeToggleIndicator"></div>
           <button class="toggle-option active" data-value="custom">Custom Size</button>
@@ -2364,13 +2496,15 @@
           <label class="dimension-field" data-dim="width">
             <span class="dimension-field-label" data-for="box">Width</span>
             <span class="dimension-field-label" data-for="tube">Diameter</span>
+            <span class="dimension-field-label" data-for="labels" data-shape="rectangular">Width</span>
+            <span class="dimension-field-label" data-for="labels" data-shape="circular">Diameter</span>
             <span class="dimension-input-wrap"><input type="number" class="dimension-input" id="dimWidth" value="8"><span class="dimension-unit">cm</span></span>
           </label>
           <label class="dimension-field" data-dim="length">
             <span class="dimension-field-label">Length</span>
             <span class="dimension-input-wrap"><input type="number" class="dimension-input" id="dimLength" value="8"><span class="dimension-unit">cm</span></span>
           </label>
-          <label class="dimension-field">
+          <label class="dimension-field" data-dim="height">
             <span class="dimension-field-label">Height</span>
             <span class="dimension-input-wrap"><input type="number" class="dimension-input" id="dimHeight" value="12"><span class="dimension-unit">cm</span></span>
           </label>
@@ -2699,6 +2833,100 @@
             </span>
           </button>
         </div>
+        </div>
+      </section>
+
+      <!-- ---------- Labels-only steps, part 2 ---------- (part 1, Type and Shape, is before Size) -->
+      <section class="build-box-step" id="stepLabelMaterial" data-for="labels">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">6</span>
+          <span class="build-box-accordion-title">Material<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Material</h3>
+        <p class="build-box-field-desc">Pick the face stock the label is printed on</p>
+        <div class="material-card-grid">
+          <button class="material-card active" data-label-material="semi-gloss-paper">
+            <span class="material-card-image blank"></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Semi-gloss paper</span>
+              <span class="material-card-desc">Coated paper with a light sheen; the everyday choice for colour print.</span>
+            </span>
+          </button>
+          <button class="material-card" data-label-material="silver-pp">
+            <span class="material-card-image blank"></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Silver PP</span>
+              <span class="material-card-desc">Metallic polypropylene film for a premium, foil-like effect.</span>
+            </span>
+          </button>
+          <button class="material-card" data-label-material="white-pp">
+            <span class="material-card-image blank"></span>
+            <span class="material-card-text">
+              <span class="material-card-label">White PP</span>
+              <span class="material-card-desc">Durable white film that resists water, oil and tearing.</span>
+            </span>
+          </button>
+          <button class="material-card" data-label-material="transparent-pp">
+            <span class="material-card-image blank"></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Transparent PP</span>
+              <span class="material-card-desc">Clear film that shows the surface beneath, for a no-label look.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepLabelAdhesive" data-for="labels">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">7</span>
+          <span class="build-box-accordion-title">Adhesive<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Adhesive</h3>
+        <p class="build-box-field-desc">Choose how firmly the label should stick</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-label-adhesive="acrylic">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Acrylic</span>
+              <span class="box-type-card-desc">Permanent, all-purpose adhesive for paper, card and most plastics.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-label-adhesive="removable-acrylic">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Removable acrylic</span>
+              <span class="box-type-card-desc">Peels off cleanly without residue, for temporary labelling.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-label-adhesive="rubber-based">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Rubber-based</span>
+              <span class="box-type-card-desc">Extra-strong tack that grips rough, curved or cold surfaces.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <!-- Fixed options: not a choice, just the print settings every label ships with. Kept as a
+           step so it has a place in the dots and the compact accordion; getStepValue() returns
+           its three values verbatim for the accordion header. -->
+      <section class="build-box-step" id="stepLabelFixed" data-for="labels">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">8</span>
+          <span class="build-box-accordion-title">Fixed options<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Fixed options</h3>
+        <dl class="fixed-options-list">
+          <div><dt>Print</dt><dd>Custom</dd></div>
+          <div><dt>Print coverage</dt><dd>Front</dd></div>
+          <div><dt>Print colour</dt><dd>Multi colour</dd></div>
+        </dl>
         </div>
       </section>
 
@@ -3239,6 +3467,9 @@
   // body.box-type-tube class) and flips the 3D preview from the cuboid to the barrel. The tube
   // steps' own answers are mirrored onto #box3dModel as data-tube-* attributes — the same
   // attribute-driven pattern the box steps already use for construction/material/windows.
+  // Labels (the Accessories category's first product) swap in the data-for="labels" steps the
+  // same way, off body.box-type-labels; the Shape step adds body.label-shape-circular on top.
+  // The other accessories keep the default box steps, like envelopes and bags do.
   (function () {
     var model = document.getElementById('box3dModel');
     var widthInput = document.getElementById('dimWidth');
@@ -3253,9 +3484,22 @@
       ['#stepTubeEmbellishment', 'data-tube-embellishment', 'none']
     ];
 
-    function isTube() {
+    function activeCategory() {
       var card = document.querySelector('#categoryGrid .box-type-card.active');
-      return !!card && card.getAttribute('data-category') === 'tubes';
+      return card ? card.getAttribute('data-category') : '';
+    }
+
+    function isTube() { return activeCategory() === 'tubes'; }
+
+    function isLabels() {
+      if (activeCategory() !== 'accessories') { return false; }
+      var tile = document.querySelector('#stepProduct .product-tile-grid.active .product-tile.active');
+      return !!tile && tile.getAttribute('data-product') === 'labels';
+    }
+
+    function isCircularLabel() {
+      var card = document.querySelector('#stepLabelShape .active[data-label-shape]');
+      return !!card && card.getAttribute('data-label-shape') === 'circular';
     }
 
     function syncTubeAttrs() {
@@ -3277,11 +3521,14 @@
 
     function syncBoxType() {
       var tube = isTube();
+      var labels = isLabels();
       model.setAttribute('data-box-type', tube ? 'tube' : 'box');
       document.body.classList.toggle('box-type-tube', tube);
+      document.body.classList.toggle('box-type-labels', labels);
+      document.body.classList.toggle('label-shape-circular', labels && isCircularLabel());
 
-      // the standard sizes are box P-codes, so the tube flow drops that mode along with its segment
-      if (tube && sizeToggle) {
+      // the standard sizes are box P-codes, so the tube and labels flows drop that mode along with its segment
+      if ((tube || labels) && sizeToggle) {
         var options = sizeToggle.querySelectorAll('.toggle-option');
         if (options[1] && options[1].classList.contains('active') && options[0]) { options[0].click(); }
       }
@@ -3295,6 +3542,11 @@
     widthInput.addEventListener('input', mirrorLength);
     document.querySelectorAll('#categoryGrid .box-type-card').forEach(function (card) {
       card.addEventListener('click', syncBoxType);
+    });
+    // Labels is one product inside Accessories, so the flow also depends on the Product tile;
+    // the Shape cards only change the Size step's wording and fields, but reuse the same sync
+    document.querySelectorAll('#stepProduct .product-tile, #stepLabelShape [data-label-shape]').forEach(function (el) {
+      el.addEventListener('click', syncBoxType);
     });
     TUBE_ATTRS.forEach(function (entry) {
       document.querySelectorAll(entry[0] + ' [' + entry[1] + ']').forEach(function (card) {
@@ -4217,8 +4469,18 @@
         var w = document.getElementById('dimWidth');
         var l = document.getElementById('dimLength');
         var h = document.getElementById('dimHeight');
-        if (w && l && h) { return w.value + ' x ' + l.value + ' x ' + h.value + ' cm'; }
-        return '';
+        if (!w || !l || !h) { return ''; }
+        // a label is flat (no Length), and a circular one is just its diameter
+        if (document.body.classList.contains('box-type-labels')) {
+          if (document.body.classList.contains('label-shape-circular')) { return '\u00d8 ' + w.value + ' cm'; }
+          return w.value + ' x ' + h.value + ' cm';
+        }
+        return w.value + ' x ' + l.value + ' x ' + h.value + ' cm';
+      }
+      if (step.id === 'stepLabelFixed') {
+        var fixed = [];
+        step.querySelectorAll('.fixed-options-list dd').forEach(function (dd) { fixed.push(dd.textContent.trim()); });
+        return fixed.join(', ');
       }
       if (step.id === 'stepAdditional') {
         var parts = [];
@@ -4250,12 +4512,16 @@
       return text.trim();
     }
 
-    // Steps tagged data-for="box"/"tube" drop out of the flow for the other box type, so the badges
-    // count visible steps only — otherwise the tube flow would read 1, 3, 10, 11, 12, 13, 14.
+    // Steps tagged data-for="box"/"tube"/"labels" drop out of the flow for the other flows, so the
+    // badges count visible steps only — otherwise the tube flow would read 1, 3, 10, 11, 12, 13, 14.
+    function currentFlow() {
+      var body = document.body.classList;
+      return body.contains('box-type-tube') ? 'tube' : body.contains('box-type-labels') ? 'labels' : 'box';
+    }
     function isStepVisible(step) {
       if (step.classList.contains('is-hidden')) { return false; }
       var only = step.getAttribute('data-for');
-      return !only || only === (document.body.classList.contains('box-type-tube') ? 'tube' : 'box');
+      return !only || only === currentFlow();
     }
 
     function updateHeader(step, index) {
