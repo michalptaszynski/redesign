@@ -833,8 +833,8 @@
   }
 
   .product-tile-label {
-    font-size: 0.9375rem;
-    line-height: 1.2;
+    font-size: 0.8125rem;
+    line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
     transition: color .15s ease;
@@ -1144,28 +1144,28 @@
     box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
   }
 
+  /* ---------- construction tiles (the Type and Bottom steps) ----------
+     Same recipe as .product-tile: the icon sits in its own square frame and the name goes *below*
+     the frame, left-aligned, instead of being centred inside the tile. The frame is the <img>
+     itself (padding on a replaced element works), so the markup stays icon + label + optional
+     hover preview and cardLabel()'s `:scope > span` lookup keeps finding the name first. */
   .construction-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-2);
   }
 
   .construction-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
     gap: var(--space-2);
-    flex: 0 0 auto;
-    width: 100px;
-    padding: var(--space-4) var(--space-2);
-    border-radius: 12px;
-    background: var(--color-bg-muted);
-    border: 1.5px solid transparent;
-    color: var(--color-text-secondary);
+    padding: 0;
+    border: none;
+    background: none;
+    text-align: left;
     cursor: pointer;
-    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
   }
 
   .construction-card-preview {
@@ -1199,20 +1199,38 @@
     object-fit: cover;
   }
 
-  .construction-card img { width: 56px; height: 56px; }
+  .construction-card img {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    padding: 20%;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1.5px solid transparent;
+    background: var(--color-bg-muted);
+    transition: background-color .15s ease, border-color .15s ease;
+  }
 
   .construction-card span {
     font-size: 0.8125rem;
     letter-spacing: -0.02em;
-    text-align: center;
     line-height: 1.32;
+    text-align: left;
+    color: var(--color-text-muted);
+    transition: color .15s ease;
   }
 
-  .construction-card:hover { background: var(--color-bg-muted-hover); }
+  .construction-card:hover img { background: var(--color-bg-muted-hover); }
 
-  .construction-card.active {
+  .construction-card.active img {
     background: var(--color-bg-surface);
     border-color: var(--color-text-primary);
+  }
+
+  .construction-card.active span {
+    font-weight: 500;
     color: var(--color-text-primary);
   }
 
@@ -2057,7 +2075,6 @@
     .build-box-page { gap: var(--space-4); padding: var(--space-4); }
     .build-box-header { padding: var(--space-6) var(--space-4) 0; }
     .build-box-step { padding-left: var(--space-6); padding-right: var(--space-6); }
-    .construction-card { width: 84px; }
   }
 
   @media (max-width: 900px) {
