@@ -1018,6 +1018,8 @@
     justify-content: center;
     width: 88px;
     height: 88px;
+    border-radius: 4px; /* no token this small; Michal's call for every image placeholder in these rows */
+    overflow: hidden;
   }
 
   .box-type-card-thumb img {
@@ -1025,14 +1027,11 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+    border-radius: 4px;
   }
 
   /* the Embellishment swatches are the only card thumbs that are solid square studio shots rather
      than cut-out product PNGs, so they're the only ones a corner radius shows on */
-  #stepTubeEmbellishment .box-type-card-thumb img {
-    border-radius: 8px;
-  }
-
   .box-type-card-text {
     display: flex;
     flex-direction: column;
@@ -1271,8 +1270,8 @@
   /* ---------- per-box-type step sets ----------
      Every step carries data-for="box", "tube" or "labels" unless it applies to every flow (Category,
      Product, Size, Quantity). The Tubes category swaps the whole middle of the flow: body.box-type-tube
-     drops Construction / Closure / Windows / Material Color / Customization / Additional options and
-     reveals Material / Lid colour / Finish / Embellishment instead. The Labels product (Accessories
+     drops Type / Bottom / Windows / Print / Print coverage / Print colour / Material / Finish and
+     reveals the tube Material / Lid colour / Finish / Embellishment instead. The Labels product (Accessories
      category) does the same via body.box-type-labels: Type / Shape / Size / Material / Adhesive /
      Fixed options. The dots in #stepDots carry the same attribute so the progress rail matches, and
      the accordion badges renumber themselves off the visible steps only (see isStepVisible() in the
@@ -1283,6 +1282,18 @@
   body:not(.box-type-labels) [data-for="labels"],
   body.box-type-tube [data-for="box"],
   body.box-type-labels [data-for="box"] { display: none; }
+
+  /* per-product options inside a flow: body carries data-product (set by syncBoxType) and any
+     element — a step, a dot, a single option card, a subfield — can opt in or out per product:
+     data-only-product="<p>" shows it for that product only, data-not-product="<p>" hides it for
+     that product only. Same hide-only idea as data-for; isStepVisible() checks both so the badges
+     and dots renumber, and syncBoxType() re-selects a group whose active option got hidden.
+     One rule pair per product, since CSS can't compare attributes across elements. Products
+     without their own rules (Shipping/Rigid Box, envelopes, bags) see every ungated option. */
+  body:not([data-product="mailer-box"]) [data-only-product="mailer-box"],
+  body:not([data-product="product-box"]) [data-only-product="product-box"],
+  body[data-product="mailer-box"] [data-not-product="mailer-box"],
+  body[data-product="product-box"] [data-not-product="product-box"] { display: none; }
 
   /* labels only: the Shape step relabels Width as Diameter and drops Height for a circular label */
   body:not(.label-shape-circular) [data-shape="circular"],
@@ -2084,11 +2095,15 @@
     <button class="build-box-dot" data-target="stepProduct" aria-label="Product"></button>
     <button class="build-box-dot" data-for="labels" data-target="stepLabelType" aria-label="Type"></button>
     <button class="build-box-dot" data-for="labels" data-target="stepLabelShape" aria-label="Shape"></button>
-    <button class="build-box-dot" data-for="box" data-target="stepConstruction" aria-label="Construction"></button>
+    <button class="build-box-dot" data-for="box" data-not-product="mailer-box" data-target="stepConstruction" aria-label="Type"></button>
+    <button class="build-box-dot" data-for="box" data-not-product="mailer-box" data-target="stepClosure" aria-label="Bottom"></button>
     <button class="build-box-dot" data-target="stepSize" aria-label="Size"></button>
-    <button class="build-box-dot" data-for="box" data-target="stepClosure" aria-label="Closure"></button>
-    <button class="build-box-dot" data-for="box" data-target="stepWindows" aria-label="Windows and cutouts"></button>
-    <button class="build-box-dot" data-for="box" data-target="stepMaterial" aria-label="Material color"></button>
+    <button class="build-box-dot" data-for="box" data-not-product="mailer-box" data-target="stepWindows" aria-label="Windows and cutouts"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepCustomization" aria-label="Print"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepPrintCoverage" aria-label="Print coverage"></button>
+    <button class="build-box-dot" data-for="box" data-only-product="mailer-box" data-target="stepPrintColour" aria-label="Print colour"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepMaterial" aria-label="Material"></button>
+    <button class="build-box-dot" data-for="box" data-not-product="mailer-box" data-target="stepFinish" aria-label="Finish"></button>
     <button class="build-box-dot" data-for="tube" data-target="stepTubeMaterial" aria-label="Material"></button>
     <button class="build-box-dot" data-for="tube" data-target="stepTubeLid" aria-label="Lid colour"></button>
     <button class="build-box-dot" data-for="tube" data-target="stepTubeFinish" aria-label="Finish"></button>
@@ -2096,8 +2111,9 @@
     <button class="build-box-dot" data-for="labels" data-target="stepLabelMaterial" aria-label="Material"></button>
     <button class="build-box-dot" data-for="labels" data-target="stepLabelAdhesive" aria-label="Adhesive"></button>
     <button class="build-box-dot" data-for="labels" data-target="stepLabelFixed" aria-label="Fixed options"></button>
-    <button class="build-box-dot" data-for="box" data-target="stepCustomization" aria-label="Customization"></button>
-    <button class="build-box-dot" data-for="box" data-target="stepAdditional" aria-label="Additional options"></button>
+    <button class="build-box-dot" data-for="box" data-only-product="mailer-box" data-target="stepAdhesiveStrip" aria-label="Adhesive strip"></button>
+    <button class="build-box-dot" data-for="box" data-only-product="mailer-box" data-target="stepMailerFixed" aria-label="Fixed options"></button>
+    <button class="build-box-dot" data-for="box" data-only-product="product-box" data-target="stepProductBoxFixed" aria-label="Fixed options"></button>
     <button class="build-box-dot" data-target="stepQuantity" aria-label="Quantity"></button>
   </nav>
 
@@ -2441,21 +2457,21 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepConstruction" data-for="box">
+      <section class="build-box-step" id="stepConstruction" data-for="box" data-not-product="mailer-box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">2</span>
-          <span class="build-box-accordion-title">Construction<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Type<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Construction</h3>
-        <p class="build-box-field-desc">Decide how the box will open and close</p>
+        <h3 class="build-box-field-label">Type</h3>
+        <p class="build-box-field-desc">Pick the box style that suits your product</p>
         <div class="construction-grid">
           <button class="construction-card active" data-construction="classic">
             <img src="assets/build/classic.svg" alt="">
             <span>Classic</span>
           </button>
-          <button class="construction-card" data-construction="hanging">
+          <button class="construction-card" data-not-product="product-box" data-construction="hanging">
             <img src="assets/build/hanging.svg" alt="">
             <span>Hanging</span>
           </button>
@@ -2463,13 +2479,51 @@
             <img src="assets/build/with-lid.svg" alt="">
             <span>With Lid</span>
           </button>
-          <button class="construction-card" data-construction="handle">
+          <!-- Product Box only; no 3D silhouette yet, the preview stays the classic cuboid -->
+          <button class="construction-card" data-only-product="product-box" data-construction="pillow">
+            <img src="assets/build/pillow.svg" alt="">
+            <span>Pillow</span>
+          </button>
+          <button class="construction-card" data-only-product="product-box" data-construction="drawer">
+            <img src="assets/build/drawer.svg" alt="">
+            <span>Drawer</span>
+          </button>
+          <button class="construction-card" data-not-product="product-box" data-construction="handle">
             <img src="assets/build/handle.svg" alt="">
             <span>With Handle</span>
           </button>
-          <button class="construction-card" data-construction="gable">
+          <button class="construction-card" data-not-product="product-box" data-construction="gable">
             <img src="assets/build/gable.svg" alt="">
             <span>Gable Top</span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepClosure" data-for="box" data-not-product="mailer-box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">4</span>
+          <span class="build-box-accordion-title">Bottom<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Bottom</h3>
+        <p class="build-box-field-desc">Choose how the box bottom locks together</p>
+        <div class="construction-grid">
+          <button class="construction-card active">
+            <img src="assets/build/auto-lock.svg" alt="">
+            <span>Auto Lock</span>
+          </button>
+          <button class="construction-card">
+            <img src="assets/build/reverse-tuck.svg" alt="">
+            <span>Reverse Tuck</span>
+          </button>
+          <button class="construction-card">
+            <img src="assets/build/snap-lock.svg" alt="">
+            <span>Snap Lock</span>
+            <span class="construction-card-preview">
+              <video src="assets/build/snaplock.mp4" autoplay muted loop playsinline></video>
+            </span>
           </button>
         </div>
         </div>
@@ -2522,43 +2576,14 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepClosure" data-for="box">
-        <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">4</span>
-          <span class="build-box-accordion-title">Closure<span class="build-box-accordion-value"></span></span>
-          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Closure</h3>
-        <p class="build-box-field-desc">Choose how the box bottom locks together</p>
-        <div class="construction-grid">
-          <button class="construction-card active">
-            <img src="assets/build/auto-lock.svg" alt="">
-            <span>Auto Lock</span>
-          </button>
-          <button class="construction-card">
-            <img src="assets/build/reverse-tuck.svg" alt="">
-            <span>Reverse Tuck</span>
-          </button>
-          <button class="construction-card">
-            <img src="assets/build/snap-lock.svg" alt="">
-            <span>Snap Lock</span>
-            <span class="construction-card-preview">
-              <video src="assets/build/snaplock.mp4" autoplay muted loop playsinline></video>
-            </span>
-          </button>
-        </div>
-        </div>
-      </section>
-
-      <section class="build-box-step" id="stepWindows" data-for="box">
+      <section class="build-box-step" id="stepWindows" data-for="box" data-not-product="mailer-box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">5</span>
-          <span class="build-box-accordion-title">Windows &amp; Cutouts<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Windows and cutouts<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Windows &amp; Cutouts</h3>
+        <h3 class="build-box-field-label">Windows and cutouts</h3>
         <p class="build-box-field-desc">Add a transparent window or lines that make opening easier</p>
         <div class="box-type-grid">
           <button class="box-type-card active" data-windows="no">
@@ -2575,14 +2600,14 @@
               <span class="box-type-card-desc">A cut-out window in the box wall, usually filled with film, to display the product inside.</span>
             </span>
           </button>
-          <button class="box-type-card" data-windows="perforation">
+          <button class="box-type-card" data-not-product="product-box" data-windows="perforation">
             <span class="box-type-card-thumb"><img src="assets/build/perforation.png" alt=""></span>
             <span class="box-type-card-text">
               <span class="box-type-card-label">Perforation</span>
               <span class="box-type-card-desc">A perforated line that lets part of the box be easily torn off.</span>
             </span>
           </button>
-          <button class="box-type-card no-thumb" data-windows="crease">
+          <button class="box-type-card no-thumb" data-not-product="product-box" data-windows="crease">
             <span class="box-type-card-text">
               <span class="box-type-card-label">Crease line</span>
               <span class="box-type-card-desc">An extra scoring line for precise, controlled folding at a specific spot.</span>
@@ -2592,49 +2617,14 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepMaterial" data-for="box">
-        <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">6</span>
-          <span class="build-box-accordion-title">Material Color<span class="build-box-accordion-value"></span></span>
-          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Material Color</h3>
-        <p class="build-box-field-desc">Pick the base cardboard color — it affects the look and production cost</p>
-        <div class="material-card-grid">
-          <button class="material-card active" data-material="kraft">
-            <span class="material-card-image"><img src="assets/build/material-kraft.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">Kraft</span>
-              <span class="material-card-desc">Natural brown board with a rustic look and sturdy strength.</span>
-            </span>
-          </button>
-          <button class="material-card" data-material="white">
-            <span class="material-card-image"><img src="assets/build/material-white.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">White</span>
-              <span class="material-card-desc">A white surface for clean, crisp printing at an accessible price.</span>
-            </span>
-          </button>
-          <button class="material-card" data-material="premium-white">
-            <span class="material-card-image"><img src="assets/build/material-white-premium.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">Premium white</span>
-              <span class="material-card-desc">Fully bleached, premium white finish delivering the highest print quality and a luxury feel.</span>
-            </span>
-          </button>
-        </div>
-        </div>
-      </section>
-
       <section class="build-box-step" id="stepCustomization" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">7</span>
-          <span class="build-box-accordion-title">Customization<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Print<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Customization</h3>
+        <h3 class="build-box-field-label">Print</h3>
         <p class="build-box-field-desc">Choose whether to print your design on the box</p>
         <div class="material-card-grid">
           <button class="material-card active" data-customization="plain">
@@ -2655,51 +2645,213 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepAdditional" data-for="box">
+      <!-- Print coverage / Print colour (Mailer Box only) / Material / Finish (not Mailer Box): the print
+           and material steps sit after Print so both product orders Michal specified fall out of one DOM
+           order once the gated steps drop — Product Box: Print, Print coverage, Material, Finish;
+           Mailer Box: Print, Print coverage, Print colour, Material. -->
+      <section class="build-box-step" id="stepPrintCoverage" data-for="box">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">8</span>
-          <span class="build-box-accordion-title">Additional options<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-badge">7</span>
+          <span class="build-box-accordion-title">Print coverage<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Additional options</h3>
-        <p class="build-box-field-desc">Fine-tune the print and finish to match your brand.</p>
-
-        <div class="build-box-subfield">
-          <h4 class="build-box-subfield-label">Print coverage</h4>
-          <div class="box-type-grid">
-            <button class="box-type-card no-thumb active" data-print="outside">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Outside</span>
-                <span class="box-type-card-desc">Print applied only to the outer surface of the box.</span>
-              </span>
-            </button>
-            <button class="box-type-card no-thumb" data-print="outside-inside">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Outside + Inside</span>
-                <span class="box-type-card-desc">Print applied both outside and inside for a fully branded look.</span>
-              </span>
-            </button>
-          </div>
+        <h3 class="build-box-field-label">Print coverage</h3>
+        <p class="build-box-field-desc">Choose which surfaces of the box carry your print</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-print="outside">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Outside</span>
+              <span class="box-type-card-desc">Print applied only to the outer surface of the box.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-print="outside-inside">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Outside + Inside</span>
+              <span class="box-type-card-desc">Print applied both outside and inside for a fully branded look.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-only-product="mailer-box" data-print="inside">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Inside</span>
+              <span class="box-type-card-desc">Print applied only to the inner surface, revealed on opening.</span>
+            </span>
+          </button>
         </div>
-
-        <div class="build-box-subfield">
-          <h4 class="build-box-subfield-label">Finish</h4>
-          <div class="box-type-grid">
-            <button class="box-type-card no-thumb active" data-finish="gloss">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Gloss</span>
-                <span class="box-type-card-desc">A shiny finish that makes colors pop and print stand out.</span>
-              </span>
-            </button>
-            <button class="box-type-card no-thumb" data-finish="matt">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Matt</span>
-                <span class="box-type-card-desc">A soft, non-reflective finish for a subtle, premium look.</span>
-              </span>
-            </button>
-          </div>
         </div>
+      </section>
+
+      <section class="build-box-step" id="stepPrintColour" data-for="box" data-only-product="mailer-box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">7</span>
+          <span class="build-box-accordion-title">Print colour<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Print colour</h3>
+        <p class="build-box-field-desc">Pick the ink set your design is printed with</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-print-colour="mono">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Mono colour</span>
+              <span class="box-type-card-desc">One ink colour; the most economical way to brand the box.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-print-colour="white">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">White colour</span>
+              <span class="box-type-card-desc">White ink only, for a crisp contrast on kraft board.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-print-colour="multi">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Multi colour</span>
+              <span class="box-type-card-desc">Full-colour print for photos, gradients and rich artwork.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-print-colour="multi-premium">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Multi colour premium<span class="box-type-card-tag">Premium</span></span>
+              <span class="box-type-card-desc">Full colour at the highest resolution, on a smoother top layer.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-print-colour="hot-stamping">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Hot stamping<span class="box-type-card-tag">Premium</span></span>
+              <span class="box-type-card-desc">Metallic foil pressed into the board for a raised, luxurious mark.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepMaterial" data-for="box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">6</span>
+          <span class="build-box-accordion-title">Material<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Material</h3>
+        <p class="build-box-field-desc">Pick the base cardboard color — it affects the look and production cost</p>
+        <div class="material-card-grid">
+          <button class="material-card active" data-material="kraft">
+            <span class="material-card-image"><img src="assets/build/material-kraft.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Kraft</span>
+              <span class="material-card-desc">Natural brown board with a rustic look and sturdy strength.</span>
+            </span>
+          </button>
+          <button class="material-card" data-material="white">
+            <span class="material-card-image"><img src="assets/build/material-white.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">White</span>
+              <span class="material-card-desc">A white surface for clean, crisp printing at an accessible price.</span>
+            </span>
+          </button>
+          <button class="material-card" data-not-product="mailer-box" data-material="premium-white">
+            <span class="material-card-image"><img src="assets/build/material-white-premium.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Premium white</span>
+              <span class="material-card-desc">Fully bleached, premium white finish delivering the highest print quality and a luxury feel.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepFinish" data-for="box" data-not-product="mailer-box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">7</span>
+          <span class="build-box-accordion-title">Finish<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Finish</h3>
+        <p class="build-box-field-desc">Add a protective coating over the printed board</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-finish="gloss">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Glossy varnish</span>
+              <span class="box-type-card-desc">A shiny coating that makes colours pop and print stand out.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-finish="matt">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Matte foil</span>
+              <span class="box-type-card-desc">A soft, non-reflective laminate for a subtle, premium look.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <!-- Mailer Box only (data-only-product, see the <style> block): the peel-and-seal strip on the lid.
+           Sits after Additional options so the mailer flow reads Material -> Customization -> Additional
+           options -> Adhesive strip -> Fixed options, matching the spec Michal supplied. -->
+      <section class="build-box-step" id="stepAdhesiveStrip" data-for="box" data-only-product="mailer-box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">5</span>
+          <span class="build-box-accordion-title">Adhesive strip<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Adhesive strip</h3>
+        <p class="build-box-field-desc">Add a peel-and-seal strip to the lid for tool-free closing</p>
+        <div class="box-type-grid">
+          <button class="box-type-card active" data-adhesive-strip="none">
+            <span class="box-type-card-thumb"><img src="assets/build/adhesive-strip-none.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">None</span>
+              <span class="box-type-card-desc">The box closes with tucked flaps only, no adhesive strip.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-adhesive-strip="single">
+            <span class="box-type-card-thumb"><img src="assets/build/adhesive-strip-single.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Single</span>
+              <span class="box-type-card-desc">One peel-and-seal strip for a secure, tamper-evident closure.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-adhesive-strip="double">
+            <span class="box-type-card-thumb"><img src="assets/build/adhesive-strip-double.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Double</span>
+              <span class="box-type-card-desc">Two strips, so the box can be sealed again for returns.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <!-- Mailer Box only: read-only spec, same block as the Labels flow's Fixed options -->
+      <section class="build-box-step" id="stepMailerFixed" data-for="box" data-only-product="mailer-box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">10</span>
+          <span class="build-box-accordion-title">Fixed options<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Fixed options</h3>
+        <dl class="fixed-options-list">
+          <div><dt>Inside material</dt><dd>Kraft</dd></div>
+        </dl>
+        </div>
+      </section>
+
+      <!-- Product Box only: read-only spec -->
+      <section class="build-box-step" id="stepProductBoxFixed" data-for="box" data-only-product="product-box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">10</span>
+          <span class="build-box-accordion-title">Fixed options<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Fixed options</h3>
+        <dl class="fixed-options-list">
+          <div><dt>Opening</dt><dd>Tuck end</dd></div>
+          <div><dt>Print colour</dt><dd>Multi colour</dd></div>
+        </dl>
         </div>
       </section>
 
@@ -3491,10 +3643,13 @@
 
     function isTube() { return activeCategory() === 'tubes'; }
 
-    function isLabels() {
-      if (activeCategory() !== 'accessories') { return false; }
+    function activeProduct() {
       var tile = document.querySelector('#stepProduct .product-tile-grid.active .product-tile.active');
-      return !!tile && tile.getAttribute('data-product') === 'labels';
+      return tile ? tile.getAttribute('data-product') : '';
+    }
+
+    function isLabels() {
+      return activeCategory() === 'accessories' && activeProduct() === 'labels';
     }
 
     function isCircularLabel() {
@@ -3519,12 +3674,34 @@
       lengthInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    // An option the new product gates away can't stay selected (the 3D model, canvas image and
+    // accordion summary all read the .active card), so such a group falls back to its first
+    // visible option — via click(), so every listener on that card runs as if the user chose it.
+    var reselecting = false;
+    function reselectHiddenOptions() {
+      if (reselecting) { return; }
+      reselecting = true;
+      document.querySelectorAll('.construction-grid, .material-card-grid, .box-type-grid').forEach(function (group) {
+        if (group.id === 'categoryGrid') { return; }
+        var active = group.querySelector(':scope > button.active');
+        if (!active || getComputedStyle(active).display !== 'none') { return; }
+        var first = Array.prototype.filter.call(group.querySelectorAll(':scope > button'), function (b) {
+          return getComputedStyle(b).display !== 'none';
+        })[0];
+        if (first) { first.click(); }
+      });
+      reselecting = false;
+    }
+
     function syncBoxType() {
       var tube = isTube();
       var labels = isLabels();
       model.setAttribute('data-box-type', tube ? 'tube' : 'box');
       document.body.classList.toggle('box-type-tube', tube);
       document.body.classList.toggle('box-type-labels', labels);
+      // per-product options (data-only-product / data-not-product) key off this, see the <style> block
+      document.body.setAttribute('data-product', activeProduct());
+      reselectHiddenOptions();
       document.body.classList.toggle('label-shape-circular', labels && isCircularLabel());
 
       // the standard sizes are box P-codes, so the tube and labels flows drop that mode along with its segment
@@ -4477,18 +4654,10 @@
         }
         return w.value + ' x ' + l.value + ' x ' + h.value + ' cm';
       }
-      if (step.id === 'stepLabelFixed') {
+      if (step.querySelector('.fixed-options-list')) {
         var fixed = [];
         step.querySelectorAll('.fixed-options-list dd').forEach(function (dd) { fixed.push(dd.textContent.trim()); });
         return fixed.join(', ');
-      }
-      if (step.id === 'stepAdditional') {
-        var parts = [];
-        step.querySelectorAll('.build-box-subfield').forEach(function (sub) {
-          var active = sub.querySelector('.box-type-card.active');
-          if (active) { parts.push(cardLabel(active)); }
-        });
-        return parts.join(', ');
       }
       if (step.id === 'stepProduct') {
         var tile = step.querySelector('.product-tile-grid.active .product-tile.active .product-tile-label');
@@ -4520,6 +4689,10 @@
     }
     function isStepVisible(step) {
       if (step.classList.contains('is-hidden')) { return false; }
+      var product = document.body.getAttribute('data-product');
+      var onlyProduct = step.getAttribute('data-only-product');
+      if (onlyProduct && onlyProduct !== product) { return false; }
+      if (step.getAttribute('data-not-product') === product) { return false; }
       var only = step.getAttribute('data-for');
       return !only || only === currentFlow();
     }
