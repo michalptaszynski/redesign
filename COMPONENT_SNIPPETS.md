@@ -507,6 +507,11 @@ Anatomia jednego kroku (accordion header + content), powtarzalna dla wszystkich 
 ```
 
 ### `.construction-grid` — wybór wizualny/ikonowy, bez opisu
+Ramką jest sam `<img>` (padding na replaced element działa), podpis to `<span>` **pod
+ramką, do lewej**, 13px. Grid 4 kolumny. Nie wkładaj nazwy do środka kafla i nie
+centruj jej — patrz "Reguła kafelków" w guideline pkt 5.3. Opcjonalny
+`.construction-card-preview` (hover-wideo) idzie **po** spanie z nazwą, bo
+`cardLabel()` w JS bierze pierwszy `:scope > span`.
 ```html
 <div class="construction-grid">
   <button class="construction-card active" data-construction="classic">
@@ -514,6 +519,19 @@ Anatomia jednego kroku (accordion header + content), powtarzalna dla wszystkich 
     <span>Classic</span>
   </button>
   <!-- kolejne .construction-card -->
+</div>
+```
+
+### `.product-tile-grid` — wybór produktu w kategorii (zdjęcie + nazwa pod spodem)
+Ten sam układ co wyżej, tylko ramka jest osobnym spanem ze zdjęciem. Jedna siatka per
+kategoria, `.active` tylko na tej, której kategoria jest wybrana w `#categoryGrid`.
+```html
+<div class="product-tile-grid active" data-category="boxes">
+  <button class="product-tile active" data-product="mailer-box">
+    <span class="product-tile-thumb"><img src="build/prod-mailer-box.png" alt=""></span>
+    <span class="product-tile-label">Mailer Box</span>
+  </button>
+  <!-- kolejne .product-tile; brak zdjęcia = pusty .product-tile-thumb, nigdy placeholder -->
 </div>
 ```
 

@@ -573,12 +573,13 @@ p.build-box-field-desc       (1 zdanie kontekstu)
 [opcje — jeden z 4 wzorców niżej]
 ```
 
-**Sześć wzorców wyboru opcji — który wybrać, zależy od typu decyzji:**
+**Siedem wzorców wyboru opcji — który wybrać, zależy od typu decyzji:**
 
 | Wzorzec | Wygląd | Kiedy użyć | Gdzie już użyty |
 |---|---|---|---|
 | `.box-type-grid` | pionowa lista pełnej szerokości, miniatura 88×88 + tytuł + opis | Wybór **z opisem** wymagającym wyjaśnienia (nie sama nazwa wystarczy) | Box type, Windows, Print coverage/Finish, Quantity |
-| `.construction-grid` | kwadratowe kafle 100×100, ikona + podpis, wrap w rzędy | Wybór **wizualny/ikonowy** bez potrzeby opisu, dużo opcji obok siebie | Construction, Closure |
+| `.construction-grid` | grid 4 kolumny kwadratowych ramek (ikona SVG w szarej ramce 12px radius), **podpis pod ramką, do lewej**, 13px | Wybór **wizualny/ikonowy** bez potrzeby opisu, dużo opcji obok siebie | Type (Construction), Bottom (Closure) |
+| `.product-tile-grid` | grid 3 kolumny kwadratowych ramek ze zdjęciem produktu, **podpis pod ramką, do lewej**, 13px | Wybór **produktu** wewnątrz kategorii (jedna siatka per kategoria, widoczna tylko aktywna) | Product |
 | `.material-card-grid` | prawdziwy CSS grid 2 kolumny, zdjęcie 162:104 + tytuł + opis | Wybór, gdzie **zdjęcie materiału/wykończenia** jest kluczowe dla decyzji | Material, Customization |
 | `.dimension-grid` | 3-kolumnowy grid pól numerycznych z jednostką | **Tylko** dla wprowadzania wymiarów/liczb, nie dla wyboru z listy | Size |
 | `.toggle-switch` | pigułka 2-3 opcje | Przełącznik **trybu**, nie wybór z listy opcji (np. "podaj wymiary zewnętrzne" vs "podaj wymiary produktu") | Size mode, 3D/2D, Open/Close |
@@ -586,8 +587,22 @@ p.build-box-field-desc       (1 zdanie kontekstu)
 
 **Reguła wyboru:** jeśli opcja wymaga zdjęcia żeby ją zrozumieć → `material-card-grid`.
 Jeśli wystarczy ikona/kształt → `construction-grid`. Jeśli trzeba dodać zdanie
-wyjaśnienia → `box-type-grid`. Nie wymyślaj nowego wzorca na kolejny krok — te cztery
+wyjaśnienia → `box-type-grid`. Nie wymyślaj nowego wzorca na kolejny krok — te
 pokrywają wszystkie dotychczasowe przypadki.
+
+**Reguła kafelków (wymaganie Michała, 2026-09-14):** każdy kafelkowy wybór bez opisu
+(`.construction-grid`, `.product-tile-grid` i każdy przyszły kafel "ikona/zdjęcie +
+sama nazwa") ma nazwę **pod ramką, wyrównaną do lewej krawędzi ramki**, nigdy
+wycentrowaną wewnątrz kafla. Ramka i podpis to osobne elementy: ramka
+(`.product-tile-thumb` albo sam `<img>` w `.construction-card`) niesie tło/hover/stan
+aktywny (biel + ciemna obwódka lub `box-shadow` obrysu), podpis niesie tylko kolor
+(muted → primary + `font-weight: 500` po zaznaczeniu). Podpis: **0.8125rem (13px)**,
+`line-height: 1.32`, `letter-spacing: -0.02em` — ta sama wielkość we wszystkich
+kafelkowych krokach, nie mieszaj 13px z 15px między krokami. Sam przycisk jest
+przezroczysty (`padding: 0; border: none; background: none; text-align: left`).
+Siatka to CSS grid (`repeat(4|3, minmax(0, 1fr))`, gap `var(--space-4) var(--space-2)`),
+nie flex-wrap ze sztywną szerokością — ukryte opcje (`display: none` przez
+`data-only-product`/`data-not-product`) po prostu wypadają z siatki.
 
 **Elementy poza krokami:**
 - **`.build-box-dots`** — pionowa nawigacja z kropkami po prawej stronie ekranu,
