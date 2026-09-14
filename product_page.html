@@ -351,8 +351,35 @@
        blew the single "1fr" column out to 552px inside a 358px container
        -- with body's overflow-x:clip silently hiding it, so the image,
        headline and every config control sat cut off past the right edge. */
-    .pp-gallery-outer { position: static; height: 60vh; min-height: 360px; top: 0; flex-direction: column; min-width: 0; }
-    .pp-gallery-outer .pp-gallery { flex: 1; min-height: 0; order: 1; }
+    /* min-height:0 clears the desktop rule's 420px floor -- this column's
+       real content (switcher + near-square photo + dots) comes in under
+       that on most phone widths, so the box was padding itself out to
+       420px tall and leaving dead space below the dots that the desktop
+       rule never has to account for (there the sticky column is always
+       at least viewport-tall anyway).
+       margin-bottom sets the gap to #ppConfigCol precisely: .pp-layout's
+       own grid gap already contributes --space-4 (16px), so this adds the
+       other 24px to land on the requested 40px total. */
+    .pp-gallery-outer { position: static; height: auto; min-height: 0; top: 0; flex-direction: column; min-width: 0; margin-bottom: 24px; }
+    /* Near-square photo panel instead of a 60vh strip -- flex:none so
+       aspect-ratio (not the flex algorithm) sets the height from the
+       column's own width. Very slightly wider than tall (not a flat 1:1)
+       reads less cramped for landscape product shots.
+       Duplicated onto the .pp-gallery-mode-below-qualified selector too:
+       that rule (up near the "mode-below" arrangement, unconditional on
+       viewport) sets flex:1 at equal 3-class specificity, so without a
+       same-specificity mobile override here it kept winning over this
+       plain 2-class one and flex-grow (not aspect-ratio) ended up setting
+       the actual height whenever "below" was the active gear-panel mode. */
+    .pp-gallery-outer .pp-gallery,
+    .pp-gallery-outer.pp-gallery-mode-below .pp-gallery {
+      flex: none;
+      /* 20% shorter again on top of the earlier 1.08:1 (same width, height
+         * 0.8 -> ratio / 0.8). */
+      aspect-ratio: 1.35 / 1;
+      min-height: 0;
+      order: 1;
+    }
     .pp-gallery-outer .pp-gallery-thumbs {
       order: 2;
       flex: 0 0 auto;
@@ -1945,7 +1972,22 @@
     .categories-grid { padding: 0 var(--space-4) var(--space-2); }
     .pp-spec-section { padding: 0 var(--space-4); }
     .pp-brands-heading { font-size: 1.75rem; }
-    .pp-brands-col { flex-direction: column; }
+    /* 3 rows of 2 instead of the 900px breakpoint's own version of that (or
+       a 6-tall single-file stack, which is what flex-direction:column here
+       used to fall back to) -- display:contents drops .pp-brands-col from
+       the box tree so its two photos become direct items of the grid
+       below, in DOM order (col-a's pair, then col-b's, then col-c's). */
+    .pp-brands-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); }
+    .pp-brands-col { display: contents; }
+
+    /* Tiles this small (~1/3 of a 900px-breakpoint one) can't fit the
+       badge at its desktop size without the logo/handle bleeding past the
+       tile edge into a hard clip -- shrink the badge itself and let long
+       @handles ellipsize instead of cutting off mid-character. */
+    .pp-brands-badge { left: var(--space-2); bottom: var(--space-2); height: 22px; padding: 0 var(--space-2); gap: 3px; max-width: calc(100% - var(--space-2) * 2); overflow: hidden; }
+    .pp-brands-badge img { height: 9px; max-width: 100%; min-width: 0; }
+    .pp-brands-badge svg { width: 11px; height: 11px; }
+    .pp-brands-badge span { font-size: 0.625rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
     /* 160px of section rhythm is a fifth of a phone screen -- between the
        carousels it read as the page having simply ended. */
