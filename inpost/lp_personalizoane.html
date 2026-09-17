@@ -2472,6 +2472,23 @@ header.astro-header{top:calc(-1 * var(--ph-info-bar-offset, 0px));}
       if (isOpen) { answer.removeAttribute('hidden'); } else { answer.setAttribute('hidden', ''); }
     });
   });
+
+  // keeps the sticky header in sync with the USP info-bar height, same as on the
+  // other InPost pages, so the info-bar scrolls out of view instead of staying pinned
+  (function () {
+    var header = document.querySelector('.astro-header');
+    if (!header) return;
+    var bar = header.querySelector('.astro-header__info-bar');
+    function sync() {
+      var h = 0;
+      if (bar && bar.offsetParent !== null) { h = bar.getBoundingClientRect().height; }
+      header.style.setProperty('--ph-info-bar-offset', Math.round(h) + 'px');
+    }
+    sync();
+    window.addEventListener('resize', sync);
+    window.addEventListener('load', sync);
+    if (window.ResizeObserver && bar) { try { new ResizeObserver(sync).observe(bar); } catch (e) {} }
+  })();
 })();
 
 </script>
