@@ -14,7 +14,7 @@ var STICKY_BAR_HTML = `
 <div class="sticky-bar" id="stickyBar">
   <nav class="sticky-links" id="stickyLinks">
     <a href="packaging.html">Packaging</a>
-    <a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a>
+    <a href="merchandise.html">Merchandise<span class="nav-badge-new">New</span></a>
     <a href="industries.html">Industries</a>
   </nav>
 
@@ -63,7 +63,7 @@ var NAV_WRAPPER_HTML = `
     <div class="mobile-menu-panel" id="mobileMenuPanel">
       <ul class="mobile-menu-links">
         <li><a href="packaging.html">Packaging</a></li>
-        <li><a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a></li>
+        <li><a href="merchandise.html">Merchandise<span class="nav-badge-new">New</span></a></li>
         <li><a href="industries.html">Industries</a></li>
         <li><a href="case-studies.html">Case studies</a></li>
         <li><a href="sample-packs.html">Samples</a></li>
@@ -88,7 +88,7 @@ var NAV_WRAPPER_HTML = `
     <nav class="topbar">
     <ul class="nav-links desktop-only">
       <li class="nav-item-packaging"><a href="packaging.html">Packaging</a></li>
-      <li><a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a></li>
+      <li><a href="merchandise.html">Merchandise<span class="nav-badge-new">New</span></a></li>
       <li><a href="industries.html">Industries</a></li>
       <li><a href="case-studies.html">Case studies</a></li>
       <li><a href="sample-packs.html">Samples</a></li>

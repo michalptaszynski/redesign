@@ -107,7 +107,7 @@
     min-height: 420px;
     display: flex;
     flex-direction: row;
-    gap: var(--space-4);
+    gap: var(--space-2);
   }
 
   .pp-gallery {
@@ -389,16 +389,21 @@
     }
   }
 
-  /* ---------- gallery arrows + dots: the mobile stand-in for the thumbnail
-     strip (hidden there), so the photos stay reachable without a second
-     scrollable row under the image. Both are display:none until the mobile
-     block below turns them on. ---------- */
+  /* ---------- gallery arrows + dots ----------
+     Arrows are shown on every breakpoint now, alongside the thumbnail
+     strip on desktop, as an extra way to step through the gallery without
+     reaching for the thumbs. On desktop they only reveal on hover, over
+     either the photo itself or the thumbnail strip (see the :hover rules
+     below .pp-gallery-nav-svg) -- forced back on for mobile, which has no
+     hover, in the media query further down. Dots stay the mobile-only
+     stand-in for the thumbnail strip (hidden there) -- display:none until
+     the mobile block below turns them on. */
   /* Same button as .scroll-carousel-nav on the product carousels below. */
   .pp-gallery-nav {
     position: absolute;
     top: 50%;
     z-index: 4;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     width: 32px;
@@ -411,12 +416,22 @@
     color: var(--color-text-primary);
     cursor: pointer;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+
+  .pp-gallery-main:hover .pp-gallery-nav,
+  .pp-gallery-thumbs:hover ~ .pp-gallery .pp-gallery-nav,
+  .pp-gallery-nav:focus-visible {
+    opacity: 1;
   }
 
   .pp-gallery-nav svg { width: 16px; height: 16px; }
-  .pp-gallery-nav::after { content: ""; position: absolute; inset: -8px; }
-  .pp-gallery-nav.prev { left: var(--space-2); }
-  .pp-gallery-nav.next { right: var(--space-2); }
+  /* Bigger tap/click target than the visible 32px button, without growing
+     the button itself. */
+  .pp-gallery-nav::after { content: ""; position: absolute; inset: -16px; }
+  .pp-gallery-nav.prev { left: 16px; }
+  .pp-gallery-nav.next { right: 16px; }
 
   .pp-gallery-dots {
     display: none;
@@ -717,20 +732,31 @@
     height: 104px;
     align-items: center;
     justify-content: center;
+    /* Border reserved at all times (transparent when inactive, always the
+       same 1px width) so toggling .active never resizes the chip or its
+       image. A real border here, not an inset box-shadow -- box-shadow
+       sits flush against the image with zero gap and gets painted over by
+       it (img is a child, always on top), same bug .pp-gallery-thumb below
+       once had. No padding: the border sits in its own box outside the
+       image's content box, so it's never covered, and padding here would
+       just leave a visible 1px gap between the border and the photo. */
+    box-sizing: border-box;
+    border: 1px solid transparent;
     overflow: hidden;
     border-radius: 12px;
     background: var(--gray-100);
-    transition: background-color .15s ease, box-shadow .15s ease;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
 
   .pp-chip:hover .pp-chip-media { background: var(--gray-300); }
   .pp-chip.active .pp-chip-media,
   .pp-chip.active:hover .pp-chip-media {
     background: #fff;
-    box-shadow: inset 0 0 0 1px var(--gray-500), 0 2px 2px rgba(0,0,0,.08);
+    border-color: var(--gray-500);
+    box-shadow: 0 2px 2px rgba(0,0,0,.08);
   }
 
-  .pp-chip-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pp-chip-media img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
   .pp-chip-media.pp-chip-media-icon img { width: 64px; height: auto; object-fit: contain; }
 
   .pp-chip-label {
@@ -1419,98 +1445,6 @@
     .site-settings-btn { bottom: calc(72px + var(--space-4) + env(safe-area-inset-bottom, 0px)); }
   }
 
-  /* ---------- contact modal ---------- */
-  .pp-modal-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    background: rgba(0, 6, 26, .45);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .2s ease, visibility .2s ease;
-  }
-
-  .pp-modal-backdrop.open { opacity: 1; visibility: visible; }
-
-  .pp-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    z-index: 201;
-    width: min(420px, calc(100vw - var(--space-8)));
-    box-sizing: border-box;
-    padding: var(--space-8);
-    border-radius: var(--radius-xl);
-    background: var(--color-bg-surface);
-    box-shadow: 0 8px 32px rgba(0,0,0,.18);
-    transform: translate(-50%, -50%) scale(.96);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
-  }
-
-  .pp-modal-backdrop.open + .pp-modal,
-  .pp-modal.open {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
-  }
-
-  .pp-modal-close {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 50%;
-    background: var(--color-bg-muted);
-    color: var(--color-text-primary);
-    cursor: pointer;
-  }
-
-  .pp-modal-close svg { width: 16px; height: 16px; }
-
-  .pp-modal-title { margin: 0 0 var(--space-2); font-size: 1.25rem; font-weight: 500; letter-spacing: -0.03em; color: var(--color-text-primary); }
-  .pp-modal-desc { margin: 0 0 var(--space-6); font-size: 0.875rem; letter-spacing: -0.02em; line-height: 1.4; color: var(--color-text-muted); }
-
-  .pp-modal-options { display: flex; flex-direction: column; gap: var(--space-2); }
-
-  .pp-modal-option {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3);
-    border-radius: 12px;
-    background: var(--color-bg-muted);
-    color: var(--color-text-primary);
-    text-decoration: none;
-    transition: background-color .15s ease;
-  }
-
-  .pp-modal-option:hover { background: var(--color-bg-muted-hover); }
-
-  .pp-modal-option-icon {
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--color-bg-surface);
-    color: var(--color-accent);
-  }
-
-  .pp-modal-option-icon svg { width: 18px; height: 18px; }
-
-  .pp-modal-option-text { display: flex; flex-direction: column; gap: 2px; }
-  .pp-modal-option-label { font-size: 0.9375rem; letter-spacing: -0.02em; }
-  .pp-modal-option-value { font-size: 0.8125rem; letter-spacing: -0.02em; color: var(--color-text-muted); }
-
   @media (max-width: 700px) {
     .pp-layout { padding: var(--space-4); }
 
@@ -1520,9 +1454,11 @@
        .pp-layout's 16px grid gap before the gallery. */
     .pp-subheading { margin: 0; }
 
-    /* Thumbnails give way to arrows-on-the-photo + dots underneath. */
+    /* Thumbnails give way to dots underneath -- arrows are already shown
+       at every breakpoint (see .pp-gallery-nav above), and forced visible
+       here since touch has no hover to reveal them with. */
     .pp-gallery-outer .pp-gallery-thumbs { display: none; }
-    .pp-gallery-nav { display: flex; }
+    .pp-gallery-nav { opacity: 1; }
     .pp-gallery-dots { display: flex; order: 3; }
 
     /* JS lifts the switcher out of .pp-gallery-main up to here, so it sits
@@ -2546,11 +2482,11 @@
       </div>
 
       <div class="pp-info-rows">
-        <button type="button" class="pp-info-row" id="ppContactAdvisorBtn">
+        <a href="contact.html" class="pp-info-row">
           <svg class="pp-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           <span class="pp-info-row-label">Contact packaging advisors</span>
           <svg class="pp-info-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
+        </a>
         <a href="#ppSpecSection" class="pp-info-row" id="ppSpecLink">
           <svg class="pp-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
           <span class="pp-info-row-label">Specification</span>
@@ -2594,47 +2530,6 @@
       <span class="pp-sticky-summary-price" id="ppStickyPriceValue">€233.70</span>
     </div>
     <a href="#" class="btn-pill lg">Customize design</a>
-  </div>
-</div>
-
-<div class="pp-modal-backdrop" id="ppModalBackdrop"></div>
-<div class="pp-modal" id="ppModal" role="dialog" aria-label="Contact a packaging advisor">
-  <button type="button" class="pp-modal-close" id="ppModalClose" aria-label="Close">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-  </button>
-  <p class="pp-modal-title">Talk to a packaging advisor</p>
-  <p class="pp-modal-desc">Questions about sizing, materials or bulk pricing? Our team replies fast.</p>
-  <div class="pp-modal-options">
-    <a href="get-a-quote.html" class="pp-modal-option">
-      <span class="pp-modal-option-icon">
-        <span class="cta-avatars sm"><span class="cta-avatar"><img src="assets/expert-01.png" alt=""></span></span>
-      </span>
-      <span class="pp-modal-option-text">
-        <span class="pp-modal-option-label">Book an expert call</span>
-        <span class="pp-modal-option-value">30 min, free consultation</span>
-      </span>
-    </a>
-    <a href="#" class="pp-modal-option">
-      <span class="pp-modal-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-      <span class="pp-modal-option-text">
-        <span class="pp-modal-option-label">Start a live chat</span>
-        <span class="pp-modal-option-value">Usually replies in minutes</span>
-      </span>
-    </a>
-    <a href="mailto:advisory@packhelp.com" class="pp-modal-option">
-      <span class="pp-modal-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg></span>
-      <span class="pp-modal-option-text">
-        <span class="pp-modal-option-label">Email advisory</span>
-        <span class="pp-modal-option-value">advisory@packhelp.com</span>
-      </span>
-    </a>
-    <a href="tel:+442037693028" class="pp-modal-option">
-      <span class="pp-modal-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-      <span class="pp-modal-option-text">
-        <span class="pp-modal-option-label">Call us</span>
-        <span class="pp-modal-option-value">+44 20 3769 3028</span>
-      </span>
-    </a>
   </div>
 </div>
 
@@ -3945,31 +3840,6 @@
 
     positionBar();
     onScroll();
-  })();
-
-  // ---------- contact packaging advisors modal ----------
-  (function () {
-    var openBtn = document.getElementById('ppContactAdvisorBtn');
-    var backdrop = document.getElementById('ppModalBackdrop');
-    var modal = document.getElementById('ppModal');
-    var closeBtn = document.getElementById('ppModalClose');
-    if (!openBtn || !backdrop || !modal) { return; }
-
-    function open() {
-      backdrop.classList.add('open');
-      modal.classList.add('open');
-    }
-    function close() {
-      backdrop.classList.remove('open');
-      modal.classList.remove('open');
-    }
-
-    openBtn.addEventListener('click', open);
-    closeBtn.addEventListener('click', close);
-    backdrop.addEventListener('click', close);
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { close(); }
-    });
   })();
 
   // ---------- specification / FAQ toggle ----------
