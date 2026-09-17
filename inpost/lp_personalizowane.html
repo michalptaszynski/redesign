@@ -1062,14 +1062,15 @@ header.astro-header{top:calc(-1 * var(--ph-info-bar-offset, 0px));}
 .lp-editor-frame{margin-top:64px;overflow:hidden;background:#000;box-shadow:0 24px 72px rgba(0,0,0,.45)}
 .lp-editor-frame video{display:block;width:100%;height:auto}
 
+.lp-products-section{padding-top:64px;padding-bottom:64px}
 .lp-products-heading{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:16px}
 .lp-see-all{color:var(--wl-color-text-primary);font-size:14px;font-weight:600;text-decoration:underline;white-space:nowrap}
 .lp-products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .lp-product-card{width:auto;min-width:0;flex:none}
 
 .lp-center-title{margin:0 0 40px;text-align:center;color:var(--wl-color-text-primary);font-family:var(--wl-typography-h2-font-family,var(--wl-font-family));font-size:40px;line-height:48px;font-weight:700;letter-spacing:-0.4px}
-.lp-inspire-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.lp-inspire-tile{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--wl-color-background-paper)}
+.lp-inspire-grid{display:grid;grid-template-columns:repeat(4,1fr);align-items:start;gap:16px}
+.lp-inspire-tile{position:relative;width:100%;overflow:hidden;background:var(--wl-color-background-paper)}
 .lp-inspire-tile img{width:100%;height:100%;object-fit:cover;display:block}
 
 .lp-pin{position:absolute;left:var(--pin-left);top:var(--pin-top);width:16px;height:16px;background:#fff;box-shadow:0 0 0 8px rgba(255,255,255,.6),0 4px 4px rgba(0,0,0,.12);border-radius:50% !important;transform:translate(-50%,-50%);display:block;text-decoration:none}
@@ -2312,6 +2313,21 @@ header.astro-header{top:calc(-1 * var(--ph-info-bar-offset, 0px));}
 </section>
 
 
+<section class="lp-products-section">
+  <div class="home-page">
+    <section class="home-products home-products--v2">
+      <div class="lp-products-heading">
+        <h2 class="home-section-title">Wybierz produkt i dodaj swój branding</h2>
+        <a class="lp-see-all" href="listing_personalizowane.html">Wszystkie produkty</a>
+      </div>
+      <div class="lp-products-grid">
+        <a class="home-product-card home-product-card--v2 lp-product-card" href="pp_personalizowany.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/k45.png" alt="K45 Karton wysyłkowy 15×15×15cm Brązowy personalizowany" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">K45 Karton wysyłkowy 15×15×15cm Brązowy personalizowany</span><span class="home-product-card__size">20 x 20 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a><a class="home-product-card home-product-card--v2 lp-product-card" href="listing_personalizowane.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/f56.png" alt="F56 Personalizowane pudełko fasonowe - brązowe" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">F56 Personalizowane pudełko fasonowe - brązowe</span><span class="home-product-card__size">20 x 40 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a><a class="home-product-card home-product-card--v2 lp-product-card" href="listing_personalizowane.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/labels.png" alt="Personalizowane okrągłe etykiety w rolce" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">Personalizowane okrągłe etykiety w rolce</span><span class="home-product-card__size">20 x 20 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a><a class="home-product-card home-product-card--v2 lp-product-card" href="listing_personalizowane.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/y80.png" alt="Y80 Personalizowany papieropak" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">Y80 Personalizowany papieropak</span><span class="home-product-card__size">20 x 20 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a>
+      </div>
+    </section>
+  </div>
+</section>
+
+
 <section class="lp-editor">
   <div class="home-page">
     <h2 class="lp-editor-title">Własny projekt bez pomocy grafika</h2>
@@ -2327,26 +2343,11 @@ header.astro-header{top:calc(-1 * var(--ph-info-bar-offset, 0px));}
 </section>
 
 
-<section class="home-block-spacing" style="--home-block-margin-top-desktop:96px">
-  <div class="home-page">
-    <section class="home-products home-products--v2">
-      <div class="lp-products-heading">
-        <h2 class="home-section-title">Wybierz produkt i dodaj swój branding</h2>
-        <a class="lp-see-all" href="listing_personalizowane.html">Wszystkie produkty</a>
-      </div>
-      <div class="lp-products-grid">
-        <a class="home-product-card home-product-card--v2 lp-product-card" href="pp_personalizowany.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/k45.png" alt="K45 Karton wysyłkowy 15×15×15cm Brązowy personalizowany" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">K45 Karton wysyłkowy 15×15×15cm Brązowy personalizowany</span><span class="home-product-card__size">20 x 20 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a><a class="home-product-card home-product-card--v2 lp-product-card" href="listing_personalizowane.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/f56.png" alt="F56 Personalizowane pudełko fasonowe - brązowe" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">F56 Personalizowane pudełko fasonowe - brązowe</span><span class="home-product-card__size">20 x 40 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a><a class="home-product-card home-product-card--v2 lp-product-card" href="listing_personalizowane.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/labels.png" alt="Personalizowane okrągłe etykiety w rolce" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">Personalizowane okrągłe etykiety w rolce</span><span class="home-product-card__size">20 x 20 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a><a class="home-product-card home-product-card--v2 lp-product-card" href="listing_personalizowane.html"><span class="home-product-card__media"><img src="assets/lp-personalizowane-products/y80.png" alt="Y80 Personalizowany papieropak" loading="lazy"></span><span class="home-product-card__content"><span class="home-product-card__name">Y80 Personalizowany papieropak</span><span class="home-product-card__size">20 x 20 x 5 cm</span><span class="home-product-card__price">Od <strong>0,47&nbsp;zł</strong> za sztukę brutto</span></span></a>
-      </div>
-    </section>
-  </div>
-</section>
-
-
 <section class="home-block-spacing lp-inspire-section" style="--home-block-margin-top-desktop:96px">
   <div class="home-page">
     <h2 class="lp-center-title">Daj się zainspirować</h2>
     <div class="lp-inspire-grid">
-      <div class="lp-inspire-tile"><img src="assets/lp-personalizowane-inspire/tile-flowers-blue.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:30%;--pin-top:50%"><span class="lp-pin-popup">Personalizowany papier pakowy</span></a></div><div class="lp-inspire-tile"><img src="assets/lp-personalizowane-inspire/tile-boxes-f93.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:22%;--pin-top:40%"><span class="lp-pin-popup">F93 Personalizowane pudełko fasonowe - brązowe</span></a></div><div class="lp-inspire-tile"><img src="assets/lp-personalizowane-inspire/tile-bag-navy.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:17%;--pin-top:28%"><span class="lp-pin-popup">Personalizowana torba papierowa z nadrukiem</span></a></div><div class="lp-inspire-tile"><img src="assets/lp-personalizowane-inspire/tile-tissue-care.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:32%;--pin-top:28%"><span class="lp-pin-popup">Personalizowana bibuła pakowa</span></a><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:20%;--pin-top:80%"><span class="lp-pin-popup">Personalizowana taśma pakowa</span></a></div>
+      <div class="lp-inspire-tile" style="height:420px"><img src="assets/lp-personalizowane-inspire/tile-flowers-blue.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:30%;--pin-top:50%"><span class="lp-pin-popup">Personalizowany papier pakowy</span></a></div><div class="lp-inspire-tile" style="height:560px"><img src="assets/lp-personalizowane-inspire/tile-boxes-f93.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:22%;--pin-top:40%"><span class="lp-pin-popup">F93 Personalizowane pudełko fasonowe - brązowe</span></a></div><div class="lp-inspire-tile" style="height:480px"><img src="assets/lp-personalizowane-inspire/tile-bag-navy.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:17%;--pin-top:28%"><span class="lp-pin-popup">Personalizowana torba papierowa z nadrukiem</span></a></div><div class="lp-inspire-tile" style="height:360px"><img src="assets/lp-personalizowane-inspire/tile-tissue-care.png" alt="" loading="lazy"><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:32%;--pin-top:28%"><span class="lp-pin-popup">Personalizowana bibuła pakowa</span></a><a class="lp-pin" href="listing_personalizowane.html" style="--pin-left:20%;--pin-top:80%"><span class="lp-pin-popup">Personalizowana taśma pakowa</span></a></div>
     </div>
   </div>
 </section>
