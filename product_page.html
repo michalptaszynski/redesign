@@ -131,11 +131,15 @@
 
   /* ---------- IKEA-style hotspot pin on lifestyle photos (not the plain
      studio shot at index 0) -- position set per-thumb via data-pin-x/-y
-     (see JS), hover reveals a popover with a single "apply" link. ---------- */
+     (see JS), hover reveals a popover with a single "apply" link. Hidden
+     for now (display:none below) -- the JS still computes/toggles it on
+     every thumb change, harmlessly, so the feature can come back with a
+     one-line revert if needed. ---------- */
   .pp-gallery-pin {
     position: absolute;
     z-index: 3;
     transform: translate(-50%, -50%);
+    display: none;
   }
 
   .pp-gallery-pin[hidden] { display: none; }

@@ -2104,12 +2104,19 @@
     }
 
     /* Once the set has been advanced there is a full-bleed lifestyle photo
-       behind the arrows instead of the cutout's white space, so the disc
-       comes back -- and stays for the rest of the run, including the last
-       frame where only the left arrow is left. */
-    .product-card-media[data-gallery-pos]:not([data-gallery-pos="start"]) .product-card-gallery-nav {
+       behind the arrows instead of the cutout's white space, so a white
+       disc comes back for contrast -- and stays for the rest of the run,
+       including the last frame where only the left arrow is left. Drawn as
+       a smaller ::before instead of the button's own background so the
+       button itself (position + 32px tap target) doesn't change size. */
+    .product-card-media[data-gallery-pos]:not([data-gallery-pos="start"]) .product-card-gallery-nav::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
       background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: -1;
     }
 
     /* Filter bar: pills scroll in one row, "Filters" pill (funnel icon,

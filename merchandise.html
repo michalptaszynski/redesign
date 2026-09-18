@@ -1477,6 +1477,17 @@
     opacity: 1;
   }
 
+  /* Variant-switcher arrows (see initVariantSwitcher()) stop at the first/
+     last colour instead of looping -- the disabled end just disappears,
+     same treatment as .scroll-carousel-nav[disabled]. Listed twice so it
+     wins over both the desktop :hover reveal above and the mobile
+     always-on override further down, regardless of source order. */
+  .product-card-gallery-nav[disabled],
+  .product-card:hover .product-card-gallery-nav[disabled] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /* Cycle hover style (gear panel) replaces the gallery crossfade for
      opted-in cards -- hide its now-inert prev/next controls there. */
   body.pkg-tile-hover-cycle .product-card-media[data-hover-cycle] .product-card-gallery-nav {
@@ -1567,6 +1578,13 @@
      nodes around (which would have to be un-done again every time the
      view switches back to grid). */
   body.pkg-view-list #pkgProductGrid .product-card-info {
+    display: none;
+  }
+
+  /* List view builds its own title/price/spec row (.product-card-list-extra
+     below) -- the colour thumbnails don't fit that row, so they're dropped
+     entirely here rather than squeezed in. */
+  body.pkg-view-list #pkgProductGrid .product-card-swatches {
     display: none;
   }
 
@@ -2140,6 +2158,13 @@
     .product-card-gallery-nav.prev { left: 0; }
     .product-card-gallery-nav.next { right: 0; }
 
+    /* Colour thumbnails are a desktop-only affordance -- mobile keeps just
+       the arrows (always visible, see above) to step through the same
+       photos without the extra row of tap targets. */
+    .product-card-swatches {
+      display: none;
+    }
+
     /* Mobile pages through the set without wrapping, so the arrow that
        has nowhere left to go is dropped rather than shown as a no-op.
        data-gallery-pos is set by initProductGalleries; desktop ignores it
@@ -2415,26 +2440,6 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap" data-label="Customisation">
-        <button class="filter-pill" aria-expanded="false">
-          Customisation
-          <span class="filter-count" hidden>
-            <span class="filter-count-num">0</span>
-            <svg class="filter-count-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="filter-panel">
-          <p class="filter-panel-title">Customisation</p>
-          <div class="filter-panel-options">
-            <label class="filter-radio"><input type="radio" name="customisation" data-any checked><span class="radio-dot"></span>Any</label>
-            <label class="filter-radio"><input type="radio" name="customisation"><span class="radio-dot"></span>Custom</label>
-            <label class="filter-radio"><input type="radio" name="customisation"><span class="radio-dot"></span>Plain</label>
-            <label class="filter-radio"><input type="radio" name="customisation"><span class="radio-dot"></span>Pre-printed</label>
-          </div>
-        </div>
-      </div>
-
       <div class="filter-pill-wrap filter-pill-industry" data-label="Industry">
         <button class="filter-pill" aria-expanded="false">
           Industry
@@ -2459,56 +2464,6 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap" data-filter="size" data-label="Size">
-        <button class="filter-pill" aria-expanded="false">
-          Size
-          <span class="filter-count" hidden>
-            <span class="filter-count-num">0</span>
-            <svg class="filter-count-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="filter-panel">
-          <p class="filter-panel-title">Size</p>
-          <div class="filter-panel-options">
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>XS</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>S</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>M</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>L</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>XL</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>XXL</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-pill-wrap" data-label="Use case">
-        <button class="filter-pill" aria-expanded="false">
-          Use case
-          <span class="filter-count" hidden>
-            <span class="filter-count-num">0</span>
-            <svg class="filter-count-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="filter-panel filter-panel-scroll" id="useCaseFilterPanel">
-          <p class="filter-panel-title">Use case</p>
-          <div class="filter-panel-options">
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Christmas</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Corporate gifts</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Client gifts</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Employee onboarding</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Trade shows</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Conferences</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Product launches</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Sports &amp; wellness</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Charity &amp; fundraising</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Sustainability campaigns</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Staff uniforms</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Store openings</label>
-          </div>
-        </div>
-      </div>
-
       <div class="filter-pill-wrap" data-label="Branding technique">
         <button class="filter-pill" aria-expanded="false">
           Branding technique
@@ -2530,9 +2485,9 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap" data-label="Sustainability">
+      <div class="filter-pill-wrap" data-label="Colour">
         <button class="filter-pill" aria-expanded="false">
-          Sustainability
+          Colour
           <span class="filter-count" hidden>
             <span class="filter-count-num">0</span>
             <svg class="filter-count-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -2540,34 +2495,19 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="filter-panel">
-          <p class="filter-panel-title">Sustainability</p>
+          <p class="filter-panel-title">Colour</p>
+          <!-- Matches the live catalog's own ten swatches exactly. -->
           <div class="filter-panel-options">
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Eco Choice</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>FSC&reg; available</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Biodegradable material</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Reusable</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Recycled content</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Recyclable</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-pill-wrap" data-label="Collections">
-        <button class="filter-pill" aria-expanded="false">
-          Collections
-          <span class="filter-count" hidden>
-            <span class="filter-count-num">0</span>
-            <svg class="filter-count-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="filter-panel">
-          <p class="filter-panel-title">Collections</p>
-          <div class="filter-panel-options">
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Bestsellers</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>New Arrivals</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Custom sizes</label>
-            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Custom promo</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>White</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Grey</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Black</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Beige</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Brown</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Yellow/Orange</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Green</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Blue</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Red</label>
+            <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Pink/Purple</label>
           </div>
         </div>
       </div>
@@ -3872,11 +3812,16 @@
         var prevBtn = media.querySelector('.product-card-gallery-nav.prev');
         var nextBtn = media.querySelector('.product-card-gallery-nav.next');
 
+        // Clamped, not wrapped -- same "stop at the ends" behaviour as the
+        // rest of the site's carousels (.scroll-carousel-nav), unlike
+        // packaging.html's own lifestyle-photo gallery, which loops.
         function show(index) {
-          index = (index + variants.length) % variants.length;
+          index = Math.max(0, Math.min(variants.length - 1, index));
           media.setAttribute('data-variant-index', index);
           img.src = variants[index];
           swatches.forEach(function (sw, i) { sw.classList.toggle('active', i === index); });
+          if (prevBtn) { prevBtn.disabled = index === 0; }
+          if (nextBtn) { nextBtn.disabled = index === variants.length - 1; }
         }
 
         // Thumbnails switch on hover, not click -- matches picking a colour
@@ -3892,6 +3837,8 @@
             show(parseInt(media.getAttribute('data-variant-index'), 10) + (dir === 0 ? -1 : 1));
           });
         });
+
+        show(0);
       });
     }
 
@@ -4140,32 +4087,11 @@
           }
           tiles.forEach(function (t) { t.classList.remove('active'); });
           tile.classList.add('active');
-          if (tile.hasAttribute('data-usecase')) {
-            var label = tile.querySelector('.thumb-caption').textContent.trim();
-            selectUseCase(label);
-          } else if (tile.hasAttribute('data-industry')) {
+          if (tile.hasAttribute('data-industry')) {
             var industryLabel = tile.querySelector('.thumb-caption').textContent.trim();
             selectIndustry(industryLabel);
           }
         });
-      });
-    }
-
-    // Clicking a "Use case" tile retitles the page to match it and checks
-    // the corresponding checkbox in the "Use case" filter panel (clearing
-    // any other use-case checkbox first -- a tile click means "show me
-    // exactly this", not "add this to my existing filters").
-    function selectUseCase(label) {
-      titleEl.textContent = label + ' packaging';
-      var useCasePanel = document.getElementById('useCaseFilterPanel');
-      if (!useCasePanel) { return; }
-      useCasePanel.querySelectorAll('.filter-checkbox').forEach(function (row) {
-        var input = row.querySelector('input[type="checkbox"]');
-        var shouldCheck = row.textContent.trim() === label;
-        if (input.checked !== shouldCheck) {
-          input.checked = shouldCheck;
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        }
       });
     }
 
@@ -4178,15 +4104,6 @@
       if (!match || match.input.checked) { return; }
       match.input.checked = true;
       match.input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-
-    // "Size" (XS-XXL) only makes sense for apparel -- hidden on the root
-    // listing and every other category, shown once "Clothing" is active.
-    function updateFilterVisibility(key) {
-      var clothingOnly = document.querySelectorAll('[data-filter="size"]');
-      clothingOnly.forEach(function (el) {
-        el.hidden = key !== 'clothing';
-      });
     }
 
     var currentKey = 'root';
@@ -4233,7 +4150,6 @@
       renderBreadcrumb(node.breadcrumb);
       renderTiles(buildTilesWithBack(node, key), key);
       renderProducts(node.products);
-      updateFilterVisibility(key);
     }
 
     // Unlike packaging.html, selecting an Industry filter here never swaps
@@ -4342,7 +4258,6 @@
     renderHeader(categoryTree.root);
     renderBreadcrumb(categoryTree.root.breadcrumb);
     bindTileClicks();
-    updateFilterVisibility('root');
     syncIndustryToggle();
     moveIndustryStripIndicator(industryStripToggle.querySelector('.toggle-option.active'));
 
