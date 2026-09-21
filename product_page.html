@@ -1090,6 +1090,14 @@
   }
   .pp-qty-cell-other-popover[hidden] { display: none; }
 
+  /* Mobile-sheet close button (see the mobile popover block below) --
+     desktop's small anchored dropdown doesn't need one (outside click/
+     reselecting a tier already dismiss it there), so it's hidden by
+     default and only switched on in the mobile media query. */
+  .pp-qty-mobile-sheet-close {
+    display: none;
+  }
+
   /* ---------- "long list" variant of the Other widget (opt-in via gear
      panel): clicking Other opens a bigger dropdown instead of a bare number
      field -- a "type in your quantity" input on top of a long, scrollable
@@ -1231,6 +1239,125 @@
     overflow: hidden;
   }
   .pp-qty-cell-other-popover-long .pp-qty-longlist-field { margin: 0 var(--space-4) var(--space-3); }
+
+  /* Mobile: the desktop popover (anchored under the "Other" cell) has
+     nowhere good to go on a narrow screen -- it either overflows the
+     viewport or sits half under the sticky CTA bar. Same fixed
+     bottom-sheet treatment as packaging.html's .mobile-filter-sheet-panel
+     (slides up, rounded top corners), minus that sheet's dimmed
+     backdrop -- no overlay element here, just the panel itself. Still
+     dismissible via the existing outside-tap handler in JS, which never
+     depended on the overlay to work. */
+  @media (max-width: 700px) {
+    .pp-qty-cell-other-popover,
+    .pp-qty-cell-other-popover-long {
+      position: fixed;
+      top: auto;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      /* One above .site-settings-btn (the fixed bottom-right gear icon,
+         itself z-index:1000) -- same z-index otherwise left the gear
+         painted on top since it comes later in the DOM, cutting into the
+         sheet's right edge. */
+      z-index: 1001;
+      width: auto;
+      max-height: 85vh;
+      box-sizing: border-box;
+      /* Extra top room for the close button (see .pp-qty-mobile-sheet-close
+         below), which sits in that space rather than inline with the
+         content. No bottom padding: confirmed (by directly toggling it in
+         devtools) that this outer padding, stacked with the inner rows
+         list's own scroll container right above it, was what threw off
+         the inner list's scroll-snap resting position -- two nested
+         scroll-affecting boxes fighting over the same drag gesture. The
+         inner list's own padding/safe-area handling (below) is enough on
+         its own. */
+      padding: calc(var(--space-12) + var(--space-2)) var(--space-5) 0;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, .15);
+      animation: ppQtyMobileSheetIn .3s cubic-bezier(.32, .72, 0, 1);
+    }
+
+    .pp-qty-mobile-sheet-close {
+      display: flex;
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      flex: none;
+      border: none;
+      border-radius: 50%;
+      background: var(--gray-100);
+      color: var(--color-text-primary);
+      cursor: pointer;
+    }
+
+    .pp-qty-mobile-sheet-close svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Short-form variant only (a single input row, no internal scroll
+       container) -- safe to give this one its own bottom padding back,
+       since it's not the one that was fighting the rows list's scroll. */
+    .pp-qty-cell-other-popover:not(.pp-qty-cell-other-popover-long) {
+      padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .pp-qty-cell-other-popover-long .pp-qty-longlist-field {
+      margin: 0 0 var(--space-3);
+    }
+
+    /* Exactly 5 rows (44px each) instead of an arbitrary vh/px cap, so the
+       window's own boundary is a clean row multiple. That alone only fixes
+       the RESTING state at scrollTop 0 -- mid-drag, or after a momentum
+       scroll settles anywhere else, a plain overflow:auto list still stops
+       wherever the finger let go, same as any scrollable list, showing a
+       row sliced in half at each edge (confirmed: this, not the padding,
+       is what the screenshot shows -- "45" and "300" both mid-row after a
+       scroll, not clipped by anything). Scroll-snap is the fix: the
+       browser always settles the scroll position on a row boundary once
+       the gesture ends, so it can't rest mid-row regardless of where the
+       drag stopped. */
+    .pp-qty-cell-other-popover-long .pp-qty-longlist-rows {
+      max-height: 220px;
+      scroll-snap-type: y mandatory;
+    }
+
+    .pp-qty-cell-other-popover-long .pp-qty-longlist-row {
+      scroll-snap-align: start;
+    }
+
+    /* Flush with the sheet's own edges, same as the search field above it
+       (margin already zeroed out there) -- the row's own 16px side padding
+       just duplicated the sheet's padding, doubling the inset. */
+    .pp-qty-cell-other-popover-long .pp-qty-longlist-row {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    /* The fixed 150px here (see the base rule's own comment) is sized for
+       desktop's roomier 440px-wide popover -- on mobile's 350px content
+       width it's not enough for the widest per-piece-rate + total pairs
+       (the high-quantity rows), so flexbox was shrinking the price pair
+       narrower than its own text, which then painted past its box's right
+       edge instead of wrapping (nowrap) -- reading as clipped. Let it size
+       to its content instead; alignment across rows shifts slightly for
+       the few widest rows, which beats text running off the edge. */
+    .pp-qty-cell-other-popover-long .pp-qty-longlist-row .pp-qty-prices {
+      width: auto;
+      flex: none;
+    }
+  }
+
+  @keyframes ppQtyMobileSheetIn {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
 
   /* Input style renders #ppQuantityGrid as a floating dropdown with its own
      max-height -- let it grow while the long list is expanded inside it, so
@@ -2330,11 +2457,17 @@
             <span class="pp-qty-cell-unit" id="ppQtyPickerOtherUnit" hidden></span>
           </button>
           <form class="pp-qty-cell-other-popover" id="ppQtyPickerOtherForm" hidden>
+            <button type="button" class="pp-qty-mobile-sheet-close" id="ppQtyPickerOtherFormClose" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
             <input type="number" min="1" class="pp-qty-other-input" id="ppQtyPickerOtherInput" placeholder="Quantity">
             <button type="submit" class="pp-qty-other-apply">Apply</button>
           </form>
         </div>
         <div class="pp-qty-cell-other-popover pp-qty-cell-other-popover-long pp-qty-longlist" id="ppQtyPickerOtherLong" hidden>
+          <button type="button" class="pp-qty-mobile-sheet-close" id="ppQtyPickerOtherLongClose" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
           <form class="pp-qty-longlist-field">
             <input type="number" min="1" class="pp-qty-other-input pp-qty-longlist-input" placeholder="Type in your quantity">
             <button type="submit" class="pp-qty-longlist-apply" hidden>Apply</button>
@@ -3781,6 +3914,19 @@
       var qty = Math.round(Number(cellOtherInput.value));
       if (!isFinite(qty) || qty <= 0) { return; }
       selectCustom(qty);
+    });
+
+    // Mobile-sheet close button (hidden on desktop, see CSS) -- both forms
+    // get one since only one is ever visible at a time (short vs long
+    // list, picked by the gear panel), and the shared close closes either.
+    var cellOtherFormClose = document.getElementById('ppQtyPickerOtherFormClose');
+    var cellOtherLongClose = document.getElementById('ppQtyPickerOtherLongClose');
+    [cellOtherFormClose, cellOtherLongClose].forEach(function (btn) {
+      if (!btn) { return; }
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.ppCloseQtyOtherPanels();
+      });
     });
 
     document.addEventListener('click', function (e) {
