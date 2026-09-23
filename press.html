@@ -133,8 +133,11 @@
   }
 
   /* ---------- PAGE HEADER (contact-title-row pattern: H1 + subheading) ---------- */
+  /* no padding-top: the canonical 16px breadcrumb→H1 gap lives on the
+     breadcrumb's own margin-bottom (PAGE_BUILDING_GUIDELINE §3), so adding
+     it here as well would double it to 32px. */
   .press-title-row {
-    padding: var(--space-4) var(--space-8) var(--space-8);
+    padding: 0 var(--space-8) var(--space-8);
   }
 
   .press-title {
