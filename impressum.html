@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Company details — Packhelp</title>
+<title>Impressum — Packhelp</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="components.css">
@@ -121,14 +121,20 @@
   }
 
   /* ---------- PAGE HEADER (contact-title-row / press-title-row pattern: H1 + subheading) ---------- */
+  /* no padding-top: the canonical 16px breadcrumb→H1 gap lives on the
+     breadcrumb's own margin-bottom (PAGE_BUILDING_GUIDELINE §3), so adding
+     it here as well would double it to 32px — which is exactly what this
+     page did before. */
   .impressum-title-row {
-    padding: var(--space-4) var(--space-8) var(--space-8);
+    padding: 0 var(--space-8) var(--space-12);
   }
 
   .impressum-title {
     margin: 0 0 var(--space-2);
-    max-width: 34rem;
+    max-width: 15ch;
     font-weight: 500;
+    /* display size, so the tracking goes tighter than the -0.02em base —
+       PAGE_BUILDING_GUIDELINE §2.4 (im większy tekst, tym ciaśniejszy tracking) */
     font-size: clamp(2rem, 3.6vw, 2.75rem);
     line-height: 1.08;
     letter-spacing: -0.05em;
@@ -136,107 +142,116 @@
   }
 
   .impressum-title-desc {
-    max-width: 32rem;
     margin: 0;
+    max-width: 32rem;
     font-size: 0.9375rem;
     letter-spacing: -0.02em;
     line-height: 1.32;
     color: var(--color-text-muted);
   }
 
-  /* ---------- COMPANY DETAILS — text only, no photos: this is registry data,
-     not a browsable "thing" with a recognizable image, so .media-card doesn't
-     apply (PAGE_BUILDING_GUIDELINE §3.1 checklist point 1). Same equal-width
-     row layout as press.html's .press-facts-grid, without the bordered strip,
-     and the label reuses .press-fact-value's heavier type scale (2rem/500). ---------- */
-  .impressum-facts-section {
-    padding: var(--space-8) var(--space-8) var(--space-16);
-  }
-
-  .impressum-facts-grid {
+  /* ---------- CONTACT + REGISTRY ROW — one section holding both halves:
+     the "still stuck?" block (the copy that used to sit in the muted
+     .impressum-kit-card tile) on the left, the registry data as a
+     label/value list on the right. Replaces the old
+     kit-card + facts-grid stack, so the page has no tile any more. ---------- */
+  .impressum-contact-section {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-8);
-    padding: var(--space-8) 0;
+    /* right block sits one column further out than the plain 50/50 split —
+       the extra breathing room between the statement and the registry data
+       is what keeps them reading as two separate things, not one paragraph. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+    gap: var(--space-16);
+    align-items: start;
+    padding: 0 var(--space-8) var(--space-32);
   }
 
-  .impressum-fact-label {
-    display: block;
-    margin: 0 0 var(--space-4);
-    font-size: 2rem;
+  /* same type as .categories-heading on industries.html — 2rem/500, the
+     canonical section-level H2 for a section with content under it. */
+  .impressum-contact-title {
+    margin: 0 0 var(--space-2);
+    max-width: 24ch;
     font-weight: 500;
-    letter-spacing: -0.04em;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
     color: var(--color-text-primary);
   }
 
-  .impressum-fact-value {
+  .impressum-contact-desc {
+    margin: 0 0 var(--space-6);
+    max-width: 26rem;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* label / value rows, no dividers — the muted label column is the only
+     thing separating them, so the vertical gap has to stay generous. */
+  .impressum-address-list {
+    display: grid;
+    gap: var(--space-10);
+    padding-top: var(--space-2);
+  }
+
+  .impressum-address-row {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+
+  .impressum-address-label {
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  .impressum-address-value {
     margin: 0;
     font-style: normal;
     font-size: 0.9375rem;
     letter-spacing: -0.02em;
     line-height: 1.6;
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
   }
 
-  .impressum-fact-value a {
+  .impressum-address-value a {
     color: var(--color-text-primary);
     text-decoration: none;
   }
 
-  .impressum-fact-value a:hover {
+  .impressum-address-value a:hover {
     text-decoration: underline;
   }
 
-  @media (max-width: 700px) {
-    .impressum-facts-grid { grid-template-columns: 1fr; }
+  /* the pushed-out right column only has room for the extra offset on a wide
+     desktop — below this the address lines start wrapping, so the split goes
+     back to even and the label column narrows. */
+  @media (max-width: 1100px) {
+    .impressum-contact-section {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-12);
+    }
+    .impressum-address-row { grid-template-columns: 140px minmax(0, 1fr); }
   }
 
-  /* ---------- CLOSING CTA — same highlighted-tile recipe as press.html's
-     .press-kit-card ("Writing about Packhelp?"): muted background, rounded,
-     primary+secondary CTA duet. ---------- */
-  .impressum-kit-row {
-    padding: 0 var(--space-8) var(--space-16);
+  @media (max-width: 900px) {
+    .impressum-contact-section {
+      grid-template-columns: 1fr;
+      gap: var(--space-12);
+      padding-bottom: var(--space-20);
+    }
+    .impressum-title { max-width: 20ch; }
   }
 
-  .impressum-kit-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-8);
-    padding: var(--space-8);
-    background: var(--color-bg-muted);
-    border-radius: var(--radius-xl);
-  }
-
-  .impressum-kit-text {
-    max-width: 32rem;
-  }
-
-  .impressum-kit-title {
-    margin: 0 0 var(--space-2);
-    font-size: 1.25rem;
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    color: var(--color-text-primary);
-  }
-
-  .impressum-kit-desc {
-    margin: 0;
-    font-size: 0.9375rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
-  }
-
-  .impressum-kit-buttons {
-    display: flex;
-    flex: none;
-    gap: var(--space-3);
-  }
-
-  @media (max-width: 700px) {
-    .impressum-kit-card { flex-direction: column; align-items: flex-start; }
-    .impressum-kit-buttons { flex-wrap: wrap; }
+  @media (max-width: 560px) {
+    .impressum-address-row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
   }
 
   /* ---------- FOOTER (site-footer, shared across every page) ---------- */
@@ -386,32 +401,25 @@
   <nav class="pkg-breadcrumb">
     <a href="index.html">Packhelp</a>
     <span>/</span>
-    <span class="current">Company details</span>
+    <span class="current">Impressum</span>
   </nav>
 
   <section class="impressum-title-row reveal">
-    <h1 class="impressum-title">Company details</h1>
+    <h1 class="impressum-title">Impressum</h1>
     <p class="impressum-title-desc">Legal information, registration details and the fastest ways to reach our team.</p>
   </section>
 
-  <section class="impressum-kit-row reveal">
-    <div class="impressum-kit-card">
-      <div class="impressum-kit-text">
-        <p class="impressum-kit-title">Haven't found the answer to your questions?</p>
-        <p class="impressum-kit-desc">Get in touch with our team directly, or browse the help center for guides and answers.</p>
-      </div>
-      <div class="impressum-kit-buttons">
-        <a href="contact.html" class="btn-pill lg">Contact us<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-        <a href="#" class="btn-pill lg secondary">Visit help center<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-      </div>
+  <section class="impressum-contact-section reveal">
+    <div class="impressum-contact-text">
+      <h2 class="impressum-contact-title">Haven’t found the answer to your questions?</h2>
+      <p class="impressum-contact-desc">Get in touch with our team directly.</p>
+      <a href="contact.html" class="btn-pill lg">Contact us<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
     </div>
-  </section>
 
-  <section class="impressum-facts-section reveal">
-    <div class="impressum-facts-grid">
-      <div class="impressum-fact">
-        <h2 class="impressum-fact-label">Company</h2>
-        <address class="impressum-fact-value">
+    <div class="impressum-address-list">
+      <div class="impressum-address-row">
+        <p class="impressum-address-label">Company</p>
+        <address class="impressum-address-value">
           Packhelp SA<br>
           Kolejowa 5/7<br>
           01-217 Warszawa, Poland<br>
@@ -420,9 +428,9 @@
         </address>
       </div>
 
-      <div class="impressum-fact">
-        <h2 class="impressum-fact-label">Address</h2>
-        <address class="impressum-fact-value">
+      <div class="impressum-address-row">
+        <p class="impressum-address-label">Address</p>
+        <address class="impressum-address-value">
           Packhelp<br>
           Airtech Business Park<br>
           ul. Kolejowa 5/7<br>
