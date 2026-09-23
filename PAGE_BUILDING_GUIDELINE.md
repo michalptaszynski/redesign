@@ -364,6 +364,14 @@ strona owija treść w padded `<main>`:**
   marquee/stopki, więc to `.samples-breadcrumb` dostaje `padding-top: space-8`). Gap
   breadcrumb→H1 (16px) w obu wypadkach idzie jako `margin-bottom` na samym breadcrumbie, nie
   jako `margin-top` na H1.
+- **Pułapka (podwojony odstęp pionowy, złapana 2026-09-23):** 16px breadcrumb→H1 idzie
+  **wyłącznie** przez `margin-bottom` breadcrumba, więc wiersz tytułu (`.X-title-row`) musi
+  mieć `padding-top: 0`. `padding: var(--space-4) var(--space-8) ...` na tym wierszu dokłada
+  się do marginesu breadcrumba i daje 32px zamiast 16px — czyli dokładnie dwa razy tyle, co
+  na `packaging.html`/`deals.html`. Tak było na `impressum.html`, `press.html` i
+  `contact.html` (wszystkie trzy naprawione 2026-09-23). Sprawdzaj to pomiarem
+  `h1.getBoundingClientRect().top − linkWBreadcrumbie.bottom` — na oko 16 vs 32px między
+  dwiema stronami jest praktycznie niewidoczne, dopóki nie postawi się ich obok siebie.
 - **Pułapka:** jeśli dublujesz poziomy padding (breadcrumb ma własny `padding-left/right`
   ORAZ siedzi w padded wrapperze), breadcrumb wizualnie "wjedzie" głębiej niż reszta treści
   strony pod nim — sprawdzaj to porównując rzeczywistą pozycję linku w breadcrumbie (nie
@@ -796,6 +804,34 @@ i nadpisuj `border-color`, nie cały skrót `border`. (Tło
 `color-mix(… var(--color-bg-page) …)` i `backdrop-filter` zostają w bazie —
 one odwracają się razem z motywem same z siebie.)
 
+### 5.8 Strona prawno-informacyjna / dane rejestrowe (wzorzec: `impressum.html`)
+
+Strona, której cała treść to garść faktów (dane spółki, adres, kontakt) plus jedno wyjście
+do człowieka. **Nie ma tu wizualu, karuzeli ani kafli** — §2.5 (zdjęcie jako nośnik treści)
+nie stosuje się, bo dane rejestrowe nie są "rzeczą do obejrzenia". Kanoniczny układ po
+przebudowie z 2026-09-23 to dwie sekcje:
+
+1. **Header strony** — `.impressum-title-row`: H1 (clamp `2rem`–`2.75rem`, waga 500,
+   tracking `-0.05em`) + szary subheading, `padding: 0 var(--space-8) var(--space-12)`
+   (zero u góry — patrz pułapka podwojonego odstępu w pkt 4).
+2. **Jeden wiersz dwukolumnowy** — `.impressum-contact-section`, `align-items: start`:
+   - **lewo:** H2 w typografii `.categories-heading` (`2rem`/500/`1.08`/`-0.05em`) + opis
+     muted + pojedyncze CTA `.btn-pill.lg` do `contact.html`,
+   - **prawo:** lista `label / wartość` — etykieta w `--color-text-muted`, wartość w
+     `--color-text-primary`, `<address>` z `font-style: normal` i `line-height: 1.6`,
+     **bez separatorów** (rozdziela je tylko odstęp `--space-10`).
+
+**Podział kolumn:** `minmax(0, 1fr) minmax(0, 0.72fr)` + `gap: var(--space-16)` — prawy blok
+stoi o jedną kolumnę dalej niż przy równym podziale 50/50, dzięki czemu czyta się jako
+osobna rzecz, a nie ciąg dalszy zdania po lewej. **Poniżej 1100px wróć do równego podziału**
+(`1fr / 1fr`, etykieta 140px zamiast 180px) — inaczej linie adresu zaczynają się łamać
+(zmierzone: blok rósł z 5 do 8 linii przy 960px). Poniżej 900px kolumny idą w stos, poniżej
+560px etykieta ląduje nad wartością.
+
+**Czego tu nie ma:** szarego kafla z CTA (`.impressum-kit-card`) — jego copy siedzi teraz
+inline w lewej kolumnie. Jeśli prosisz o "stronę z danymi firmy/regulaminem/adresami",
+kopiuj ten wzorzec, nie stary stack `title-row + kit-card + facts-grid`.
+
 ---
 
 ## 7. Rytm odstępów między sekcjami — reguła ogólna
@@ -867,11 +903,13 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
   assetów grepuj też `url(` i `--.*-img:`, nie tylko `src=`.
 - Powtórzony wzorzec "baner z CTA do pomocy/kontaktu" — muted rounded card, flex
   `space-between`, tekst (tytuł 1.25rem/500 + opis muted) po lewej, para przycisków
-  (patrz pkt 5) po prawej, kolapsuje do kolumny na 700px. Istnieje jako
-  `.press-kit-card` (`press.html`) i `.impressum-kit-card` (`impressum.html`) —
-  bajt-w-bajt ten sam CSS, inny prefiks klasy. To już 2. wystąpienie (próg promocji do
-  `components.css` to 3., patrz pkt 3) — następna strona, która potrzebuje takiego
-  bannera, powinna dostać wspólną klasę zamiast trzeciej kopii pod nową nazwą.
+  (patrz pkt 5) po prawej, kolapsuje do kolumny na 700px. Istniał jako `.press-kit-card`
+  (`press.html`) i `.impressum-kit-card` (`impressum.html`) — bajt-w-bajt ten sam CSS,
+  inny prefiks klasy. **Od 2026-09-23 zostało tylko jedno wystąpienie**: przebudowa
+  impressum (pkt 5.8) wyrzuciła kafel i przeniosła jego copy inline do lewej kolumny.
+  Licznik do promocji wzorca do `components.css` wraca więc do 1 z 3 — ale jeśli kolejna
+  strona ma dostać taki baner, rozważ najpierw, czy nie lepiej (tak jak na impressum)
+  zostawić sam nagłówek + CTA bez szarego kafla.
 
 ---
 
@@ -894,6 +932,7 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
 | "Makieta panelu/aplikacji w sekcji" | Renderuj kodem, nie wstawiaj PNG (pkt 5.7): kontener `container-type: inline-size`, wymiary jako wielokrotności `--u` (1px z projektu), kolory z prymitywów, `role="img"` + `tabindex="-1"`. |
 | "Lista, gdzie klik zmienia zdjęcie/kartę obok" | Wzorzec split (pkt 5.7): jeden panel medialny, pozycje niosą `data-img` / `data-card`. Przełączanie na klik i fokus, **nie na hover**. |
 | "Przełącznik trybu jasnego na ciemnej stronie" | Lokalne tokeny w `html:not(.theme-light)` zamiast `:root` + klasa nakładana w `<head>` przed pierwszym malowaniem (pkt 5.7). |
+| "Strona z danymi firmy / rejestrowymi / adresami" | Wzorzec `impressum.html` (pkt 5.8): header strony + jeden wiersz dwukolumnowy — H2 (`2rem`) + opis + jedno CTA po lewej, lista `label/wartość` po prawej. Bez zdjęć, bez szarego kafla, podział `1fr / 0.72fr` z powrotem do równego poniżej 1100px. |
 | "Sekcja linkująca do kilku produktów/podstron" (np. "pokaż najczęściej sprzedawane produkty", "dodaj sekcję linkującą do X, Y, Z") | `.media-card` (pkt 3.1) — ale najpierw sprawdź checklistę: jeśli pozycje mają realne zdjęcia → karty w `.scroll-carousel` (dużo pozycji) albo statycznym gridzie (mało); jeśli to strony bez sensownego zdjęcia (np. regulaminy, polityki) → zwykła tekstowa lista linków, nie karty. Bez badge, chyba że ktoś wprost o niego poprosi. |
 
 ---
