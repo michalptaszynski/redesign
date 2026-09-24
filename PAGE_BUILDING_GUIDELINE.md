@@ -871,6 +871,12 @@ samych tabach** i **bez liczb na kaflach kategorii** (usunięte 2026-09-23) — 
 przełączniku już mówi, ile jest wyników, a powtarzanie jej dziesięć razy niżej tylko dokłada
 cyfr do skanowania.
 
+**2. bis Pasek pigułek nie ma sortowania** (usunięte 2026-09-24). Na shopie sortowanie
+ma sens, bo pozycje różnią się ceną, popularnością i datą — tu 64 konstrukcje mają tylko
+nazwę i rodzinę, a „Grouped by family" powtarzało pas kategorii stojący linijkę wyżej.
+Siatka idzie kolejnością katalogu (`CX.items`), czyli rodzina po rodzinie — tym samym
+przejściem, które czyta pas kategorii.
+
 **2a. Zmiana roli USUWA niedostępne kategorie, nie wygasza ich.** `.thumb-item.cx-empty`
 to `display: none`. Wygaszony kafel nadal zajmuje miejsce w pasie i trzeba go przewinąć,
 żeby dojść do żywego. Po każdej zmianie widoczności trzeba przeliczyć karuzelę
@@ -941,15 +947,35 @@ zostają komponentowe. Na telefonie pas dostaje pełny `-16px` bleed z `packagin
 własne `-8px` komponentu było strojone pod inny padding strony i ucinało kafle przed fade'em.
 
 **5. Wymiary przeliczają rysunki, nie filtrują listy.** Trzy inputy (W/L/H w **cm**, tych
-samych co krok Dimensions w konfiguratorze) obok
-przełącznika ról: trzy pigułki z obramowaniem i okrągły przycisk lupki w `--color-accent`
-na końcu, trzymane razem samym odstępem — bez tła pod spodem. Etykiety osi wiszą nad polami.
-**Pola mają wysokość i stopień pisma przełącznika, nie własne** (`--cx-control-h: 37px`,
-czyli tyle, ile wylicza `.toggle-switch`): oba elementy stoją obok siebie w jednym rzędzie,
-a pole 46px obok pigułki 37px czytało się jak druga skala, nawet gdy środki już się
-zgadzały. **Zapas na etykiety osi należy do rzędu (`padding-top`), nie do `.cx-dims`** —
-jako padding po jednej stronie powiększał jej box i `align-items: center` centrowało
-przełącznik i pola na dwóch różnych liniach.
+samych co krok Dimensions w konfiguratorze) **po prawej stronie paska filtrów**, w jednej
+linii z pigułkami (przeniesione tam z rzędu przełącznika 2026-09-24): trzy pigułki z
+obramowaniem i okrągły przycisk lupki w `--color-accent` na końcu, trzymane razem samym
+odstępem — bez tła pod spodem. Etykiety osi wiszą nad polami.
+**Pola mają wysokość i stopień pisma sąsiada z rzędu, nie własne** (`--cx-control-h`, dziś
+`2rem` = wysokość `.filter-pill`): pole wyższe od pigułki obok czyta się jak druga skala,
+nawet gdy środki już się zgadzają. **Zapas na etykiety osi należy do rzędu, nie do
+`.cx-dims`** — jako padding po jednej stronie powiększał jej box i `align-items: center`
+centrowało pigułki i pola na dwóch różnych liniach. Rząd potrzebuje też **większego
+`row-gap` niż `column-gap`** (2rem): gdy pola zawijają się pod pigułki, etykiety — wiszące
+poza boxem na `top: -1.3rem` — drukowały się po tych pigułkach. Wiersz aktywnych chipów
+odbiera sobie tę nadwyżkę ujemnym `margin-top`, bo nad nim nic nie wystaje.
+
+**5a. Nad siatką nie ma linii z liczbą wyników** (usunięta 2026-09-24). Liczba i tak stoi
+na przełączniku ról, a druga kopia z dopiskiem o wymiarach tylko powtarzała to, co widać
+na rysunkach.
+
+**5b. Fokus w polu wymiaru podświetla tę krawędź na wszystkich bryłach.**
+`window.isometric()` dokłada do każdego rysunku trzy ukryte ścieżki (`.cx-dim-edge.is-w/-l/-h`)
+na krawędziach schodzących się w bliskim dolnym narożniku; klasa na `<body>` zapala jedną z
+nich. Rysunki są cache'owanymi stringami, więc **nic się nie przerysowuje** — linia już tam
+jest, zmienia się samo `opacity`. **Tylko na kartach wyników** — kafle w pasie kategorii
+rysują te same bryły, ale kafel rodziny stoi za całą rodzinę w żadnym konkretnym rozmiarze
+i podświetlona krawędź obiecywałaby tam wymiar, którego ten kafel nie niesie.
+Dwa przypadki nie mają sześciennej geometrii i trzeba je
+obsłużyć wprost: tuba nie ma szerokości ani długości, tylko średnicę (oba pola znaczą tę
+samą linię), a jej linie muszą biec po sylwetce — oś przechodzi środkiem bryły i czyta się
+jak szpikulec; płaska część ma wysokość równą grubości, więc jej podświetlenie to
+kilkupikselowa kreska na krawędzi i tak jest poprawnie.
 **Wymiary stosują się dopiero po kliknięciu lupki** (poprawione 2026-09-24), nie na
 bieżąco. Rozmiar to trzy pola: w drodze do 12 × 8 × 30 każda liczba pośrednia — 1, 12, 8,
 3 — przerysowywała wszystkie 64 konstrukcje, więc siatka migała przez kształty, o które
