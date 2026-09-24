@@ -958,6 +958,9 @@ Strzałki obsługuje `article.js` — nie dopisuj własnego JS-u. Klasy `.scroll
 
 Trzy rzeczy, które trzeba zrobić ręcznie przy kopiowaniu:
 
+0. **Markup spisu treści zostaje bez zmian** — `.art-toc-block > .art-toc-list > li > a`.
+   Szynę i kropki rysuje CSS, pasek wypełnienia (`.art-toc-progress`) wstrzykuje
+   `article.js`. Nie dopisuj go ręcznie i nie wracaj do numerowania przez `counter()`.
 1. **`.art-statement` zaraz po każdym `.art-heading`** — H2 to tylko pigułka z nazwą
    sekcji, nagłówek niesie zdanie pod nią. Bez niego sekcja zaczyna się samą etykietą.
 2. **`id` nagłówków ↔ `href` w spisie treści** — `article.js` podświetla pozycję TOC przy

@@ -964,11 +964,21 @@ strona faktycznie ma taką treść):
   nadal wygrywa, bo ma wyższą specyficzność.
 - **`.art-highlights` tylko z prawdziwymi liczbami.** Nie wymyślaj statystyki, żeby
   wypełnić wiersz — to ten sam odruch, co podstawianie przypadkowego zdjęcia (§2.5).
+- **Spis treści to oś czasu, nie lista numerowana.** Pionowa szyna z kropką przy każdej
+  sekcji; wypełnienie jedzie z pozycją czytania i wędruje od kropki bieżącej sekcji do
+  następnej proporcjonalnie do postępu w tej sekcji, a każda minięta kropka zostaje
+  zapalona (`.is-active`). Bieżąca jest dodatkowo powiększona (`.is-current`).
+  Szyna i kropki są czystym CSS-em, więc lista czyta się poprawnie bez JS — `article.js`
+  dokłada tylko pasek wypełnienia (`.art-toc-progress`, wstrzykiwany, nie ma go w markupie).
+  **Nie IntersectionObserver:** przy długich sekcjach nic nie przecina „bieżącego" pasa
+  przez większość scrolla, więc pozycję liczymy z `getBoundingClientRect` przy 30%
+  wysokości okna.
 - **Spis treści musi się zgadzać z `id` nagłówków.** Każdy `<h2 class="art-heading">`
   dostaje `id` = slug swojego tekstu, a `.art-toc-list a` ten sam slug w `href`.
-  `article.js` sam podświetla aktualną pozycję (`.is-active`) przy scrollu. Poniżej 900px
-  spis treści **znika** (`display: none`) zamiast się stackować — inaczej duplikuje
-  nagłówki, które i tak są 200px niżej.
+  Poniżej 900px spis treści **znika** (`display: none`) zamiast się stackować — inaczej
+  duplikuje nagłówki, które i tak są 200px niżej. **Przy jednym nagłówku znika też na
+  desktopie** (`:not(:has(li:nth-child(2)))`) — spis treści z jedną pozycją to samotna
+  kropka na szynie, po której nie ma się jak przesuwać (dotyczy 5 case studies).
 - **Sticky siedzi na `.art-aside`, nie na wrapperze w środku.** `.art-layout` ma
   `align-items: start`, więc gdyby `position: sticky` przenieść na dziecko aside'a, jego
   rodzic skurczyłby się do wysokości treści i sticky przestałby mieć gdzie jechać

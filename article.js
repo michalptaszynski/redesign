@@ -130,40 +130,83 @@
     observer.observe(banner);
   })();
 
-  /* ---------- 5. Table-of-contents scroll-spy ------------------------------
-     Marks the TOC link whose section is currently being read. Deliberately
-     not an IntersectionObserver: with long sections nothing intersects the
-     "current" band for most of the scroll, so we just pick the last heading
-     above the reading line. */
-  (function tocSpy() {
-    var links = document.querySelectorAll('.art-toc-list a[href^="#"]');
+  /* ---------- 5. Table of contents: timeline rail -------------------------
+     The rail fills as the article is read: the fill travels from the current
+     section's dot to the next one in step with how far through that section
+     the reader is, and every dot it passes stays lit. Deliberately not an
+     IntersectionObserver — with long sections nothing intersects a "current"
+     band for most of the scroll. */
+  (function tocTimeline() {
+    var list = document.querySelector('.art-toc-list');
+    if (!list) return;
+
+    var links = list.querySelectorAll('a[href^="#"]');
     if (!links.length) return;
 
-    var sections = [];
+    var items = [];
     links.forEach(function (link) {
-      var el = document.getElementById(link.getAttribute('href').slice(1));
-      if (el) sections.push({ link: link, el: el });
+      var target = document.getElementById(link.getAttribute('href').slice(1));
+      if (target) items.push({ link: link, target: target, y: 0 });
     });
-    if (!sections.length) return;
+    if (!items.length) return;
 
-    var current = null;
+    var fill = document.createElement('div');
+    fill.className = 'art-toc-progress';
+    list.appendChild(fill);
+
+    var main = document.querySelector('.art-main');
+    var dotCenter = 0;
+
+    /* Dot centres, measured from the list's top. The dot is 8px, centred on
+       the link's first line box, which is what the CSS `top` does too. */
+    function measure() {
+      var listTop = list.getBoundingClientRect().top;
+      items.forEach(function (item) {
+        var r = item.link.getBoundingClientRect();
+        var lh = parseFloat(getComputedStyle(item.link).lineHeight) || 18;
+        item.y = (r.top - listTop) + lh / 2;
+      });
+      dotCenter = items[0].y;
+      list.style.setProperty('--art-toc-dot-center', dotCenter + 'px');
+    }
 
     function onScroll() {
       var line = window.innerHeight * 0.3;
-      var found = sections[0];
+      var current = -1;
 
-      for (var i = 0; i < sections.length; i++) {
-        if (sections[i].el.getBoundingClientRect().top <= line) found = sections[i];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].target.getBoundingClientRect().top <= line) current = i;
       }
 
-      if (found === current) return;
-      if (current) current.link.classList.remove('is-active');
-      found.link.classList.add('is-active');
-      current = found;
+      var height;
+      if (current < 0) {
+        height = 0;
+      } else {
+        var start = items[current].target.getBoundingClientRect().top;
+        var next = items[current + 1];
+        var end = next
+          ? next.target.getBoundingClientRect().top
+          : (main ? main.getBoundingClientRect().bottom : start + window.innerHeight);
+        var span = end - start;
+        var progress = span > 0 ? Math.min(Math.max((line - start) / span, 0), 1) : 1;
+        var from = items[current].y;
+        var to = next ? next.y : from;
+        height = from + (to - from) * progress;
+      }
+
+      fill.style.height = Math.max(0, height - dotCenter) + 'px';
+
+      items.forEach(function (item, i) {
+        item.link.classList.toggle('is-active', height >= item.y - 1);
+        item.link.classList.toggle('is-current', i === current);
+      });
     }
 
+    function refresh() { measure(); onScroll(); }
+
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    onScroll();
+    window.addEventListener('resize', refresh);
+    if (window.ResizeObserver && main) new ResizeObserver(refresh).observe(main);
+    refresh();
   })();
 })();

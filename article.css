@@ -216,19 +216,52 @@
   color: var(--color-text-muted);
 }
 
+/* A table of contents with a single entry is not a table of contents — it is
+   a lone dot on a rail with nothing to travel along. Five case studies have
+   exactly one h2, so the block hides itself rather than needing a flag. */
+.art-toc-block:not(:has(.art-toc-list li:nth-child(2))) { display: none; }
+
+/* A timeline rail instead of numbers: a hairline down the left, one dot per
+   section, and a fill that travels with the reading position — when it
+   reaches a dot, that dot lights up. The rail and the dots are pure CSS, so
+   the list still reads correctly without JS; article.js only adds the fill
+   (.art-toc-progress) and the .is-active flags. */
 .art-toc-list {
+  position: relative;
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 var(--space-6);
   list-style: none;
-  counter-reset: art-toc;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
+}
+
+/* the rail: from the first dot's centre to the last one's */
+.art-toc-list::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: var(--art-toc-dot-center, 9px);
+  bottom: var(--art-toc-dot-center, 9px);
+  width: 2px;
+  background: var(--color-border-default);
+  border-radius: 1px;
+}
+
+.art-toc-progress {
+  position: absolute;
+  left: 4px;
+  top: var(--art-toc-dot-center, 9px);
+  width: 2px;
+  height: 0;
+  background: var(--color-accent);
+  border-radius: 1px;
+  transition: height 0.2s linear;
 }
 
 .art-toc-list a {
-  display: flex;
-  gap: var(--space-2);
+  position: relative;
+  display: block;
   text-decoration: none;
   font-size: 0.875rem;
   line-height: 1.32;
@@ -237,21 +270,43 @@
   transition: color 0.15s ease;
 }
 
+/* the dot, centred on the link's first line and sitting over the rail */
 .art-toc-list a::before {
-  counter-increment: art-toc;
-  content: counter(art-toc) ".";
-  flex: 0 0 auto;
-  color: var(--color-border-hover);
-  transition: color 0.15s ease;
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--space-6) + 1px);
+  top: calc((1.32em - 8px) / 2);
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+  border: 2px solid var(--color-border-default);
+  border-radius: 50%;
+  background: var(--color-bg-page);
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 
-.art-toc-list a:hover,
+.art-toc-list a:hover { color: var(--color-text-primary); }
+
+.art-toc-list a:hover::before { border-color: var(--color-text-primary); }
+
+/* reached by the fill */
 .art-toc-list a.is-active {
   color: var(--color-text-primary);
 }
 
 .art-toc-list a.is-active::before {
-  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+/* the section being read right now */
+.art-toc-list a.is-current::before {
+  transform: scale(1.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art-toc-progress { transition: none; }
+  .art-toc-list a::before { transition: none; }
 }
 
 /* Share row */
