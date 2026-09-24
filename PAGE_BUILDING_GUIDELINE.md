@@ -861,7 +861,10 @@ Trzecia wartość `Inner` jest potrzebna, nie ozdobna: wkłady, przekładki i wy
 ani wysyłką, ani półką, a bez własnej roli zaśmiecają oba główne wyniki.
 
 **2. Przełącznik roli zostaje na wierzchu.** Reużywa `.toggle-switch` z `components.css`
-(`.cx-use-switch` tylko powiększa `.toggle-option`), stoi **nad** `.pkg-filters-bar` i nigdy
+(`.cx-use-switch` **niczego w nim nie zmienia** — dokłada tylko przewijanie na
+telefonie; powiększanie `.toggle-option` zostało wycofane 2026-09-24, bo z innym
+rozmiarem i krojem czytał się jak nowy komponent, a nie jak ten sam tab co na
+shopie), stoi **nad** `.pkg-filters-bar` i nigdy
 nie jest chowany w pigułkę — to pierwsze pytanie, które zawęża katalog, a schowane
 pozwoliłoby siatce otworzyć się w stanie, który nie odpowiada na nic. **Bez podpisu pod przełącznikiem**, **bez liczb na
 samych tabach** i **bez liczb na kaflach kategorii** (usunięte 2026-09-23) — liczba na
@@ -941,6 +944,12 @@ własne `-8px` komponentu było strojone pod inny padding strony i ucinało kafl
 samych co krok Dimensions w konfiguratorze) obok
 przełącznika ról: trzy pigułki z obramowaniem i okrągły przycisk lupki w `--color-accent`
 na końcu, trzymane razem samym odstępem — bez tła pod spodem. Etykiety osi wiszą nad polami.
+**Pola mają wysokość i stopień pisma przełącznika, nie własne** (`--cx-control-h: 37px`,
+czyli tyle, ile wylicza `.toggle-switch`): oba elementy stoją obok siebie w jednym rzędzie,
+a pole 46px obok pigułki 37px czytało się jak druga skala, nawet gdy środki już się
+zgadzały. **Zapas na etykiety osi należy do rzędu (`padding-top`), nie do `.cx-dims`** —
+jako padding po jednej stronie powiększał jej box i `align-items: center` centrowało
+przełącznik i pola na dwóch różnych liniach.
 **Wymiary stosują się dopiero po kliknięciu lupki** (poprawione 2026-09-24), nie na
 bieżąco. Rozmiar to trzy pola: w drodze do 12 × 8 × 30 każda liczba pośrednia — 1, 12, 8,
 3 — przerysowywała wszystkie 64 konstrukcje, więc siatka migała przez kształty, o które

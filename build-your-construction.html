@@ -1326,12 +1326,21 @@
      is always visible -- a pill would hide it behind a click and let
      the grid open in an unfiltered state that means nothing. */
   .cx-use-row {
+    /* .toggle-switch's own computed height: 4px tray padding + the option's
+       8px + 13px line + 8px + 4px. The dimension fields borrow it so the
+       two controls on this row are one band rather than two sizes. */
+    --cx-control-h: 37px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: var(--space-4);
-    padding: 0 var(--space-8) var(--space-8);
+    /* The top padding is headroom for the dimension fields' axis labels,
+       which hang above their fields on `top: -1.3rem`. It belongs to the
+       row and not to .cx-dims: as padding on one side only it grew that
+       side's box, and `align-items: center` then centred switch and
+       fields on two different lines. */
+    padding: 1.3rem var(--space-8) var(--space-8);
   }
 
   /* ---------- DIMENSIONS ----------
@@ -1342,8 +1351,6 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    /* headroom for the axis labels, which hang above the fields */
-    padding-top: 1.2rem;
   }
 
   /* The three fields and the button read as one control through spacing
@@ -1360,14 +1367,20 @@
     align-items: center;
   }
 
+  /* Height and type size are the Use switch's, not chosen freely: the two
+     controls sit side by side on one row, and a 46px field next to a 37px
+     pill read as two different scales even once their centres lined up.
+     37px is what .toggle-switch computes to (4 + 8 + 13 + 8 + 4) -- if that
+     component ever changes, this follows it. */
   .cx-dim input {
-    width: 104px;
-    padding: var(--space-3) 2.75rem var(--space-3) var(--space-4);
+    width: 92px;
+    height: var(--cx-control-h);
+    padding: 0 2.5rem 0 var(--space-4);
     border: 1px solid var(--color-border-default);
     border-radius: var(--radius-full);
     background: var(--color-bg-surface);
     font: inherit;
-    font-size: 0.9375rem;
+    font-size: 0.8125rem;
     letter-spacing: -0.02em;
     color: var(--color-text-primary);
     -moz-appearance: textfield;
@@ -1387,8 +1400,8 @@
     align-items: center;
     justify-content: center;
     flex: none;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: var(--cx-control-h);
+    height: var(--cx-control-h);
     border: none;
     border-radius: var(--radius-full);
     background: var(--color-accent);
@@ -1407,11 +1420,11 @@
     box-shadow: 0 0 0 4px var(--color-bg-accent-subtle);
   }
 
-  .cx-dim-go svg { width: 18px; height: 18px; }
+  .cx-dim-go svg { width: 16px; height: 16px; }
 
   .cx-dim-unit {
     position: absolute;
-    right: var(--space-4);
+    right: var(--space-3);
     pointer-events: none;
     font-size: 0.8125rem;
     letter-spacing: -0.02em;
@@ -1444,14 +1457,6 @@
   }
 
   .cx-dim-reset.show { display: inline-flex; }
-
-  .cx-use-switch .toggle-option {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-5);
-    font-size: 0.9375rem;
-  }
 
   /* ---------- CATEGORY STRIP (oś A: rodzina konstrukcji) ----------
      packaging.html's .thumb-item, as it stands: same 112px square, same
@@ -1781,11 +1786,7 @@
 
     .cx-use-switch::-webkit-scrollbar { display: none; }
 
-    .cx-use-switch .toggle-option {
-      flex: none;
-      padding: var(--space-3) var(--space-4);
-      font-size: 0.875rem;
-    }
+    .cx-use-switch .toggle-option { flex: none; }
 
     /* Same full-16px bleed packaging.html gives the strip on a phone:
        the component's own -8px was tuned against a different page
