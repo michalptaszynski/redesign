@@ -1373,13 +1373,29 @@
 
   .build-box-chosen-change:hover { color: var(--color-text-primary); }
 
+  /* Tighter rhythm than the classic flow: arriving with the construction
+     already chosen, the column opens straight on a question and runs two
+     steps shorter, so the 160px that separated sections (--space-20 top
+     and bottom) is 40px too much air. 20px comes off each side. */
+  body.from-construction .build-box-step {
+    padding-top: calc(var(--space-20) - 1.25rem);
+    padding-bottom: calc(var(--space-20) - 1.25rem);
+  }
+
   /* .build-box-step:first-child trims the top padding of the opening step,
      but it stops matching the moment anything is placed above the steps --
      which is exactly what the name block does, leaving the first question
      sitting under a full --space-20 gap. JS marks the first VISIBLE step
-     instead, since which one that is depends on what got hidden. */
+     instead, since which one that is depends on what got hidden.
+
+     The name block reads as the column's header, and the gap under it is
+     the same 120px that now separates every other pair of sections, so the
+     column has one rhythm rather than a tighter seam at the top. */
   body.from-construction .build-box-step.is-first-visible {
-    padding-top: var(--space-12);
+    /* The name block has no padding of its own underneath, so this one
+       value IS the gap -- twice a step's, to equal the space between two
+       sections. */
+    padding-top: calc((var(--space-20) - 1.25rem) * 2);
   }
 
   /* a tube's cross-section is a circle, so Length is Width — the input stays in the DOM (the 3D
@@ -3568,17 +3584,18 @@
   (function () {
     var btn = document.getElementById('moreOptionsBtn');
     var configCol = document.querySelector('.build-box-config-col');
-    var firstStep = document.getElementById('stepCategory');
-    if (!btn || !configCol || !firstStep) { return; }
+    if (!btn || !configCol) { return; }
 
-    // resolved on click, not up front: which step follows Box Type depends on the chosen box type
-    // (Construction for a box, Dimensions for a tube — the rest are display:none by then)
-    function nextVisibleStep() {
-      var step = firstStep.nextElementSibling;
-      while (step && (!step.classList.contains('build-box-step') || !step.offsetParent)) {
-        step = step.nextElementSibling;
+    /* Not #stepCategory. Arriving from the construction listing that step is
+       hidden, and an IntersectionObserver on a display:none element never
+       reports an intersection -- so the hint pill never appeared at all in
+       that flow. The opening step is whichever one is actually on screen. */
+    function firstVisibleStep() {
+      var steps = document.querySelectorAll('.build-box-step');
+      for (var i = 0; i < steps.length; i++) {
+        if (steps[i].offsetParent) { return steps[i]; }
       }
-      return step;
+      return null;
     }
 
     var isDesktop = window.matchMedia('(min-width: 901px)');
@@ -3589,18 +3606,36 @@
       btn.style.left = (rect.left + rect.width / 2) + 'px';
     }
 
-    var firstStepObserver = new IntersectionObserver(function (entries) {
-      btn.classList.toggle('visible', entries[0].isIntersecting);
-    }, { threshold: 0.01, rootMargin: '-45% 0px -45% 0px' });
-    firstStepObserver.observe(firstStep);
-
-    btn.addEventListener('click', function () {
-      var next = nextVisibleStep();
-      if (next) { slowScrollToCenter(next, 500); }
-    });
-
     window.addEventListener('resize', positionBtn);
     positionBtn();
+
+    /* Deferred a frame: the handoff that hides Category and Product sits at
+       the very end of this script, so asking now would still find Category. */
+    requestAnimationFrame(function () {
+      var firstStep = firstVisibleStep();
+      if (!firstStep) { return; }
+
+      // resolved on click, not up front: which step follows depends on the chosen
+      // box type (Construction for a box, Dimensions for a tube — the rest are
+      // display:none by then)
+      function nextVisibleStep() {
+        var step = firstStep.nextElementSibling;
+        while (step && (!step.classList.contains('build-box-step') || !step.offsetParent)) {
+          step = step.nextElementSibling;
+        }
+        return step;
+      }
+
+      var firstStepObserver = new IntersectionObserver(function (entries) {
+        btn.classList.toggle('visible', entries[0].isIntersecting);
+      }, { threshold: 0.01, rootMargin: '-45% 0px -45% 0px' });
+      firstStepObserver.observe(firstStep);
+
+      btn.addEventListener('click', function () {
+        var next = nextVisibleStep();
+        if (next) { slowScrollToCenter(next, 500); }
+      });
+    });
   })();
 
   (function () {

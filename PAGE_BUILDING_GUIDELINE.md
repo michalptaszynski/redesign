@@ -1075,6 +1075,21 @@ górny padding pierwszego kroku, **przestaje łapać, gdy cokolwiek stanie nad k
 oznacza pierwszy WIDOCZNY krok klasą `is-first-visible`, bo który to jest, zależy od tego, co
 zostało schowane.
 
+**Trzecia pułapka: cokolwiek celuje w `#stepCategory` po nazwie, a nie po roli, przestaje
+działać w tym wariancie.** Pigułka „More options" na dole ekranu wisiała na
+`IntersectionObserver` obserwującym właśnie ten krok — a schowany krok to `display: none`,
+czyli obserwator **nigdy nie zgłasza przecięcia** i podpowiedź po prostu nie pojawiała się
+w całym przepływie z listingu (poprawione 2026-09-24). Celuj w pierwszy WIDOCZNY krok i
+rozwiąż go **klatkę później** (`requestAnimationFrame`), bo IIFE chowające Category i
+Product stoi na samym końcu skryptu — pytanie zadane wcześniej wciąż zastanie Category.
+
+**Ten wariant ma ciaśniejszy rytm niż klasyczny** (2026-09-24): `body.from-construction`
+zdejmuje po 20px z góry i z dołu każdego kroku, czyli **120px między sekcjami zamiast 160**
+— kolumna otwiera się od razu pytaniem i jest o dwa kroki krótsza, więc pełny odstęp to za
+dużo powietrza. Blok nazwy dostaje pod sobą **te same 120px**, żeby kolumna miała jeden
+rytm, a nie ciaśniejszy szew na górze; nie ma własnego dolnego paddingu, więc całą tę
+wartość niesie `padding-top` pierwszego widocznego kroku (dwukrotność tej, którą ma krok).
+
 ## 7. Rytm odstępów między sekcjami — reguła ogólna
 
 Odstęp między sekcjami nie jest stałą liczbą — zależy od tego, czy sekcja **zaczyna nowy
