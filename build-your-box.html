@@ -1324,6 +1324,64 @@
   .build-box-step.is-hidden,
   .build-box-dot.is-hidden { display: none; }
 
+  /* ---------- Arrived from the construction listing ----------
+     The construction IS the answer to Category and Product, so those two
+     steps go away and this states what was chosen in their place. It is a
+     direct child of .build-box-config-col, which means the size-panel
+     overlay rule above hides it along with the steps -- deliberate, the
+     panel is meant to own the column while it is open. */
+  .build-box-chosen {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-1);
+    /* Same horizontal inset as .build-box-step -- the steps carry their
+       own padding rather than inheriting it from the column, so anything
+       else placed in that column has to match it or it hangs out to the
+       left of every question below it. */
+    padding: var(--space-8) var(--space-8) 0;
+  }
+
+  .build-box-chosen.show { display: flex; }
+
+  .build-box-chosen-family {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .build-box-chosen-name {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.12;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+  }
+
+  .build-box-chosen-change {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .build-box-chosen-change:hover { color: var(--color-text-primary); }
+
+  /* .build-box-step:first-child trims the top padding of the opening step,
+     but it stops matching the moment anything is placed above the steps --
+     which is exactly what the name block does, leaving the first question
+     sitting under a full --space-20 gap. JS marks the first VISIBLE step
+     instead, since which one that is depends on what got hidden. */
+  body.from-construction .build-box-step.is-first-visible {
+    padding-top: var(--space-12);
+  }
+
   /* a tube's cross-section is a circle, so Length is Width — the input stays in the DOM (the 3D
      model, dimension pills and accordion summary all still read it) but is hidden and mirrored
      from Width in JS. Standard sizes are box P-codes, so that segment goes too. */
@@ -2116,10 +2174,10 @@
     <button class="build-box-dot" data-for="box" data-not-product="mailer-box" data-target="stepClosure" aria-label="Bottom"></button>
     <button class="build-box-dot" data-target="stepSize" aria-label="Size"></button>
     <button class="build-box-dot" data-for="box" data-not-product="mailer-box" data-target="stepWindows" aria-label="Windows and cutouts"></button>
+    <button class="build-box-dot" data-for="box" data-target="stepMaterial" aria-label="Material"></button>
     <button class="build-box-dot" data-for="box" data-target="stepCustomization" aria-label="Print"></button>
     <button class="build-box-dot" data-for="box" data-target="stepPrintCoverage" aria-label="Print coverage"></button>
     <button class="build-box-dot" data-for="box" data-only-product="mailer-box" data-target="stepPrintColour" aria-label="Print colour"></button>
-    <button class="build-box-dot" data-for="box" data-target="stepMaterial" aria-label="Material"></button>
     <button class="build-box-dot" data-for="box" data-not-product="mailer-box" data-target="stepFinish" aria-label="Finish"></button>
     <button class="build-box-dot" data-for="tube" data-target="stepTubeMaterial" aria-label="Material"></button>
     <button class="build-box-dot" data-for="tube" data-target="stepTubeLid" aria-label="Lid colour"></button>
@@ -2266,6 +2324,12 @@
     </div>
 
     <div class="build-box-config-col">
+
+      <div class="build-box-chosen" id="chosenConstruction">
+        <p class="build-box-chosen-family" id="chosenFamily"></p>
+        <h3 class="build-box-chosen-name" id="chosenName"></h3>
+        <a class="build-box-chosen-change" href="build-your-construction.html">Choose a different construction</a>
+      </div>
 
       <section class="build-box-step" id="stepCategory">
         <button class="build-box-accordion-header" type="button">
@@ -2634,6 +2698,41 @@
         </div>
       </section>
 
+      <section class="build-box-step" id="stepMaterial" data-for="box">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">6</span>
+          <span class="build-box-accordion-title">Material<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Material</h3>
+        <p class="build-box-field-desc">Pick the base cardboard color — it affects the look and production cost</p>
+        <div class="material-card-grid">
+          <button class="material-card active" data-material="kraft">
+            <span class="material-card-image"><img src="assets/build/material-kraft.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Kraft</span>
+              <span class="material-card-desc">Natural brown board with a rustic look and sturdy strength.</span>
+            </span>
+          </button>
+          <button class="material-card" data-material="white">
+            <span class="material-card-image"><img src="assets/build/material-white.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">White</span>
+              <span class="material-card-desc">A white surface for clean, crisp printing at an accessible price.</span>
+            </span>
+          </button>
+          <button class="material-card" data-not-product="mailer-box" data-material="premium-white">
+            <span class="material-card-image"><img src="assets/build/material-white-premium.png" alt=""></span>
+            <span class="material-card-text">
+              <span class="material-card-label">Premium white</span>
+              <span class="material-card-desc">Fully bleached, premium white finish delivering the highest print quality and a luxury feel.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
       <section class="build-box-step" id="stepCustomization" data-for="box">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">7</span>
@@ -2734,41 +2833,6 @@
             <span class="box-type-card-text">
               <span class="box-type-card-label">Hot stamping<span class="box-type-card-tag">Premium</span></span>
               <span class="box-type-card-desc">Metallic foil pressed into the board for a raised, luxurious mark.</span>
-            </span>
-          </button>
-        </div>
-        </div>
-      </section>
-
-      <section class="build-box-step" id="stepMaterial" data-for="box">
-        <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">6</span>
-          <span class="build-box-accordion-title">Material<span class="build-box-accordion-value"></span></span>
-          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Material</h3>
-        <p class="build-box-field-desc">Pick the base cardboard color — it affects the look and production cost</p>
-        <div class="material-card-grid">
-          <button class="material-card active" data-material="kraft">
-            <span class="material-card-image"><img src="assets/build/material-kraft.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">Kraft</span>
-              <span class="material-card-desc">Natural brown board with a rustic look and sturdy strength.</span>
-            </span>
-          </button>
-          <button class="material-card" data-material="white">
-            <span class="material-card-image"><img src="assets/build/material-white.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">White</span>
-              <span class="material-card-desc">A white surface for clean, crisp printing at an accessible price.</span>
-            </span>
-          </button>
-          <button class="material-card" data-not-product="mailer-box" data-material="premium-white">
-            <span class="material-card-image"><img src="assets/build/material-white-premium.png" alt=""></span>
-            <span class="material-card-text">
-              <span class="material-card-label">Premium white</span>
-              <span class="material-card-desc">Fully bleached, premium white finish delivering the highest print quality and a luxury feel.</span>
             </span>
           </button>
         </div>
@@ -3367,7 +3431,20 @@
       <button class="toggle-option" data-value="emil">Emil's</button>
     </div>
   </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Build your box</p>
+      <p class="site-settings-desc">Switch between the step-by-step configurator and the construction listing</p>
+    </div>
+    <div class="toggle-switch" id="bybVariantSwitch">
+      <div class="toggle-indicator" id="bybVariantIndicator"></div>
+      <button class="toggle-option active" type="button" data-variant="classic">Configurator</button>
+      <button class="toggle-option" type="button" data-variant="construction">Constructions</button>
+    </div>
+  </div>
 </div>
+
+<script src="byb-variant.js"></script>
 
 <iframe id="emilVersionFrame" title="Emil's build-your-box draft"></iframe>
 
@@ -4759,6 +4836,122 @@
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
   })();
+  // Arriving from build-your-construction.html, the construction is already
+  // chosen -- it IS the answer to Category and Product. Showing those two
+  // steps again asks a question that has been answered, so they are replaced
+  // by the construction's name with the Size step directly under it.
+  //
+  // Runs after the Category -> Product wiring above on purpose: it drives the
+  // selection by clicking the real cards, so every listener that depends on
+  // product/box-type runs exactly as if the visitor had picked them by hand.
+  // Setting the classes directly would leave the 3D preview and the later
+  // steps configured for whatever was active by default.
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var product = params.get('p');
+    var name = params.get('n');
+    if (!product || !name) { return; }
+
+    var tile = document.querySelector('#stepProduct .product-tile[data-product="' + product + '"]');
+    if (!tile) { return; }
+
+    var grid = tile.closest('.product-tile-grid');
+    var category = grid && grid.getAttribute('data-category');
+    var categoryCard = category && document.querySelector('#categoryGrid .box-type-card[data-category="' + category + '"]');
+    if (!categoryCard) { return; }
+
+    // category first: switching it re-selects that grid's first tile, which
+    // would otherwise wipe the product we are about to set
+    categoryCard.click();
+    tile.click();
+
+    /* A size entered on the listing is the same answer as the Dimensions
+       step, so it carries over rather than being asked again. Set through
+       the real inputs and an 'input' event, since that is what the 3D
+       preview, the dimension callouts and the 2D dieline all listen to. */
+    var sized = [['w', 'dimWidth'], ['l', 'dimLength'], ['h', 'dimHeight']].filter(function (pair) {
+      var v = parseFloat(params.get(pair[0]));
+      var field = document.getElementById(pair[1]);
+      if (!field || !(v > 0)) { return false; }
+      field.value = v;
+      return true;
+    });
+
+    if (sized.length) {
+      // Custom, not a standard P-code: the listing's numbers are arbitrary
+      var custom = document.querySelector('#sizeToggleSwitch .toggle-option[data-value="custom"]');
+      if (custom && !custom.classList.contains('active')) { custom.click(); }
+      document.getElementById('dimWidth').dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    var family = params.get('f') || '';
+    var code = params.get('code') || '';
+    document.getElementById('chosenName').textContent = name;
+    document.getElementById('chosenFamily').textContent = [family, code].filter(Boolean).join(' \u00b7 ');
+    document.getElementById('chosenConstruction').classList.add('show');
+
+    var header = document.querySelector('.build-box-subheading');
+    if (header) { header.textContent = 'Set the size and finish for the construction you picked'; }
+
+    function hideStep(id) {
+      var step = document.getElementById(id);
+      var dot = document.querySelector('.build-box-dot[data-target="' + id + '"]');
+      if (step) { step.classList.add('is-hidden'); }
+      if (dot) { dot.classList.add('is-hidden'); }
+    }
+
+    hideStep('stepCategory');
+    hideStep('stepProduct');
+
+    // Type and Bottom ask the same question the listing already answered, so
+    // they go too -- but only once the answer has actually been applied. Some
+    // of those cards are gated per product (data-only-product /
+    // data-not-product), so a construction whose type has no card under its
+    // product keeps the step visible rather than being silently left on
+    // whatever was active by default.
+    function choose(stepId, card) {
+      if (!card || getComputedStyle(card).display === 'none') { return false; }
+      card.click();
+      hideStep(stepId);
+      return true;
+    }
+
+    var type = params.get('t');
+    if (type) {
+      choose('stepConstruction', document.querySelector('#stepConstruction .construction-card[data-construction="' + type + '"]'));
+    }
+
+    var bottom = params.get('b');
+    if (bottom) {
+      var cards = document.querySelectorAll('#stepClosure .construction-card');
+      var match = Array.prototype.filter.call(cards, function (c) {
+        var label = c.querySelector('span');
+        return label && label.textContent.trim() === bottom;
+      })[0];
+      choose('stepClosure', match);
+    }
+
+    document.body.classList.add('from-construction');
+
+    function markFirstVisibleStep() {
+      document.querySelectorAll('.build-box-step.is-first-visible').forEach(function (el) {
+        el.classList.remove('is-first-visible');
+      });
+      var first = Array.prototype.filter.call(document.querySelectorAll('.build-box-step'), function (el) {
+        return el.offsetParent !== null;
+      })[0];
+      if (first) { first.classList.add('is-first-visible'); }
+    }
+
+    markFirstVisibleStep();
+    document.addEventListener('product:change', markFirstVisibleStep);
+    document.addEventListener('boxtype:change', markFirstVisibleStep);
+
+    // the badges number off the visible steps, so Size has to be told it is
+    // now the first one
+    document.dispatchEvent(new CustomEvent('product:change'));
+  })();
+
 </script>
 
 </body>

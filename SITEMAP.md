@@ -27,6 +27,7 @@ konsoliduje/upraszcza).
 | `contact.html` | `/contact/` | Kontakt |
 | `get-a-quote.html` | `/packhelp-brief-v2/` | "Brief"/wycena — na live sajcie to formularz brief, nie osobny "get a quote" |
 | `build-your-box.html` | — | **New concept**, patrz sekcja 3 |
+| `build-your-construction.html` | — | **New concept**, patrz sekcja 3 — drugi wariant „Build your box", wybierany trybikiem |
 | `industries.html` | `/packaging/?industry=X` (filtr, nie osobna strona) | **New concept**, patrz sekcja 3 |
 | `press.html` | `/press/` | Press kit, wzmianki medialne wg lat, fakty firmowe (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
 | `impressum.html` | `/impressum/` | Dane firmy, adres, kontakt, godziny pracy — proste karty label/value, bez zdjęć (zbudowane 2026-07-31, copy zaadaptowane z live strony) |
@@ -96,6 +97,24 @@ podanym URL zamiast wymyślać od zera.
   preview. Live sajt robi customizację inline na stronie produktu (overlay),
   nie jako osobny multi-step flow. To świadoma decyzja redesignu, nie błąd
   mapowania — nie szukaj dla tej strony "oryginału" do adaptacji.
+- **`build-your-construction.html`** — drugi wariant tego samego zadania:
+  zamiast prowadzić krok po kroku, pokazuje **listing konstrukcji** (tak jak
+  pack.ly/en/products), czyli die-cut blanków, a nie produktów. Wariant wybiera
+  się trybikiem w prawym dolnym rogu (`byb-variant.js` — patrz niżej), nie
+  osobnym linkiem w nawigacji. Kluczowa decyzja informacyjna: **kategorie i
+  rola opakowania to dwie niezależne osie**, nie jedna lista. Kategoria =
+  rodzina konstrukcji (jak jest zbudowana), rola = co opakowanie ma robić
+  (Shipping / Product / Inner). Rola nie może być kategorią, bo połowa
+  konstrukcji należy do dwóch ról naraz — dlatego to filtr, i to jedyny filtr
+  trzymany zawsze na wierzchu, nad paskiem pigułek. Szczegóły wzorca:
+  `PAGE_BUILDING_GUIDELINE.md` §5.10.
+- **`byb-variant.js`** — współdzielony przełącznik wariantu „Build your box"
+  (`classic` ↔ `construction`), montowany w panelu trybika na `index.html`,
+  `build-your-box.html` i `build-your-construction.html`. Przepisuje `href`
+  wszystkich linków celujących w którykolwiek z dwóch draftów, więc strona
+  linkuje po prostu do `build-your-box.html` i nie musi nic wiedzieć o
+  wariantach. Wybór trzymany w `localStorage`, nie w URL-u — to ustawienie
+  prototypu, nie nawigacja.
 - **`industries.html`** — live sajt nie ma osobnej strony "industries", tylko
   filtruje katalog przez `?industry=X` (Apparel & Fashion, E-commerce,
   Electronics, Food & Drinks, Gifting, Health & Beauty, Home & Décor, HR,

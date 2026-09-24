@@ -834,6 +834,212 @@ kopiuj ten wzorzec, nie stary stack `title-row + kit-card + facts-grid`.
 
 ---
 
+### 5.10 Listing konstrukcji, nie produktów (wzorzec: `build-your-construction.html`)
+
+Wariant listingu, na którym pozycją nie jest produkt, tylko **konstrukcja** — die-cut blank.
+Chrome strony (breadcrumb, page header, pasek pigułek + panele, mobilny bottom sheet,
+footer) jest przeniesione 1:1 z `packaging.html`, żeby to był wizualnie ten sam obiekt co
+shop. **Bez view switchera** — ta strona ma jeden tryb widoku, więc razem z przełącznikiem
+odpadł widok listy i shopowy wariant 5-kolumnowy (`body.grid-fluid-columns`); siatka jest na
+stałe 4 / 3 / 2 kolumny. Nowe są tylko trzy rzeczy poniżej.
+
+**1. Dwie osie, nie jedna lista.** To jest cała decyzja informacyjna tej strony:
+
+| Oś | Co to jest | Gdzie w UI |
+|---|---|---|
+| **Kategoria** | rodzina konstrukcji — jak jest zbudowana i jak się otwiera | pas kafli u góry + chipy |
+| **Rola** (`Use`) | co opakowanie ma robić: `Shipping` / `Product` / `Inner` | segmentowany przełącznik nad paskiem filtrów |
+
+Rola **nie może być kategorią**, bo pozycja należy do więcej niż jednej naraz (fasonówka
+jest i wysyłkowa, i prezentacyjna) — dlatego `item.roles` to tablica, a dopasowanie to
+`some()`, nie `===`. Odwrotnie też: kategoria nie może być filtrem roli, bo „Shippers &
+mailers" to sposób budowy, nie obietnica, że nic z innej rodziny nie nadaje się do wysyłki.
+Zlanie tych osi w jeden sidebar (co robi pack.ly) jest dokładnie powodem, dla którego nie
+da się tam zapytać „pokaż tylko wysyłkowe".
+
+Trzecia wartość `Inner` jest potrzebna, nie ozdobna: wkłady, przekładki i wypełniacze nie są
+ani wysyłką, ani półką, a bez własnej roli zaśmiecają oba główne wyniki.
+
+**2. Przełącznik roli zostaje na wierzchu.** Reużywa `.toggle-switch` z `components.css`
+(`.cx-use-switch` tylko powiększa `.toggle-option`), stoi **nad** `.pkg-filters-bar` i nigdy
+nie jest chowany w pigułkę — to pierwsze pytanie, które zawęża katalog, a schowane
+pozwoliłoby siatce otworzyć się w stanie, który nie odpowiada na nic. **Bez podpisu pod przełącznikiem**, **bez liczb na
+samych tabach** i **bez liczb na kaflach kategorii** (usunięte 2026-09-23) — liczba na
+przełączniku już mówi, ile jest wyników, a powtarzanie jej dziesięć razy niżej tylko dokłada
+cyfr do skanowania.
+
+**2a. Zmiana roli USUWA niedostępne kategorie, nie wygasza ich.** `.thumb-item.cx-empty`
+to `display: none`. Wygaszony kafel nadal zajmuje miejsce w pasie i trzeba go przewinąć,
+żeby dojść do żywego. Po każdej zmianie widoczności trzeba przeliczyć karuzelę
+(`syncCarousel()`) — inaczej strzałki i gradienty krawędziowe obiecują treść, której już nie ma.
+
+**2b. Karta nie powtarza kategorii, ale ZAWSZE wypisuje wszystkie role.** Przy jednej
+wybranej kategorii znika jej nazwa z `.product-card-price` — powtarza kafel, który user
+przed chwilą kliknął. Ukrywanie plakietki aktywnej roli **zostało wycofane**: na tabie
+Shipping karcie, która sprzedaje się też z półki, zostawało samo „Product", co czyta się jak
+zepsuty filtr, a nie jak skrót. `.product-card-price` musi mieć `min-height: 1.32em`, bo
+konstrukcja bez kodu branżowego zostaje wtedy z pustą linią i bez tego byłaby niższa od
+sąsiadek.
+
+**3. Dwa rysunki zamiast zdjęcia.** Nie ma fotografii konstrukcji — jest tylko fotografia
+gotowego produktu, a użycie jej cofnęłoby stronę do sprzedawania produktów. Dlatego każdy
+kafel (karta ORAZ kafel w pasie kategorii) niesie dwie warstwy `.cx-fig`, przełączane
+opacity na hover:
+
+- **domyślnie — `window.isometric(spec)`**: bryła **z rozchylonymi klapami**, tak jak na
+  pack.ly. Zamknięty sześcian nie mówi nic o konstrukcji, czyli o jedynej rzeczy, po którą
+  ktoś tu przyszedł — bryła ma pokazywać, jak opakowanie się otwiera i zamyka. Klapy
+  wyprowadzane są z tej samej listy `top`/`bottom` co wykrojnik: panele idą
+  `[przód, prawy, tył, lewy]`, klapa na przodzie/tyle zamiata wzdłuż głębokości, klapa na
+  boku wzdłuż szerokości — i to wyznacza jej zasięg.
+- **na hover — `window.dieline(spec)`**: rozłożony wykrojnik, solidna kreska = cięcie,
+  kreskowana = big. To jest to, co ktoś przyszedł sprawdzić.
+
+Wykrojnik ma siedem generatorów (`carton`, `tray`, `tube`, `pillow`, `pouch`, `sheet`,
+`display`); `carton` obsługuje większość, bo pozycja to rząd paneli plus rodzaj klapy na
+każdym końcu, a mailer to ten sam `carton` z `swap: true` — obrócony o ćwierć obrotu, panele
+w pionie, ścianki boczne jako klapy lewo/prawo. Izometria ma dwanaście (`box`, `lidbox`,
+`tray`, `sleeve`, `cyl`, `pillow`, `pouch`, `bag`, `display`, `sheet`, `partition`,
+`corner`) i jest prawdziwą projekcją 30°, nie udawanym 3D — każdy kształt budowany jest z
+realnych punktów `(x, y, z)`. Ściany cieniowane wg orientacji (góra najjaśniejsza, prawa
+najciemniejsza); bez tego z samej kreski nie czyta się bryła.
+
+**Izometria jest WYWODZONA ze specyfikacji wykrojnika** (`CX.isoFor(item)`), nie pisana
+ręcznie obok niej — drugie pole per pozycja to 64 kolejne miejsca, które rozjadą się z
+blankiem, który mają przedstawiać. Zasady doboru bryły są w tej funkcji; dwie warte
+zapamiętania: rękaw to karton otwarty na **obu** końcach (otwarty z jednego to taca), a
+`closure: 'hinge'` bije kształt blanku (pudełko książkowe rysuje się z blanku tacy, ale
+*jest* wiekiem na zawiasie i tak ma stać na karcie).
+
+Oba rysunki są **cache'owane per pozycja** — `render()` leci przy każdym kliknięciu filtra,
+a regenerowanie 128 SVG (sam walec próbkuje obrys 72 razy) dla zmiany, która tylko
+przestawia istniejące karty, to praca na darmo.
+
+Na ekranie dotykowym nie ma czym najechać, więc `@media (hover: none)` chowa warstwę
+wykrojnika zamiast zostawiać ją za gestem, który nigdy nie nastąpi.
+
+**4. Kafel to komponent z shopu, nie nowy.** `.product-grid` + `.product-card` +
+`.product-card-media/-name/-price`, przeniesione z `packaging.html` bez zmian: listing
+konstrukcji to ten sam obiekt co listing produktów, więc dostaje ten sam komponent, a nie
+drugi, który tylko podobnie wygląda. Różni się wyłącznie ZAWARTOŚĆ kafla mediów — dwa
+rysunki zamiast zdjęcia — i to dokładają reguły `.cx-fig`. 
+
+**4a. To samo dotyczy pasa kategorii: `.thumb-item` z shopu, nie własny kafel.**
+Pierwsza wersja miała `.cx-cat-item` — prostokąt 140 px z rysunkiem I podpisem **w środku**
+szarego pola. Wyglądał podobnie, a był inny: kwadrat 112 × 112 zamienił się w prostokąt,
+a podpis wjechał do kafla zamiast zostać pod nim. Poprawnie jest
+`.thumb-strip > .thumb-item > .thumb-photo + .thumb-caption` (poprawione 2026-09-24).
+Adaptacja to dokładnie trzy rzeczy i żadna z nich nie zmienia wyglądu komponentu:
+`.thumb-item` jako `<button>` (kategoria przełącza filtr w miejscu, a nie prowadzi na
+podstronę) potrzebuje zerowania `border`/`background`/`padding`/`font`; `.thumb-item.cx-empty`
+to `display: none` (pkt. 2a); a w kwadrat zamiast `--thumb-img` wchodzą te same dwie
+warstwy `.cx-fig`. Stan `active`, obrys, promień, odstęp do podpisu i 13 px podpisu
+zostają komponentowe. Na telefonie pas dostaje pełny `-16px` bleed z `packaging.html` —
+własne `-8px` komponentu było strojone pod inny padding strony i ucinało kafle przed fade'em.
+
+**5. Wymiary przeliczają rysunki, nie filtrują listy.** Trzy inputy (W/L/H w **cm**, tych
+samych co krok Dimensions w konfiguratorze) obok
+przełącznika ról: trzy pigułki z obramowaniem i okrągły przycisk lupki w `--color-accent`
+na końcu, trzymane razem samym odstępem — bez tła pod spodem. Etykiety osi wiszą nad polami.
+**Wymiary stosują się dopiero po kliknięciu lupki** (poprawione 2026-09-24), nie na
+bieżąco. Rozmiar to trzy pola: w drodze do 12 × 8 × 30 każda liczba pośrednia — 1, 12, 8,
+3 — przerysowywała wszystkie 64 konstrukcje, więc siatka migała przez kształty, o które
+nikt nie prosił, a ten właściwy pojawiał się na końcu. Enter w polu robi to samo co lupka
+(pole obok lupki tak właśnie się zachowuje wszędzie indziej) — to ten sam commit, nie
+druga ścieżka. Samo pisanie robi jedną rzecz: zapala `.is-pending` na przycisku (halo
+`--color-bg-accent-subtle`, nie zmiana koloru — spoczynkowy przycisk nie może czytać się
+jak wyłączony). Bez tego pola stoją na 12 × 8 × 30, rysunki dalej na 10 × 10 × 10 i nic na
+ekranie tego nie tłumaczy. `Reset` i link karty biorą stan **zacommitowany**, nigdy
+wpisany. Każda konstrukcja z tego katalogu da się wyciąć w dowolnym rozmiarze — to
+jest obietnica tej strony — więc wpisanie wymiarów niczego nie usuwa, tylko przerysowuje
+bryły i wykrojniki w podanych proporcjach (`CX.resizeIso` / `CX.resizeFlat`, normalizacja do
+stałej liczby jednostek, żeby rysunek dalej wypełniał kafel przy 50 mm i przy 800 mm).
+Mapowanie jest per rodzaj bryły — tuba ma długość i średnicę, płaska część nie ma wysokości
+— a klucz cache'a musi nieść wymiary, inaczej wraca poprzedni rysunek.
+
+**Pułapki, które ta strona już złapała:**
+
+- **Wycinając CSS z innej strony sprawdź, czy nie zaczynasz/kończysz w środku komentarza.**
+  Zdarzyło się dwa razy. Niedomknięty `/*` zjadł regułę `@media`, która chowa strzałki
+  karuzeli na mobile; osierocony ogon komentarza zakończony `*/` sprawił, że parser przy
+  odzyskiwaniu po błędzie połknął cały blok `@media (min-width: 1484px)` i widok
+  5-kolumnowy był martwy. Oba wyglądały jak błędy layoutu, nie jak błędy składni —
+  policz `/*` i `*/` po każdym takim przeszczepie.
+- **`.sticky-bar` jest `position: fixed` BEZ własnego `top`.** Pozycję i klasę `is-pinned`
+  ustawia skrypt, który każda strona nosi u siebie (15 stron, kilka wariantów — nie jest
+  dzielony). Strona bez niego dostaje pasek wyszukiwania wiszący w połowie ekranu.
+- **Kolejność malowania to jedyne zasłanianie, jakie ma bryła.** Skrzydełka wieka mailera
+  leżą po przeciwnych stronach wieka w głębi: przy `x = w` bliżej widza, przy `x = 0` dalej.
+  Malowane oba przed wiekiem — bliższe znika pod nim i zostaje trójkątny ścinek w rogu.
+- **Kierunek składania klapy wynika z parametryzacji, nie z intuicji.** Wieko ma pozycję
+  zamkniętą przy `a = PI`, nie `a = 0`, więc „do środka" to `+n`, a nie `-n`; zanegowane
+  wyrzuciło oba skrzydełka na zewnątrz pudełka.
+
+- **Przegroda rysowana jako przecinające się pełne panele to złudzenie optyczne.** Panel bez
+  zasłaniania pokazuje i bliższą, i dalszą krawędź, a skrzyżowania czytają się jako
+  niemożliwe trójkąty. Rysuj komórka po komórce, rosnąco po `(x + z)`.
+- **Obrys walca w rzucie to NIE linia między środkami den.** Biegnie po tworzących, w
+  których okrąg denka jest najdalej od osi *w przestrzeni ekranu* — trzeba je znaleźć
+  rzutując próbkowane punkty denka na normalną osi, nie zgadnąć. Zgadnięte dawały dwie
+  elipsy połączone patykiem.
+- **Wypełnianie wszystkich ścian przegrody nakłada półprzezroczyste quady na siebie** i
+  siatka wychodzi fasetkowana zamiast prześwitującej — cieniuj tylko skrajne.
+- **Bryła musi być malowana ściana po ścianie, wypełnienie RAZEM z obrysem.** Wykrojnik może
+  zbatchować wszystkie cięcia w jedną ścieżkę, bo nic nic nie zasłania; bryła nie może.
+  Obrysowanie wszystkich krawędzi po wszystkich wypełnieniach rysuje krawędzie zasłonięte na
+  wierzchu ścian, które je zasłaniają, i pudełko wygląda jak druciana klatka. Z tego samego
+  powodu `SHADE` musi być **nieprzezroczysty** — przy `rgba()` daleka ścianka wewnętrzna
+  przebija przez bliską. Zasłanianie jest tu wyłącznie kwestią kolejności malowania.
+- **`<svg>` jako flex/grid item ignoruje `aspect-ratio` rodzica.** Jego `height: 100%`
+  rozwiązuje się względem wysokości, której `aspect-ratio` jeszcze nie ustaliło, więc wraca
+  do intrinsic ratio z `viewBox` — wysoki blank mailera rozpychał kartę wyżej niż przysadzisty
+  RSC obok i rzędy siatki się rozjeżdżały. Kadr musi być autorytatywny: `position: absolute`
+  + procentowy inset na SVG, `preserveAspectRatio` dopasowuje resztę.
+- **Mobilny bottom sheet PRZENOSI `.filter-panel-options`, nie klonuje** (za `packaging.html`),
+  więc listener `change` powieszony na pasku pigułek przestaje je widzieć — checkbox się
+  zaznaczał, a nic nie filtrowało. Listener i `syncInputs()` muszą iść na `document`.
+- **Sąsiadujące klapy o pełnej szerokości zlewają się w jedną belkę** — cztery klapy RSC bez
+  szczeliny dają zwykły prostokąt. Rodzaj `slot` zostawia między nimi rzeczywistą szczelinę.
+- **Panel trybika bez przycisku trybika.** `nav-header.js` tworzy pływający guzik tylko dla
+  stron, które **nie mają** własnego `#siteSettingsPanel`. Strona z własnym panelem musi
+  dołożyć `#siteSettingsBtn` i jego open/close sama (tak jak `index.html`).
+
+
+### 5.12 Przekazanie wyboru do konfiguratora (`build-your-construction.html` → `build-your-box.html`)
+
+Konstrukcja wybrana na listingu JEST odpowiedzią na pierwsze kroki konfiguratora, więc
+konfigurator ich nie zadaje. Karta linkuje do `build-your-box.html?c=&n=&f=&code=&p=&t=&b=`
+— slug, nazwa, rodzina, kod branżowy, produkt konfiguratora, odpowiedzi na kroki Type i
+Bottom oraz `w`/`l`/`h`, jeśli user wpisał rozmiar. W URL-u, nie w storage, żeby link działał
+otwarty na zimno.
+
+Rozmiar **dopisuje się tylko wtedy, gdy user faktycznie go ustawił** — przekazanie
+spoczynkowej wartości pola po cichu nadpisałoby domyślny rozmiar konfiguratora liczbą,
+której nikt nie wpisał. Po stronie konfiguratora ustawia się go przez prawdziwe inputy i
+zdarzenie `input`, bo tego słuchają podgląd 3D, wymiarówki i wykrojnik 2D; przy okazji trzeba
+wymusić tryb Custom Size, bo liczby z listingu nie są kodem P.
+
+Po stronie konfiguratora (IIFE **na samym końcu** skryptu — musi biec po całym okablowaniu
+Category → Product i box-type, bo steruje wyborem przez `click()` na prawdziwych kartach,
+żeby odpalili się wszyscy słuchacze):
+
+1. klika kartę kategorii, potem kafel produktu (kategoria pierwsza — jej przełączenie
+   resetuje grid do pierwszego kafla i skasowałoby produkt ustawiony wcześniej),
+2. chowa `stepCategory` i `stepProduct` klasą `is-hidden` (respektuje ją `isStepVisible()`,
+   więc badge'y same się przenumerowują),
+3. próbuje odpowiedzieć na Type i Bottom — ale **chowa krok tylko, gdy się udało**.
+   Część kart jest bramkowana per produkt (`data-only-product` / `data-not-product`), więc
+   konstrukcja, której typ nie ma karty pod swoim produktem, zostawia krok widoczny zamiast
+   po cichu siedzieć na domyślnym,
+4. pokazuje `#chosenConstruction` (rodzina · kod, nazwa, link „wybierz inną").
+
+**Dwie pułapki układu:** blok nazwy musi mieć **to samo wcięcie poziome co `.build-box-step`**
+(`var(--space-8)`) — kroki niosą padding u siebie, nie dziedziczą go z kolumny, więc bez tego
+nazwa wystaje w lewo poza wszystkie pytania. I `.build-box-step:first-child`, które przycina
+górny padding pierwszego kroku, **przestaje łapać, gdy cokolwiek stanie nad krokami** — JS
+oznacza pierwszy WIDOCZNY krok klasą `is-first-visible`, bo który to jest, zależy od tego, co
+zostało schowane.
+
 ## 7. Rytm odstępów między sekcjami — reguła ogólna
 
 Odstęp między sekcjami nie jest stałą liczbą — zależy od tego, czy sekcja **zaczyna nowy

@@ -1,0 +1,4133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Build your construction — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* ---------- PAGE CONTAINER ---------- */
+  /* Wider desktop breakpoint for this page only -- wraps content and
+     footer. Nav itself is --max-w-lg globally (components.css), same on
+     every page regardless of that page's own container width. */
+  .container {
+    max-width: var(--max-w-lg);
+  }
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-olive-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.9375rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- PAGE TITLE ---------- */
+  .pkg-title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding: var(--space-4) var(--space-8) var(--space-10);
+  }
+
+  .pkg-title-copy {
+    min-width: 0;
+  }
+
+  .pkg-title {
+    margin: 0 0 var(--space-2);
+    font-weight: 500;
+    font-size: clamp(2rem, 3.2vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-desc-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .pkg-desc-row.expanded {
+    display: block;
+  }
+
+  .pkg-desc-row.expanded .pkg-desc-toggle {
+    margin-left: var(--space-2);
+  }
+
+  .pkg-subtitle {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    max-width: 42rem;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-subtitle.clamped {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pkg-desc-toggle {
+    flex: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  @media (max-width: 700px) {
+    .pkg-title-row { flex-direction: column; align-items: flex-start; }
+    /* .pkg-title-row switching to column direction leaves
+       .pkg-title-copy unstretched (column flex items don't fill the
+       cross axis by default) -- without an explicit width it grows to
+       fit the nowrap+ellipsis subtitle's full single-line content
+       width instead of the viewport, overflowing the page. */
+    .pkg-title-copy { width: 100%; }
+  }
+
+  /* ---------- FILTER & SORT PILLS ---------- */
+  .pkg-filters-bar {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 0 var(--space-8) var(--space-6);
+  }
+
+  .filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* Structural-only wrapper around .filter-pills -- transparent on
+     desktop (display:contents, so .filter-pills stays a direct flex
+     child of .pkg-filters-bar exactly as before). Mobile turns it into a
+     real positioned box so the scroll-fade edges below have something to
+     anchor to that isn't the scrolling element itself -- an absolutely
+     positioned descendant of the actual overflow:auto element scrolls
+     away with the content instead of staying pinned to the edge. */
+  .filter-pills-scroll {
+    display: contents;
+  }
+
+  .filter-pills-scroll .scroll-fade {
+    display: none;
+  }
+
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 2rem;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-default);
+    background: var(--color-bg-page);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+  }
+
+  .filter-pill:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  /* Carousels listing style (gear panel): bigger pills, plus a
+     "Categories" pill (hidden the rest of the time -- the category
+     tile-strip it stands in for is what's hidden here) pushed to the
+     front with Industry right behind it via flex order, ahead of the
+     untouched source order of every other pill. */
+  body.pkg-listing-carousels .filter-pill {
+    height: 40px;
+    padding: 0 20px;
+    font-size: 13px;
+  }
+
+  .filter-pill-wrap.filter-pill-categories { display: none; }
+  body.pkg-listing-carousels .filter-pill-wrap.filter-pill-categories { display: block; order: -2; }
+  body.pkg-listing-carousels .filter-pill-wrap.filter-pill-industry { order: -1; }
+
+  /* A filter with an active selection gets a darker border so it stands
+     out from the untouched pills, on top of the existing hover/open
+     border-color states. */
+  .filter-pill:has(.filter-count:not([hidden])) {
+    border-color: var(--gray-600);
+  }
+
+  .filter-pill svg {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    opacity: .6;
+  }
+
+  .filter-pill[aria-expanded="true"] {
+    background: var(--color-bg-surface);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex: none;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: var(--color-text-primary);
+    color: var(--color-text-on-accent);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .filter-count[hidden] {
+    display: none;
+  }
+
+  .filter-count .filter-count-num {
+    display: inline-flex;
+  }
+
+  .filter-count .filter-count-clear {
+    display: none;
+    width: 9px;
+    height: 9px;
+    flex: none;
+    opacity: 1;
+    stroke: var(--white);
+  }
+
+  .filter-pill:hover .filter-count-num {
+    display: none;
+  }
+
+  .filter-pill:hover .filter-count-clear {
+    display: inline-flex;
+  }
+
+  .filter-pill-wrap {
+    position: relative;
+  }
+
+  /* "Filters" pill (funnel icon, no chevron) -- mobile only, opens the
+     all-filters bottom sheet. Desktop already shows every pill inline,
+     so a catch-all button would be redundant there. */
+  .filter-pill-all {
+    display: none;
+    flex: none;
+  }
+
+  .filter-pill-all svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    opacity: .8;
+  }
+
+  /* ---------- Filter pills: alternate styles (gear panel) ---------- */
+
+  /* Variant 1 ("plain"): no border/padding/fill, just bigger 15px type --
+     hover/open/active states lean on color instead of the border+shadow
+     the default pill shape uses. */
+  body.pkg-filters-plain .filter-pill {
+    height: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    gap: var(--space-1);
+    font-size: 0.9375rem;
+  }
+
+  body.pkg-filters-plain .filter-pills {
+    gap: var(--space-8);
+  }
+
+  body.pkg-filters-plain .filter-pill:hover,
+  body.pkg-filters-plain .filter-pill[aria-expanded="true"],
+  body.pkg-filters-plain .filter-pill:has(.filter-count:not([hidden])) {
+    border: none;
+    box-shadow: none;
+    color: var(--color-accent);
+  }
+
+  /* Settings-panel row variant for the filter-pills-style 3-way switch --
+     .toggle-switch is the same segmented pill control used for Categories/
+     Industries, just narrowed to fit the 280px gear panel. */
+  .site-settings-row-stack {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-settings-toggle-switch {
+    width: 100%;
+    margin-top: var(--space-3);
+  }
+
+  .site-settings-toggle-switch .toggle-option {
+    flex: 1;
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.6875rem;
+  }
+
+  .active-filter-pills {
+    display: none;
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .pkg-filters-bar.show-active-pills .active-filter-pills:not(:empty) {
+    display: flex;
+  }
+
+  .active-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    /* Matches .filter-pill above it exactly (2rem/13px) instead of its own
+       smaller size. */
+    height: 2rem;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-full);
+    border: none;
+    background: var(--color-bg-accent-subtle);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .active-filter-chip:hover {
+    background: rgba(39, 87, 255, .18);
+  }
+
+  .active-filter-chip svg {
+    width: 11px;
+    height: 11px;
+    flex: none;
+    opacity: .6;
+  }
+
+  .filter-panel {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    z-index: 10;
+    min-width: 240px;
+    padding: var(--space-5);
+    box-sizing: border-box;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity .15s ease, transform .15s ease, visibility 0s linear .15s;
+  }
+
+  .filter-panel.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity .15s ease, transform .15s ease;
+  }
+
+  .filter-panel-title {
+    margin: 0 0 var(--space-4);
+    font-weight: 500;
+    font-size: 1.0625rem;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .filter-panel-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .filter-panel-scroll .filter-panel-options {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: var(--space-2);
+  }
+
+  .filter-preview {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 16px);
+    width: 160px;
+    height: 160px;
+    flex: none;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .15s ease, visibility 0s linear .15s;
+    pointer-events: none;
+  }
+
+  .filter-panel:has(.filter-radio:hover) .filter-preview,
+  .filter-panel:has(.filter-checkbox:hover) .filter-preview {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .15s ease;
+  }
+
+  .filter-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .filter-radio,
+  .filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2);
+    margin: 0 calc(-1 * var(--space-2));
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .15s ease;
+  }
+
+  .filter-radio:hover,
+  .filter-checkbox:hover {
+    background: var(--color-bg-muted);
+  }
+
+  .filter-radio input,
+  .filter-checkbox input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+
+  .radio-dot {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    flex: none;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-hover);
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+
+  .filter-radio input:checked + .radio-dot {
+    border-color: var(--color-text-primary);
+    background: var(--color-text-primary);
+  }
+
+  .filter-radio input:checked + .radio-dot::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: var(--color-bg-surface);
+  }
+
+  .filter-radio input:focus-visible + .radio-dot,
+  .filter-checkbox input:focus-visible + .checkbox-box {
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .checkbox-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex: none;
+    border-radius: 6px;
+    border: 2px solid var(--color-border-hover);
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+
+  .filter-checkbox input:checked + .checkbox-box {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  .filter-checkbox input:checked + .checkbox-box::after {
+    content: "";
+    display: block;
+    width: 5px;
+    height: 9px;
+    border: solid var(--color-bg-surface);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+
+  .sort-pill-wrap {
+    position: relative;
+    flex: none;
+  }
+
+  .sort-menu {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    right: 0;
+    z-index: 10;
+    min-width: 200px;
+    padding: var(--space-2);
+    box-sizing: border-box;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity .15s ease, transform .15s ease, visibility 0s linear .15s;
+  }
+
+  .sort-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity .15s ease, transform .15s ease;
+  }
+
+  .sort-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    background: none;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .sort-option:hover {
+    background: var(--color-bg-muted);
+  }
+
+  .sort-option.active {
+    color: var(--color-text-primary);
+    font-weight: 500;
+  }
+
+  /* ---------- Mobile filter bottom sheet ----------
+     Only ever opened on mobile (see the JS right after the desktop
+     filter-panel wiring) -- defined unconditionally same as .filter-panel
+     / .sort-menu above, since it's inert everywhere else without the
+     .open class. Visibility is deferred on close (not immediate) so the
+     slide-down/fade-out transitions get to finish first, same trick
+     .filter-panel already uses. */
+  .mobile-filter-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    visibility: hidden;
+    transition: visibility 0s linear .3s;
+  }
+
+  .mobile-filter-sheet.open {
+    visibility: visible;
+    transition: visibility 0s linear 0s;
+  }
+
+  .mobile-filter-sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 6, 26, .45);
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+
+  .mobile-filter-sheet.open .mobile-filter-sheet-overlay {
+    opacity: 1;
+  }
+
+  .mobile-filter-sheet-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background: var(--color-bg-surface);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, .15);
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.32, .72, 0, 1);
+  }
+
+  .mobile-filter-sheet.open .mobile-filter-sheet-panel {
+    transform: translateY(0);
+  }
+
+  .mobile-filter-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    padding: var(--space-6) var(--space-5) var(--space-4);
+  }
+
+  .mobile-filter-sheet-title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .mobile-filter-sheet-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    border: none;
+    border-radius: 50%;
+    background: var(--gray-100);
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .mobile-filter-sheet-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-filter-sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 var(--space-5) var(--space-4);
+  }
+
+  /* Bigger touch targets than the desktop dropdown's own compact rows --
+     the same .filter-radio/.filter-checkbox markup is moved in here as-is
+     (see JS), so this just re-tunes size/spacing for a full-width sheet.
+     No flex gap between rows (the options list's own gap is overridden
+     below) -- each row's own padding is the only spacing, so rows sit
+     closer together than the desktop dropdown's. */
+  .mobile-filter-sheet-body .filter-panel-options {
+    gap: 0;
+  }
+
+  .mobile-filter-sheet-body .filter-radio,
+  .mobile-filter-sheet-body .filter-checkbox {
+    padding: var(--space-2) 0;
+    margin: 0;
+    font-size: 1rem;
+    white-space: normal;
+  }
+
+  /* Active state reads blue here regardless of the desktop dropdown's own
+     radio color (see .filter-radio input:checked + .radio-dot above) --
+     checkboxes already use the same blue, radios are the one that
+     differs on desktop. */
+  .mobile-filter-sheet-body .filter-radio input:checked + .radio-dot,
+  .mobile-filter-sheet-body .filter-checkbox input:checked + .checkbox-box {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  /* Every group gets the divider, including the first -- it doubles as
+     the line under the sheet header on the all-filters sheet. */
+  .mobile-filter-sheet-group {
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .mobile-filter-sheet-group-title {
+    margin: var(--space-2) 0 var(--space-2);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .mobile-filter-sheet-footer {
+    flex: none;
+    padding: var(--space-4) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  /* Same CTA as the homepage hero's primary button (.btn-pill.lg,
+     index.html) -- just stretched full-width for the sheet footer
+     instead of hugging its own content. */
+  .btn-pill.lg.mobile-filter-sheet-cta {
+    width: 100%;
+  }
+
+  body.mobile-filter-sheet-locked {
+    overflow: hidden;
+  }
+
+  /* ---------- CATEGORY TILES ---------- */
+  .pkg-tiles-section {
+    padding: 0 var(--space-8) var(--space-10);
+  }
+
+  #industryStripToggle {
+    margin-bottom: var(--space-4);
+  }
+
+  .scroll-carousel {
+    position: relative;
+  }
+
+  .scroll-carousel-nav {
+    position: absolute;
+    top: 64px;
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .scroll-carousel-nav.prev {
+    left: var(--space-4);
+  }
+
+  .scroll-carousel-nav.next {
+    right: var(--space-4);
+  }
+
+  .scroll-carousel-nav svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .scroll-carousel-nav::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav {
+    display: flex;
+  }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .scroll-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 140px;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .scroll-fade.left {
+    left: -16px;
+    background: linear-gradient(90deg, var(--color-bg-page) 0%, transparent 100%);
+  }
+
+  .scroll-fade.right {
+    right: -16px;
+    background: linear-gradient(270deg, var(--color-bg-page) 0%, transparent 100%);
+  }
+
+  .scroll-carousel.has-overflow .scroll-fade {
+    opacity: 1;
+  }
+
+  .scroll-carousel.has-overflow:has(.scroll-carousel-nav.prev[disabled]) .scroll-fade.left {
+    opacity: 0;
+  }
+
+  .scroll-carousel.has-overflow:has(.scroll-carousel-nav.next[disabled]) .scroll-fade.right {
+    opacity: 0;
+  }
+
+  .thumb-strip {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding: var(--space-2) 8px;
+    margin: 0 -8px;
+  }
+
+  .thumb-item {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    width: 112px;
+    text-decoration: none;
+  }
+
+  .thumb-photo {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--color-bg-muted);
+  }
+
+  .thumb-photo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--thumb-img);
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.3s ease;
+  }
+
+  .thumb-item:hover .thumb-photo::before {
+    transform: scale(1.08);
+  }
+
+  .thumb-caption {
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-align: center;
+  }
+
+  .thumb-item.active .thumb-photo {
+    background-color: transparent;
+    outline: 1px solid var(--gray-500);
+    outline-offset: 3px;
+  }
+
+  .thumb-item.active .thumb-caption {
+    font-weight: 500;
+  }
+
+  .thumb-back-caption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+
+  .thumb-back-icon {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    transform: rotate(90deg);
+    color: var(--color-text-muted);
+  }
+
+  /* Circular icon badge on back tiles, matching IKEA's category-nav "up a
+     level" tile (e.g. the "Produkty" tile at ikea.com/pl/pl/cat/...):
+     plain photo-tile background, a white circle centered on it, dark icon
+     inside -- used instead of a photo, since a back tile has no product
+     of its own to show. */
+  .thumb-photo-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thumb-back-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    color: #484848;
+  }
+
+  .thumb-back-circle svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .thumb-strip-divider {
+    flex: none;
+    align-self: flex-start;
+    /* Centered against the 112px photo square specifically (not the
+       taller full tile incl. caption): (112 - 32) / 2 */
+    margin-top: 40px;
+    width: 1px;
+    height: 32px;
+    background: var(--color-border-default);
+  }
+
+  /* ---------- PRODUCT GRID ---------- */
+  .pkg-products {
+    /* .pkg-seo right below has no top padding of its own, so this bottom
+       padding is the entire visual gap between the grid and it -- doubled
+       from --space-20 to --space-40 to push the pagination further away
+       from the SEO section underneath it. */
+    padding: var(--space-4) var(--space-8) var(--space-40);
+  }
+
+  /* The sleeved-mailer shot is a JPEG, so unlike the cutout PNGs around it
+     it carries an opaque white square that reads as a panel against the
+     card's #F8F8F8. Multiply drops white to the backdrop instead -- keying
+     the white out of the file itself would also eat the sleeve's own white
+     label. */
+  [data-product="sleeved-mailer-box"] .product-card-img { mix-blend-mode: multiply; }
+
+  /* ---------- pagination under the product grid ---------- */
+  .pkg-page-hidden { display: none; }
+
+  .pkg-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    /* Doubled from --space-12 to --space-24 -- more air between the
+       product grid and the pager. */
+    padding-top: var(--space-24);
+  }
+
+  /* Author styles beat the UA stylesheet's [hidden]{display:none} even at
+     equal specificity -- without this, the flex above stayed in effect and
+     a single-page category (e.g. the 7-product Mailer Boxes list) showed
+     the pager anyway despite JS setting the hidden attribute. */
+  .pkg-pagination[hidden] { display: none; }
+
+  .pkg-page-numbers { display: flex; align-items: center; gap: var(--space-2); }
+
+  .pkg-page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex: none;
+    padding: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+  }
+
+  .pkg-page-btn:hover { border-color: var(--color-border-hover); }
+
+  .pkg-page-btn.is-current {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .pkg-page-arrow svg { width: 20px; height: 20px; }
+
+  .pkg-page-next {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+  }
+
+  .pkg-page-next:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+  }
+
+  /* After .pkg-page-next so a spent next arrow greys out like the prev one. */
+  .pkg-page-btn[disabled] {
+    border-color: transparent;
+    background: var(--color-bg-muted);
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+
+  .pkg-page-status {
+    display: none;
+    margin: 0;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-page-status-current { font-weight: 500; color: var(--color-text-primary); }
+
+
+  /* ---------- FOOTER ---------- */
+  .site-footer {
+    position: relative;
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo {
+    display: inline-flex;
+  }
+
+  .footer-logo img {
+    height: 26px;
+    width: auto;
+  }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn {
+    flex: 0 0 auto;
+  }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img {
+    height: 44px;
+    width: auto;
+  }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col {
+    width: 200px;
+    flex: 0 0 auto;
+  }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover {
+    text-decoration: underline;
+  }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 var(--space-4); }
+    .footer-bottom-inner { padding: 1.5rem var(--space-4); }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* Placed last on purpose: each of these selectors has its own base
+     rule earlier in this stylesheet, and with equal specificity the
+     later declaration wins regardless of the @media condition -- an
+     earlier copy of this same block silently lost to .pkg-filters-bar
+     / .pkg-tiles-section / .pkg-products's own (later, unconditional)
+     padding declarations. */
+  @media (max-width: 700px) {
+    .announcement-bar,
+    .pkg-breadcrumb,
+    .pkg-title-row,
+    .pkg-filters-bar,
+    .pkg-tiles-section,
+    .pkg-products,
+    .pkg-seo {
+      padding-left: var(--space-4);
+      padding-right: var(--space-4);
+    }
+  }
+
+  /* Categories carousel: no prev/next arrows on mobile, matching
+     packhelp.com's own mobile behaviour -- native swipe scrolling only.
+     Matches .scroll-carousel.has-overflow .scroll-carousel-nav's own
+     specificity (rather than !important) so this wins purely by being
+     later in source order. */
+  @media (max-width: 700px) {
+    .scroll-carousel-nav,
+    .scroll-carousel.has-overflow .scroll-carousel-nav {
+      display: none;
+    }
+  }
+
+  /* ================================================================
+     BUILD YOUR CONSTRUCTION — page-specific atoms
+     ================================================================
+     Everything above this line is lifted verbatim from packaging.html
+     (breadcrumb / title / filter pills / panels / mobile sheet /
+     category strip chrome / footer) so this listing is visually the
+     same object as the shop listing. Only the things that have no
+     equivalent there live below: the Use segmented control (oś B),
+     the construction category strip (oś A) and the dieline card.     */
+
+  /* ---------- USE SWITCH (oś B: rola opakowania) ----------
+     Deliberately NOT a filter pill. The shipping/product split is the
+     first question a buyer answers, so it sits above the pill bar and
+     is always visible -- a pill would hide it behind a click and let
+     the grid open in an unfiltered state that means nothing. */
+  .cx-use-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding: 0 var(--space-8) var(--space-8);
+  }
+
+  /* ---------- DIMENSIONS ----------
+     Sits opposite the Use switch: role narrows WHAT the pack has to do,
+     size decides what shape it comes out. Both belong above the filter
+     bar for the same reason. */
+  .cx-dims {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    /* headroom for the axis labels, which hang above the fields */
+    padding-top: 1.2rem;
+  }
+
+  /* The three fields and the button read as one control through spacing
+     alone -- no tray behind them. */
+  .cx-dims-box {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .cx-dim {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .cx-dim input {
+    width: 104px;
+    padding: var(--space-3) 2.75rem var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+    font: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    -moz-appearance: textfield;
+  }
+
+  .cx-dim input::-webkit-outer-spin-button,
+  .cx-dim input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .cx-dim input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px var(--color-focus-ring);
+  }
+
+  .cx-dim-go {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .cx-dim-go:hover { background: var(--color-accent-hover); }
+
+  /* Typed but not yet applied. Without it the fields can sit on 12 x 8 x 30
+     while the grid still draws 10 x 10 x 10 and nothing on screen says the
+     button is the thing that closes that gap. A halo, not a colour change:
+     the resting button must not read as disabled. */
+  .cx-dim-go.is-pending {
+    box-shadow: 0 0 0 4px var(--color-bg-accent-subtle);
+  }
+
+  .cx-dim-go svg { width: 18px; height: 18px; }
+
+  .cx-dim-unit {
+    position: absolute;
+    right: var(--space-4);
+    pointer-events: none;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .cx-dim-axis {
+    position: absolute;
+    top: -1.3rem;
+    left: var(--space-4);
+    font-size: 0.6875rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .cx-dim-reset {
+    display: none;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0 var(--space-2);
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  .cx-dim-reset.show { display: inline-flex; }
+
+  .cx-use-switch .toggle-option {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    font-size: 0.9375rem;
+  }
+
+  /* ---------- CATEGORY STRIP (oś A: rodzina konstrukcji) ----------
+     packaging.html's .thumb-item, as it stands: same 112px square, same
+     radius, same caption centred underneath, same active outline. Only
+     what sits inside the square differs -- there is no photograph of a
+     construction, only of a finished product, so the square carries the
+     same two drawings the result cards do. The rules below adapt the
+     component to a <button> and hide an empty family; none of them
+     restyle it. */
+  .thumb-item {
+    /* The shop's tiles are links to a category page. A family here
+       toggles a filter in place, so the tile is a button -- which comes
+       with a border, a background and a UA font the component never
+       asked for. */
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  /* A family with nothing in it under the current role leaves the strip
+     entirely. Dimming it kept a dead tile in the scroll track that still
+     had to be scrolled past to reach a live one. */
+  .thumb-item.cx-empty {
+    display: none;
+  }
+
+  /* ---------- RESULT COUNT ROW ---------- */
+  .cx-count-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: 0 var(--space-8) var(--space-4);
+  }
+
+  .cx-count {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  .cx-count strong {
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- CONSTRUCTION GRID ----------
+     This is the shop's own tile, lifted from packaging.html unchanged:
+     .product-grid + .product-card + .product-card-media/-name/-price. A
+     construction listing is the same object as a product listing, so it
+     gets the same component rather than a second one that merely looks
+     similar. Only the media's CONTENT differs -- two drawings instead of
+     a photograph -- and that is what the .cx-fig rules below add. */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: row dense;
+    gap: var(--space-10) var(--space-5);
+  }
+  /* A fixed 4 columns even on wide desktop -- tiles grow to fill the row
+     (no max-width cap), which keeps the gap between them exactly gap's
+     value everywhere. The shop's opt-in 5-across variant is dropped along
+     with the view switcher: this listing has one view. */
+
+  @media (max-width: 1100px) {
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 700px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-8) var(--space-2); }
+  }
+
+  .product-card {
+    display: block;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .product-card-media {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    margin-bottom: var(--space-3);
+  }
+
+  .product-card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* --img-scale lets a specific tile's photo run smaller than the tile
+       itself (set inline per-image, see productCardHTML) without touching
+       the file -- default 1 leaves every other tile exactly as it was. */
+    transform: scale(var(--img-scale, 1));
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .product-card-img {
+    transform: scale(calc(var(--img-scale, 1) * 1.08));
+  }
+
+  /* Lifestyle-photo hover gallery -- opt-in per card via data-gallery on
+     .product-card-media (see initProductGalleries()). Crossfades the plain
+     product cutout for a real lifestyle shot on hover, with prev/next
+     controls to page through the set while still hovering. */
+  .product-card-gallery-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .product-card:hover .product-card-media[data-gallery] .product-card-img {
+    opacity: 0;
+  }
+
+  .product-card:hover .product-card-media[data-gallery] .product-card-gallery-img {
+    opacity: 1;
+  }
+
+  /* Cycle hover style (gear panel) takes this card over instead -- undo
+     the two rules above so the frame initProductHoverCycle just set on
+     .product-card-img stays visible under the (now src-less) overlay. */
+  body.pkg-tile-hover-cycle .product-card:hover .product-card-media[data-hover-cycle] .product-card-img {
+    opacity: 1;
+  }
+
+  body.pkg-tile-hover-cycle .product-card:hover .product-card-media[data-hover-cycle] .product-card-gallery-img {
+    opacity: 0;
+  }
+
+  .product-card-gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-card:hover .product-card-gallery-nav {
+    opacity: 1;
+  }
+
+  /* Cycle hover style (gear panel) replaces the gallery crossfade for
+     opted-in cards -- hide its now-inert prev/next controls there. */
+  body.pkg-tile-hover-cycle .product-card-media[data-hover-cycle] .product-card-gallery-nav {
+    display: none;
+  }
+
+  .product-card-gallery-nav.prev { left: var(--space-2); }
+  .product-card-gallery-nav.next { right: var(--space-2); }
+
+  .product-card-gallery-nav svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .product-card-name {
+    margin: 0 0 2px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .product-card-price {
+    margin: 0;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* The two drawing layers take the place of .product-card-img. Same
+     absolute fill, inset a little so a wide blank isn't flush to the
+     tile's rounded corners. */
+  .cx-fig {
+    position: absolute;
+    left: 10%;
+    top: 10%;
+    width: 80%;
+    height: 80%;
+    transition: opacity 0.2s ease;
+  }
+
+  .cx-fig svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .cx-fig-flat { opacity: 0; }
+
+  .product-card:hover .cx-fig-iso,
+  .thumb-item:hover .cx-fig-iso { opacity: 0; }
+
+  .product-card:hover .cx-fig-flat,
+  .thumb-item:hover .cx-fig-flat { opacity: 1; }
+
+  /* No hover to swap with on a touch screen, so the folded view stands
+     alone rather than hiding the blank behind a gesture that never comes. */
+  @media (hover: none) {
+    .cx-fig-flat { display: none; }
+  }
+
+  /* The role chips are the one thing the shop tile has no equivalent for:
+     the Use axis is what this listing is organised around, and it has to
+     be readable without opening anything. */
+  .cx-roles {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 1;
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .cx-role {
+    padding: 0.3125rem var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+    font-size: 0.6875rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  .cx-role.is-shipping { background: var(--color-bg-accent-faint); color: var(--color-accent); }
+  .cx-role.is-product  { background: var(--color-bg-olive-subtle); color: var(--olive-600); }
+  .cx-role.is-inner    { background: var(--color-bg-muted-hover); color: var(--color-text-secondary); }
+
+  /* min-height keeps the row reserved when the line comes out empty -- a
+     construction with no trade code, on a listing already narrowed to one
+     family, has nothing left to say there, and letting it collapse would
+     make that card shorter than the ones beside it. */
+  .product-card-price {
+    min-height: 1.32em;
+  }
+
+  /* ---------- EMPTY STATE ---------- */
+  .cx-empty-state {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-16) 0 var(--space-20);
+  }
+
+  .cx-empty-state.show { display: flex; }
+
+  .cx-empty-title {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.16;
+    letter-spacing: -0.03em;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .cx-empty-copy {
+    margin: 0;
+    max-width: 44ch;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- MOBILE ----------
+     No grid breakpoints here: .product-grid brings the shop's own
+     4 / 3 / 2-column ladder with it, and a second set would only fight it. */
+  @media (max-width: 700px) {
+    .cx-use-row,
+    .cx-count-row {
+      padding-left: var(--space-4);
+      padding-right: var(--space-4);
+    }
+
+    /* Stacked, not wrapped side by side: at this width the dimension row
+       landed alongside the switch and its axis labels -- which sit above
+       the fields, outside their box -- printed straight over it. */
+    .cx-use-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-6);
+    }
+
+    .cx-dims { width: 100%; }
+
+    .cx-dims-box { flex: 1; min-width: 0; }
+
+    .cx-dim { flex: 1; min-width: 0; }
+
+    .cx-dim input { width: 100%; padding-right: 2.4rem; padding-left: var(--space-3); }
+
+    .cx-dim-unit { right: var(--space-3); }
+
+    .cx-use-switch {
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .cx-use-switch::-webkit-scrollbar { display: none; }
+
+    .cx-use-switch .toggle-option {
+      flex: none;
+      padding: var(--space-3) var(--space-4);
+      font-size: 0.875rem;
+    }
+
+    /* Same full-16px bleed packaging.html gives the strip on a phone:
+       the component's own -8px was tuned against a different page
+       padding and leaves the tiles clipped short of the fade. */
+    .thumb-strip {
+      margin: 0 calc(-1 * var(--space-4));
+      padding: var(--space-2) var(--space-4);
+    }
+
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>Every construction here is die-cut to your dimensions. Code: <strong>BUILDIT</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <span class="current">Build your construction</span>
+  </nav>
+
+  <section class="pkg-title-row">
+    <div class="pkg-title-copy">
+      <h1 class="pkg-title">Build your construction</h1>
+      <div class="pkg-desc-row">
+        <p class="pkg-subtitle">Start from the shape, not the product. Every construction below is a die-cut blank we can make to your dimensions — pick one and take it straight into the editor.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Oś B. Deliberately above the pill bar and always open: whether a
+       pack ships on its own or sells off a shelf is the first thing that
+       narrows this catalogue, and burying it in a dropdown would let the
+       grid sit in a state that answers nobody's question. -->
+  <section class="cx-use-row">
+    <div class="toggle-switch cx-use-switch" id="useSwitch">
+      <div class="toggle-indicator" id="useIndicator"></div>
+      <button class="toggle-option active" type="button" data-role="all">All</button>
+      <button class="toggle-option" type="button" data-role="shipping">Shipping</button>
+      <button class="toggle-option" type="button" data-role="product">Product</button>
+      <button class="toggle-option" type="button" data-role="inner">Inner</button>
+    </div>
+
+    <div class="cx-dims">
+      <div class="cx-dims-box">
+        <label class="cx-dim"><span class="cx-dim-axis">Width</span><input type="number" id="dimW" min="1" max="200" value="10"><span class="cx-dim-unit">cm</span></label>
+        <label class="cx-dim"><span class="cx-dim-axis">Length</span><input type="number" id="dimL" min="1" max="200" value="10"><span class="cx-dim-unit">cm</span></label>
+        <label class="cx-dim"><span class="cx-dim-axis">Height</span><input type="number" id="dimH" min="1" max="200" value="10"><span class="cx-dim-unit">cm</span></label>
+        <button type="button" class="cx-dim-go" id="dimGo" aria-label="Redraw at these dimensions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+      </div>
+      <button type="button" class="cx-dim-reset" id="dimReset">Reset</button>
+    </div>
+  </section>
+
+  <!-- Oś A. Same horizontal scroller as the shop listing's category
+       strip, drawing dielines instead of product photography. -->
+  <section class="pkg-tiles-section">
+    <div class="scroll-carousel" id="catCarousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+      <div class="scroll-fade left"></div>
+      <div class="thumb-strip" id="catStrip"></div>
+      <div class="scroll-fade right"></div>
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <section class="pkg-filters-bar" id="filtersBar">
+    <div class="filter-pills-scroll">
+      <div class="filter-pills" id="filterPills"></div>
+      <div class="scroll-fade left"></div>
+      <div class="scroll-fade right"></div>
+    </div>
+
+    <div class="active-filter-pills" id="activeChips"></div>
+  </section>
+
+  <!-- Mobile only. The panel's real option nodes are MOVED in here, not
+       cloned, so phone and desktop always share one set of inputs and
+       one piece of state. -->
+  <div class="mobile-filter-sheet" id="mobileSheet">
+    <div class="mobile-filter-sheet-overlay" id="mobileSheetOverlay"></div>
+    <div class="mobile-filter-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="mobileSheetTitle">
+      <div class="mobile-filter-sheet-header">
+        <h3 class="mobile-filter-sheet-title" id="mobileSheetTitle">Filters</h3>
+        <button class="mobile-filter-sheet-close" id="mobileSheetClose" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="mobile-filter-sheet-body" id="mobileSheetBody"></div>
+      <div class="mobile-filter-sheet-footer">
+        <button class="btn-pill lg mobile-filter-sheet-cta" id="mobileSheetCta" type="button">Show results</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="cx-count-row">
+    <p class="cx-count" id="countLine"></p>
+  </section>
+
+  <section class="pkg-products">
+    <div class="product-grid" id="grid"></div>
+    <div class="cx-empty-state" id="emptyState">
+      <h2 class="cx-empty-title">Nothing matches that combination</h2>
+      <p class="cx-empty-copy">Some constructions only exist in one material — a magnetic closure is never corrugated, a slotted container is never rigid board. Drop a filter and the grid comes back.</p>
+      <button class="btn-pill md" type="button" id="emptyReset">Clear all filters</button>
+    </div>
+  </section>
+</div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  // Sticky bar placement. .sticky-bar is position:fixed with NO top of its
+  // own (components.css), so without this it parks at whatever offset it
+  // happens to inherit -- which is why the search field was left hanging
+  // partway down the page. It rides the centre of .nav-row1 until that row
+  // scrolls off, then pins 12px from the top.
+  //
+  // Copied from packaging.html rather than shared: fifteen pages carry their
+  // own copy of this and they have already drifted into several variants, so
+  // consolidating it into nav-header.js is a change of its own, not something
+  // to do quietly from here.
+  (function () {
+    var navRow1 = document.querySelector('.nav-row1');
+    var stickyBar = document.getElementById('stickyBar');
+    if (!navRow1 || !stickyBar) { return; }
+
+    function onScroll() {
+      var rect = navRow1.getBoundingClientRect();
+      var pinned = rect.bottom <= 0;
+      stickyBar.classList.toggle('is-pinned', pinned);
+
+      var minTop = 12;
+      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+</script>
+
+<button id="siteSettingsBtn" class="site-settings-btn" aria-label="Site settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<div id="siteSettingsPanel" class="site-settings-panel">
+  <p class="site-settings-title">Page customization</p>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Build your box</p>
+      <p class="site-settings-desc">Switch between the step-by-step configurator and this construction listing</p>
+    </div>
+    <div class="toggle-switch" id="bybVariantSwitch">
+      <div class="toggle-indicator" id="bybVariantIndicator"></div>
+      <button class="toggle-option" type="button" data-variant="classic">Configurator</button>
+      <button class="toggle-option active" type="button" data-variant="construction">Constructions</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // nav-header.js only builds the gear button for pages that have NO panel of
+  // their own; this page has one, so it owns the open/close wiring -- same
+  // split as index.html.
+  (function () {
+    var btn = document.getElementById('siteSettingsBtn');
+    var panel = document.getElementById('siteSettingsPanel');
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
+    });
+  })();
+</script>
+
+<script src="byb-variant.js"></script>
+<script>
+/* ============================================================
+   DIELINE — procedural flat-blank drawings
+   ============================================================
+   There is no photograph of a construction, only of a finished
+   product, so every card draws its own die-cut blank instead.
+   Each construction is a small spec (panel widths, flap kinds,
+   glue tab, holes) and this turns it into an SVG. Two stroke
+   styles, exactly like a real dieline: solid = cut, dashed =
+   crease.
+
+   Coordinates are abstract units; the builder tracks a bbox and
+   emits a fitted viewBox, so specs never worry about scale. The
+   strokes carry vector-effect:non-scaling-stroke -- cards differ
+   in blank proportion, and without it a wide blank would render
+   hairlines next to a tall one's heavy outline. */
+(function (root) {
+  'use strict';
+
+  var CUT = 'c', CREASE = 'f';
+
+  function Builder() {
+    this.d = { c: [], f: [] };
+    /* Solid faces are kept as an ORDERED list and painted fill-plus-stroke
+       one at a time. The dieline can batch every cut into one path because
+       nothing occludes anything; a solid cannot. Stroking all edges after
+       all fills draws the hidden ones straight over the faces in front of
+       them, and the box comes out looking like a wire cage. */
+    this.solids = [];
+    this.x0 = Infinity; this.y0 = Infinity;
+    this.x1 = -Infinity; this.y1 = -Infinity;
+  }
+
+  Builder.prototype.see = function (x, y) {
+    if (x < this.x0) this.x0 = x;
+    if (y < this.y0) this.y0 = y;
+    if (x > this.x1) this.x1 = x;
+    if (y > this.y1) this.y1 = y;
+  };
+
+  Builder.prototype.add = function (d, kind, pts) {
+    this.d[kind === CREASE ? 'f' : 'c'].push(d);
+    for (var i = 0; i < pts.length; i++) this.see(pts[i][0], pts[i][1]);
+    return this;
+  };
+
+  Builder.prototype.line = function (x1, y1, x2, y2, kind) {
+    return this.add('M' + n(x1) + ' ' + n(y1) + 'L' + n(x2) + ' ' + n(y2), kind, [[x1, y1], [x2, y2]]);
+  };
+
+  Builder.prototype.poly = function (pts, kind, close) {
+    var d = 'M' + n(pts[0][0]) + ' ' + n(pts[0][1]);
+    for (var i = 1; i < pts.length; i++) d += 'L' + n(pts[i][0]) + ' ' + n(pts[i][1]);
+    if (close) d += 'Z';
+    return this.add(d, kind, pts);
+  };
+
+  Builder.prototype.rect = function (x, y, w, h, kind, r) {
+    if (r) {
+      return this.add(
+        'M' + n(x + r) + ' ' + n(y) + 'H' + n(x + w - r) + 'A' + n(r) + ' ' + n(r) + ' 0 0 1 ' + n(x + w) + ' ' + n(y + r) +
+        'V' + n(y + h - r) + 'A' + n(r) + ' ' + n(r) + ' 0 0 1 ' + n(x + w - r) + ' ' + n(y + h) +
+        'H' + n(x + r) + 'A' + n(r) + ' ' + n(r) + ' 0 0 1 ' + n(x) + ' ' + n(y + h - r) +
+        'V' + n(y + r) + 'A' + n(r) + ' ' + n(r) + ' 0 0 1 ' + n(x + r) + ' ' + n(y) + 'Z',
+        kind, [[x, y], [x + w, y + h]]);
+    }
+    return this.poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], kind, true);
+  };
+
+  Builder.prototype.circle = function (cx, cy, r, kind) {
+    return this.add(
+      'M' + n(cx - r) + ' ' + n(cy) + 'a' + n(r) + ' ' + n(r) + ' 0 1 0 ' + n(2 * r) + ' 0' +
+      'a' + n(r) + ' ' + n(r) + ' 0 1 0 ' + n(-2 * r) + ' 0Z',
+      kind, [[cx - r, cy - r], [cx + r, cy + r]]);
+  };
+
+  /* Euro slot: the round hole plus the narrow neck above it that lets
+     the hook through. Drawn as one cut outline, not a circle and a
+     rectangle -- two overlapping shapes would show their seam. */
+  Builder.prototype.euro = function (cx, cy, r) {
+    var nw = r * 0.62, ny = cy - r * 2.1;
+    var dx = Math.sqrt(Math.max(r * r - nw * nw, 0.0001));
+    return this.add(
+      'M' + n(cx - nw) + ' ' + n(ny) +
+      'L' + n(cx - nw) + ' ' + n(cy - dx) +
+      'A' + n(r) + ' ' + n(r) + ' 0 1 0 ' + n(cx + nw) + ' ' + n(cy - dx) +
+      'L' + n(cx + nw) + ' ' + n(ny) + 'Z',
+      CUT, [[cx - r, ny], [cx + r, cy + r]]);
+  };
+
+  /* swap: reflect the blank across x=y. A roll-end mailer is a carton
+     spec stood on its side -- panels stacked top to bottom with the side
+     walls as left/right flaps -- so rather than a second generator it is
+     the same spec emitted through a transform, with the viewBox
+     transposed to match. */
+  Builder.prototype.svg = function (pad, swap) {
+    pad = pad == null ? 3 : pad;
+    var x = this.x0 - pad, y = this.y0 - pad;
+    var w = (this.x1 - this.x0) + pad * 2, h = (this.y1 - this.y0) + pad * 2;
+    if (swap) { var t = x; x = y; y = t; t = w; w = h; h = t; }
+    return '<svg viewBox="' + n(x) + ' ' + n(y) + ' ' + n(w) + ' ' + n(h) + '" ' +
+      'preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true" ' +
+      'stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke">' +
+      (swap ? '<g transform="matrix(0 1 1 0 0 0)">' : '') +
+      '<g stroke="#00061A" stroke-width="1.3" vector-effect="non-scaling-stroke">' +
+      this.solids.map(function (sh) {
+        return '<path vector-effect="non-scaling-stroke" fill="' + sh.fill + '" d="' + sh.d + '"/>';
+      }).join('') + '</g>' +
+      '<g stroke="#86868B" stroke-width="1" stroke-dasharray="4 3.5" vector-effect="non-scaling-stroke">' +
+      '<path vector-effect="non-scaling-stroke" d="' + this.d.f.join('') + '"/></g>' +
+      '<g stroke="#00061A" stroke-width="1.5" vector-effect="non-scaling-stroke">' +
+      '<path vector-effect="non-scaling-stroke" d="' + this.d.c.join('') + '"/></g>' +
+      (swap ? '</g>' : '') +
+      '</svg>';
+  };
+
+  function n(v) { return Math.round(v * 100) / 100; }
+
+  /* ---------- flap kinds ----------
+     Every flap is drawn in output coordinates with dir = -1 (top of
+     the body row) or +1 (bottom), so the same spec drives both ends
+     without mirroring the whole blank. */
+  function flap(b, kind, x, w, baseY, dir, hint) {
+    if (!kind || kind === 'none') return 0;
+    var f;
+
+    if (kind === 'dust') {
+      f = hint || w * 0.62;
+      var ins = Math.min(w * 0.18, f * 0.4);
+      b.poly([[x, baseY], [x + ins, baseY + dir * f], [x + w - ins * 0.35, baseY + dir * f], [x + w, baseY]], CUT);
+      b.line(x, baseY, x + w, baseY, CREASE);
+      return f;
+    }
+
+    if (kind === 'full' || kind === 'slot') {
+      f = hint || w * 0.5;
+      /* 'slot' leaves the saw kerf between neighbouring flaps -- without
+         it four abutting flaps merge into one band and an RSC reads as a
+         plain rectangle. 'full' stays flush, for walls that butt. */
+      var g = kind === 'slot' ? f * 0.2 : 0;
+      b.poly([[x + g, baseY], [x + g, baseY + dir * f], [x + w - g, baseY + dir * f], [x + w - g, baseY]], CUT);
+      b.line(x, baseY, x + w, baseY, CREASE);
+      return f;
+    }
+
+    if (kind === 'round') {
+      f = hint || w * 0.42;
+      var r = Math.min(w, f) * 0.28;
+      b.add('M' + n(x) + ' ' + n(baseY) + 'V' + n(baseY + dir * (f - r)) +
+        'A' + n(r) + ' ' + n(r) + ' 0 0 ' + (dir === -1 ? 1 : 0) + ' ' + n(x + r) + ' ' + n(baseY + dir * f) +
+        'H' + n(x + w - r) +
+        'A' + n(r) + ' ' + n(r) + ' 0 0 ' + (dir === -1 ? 1 : 0) + ' ' + n(x + w) + ' ' + n(baseY + dir * (f - r)) +
+        'V' + n(baseY), CUT, [[x, baseY], [x + w, baseY + dir * f]]);
+      b.line(x, baseY, x + w, baseY, CREASE);
+      return f;
+    }
+
+    if (kind === 'tuck') {
+      f = hint || w * 0.46;
+      var sh = f * 0.42, nr = Math.min(w * 0.13, f * 0.34), cx = x + w / 2;
+      var tip = baseY + dir * f;
+      b.add('M' + n(x) + ' ' + n(baseY) +
+        'L' + n(x) + ' ' + n(baseY + dir * sh) +
+        'L' + n(x + w * 0.1) + ' ' + n(tip) +
+        'L' + n(cx - nr) + ' ' + n(tip) +
+        'A' + n(nr) + ' ' + n(nr) + ' 0 0 ' + (dir === -1 ? 0 : 1) + ' ' + n(cx + nr) + ' ' + n(tip) +
+        'L' + n(x + w * 0.9) + ' ' + n(tip) +
+        'L' + n(x + w) + ' ' + n(baseY + dir * sh) +
+        'L' + n(x + w) + ' ' + n(baseY), CUT, [[x, baseY], [x + w, tip]]);
+      b.line(x, baseY, x + w, baseY, CREASE);
+      return f;
+    }
+
+    if (kind === 'crash' || kind === 'auto') {
+      f = hint || w * 0.52;
+      b.poly([[x, baseY], [x, baseY + dir * f], [x + w, baseY + dir * f], [x + w, baseY]], CUT);
+      b.line(x, baseY, x + w, baseY, CREASE);
+      b.line(x, baseY, x + w, baseY + dir * f, CREASE);
+      if (kind === 'auto') b.line(x + w, baseY, x + w * 0.35, baseY + dir * f, CREASE);
+      return f;
+    }
+
+    if (kind === 'lock') {
+      /* 1-2-3 / snap-lock: full flap, one diagonal crease and the slit
+         the neighbouring flap hooks into. */
+      f = hint || w * 0.5;
+      b.poly([[x, baseY], [x, baseY + dir * f], [x + w, baseY + dir * f], [x + w, baseY]], CUT);
+      b.line(x, baseY, x + w, baseY, CREASE);
+      b.line(x + w * 0.18, baseY + dir * f, x + w, baseY + dir * f * 0.22, CREASE);
+      b.line(x + w * 0.3, baseY + dir * f * 0.52, x + w * 0.62, baseY + dir * f * 0.52, CUT);
+      return f;
+    }
+
+    if (kind === 'wing') {
+      /* Narrow return flange -- the lip a tray or a sleeve folds back
+         on itself. Shallow and square, never trapezoidal. */
+      f = hint || w * 0.16;
+      b.poly([[x, baseY], [x, baseY + dir * f], [x + w, baseY + dir * f], [x + w, baseY]], CUT);
+      b.line(x, baseY, x + w, baseY, CREASE);
+      return f;
+    }
+
+    return 0;
+  }
+
+  /* ---------- generator: carton ----------
+     A row of body panels with a flap on each end of each panel, plus
+     an optional glue tab. Covers tuck ends, seal ends, crash locks,
+     RSCs, hanging and handle boxes, gussetted bags and hexagons --
+     most of the catalogue. */
+  function carton(s) {
+    var b = new Builder(), p = s.panels, h = s.h, i;
+    var xs = [0];
+    for (i = 0; i < p.length; i++) xs.push(xs[i] + p[i]);
+    var W = xs[p.length];
+
+    for (i = 1; i < p.length; i++) b.line(xs[i], 0, xs[i], h, CREASE);
+
+    /* Body outline: an edge is only a cut where no flap covers it. */
+    for (i = 0; i < p.length; i++) {
+      if (!s.top || !s.top[i] || s.top[i] === 'none') b.line(xs[i], 0, xs[i + 1], 0, CUT);
+      if (!s.bottom || !s.bottom[i] || s.bottom[i] === 'none') b.line(xs[i], h, xs[i + 1], h, CUT);
+    }
+    if (s.tab !== 'left') b.line(0, 0, 0, h, CUT);
+    if (s.tab !== 'right') b.line(W, 0, W, h, CUT);
+
+    for (i = 0; i < p.length; i++) {
+      if (s.top) flap(b, s.top[i], xs[i], p[i], 0, -1, s.topH);
+      if (s.bottom) flap(b, s.bottom[i], xs[i], p[i], h, 1, s.bottomH);
+    }
+
+    if (s.tab) {
+      var tw = s.tabW || h * 0.14, sl = Math.min(h * 0.12, tw);
+      var ax = s.tab === 'left' ? 0 : W, sgn = s.tab === 'left' ? -1 : 1;
+      b.poly([[ax, 0], [ax + sgn * tw, sl], [ax + sgn * tw, h - sl], [ax, h]], CUT);
+      b.line(ax, 0, ax, h, CREASE);
+    }
+
+    (s.holes || []).forEach(function (hole) {
+      var px = xs[hole.p], pw = p[hole.p];
+      if (hole.k === 'euro') b.euro(px + pw * (hole.x == null ? 0.5 : hole.x), h * hole.y, Math.min(pw, h) * (hole.r || 0.07));
+      else if (hole.k === 'handle') b.rect(px + pw * 0.5 - pw * (hole.w || 0.26) / 2, h * hole.y, pw * (hole.w || 0.26), h * (hole.h || 0.05), CUT, h * 0.025);
+      else if (hole.k === 'window') b.rect(px + pw * 0.16, h * 0.2, pw * 0.68, h * 0.55, CUT, Math.min(pw, h) * 0.06);
+    });
+
+    (s.creases || []).forEach(function (c) {
+      b.line(xs[c.p] + p[c.p] * c.x, 0, xs[c.p] + p[c.p] * c.x, h, CREASE);
+    });
+
+    return b.svg(s.pad, s.swap);
+  }
+
+  /* ---------- generator: tray ----------
+     Cross-shaped blank: a base with four walls folded up off it and
+     corner ears that glue or lock behind the short walls. */
+  function tray(s) {
+    var b = new Builder(), w = s.w, d = s.d, wall = s.wall, ear = s.ear == null ? wall * 0.8 : s.ear;
+    var fl = s.flange || 0;
+
+    b.rect(0, 0, w, d, CREASE);
+
+    /* Long walls (top and bottom of the blank), optionally with a
+       return flange folded back inside. */
+    [[-1, 0], [1, d]].forEach(function (side) {
+      var dir = side[0], base = side[1];
+      b.line(0, base + dir * wall, w, base + dir * wall, fl ? CREASE : CUT);
+      b.line(0, base, 0, base + dir * wall, CUT);
+      b.line(w, base, w, base + dir * wall, CUT);
+      b.see(0, base + dir * wall); b.see(w, base + dir * wall);
+      if (fl) {
+        b.poly([[0, base + dir * wall], [0, base + dir * (wall + fl)], [w, base + dir * (wall + fl)], [w, base + dir * wall]], CUT);
+      }
+    });
+
+    /* Short walls carry the ears, so their blank is taller than the
+       wall itself by one ear at each end. */
+    [[-1, 0], [1, w]].forEach(function (side) {
+      var dir = side[0], base = side[1];
+      var ox = base + dir * wall;
+      b.poly([
+        [base, -ear], [ox, -ear + wall * 0.45], [ox, d + ear - wall * 0.45], [base, d + ear]
+      ], CUT);
+      b.line(base, -ear, base, 0, CUT);
+      b.line(base, d, base, d + ear, CUT);
+      b.line(base, 0, base, d, CREASE);
+      b.line(base, -ear, ox, -ear + wall * 0.45, CUT);
+    });
+
+    return b.svg(s.pad);
+  }
+
+  /* ---------- generator: tube ----------
+     A wrap that rolls into a cylinder plus its two end discs. The
+     roll creases are evenly spaced because the blank is scored, not
+     bent freehand. */
+  function tube(s) {
+    var b = new Builder(), w = s.w, h = s.h, seg = s.seg || 6, i;
+    b.rect(0, 0, w, h, CUT);
+    for (i = 1; i < seg; i++) b.line(w * i / seg, 0, w * i / seg, h, CREASE);
+    var r = h * 0.34, cx = w + r * 1.35;
+    b.circle(cx, h * 0.5 - r * 1.12, r, CUT);
+    b.circle(cx, h * 0.5 + r * 1.12, r, CUT);
+    b.circle(cx, h * 0.5 - r * 1.12, r * 0.74, CREASE);
+    b.circle(cx, h * 0.5 + r * 1.12, r * 0.74, CREASE);
+    return b.svg(s.pad);
+  }
+
+  /* ---------- generator: pillow ----------
+     Two panels whose ends curve, so the folded pack closes on itself
+     without a separate flap. The arcs ARE the construction. */
+  function pillow(s) {
+    var b = new Builder(), w = s.w, h = s.h, bow = s.bow || h * 0.3;
+    b.add('M0 ' + n(bow) + 'Q' + n(w / 2) + ' ' + n(-bow * 0.5) + ' ' + n(w) + ' ' + n(bow), CUT, [[0, -bow * 0.3], [w, bow]]);
+    b.add('M0 ' + n(h - bow) + 'Q' + n(w / 2) + ' ' + n(h + bow * 0.5) + ' ' + n(w) + ' ' + n(h - bow), CUT, [[0, h - bow], [w, h + bow * 0.3]]);
+    b.line(0, bow, 0, h - bow, CUT);
+    b.line(w, bow, w, h - bow, CUT);
+    for (var i = 1; i < 4; i++) b.line(w * i / 4, bow * 0.45, w * i / 4, h - bow * 0.45, CREASE);
+    return b.svg(s.pad);
+  }
+
+  /* ---------- generator: pouch ----------
+     Flat-bottom or stand-up pouch: seal bands down both sides, the
+     bottom gusset as a folded-in triangle pair, tear notch at the top. */
+  function pouch(s) {
+    var b = new Builder(), w = s.w, h = s.h, seal = w * 0.1;
+    b.rect(0, 0, w, h, CUT, w * 0.05);
+    b.line(seal, 0, seal, h, CREASE);
+    b.line(w - seal, 0, w - seal, h, CREASE);
+    if (s.zip) b.line(seal, h * 0.14, w - seal, h * 0.14, CREASE);
+    if (s.gusset) {
+      var g = h * 0.2;
+      b.line(seal, h - g, w - seal, h - g, CREASE);
+      b.line(seal, h - g, w / 2, h - g * 0.1, CREASE);
+      b.line(w - seal, h - g, w / 2, h - g * 0.1, CREASE);
+    }
+    b.line(0, h * 0.09, seal * 0.55, h * 0.09, CUT);
+    return b.svg(s.pad);
+  }
+
+  /* ---------- generator: sheet ----------
+     Flat die-cut parts that never become a box on their own: inserts,
+     partitions, corner protectors, wraps. The pattern is the point,
+     so it is drawn rather than described. */
+  function sheet(s) {
+    var b = new Builder(), w = s.w, h = s.h, i;
+    b.rect(0, 0, w, h, CUT, s.r || 0);
+
+    if (s.pattern === 'slots') {
+      /* Partition comb: the slots one half slides into the other. */
+      var slots = s.n || 4;
+      for (i = 1; i < slots; i++) {
+        var x = w * i / slots, sw = w * 0.022;
+        if (i % 2) b.rect(x - sw / 2, -0.001, sw, h * 0.54, CUT, sw / 2);
+        else b.rect(x - sw / 2, h * 0.46, sw, h * 0.54, CUT, sw / 2);
+      }
+    } else if (s.pattern === 'cavities') {
+      var cols = s.cols || 3, rows = s.rows || 2, m = w * 0.08;
+      var cw = (w - m * (cols + 1)) / cols, ch = (h - m * (rows + 1)) / rows;
+      for (i = 0; i < cols * rows; i++) {
+        b.rect(m + (i % cols) * (cw + m), m + Math.floor(i / cols) * (ch + m), cw, ch, CUT, Math.min(cw, ch) * 0.14);
+      }
+    } else if (s.pattern === 'corner') {
+      b.d.c.length = 0;
+      var q = w * 0.42;
+      b.poly([[0, 0], [w, 0], [w, h - q], [w - q, h - q], [w - q, h], [0, h]], CUT, true);
+      b.line(w - q, 0, w - q, h - q, CREASE);
+      b.line(0, h - q, w - q, h - q, CREASE);
+    } else if (s.pattern === 'honeycomb') {
+      var cols = 7, rows = 5, sx = w / cols, sy = h / rows;
+      for (var r0 = 0; r0 < rows; r0++) {
+        for (var c0 = 0; c0 < cols; c0++) {
+          var cx = sx * (c0 + 0.5) + (r0 % 2 ? sx * 0.5 : 0), cy = sy * (r0 + 0.5);
+          if (cx > sx * 0.3 && cx < w - sx * 0.3) b.line(cx - sx * 0.26, cy, cx + sx * 0.26, cy, CUT);
+        }
+      }
+    } else if (s.pattern === 'wave') {
+      for (i = 1; i < 6; i++) {
+        var y = h * i / 6, d = 'M0 ' + n(y);
+        for (var k = 0; k < 6; k++) {
+          d += 'q' + n(w / 12) + ' ' + n(k % 2 ? h * 0.06 : -h * 0.06) + ' ' + n(w / 6) + ' 0';
+        }
+        b.add(d, CREASE, [[0, y - h * 0.06], [w, y + h * 0.06]]);
+      }
+    } else if (s.pattern === 'fold') {
+      for (i = 1; i < (s.n || 3); i++) b.line(0, h * i / (s.n || 3), w, h * i / (s.n || 3), CREASE);
+    }
+
+    return b.svg(s.pad);
+  }
+
+  /* ---------- generator: display ----------
+     Counter and floor displays: a back panel, a header above it, side
+     panels whose front edge rakes down, and the shelves. Drawn as the
+     blank laid out around the back panel. */
+  function display(s) {
+    var b = new Builder(), w = s.w, h = s.h, side = s.side, head = s.head || 0, shelves = s.shelves || 0;
+
+    /* Back panel: creased on all four edges, since something folds off
+       every one of them. */
+    b.line(0, 0, 0, h, CREASE);
+    b.line(w, 0, w, h, CREASE);
+
+    if (head) {
+      /* Header card -- the printed crown above the goods. */
+      var hr = Math.min(w, head) * 0.22;
+      b.add('M0 0V' + n(-head + hr) +
+        'A' + n(hr) + ' ' + n(hr) + ' 0 0 1 ' + n(hr) + ' ' + n(-head) +
+        'H' + n(w - hr) +
+        'A' + n(hr) + ' ' + n(hr) + ' 0 0 1 ' + n(w) + ' ' + n(-head + hr) +
+        'V0', CUT, [[0, -head], [w, 0]]);
+      b.line(0, 0, w, 0, CREASE);
+    } else {
+      b.line(0, 0, w, 0, CUT);
+    }
+
+    /* Side panels rake from full depth at the back to two thirds at the
+       front: enough slope to show the goods, not so much that the blank
+       reads as a funnel. */
+    var front = side * 0.66;
+    [[-1, 0], [1, w]].forEach(function (sd) {
+      var dir = sd[0], base = sd[1];
+      b.poly([[base, 0], [base + dir * side, 0], [base + dir * front, h], [base, h]], CUT);
+    });
+
+    b.line(0, h, w, h, s.foot ? CREASE : CUT);
+    if (s.foot) {
+      b.poly([[0, h], [0, h + side * 0.9], [w, h + side * 0.9], [w, h]], CUT);
+      b.line(0, h + side * 0.55, w, h + side * 0.55, CREASE);
+    }
+
+    /* Each shelf is a tongue cut out of the back panel and folded
+       forward -- three cut edges and one crease, which is exactly how a
+       one-piece display carries its shelves. */
+    for (var i = 1; i <= shelves; i++) {
+      var y = h * i / (shelves + 1), dep = side * 0.5;
+      b.poly([[w * 0.1, y], [w * 0.1, y - dep], [w * 0.9, y - dep], [w * 0.9, y]], CUT);
+      b.line(w * 0.1, y, w * 0.9, y, CREASE);
+    }
+
+    return b.svg(s.pad);
+  }
+
+  /* ============================================================
+     ISOMETRIC — the folded construction
+     ============================================================
+     The dieline says how a blank is cut; it does not say what the
+     thing ends up looking like, which is what someone browsing
+     actually recognises. So each card carries both: the folded
+     object at rest, the flat blank on hover.
+
+     True isometric, not a fake 3D: P() is the standard 30-degree
+     projection, and every shape is built from real (x, y, z)
+     points through it. Faces are shaded by orientation -- top
+     lightest, right darkest -- which is the whole reason the
+     object reads as solid from line work alone. */
+  var ISO_C = Math.cos(Math.PI / 6), ISO_S = 0.5;
+
+  function P(x, y, z) { return [(x - z) * ISO_C, (x + z) * ISO_S - y]; }
+
+  /* Opaque, not tinted. Translucent fills let the far interior wall show
+     straight through the near one and the whole box read as a wire cage --
+     occlusion here is entirely a matter of paint order, so each face has
+     to actually cover what it is in front of. */
+  var SHADE = { top: '#FFFFFF', front: '#EDEDEF', right: '#DBDBE0', dark: '#C5C6CC' };
+
+  Builder.prototype.face = function (pts3, fill) {
+    var pts = pts3.map(function (p) { return P(p[0], p[1], p[2]); });
+    var d = 'M' + pts.map(function (p) { return n(p[0]) + ' ' + n(p[1]); }).join('L') + 'Z';
+    this.solids.push({ d: d, fill: fill || 'none' });
+    for (var i = 0; i < pts.length; i++) this.see(pts[i][0], pts[i][1]);
+    return this;
+  };
+
+  /* A circle drawn ON a face, not on the screen: the points are
+     generated in the face's own 2D basis and then projected, so the
+     hole tilts with the panel it is cut into instead of staying a
+     flat screen-space circle stuck on top of the drawing. */
+  function facePoly(b, plane, pts2, fill) {
+    return b.face(pts2.map(function (p) { return plane(p[0], p[1]); }), fill);
+  }
+
+  function circle2(cx, cy, r, steps) {
+    var pts = [], i;
+    steps = steps || 28;
+    for (i = 0; i < steps; i++) {
+      var t = i / steps * Math.PI * 2;
+      pts.push([cx + r * Math.cos(t), cy + r * Math.sin(t)]);
+    }
+    return pts;
+  }
+
+  function roundRect2(x, y, w, h, r) {
+    var pts = [], i, k = 6;
+    var corners = [[x + w - r, y + h - r, 0], [x + r, y + h - r, Math.PI / 2], [x + r, y + r, Math.PI], [x + w - r, y + r, -Math.PI / 2]];
+    corners.forEach(function (c) {
+      for (i = 0; i <= k; i++) {
+        var t = c[2] + i / k * Math.PI / 2;
+        pts.push([c[0] + r * Math.cos(t), c[1] + r * Math.sin(t)]);
+      }
+    });
+    return pts;
+  }
+
+  /* The two faces a viewer can see from this angle are x = w and
+     z = d -- the pair that meets at the near vertical edge. */
+  function planes(w, h, d) {
+    return {
+      front: function (u, v) { return [u, v, d]; },
+      right: function (u, v) { return [w, v, d - u]; },
+      top: function (u, v) { return [u, h, v]; }
+    };
+  }
+
+  function boxBody(b, w, h, d, skipTop) {
+    if (!skipTop) b.face([[0, h, 0], [w, h, 0], [w, h, d], [0, h, d]], SHADE.top);
+    b.face([[0, h, d], [w, h, d], [w, 0, d], [0, 0, d]], SHADE.front);
+    b.face([[w, h, 0], [w, h, d], [w, 0, d], [w, 0, 0]], SHADE.right);
+  }
+
+  function addFeatures(b, w, h, d, holes) {
+    var pl = planes(w, h, d);
+    (holes || []).forEach(function (f) {
+      if (f.k === 'euro') {
+        var r = Math.min(w, h) * 0.07, cx = w * 0.5, cy = h * (f.y || 0.88);
+        var nw = r * 0.6;
+        facePoly(b, pl.front, circle2(cx, cy, r), SHADE.dark);
+        facePoly(b, pl.front, [[cx - nw, cy], [cx - nw, cy + r * 2], [cx + nw, cy + r * 2], [cx + nw, cy]], SHADE.dark);
+      } else if (f.k === 'handle') {
+        var hw = w * 0.3, hh = h * 0.045;
+        facePoly(b, pl.front, roundRect2(w / 2 - hw / 2, h * (f.y || 0.88), hw, hh, hh / 2), SHADE.dark);
+      } else if (f.k === 'window') {
+        facePoly(b, pl.front, roundRect2(w * 0.18, h * 0.22, w * 0.64, h * 0.5, Math.min(w, h) * 0.05), SHADE.dark);
+      }
+    });
+  }
+
+  var ISO = {
+    /* A closed cube says nothing about the construction -- which is the
+       entire reason someone is on this page. So the box is drawn OPEN,
+       with the flaps splayed on their hinges, exactly the way the same
+       spec's flap list says they are cut. Panels run [front, right,
+       back, left]; a flap on front/back sweeps across the depth, one on
+       left/right sweeps across the width, which is what sets its reach. */
+    box: function (b, s) {
+      var w = s.w, h = s.h, d = s.d;
+      var th = s.tilt == null ? 0.42 : s.tilt;
+      var sin = Math.sin(th), cos = Math.cos(th);
+
+      /* Reach differs per closure because the flaps really do: a snap-lock
+         base folds short, a crash lock reaches further, a glued auto
+         bottom further still. Giving them one shared value made two
+         different bottoms draw the same picture. */
+      var REACH = { tuck: 0.84, round: 0.76, dust: 0.42, full: 0.48, slot: 0.48, lock: 0.5, crash: 0.6, auto: 0.7, wing: 0.28 };
+
+      // hinge edge and outward direction for each of the four panels
+      var SIDES = [
+        { axis: 'z', at: d, out: 1, span: [[0, 'x'], [w, 'x']] },
+        { axis: 'x', at: w, out: 1, span: [[0, 'z'], [d, 'z']] },
+        { axis: 'z', at: 0, out: -1, span: [[0, 'x'], [w, 'x']] },
+        { axis: 'x', at: 0, out: -1, span: [[0, 'z'], [d, 'z']] }
+      ];
+
+      function flapQuad(i, kind, atTop) {
+        var reach = REACH[kind];
+        if (!reach) return null;
+        var side = SIDES[i];
+        var L = (side.axis === 'z' ? d : w) * reach;
+        var baseY = atTop ? h : 0, dir = atTop ? 1 : -1;
+        var tipY = baseY + dir * L * cos;
+        var off = side.at + side.out * L * sin;
+        var a = side.span[0][0], c = side.span[1][0];
+        if (side.axis === 'z') {
+          return [[a, baseY, side.at], [c, baseY, side.at], [c, tipY, off], [a, tipY, off]];
+        }
+        return [[side.at, baseY, a], [side.at, baseY, c], [off, tipY, c], [off, tipY, a]];
+      }
+
+      var FLAP_SHADE = [SHADE.front, SHADE.right, SHADE.top, SHADE.top];
+
+      function drawFlaps(list, atTop, which) {
+        (list || []).forEach(function (kind, i) {
+          if (which.indexOf(i) === -1) return;
+          var q = flapQuad(i, kind, atTop);
+          if (q) b.face(q, FLAP_SHADE[i]);
+        });
+      }
+
+      var bottomClosed = (s.bottom || []).some(function (k) { return k && k !== 'none'; });
+
+      // Interior first: through the open top you see the far walls and,
+      // if the base is closed, the floor.
+      if (bottomClosed) b.face([[0, 0, 0], [w, 0, 0], [w, 0, d], [0, 0, d]], SHADE.front);
+      b.face([[0, h, 0], [w, h, 0], [w, 0, 0], [0, 0, 0]], SHADE.dark);
+      b.face([[0, h, 0], [0, h, d], [0, 0, d], [0, 0, 0]], SHADE.dark);
+
+      // far flaps sit behind the near walls
+      drawFlaps(s.top, true, [2, 3]);
+      drawFlaps(s.bottom, false, [2, 3]);
+
+      b.face([[0, h, d], [w, h, d], [w, 0, d], [0, 0, d]], SHADE.front);
+      b.face([[w, h, 0], [w, h, d], [w, 0, d], [w, 0, 0]], SHADE.right);
+
+      addFeatures(b, w, h, d, s.holes);
+
+      drawFlaps(s.top, true, [0, 1]);
+      drawFlaps(s.bottom, false, [0, 1]);
+    },
+
+    /* A roll-end mailer (FEFCO 0427) is not a closed box with an extra
+       panel on it -- it is a shallow open tray whose side walls roll
+       inward to double thickness, with the lid hinged off the BACK wall
+       and a tuck flap on the lid's leading edge that drops in front of
+       the front wall, plus wings on the lid's sides that slot behind the
+       rolled walls. Drawing only base-plus-lid lost all of that, which is
+       why thirteen different constructions came out looking identical.
+
+       Flags carry the differences: rolled side walls, lid wings and the
+       front tuck are each what separates a mailer from a plain hinged
+       lid from a folder. */
+    lidbox: function (b, s) {
+      var w = s.w, h = s.h, d = s.d;
+      var a = s.angle == null ? 1.25 : s.angle;            // lid elevation
+      var t = s.t || Math.min(w, d) * 0.035;                // board thickness
+      var sinA = Math.sin(a), cosA = Math.cos(a);
+
+      // lid frame: hinge along the back top edge, far edge one depth away
+      function lidPt(x, k) { return [x, h + k * d * sinA, -k * d * cosA]; }
+      var nx = 0, ny = cosA, nz = sinA;                     // lid normal
+
+      // ---- open tray ----
+      b.face([[0, 0, 0], [w, 0, 0], [w, 0, d], [0, 0, d]], SHADE.front);          // floor
+      b.face([[0, h, 0], [w, h, 0], [w, 0, 0], [0, 0, 0]], SHADE.dark);           // back, inside
+      b.face([[0, h, 0], [0, h, d], [0, 0, d], [0, 0, 0]], SHADE.dark);           // left, inside
+
+      // ---- near walls, drawn over the interior ----
+      b.face([[0, h, d], [w, h, d], [w, 0, d], [0, 0, d]], SHADE.front);          // front
+      b.face([[w, h, 0], [w, h, d], [w, 0, d], [w, 0, 0]], SHADE.right);          // right
+
+      if (s.rolled) {
+        // the top edge of a rolled wall shows its doubled thickness
+        b.face([[0, h, 0], [t, h, 0], [t, h, d], [0, h, d]], SHADE.top);
+        b.face([[w, h, 0], [w - t, h, 0], [w - t, h, d], [w, h, d]], SHADE.top);
+        if (s.lock) {
+          // the locking ear cut into the front of each rolled wall
+          var e = Math.min(d, h) * 0.22;
+          b.face([[0, h, d], [t, h, d], [t, h - e, d], [0, h - e, d]], SHADE.dark);
+          b.face([[w, h, d], [w - t, h, d], [w - t, h - e, d], [w, h - e, d]], SHADE.dark);
+        }
+      }
+
+      /* Lid and wings go last. They hang forward over the open box, so
+         they are nearer the viewer than every wall -- drawn before the
+         walls, the right-hand wing was painted over by the right wall and
+         came out as a clipped sliver in the corner. */
+      /* Wings fold toward the INSIDE of the lid -- the face that lies
+         against the goods when it is shut -- which is +n, not -n: the
+         lid's closed position is a = PI, not a = 0, so the normal already
+         points that way and negating it threw both wings out of the box.
+
+         The two wings sit on opposite sides of the lid in depth: at x = w
+         a wing is nearer the viewer than the lid, at x = 0 it is further
+         away. Painting both before the lid let the lid cover the near one,
+         which is why the right wing came out as a small triangle. */
+      var wg = h * 0.85;
+
+      function wing(x) {
+        var p0 = lidPt(x, 0), p1 = lidPt(x, 1);
+        b.face([p0, p1,
+          [p1[0] + nx * wg, p1[1] + ny * wg, p1[2] + nz * wg],
+          [p0[0] + nx * wg, p0[1] + ny * wg, p0[2] + nz * wg]], SHADE.right);
+      }
+
+      if (s.wings) { wing(0); }
+      b.face([lidPt(0, 0), lidPt(w, 0), lidPt(w, 1), lidPt(0, 1)], SHADE.top);
+      if (s.wings) { wing(w); }
+
+      if (s.tuck) {
+        // the flap folds forward off the lid's far edge and drops in
+        // front of the front wall
+        var tA = a + 1.7, len = h * (s.tuck === 2 ? 1.6 : 1.05);
+        var tv = [0, Math.sin(tA), -Math.cos(tA)];
+        var f0 = lidPt(0, 1), f1 = lidPt(w, 1);
+        b.face([f0, f1,
+          [f1[0] + tv[0] * len, f1[1] + tv[1] * len, f1[2] + tv[2] * len],
+          [f0[0] + tv[0] * len, f0[1] + tv[1] * len, f0[2] + tv[2] * len]], SHADE.front);
+      }
+    },
+
+    tray: function (b, s) {
+      /* The flange is the whole difference between a plain tray and one
+         with a returned edge, so it sets the rim's width rather than
+         being dropped on the way in. */
+      var w = s.w, h = s.h, d = s.d;
+      var t = s.flange ? Math.min(s.flange, Math.min(w, d) * 0.16) : (s.t || Math.min(w, d) * 0.045);
+      boxBody(b, w, h, d, true);
+      // rim, then the two inner walls the open top exposes
+      b.face([[0, h, 0], [w, h, 0], [w, h, d], [0, h, d]], SHADE.top);
+      b.face([[t, h - t, t], [w - t, h - t, t], [w - t, h - t, d - t], [t, h - t, d - t]], SHADE.front);
+      b.face([[t, h, t], [t, h, d - t], [t, h - t, d - t], [t, h - t, t]], SHADE.right);
+      b.face([[t, h, t], [w - t, h, t], [w - t, h - t, t], [t, h - t, t]], SHADE.front);
+    },
+
+    /* A band with nothing in it: open at both ends, so the far inside
+       wall is visible through the near opening. */
+    sleeve: function (b, s) {
+      var w = s.w, h = s.h, d = s.d, t = Math.min(w, d) * 0.05;
+      b.face([[0, h, 0], [w, h, 0], [w, h, d], [0, h, d]], SHADE.top);
+      b.face([[t, h, t], [w - t, h, t], [w - t, h, d - t], [t, h, d - t]], SHADE.dark);
+      b.face([[t, h, t], [t, 0, t], [w - t, 0, t], [w - t, h, t]], SHADE.front);
+      b.face([[0, h, d], [w, h, d], [w, 0, d], [0, 0, d]], SHADE.front);
+      b.face([[w, h, 0], [w, h, d], [w, 0, d], [w, 0, 0]], SHADE.right);
+    },
+
+    cyl: function (b, s) {
+      /* The silhouette of a projected cylinder is NOT the line between
+         the two cap centres -- it runs along the two generatrices where
+         the cap circle sits furthest from the axis in SCREEN space.
+         Those are found by projecting sampled cap points onto the axis
+         normal rather than guessed, so the outline stays correct at any
+         length-to-radius ratio. */
+      var len = s.len, r = s.r, i, N = 72;
+      function pt(x, t) { return [x, r + r * Math.sin(t), r + r * Math.cos(t)]; }
+
+      var a0 = P(0, r, r), a1 = P(len, r, r);
+      var ax = a1[0] - a0[0], ay = a1[1] - a0[1];
+      var L = Math.hypot(ax, ay); ax /= L; ay /= L;
+      var nx = -ay, ny = ax;
+
+      var best = -Infinity, worst = Infinity, tA = 0, tB = 0;
+      for (i = 0; i < N; i++) {
+        var t = i / N * Math.PI * 2, q = pt(0, t), pr = P(q[0], q[1], q[2]);
+        var proj = (pr[0] - a0[0]) * nx + (pr[1] - a0[1]) * ny;
+        if (proj > best) { best = proj; tA = t; }
+        if (proj < worst) { worst = proj; tB = t; }
+      }
+
+      /* Only the far cap's outer arc is visible -- the rest of it sits
+         behind the body. Walking tA to tB the long way picks it out. */
+      function arc(x, from, to, outward) {
+        var pts = [], k, steps = 40, span = to - from;
+        while (span <= 0) span += Math.PI * 2;
+        if (!outward) span -= Math.PI * 2;
+        for (k = 0; k <= steps; k++) pts.push(pt(x, from + span * k / steps));
+        return pts;
+      }
+
+      var mid = pt(len, tA + 0.5), cFar = P(len, r, r);
+      var mo = P(mid[0], mid[1], mid[2]);
+      var outward = ((mo[0] - cFar[0]) * ax + (mo[1] - cFar[1]) * ay) > 0;
+
+      b.face(arc(len, tA, tB, outward).concat(arc(0, tB, tA, !outward)), SHADE.front);
+      b.face(arc(0, 0, Math.PI * 2, true), SHADE.dark);
+      if (s.rim) {
+        var rim = [];
+        for (i = 0; i <= N; i++) {
+          var t2 = i / N * Math.PI * 2;
+          rim.push([0, r + r * 0.78 * Math.sin(t2), r + r * 0.78 * Math.cos(t2)]);
+        }
+        b.face(rim, SHADE.top);
+      }
+    },
+
+    pillow: function (b, s) {
+      /* A pillow box is a tube pinched shut at both ends: thickness
+         falls to zero there, and that is what turns the two end seams
+         into the crescents the format is recognised by. Modelled as
+         exactly that -- thickness follows a sine along the length, and
+         the seam bows inward at mid-depth. */
+      var w = s.w, d = s.d, T = s.t || d * 0.34, bow = s.bow == null ? w * 0.1 : s.bow;
+      var steps = 26;
+
+      function surf(u, v, sign) {
+        return [
+          u * w + bow * Math.sin(Math.PI * v) * Math.cos(Math.PI * u),
+          sign * T * Math.sin(Math.PI * u),
+          v * d
+        ];
+      }
+
+      function edge(fixed, along, sign) {
+        var pts = [], k;
+        for (k = 0; k <= steps; k++) {
+          var t = k / steps;
+          pts.push(along === 'u' ? surf(t, fixed, sign) : surf(fixed, t, sign));
+        }
+        return pts;
+      }
+
+      var topFar = edge(0, 'u', 1), topNear = edge(1, 'u', 1), botNear = edge(1, 'u', -1);
+
+      b.face(topFar.concat(topNear.slice().reverse()), SHADE.top);
+      b.face(topNear.concat(botNear.slice().reverse()), SHADE.front);
+      b.poly(edge(0, 'v', 1).map(function (q) { return P(q[0], q[1], q[2]); }), CREASE);
+      b.poly(edge(1, 'v', 1).map(function (q) { return P(q[0], q[1], q[2]); }), CREASE);
+    },
+
+    pouch: function (b, s) {
+      var w = s.w, h = s.h, d = s.d;
+      // gusset: the base spreads to full depth, the top pinches to a seal
+      b.face([[0, 0, 0], [w, 0, 0], [w, 0, d], [0, 0, d]], SHADE.dark);
+      b.face([[0, 0, d], [w, 0, d], [w, h, d * 0.72], [0, h, d * 0.72]], SHADE.front);
+      b.face([[w, 0, 0], [w, 0, d], [w, h, d * 0.72], [w, h, d * 0.28]], SHADE.right);
+      b.face([[0, h, d * 0.28], [w, h, d * 0.28], [w, h, d * 0.72], [0, h, d * 0.72]], SHADE.top);
+      if (s.zip) {
+        b.poly([P(0, h * 0.88, d * 0.74), P(w, h * 0.88, d * 0.74)], CREASE);
+      }
+    },
+
+    bag: function (b, s) {
+      var w = s.w, h = s.h, d = s.d;
+      boxBody(b, w, h, d, true);
+      b.face([[0, h, 0], [w, h, 0], [w, h, d], [0, h, d]], SHADE.dark);
+      b.face([[0, h, d], [w, h, d], [w, h * 0.9, d], [0, h * 0.9, d]], SHADE.front);
+      if (s.handles) {
+        var pl = planes(w, h, d), i, hx = w * 0.5, hr = w * 0.24;
+        var arc = [];
+        for (i = 0; i <= 16; i++) {
+          var t = Math.PI * (i / 16);
+          arc.push([hx - hr * Math.cos(t), h + hr * 0.8 * Math.sin(t)]);
+        }
+        b.poly(arc.map(function (p) { return P.apply(null, pl.front(p[0], p[1])); }), CUT);
+        b.poly(arc.map(function (p) { return P.apply(null, pl.right(p[0] * (d / w), p[1])); }), CUT);
+      }
+    },
+
+    display: function (b, s) {
+      var w = s.w, h = s.h, d = s.d, shelves = s.shelves || 0, head = s.head || 0, i;
+      b.face([[0, 0, 0], [w, 0, 0], [w, 0, d], [0, 0, d]], SHADE.dark);
+      b.face([[0, 0, 0], [w, 0, 0], [w, h, 0], [0, h, 0]], SHADE.front);
+      b.face([[0, 0, 0], [0, 0, d], [0, h, d], [0, h, 0]], SHADE.right);
+      b.face([[w, 0, 0], [w, 0, d], [w, h, d], [w, h, 0]], SHADE.right);
+      if (head) b.face([[0, h, 0], [w, h, 0], [w, h + head, 0], [0, h + head, 0]], SHADE.top);
+      for (i = 1; i <= shelves; i++) {
+        var y = h * i / (shelves + 1);
+        b.face([[0, y, 0], [w, y, 0], [w, y, d * 0.8], [0, y, d * 0.8]], SHADE.top);
+      }
+    },
+
+    /* Flat parts -- inserts, envelopes, void fill -- lie in the
+       horizontal plane as a thin slab rather than standing up. */
+    sheet: function (b, s) {
+      var t = s.t || Math.min(s.w, s.d) * 0.035, i, j;
+
+      /* Fanfold is not a flat sheet at all -- it is a continuous strip
+         folded into a concertina, and drawing it flat made it identical
+         to every other paper part. */
+      if (s.pattern === 'wave') {
+        var n = 8, ridge = Math.min(s.w, s.d) * 0.28;
+        for (i = 0; i < n; i++) {
+          var x0 = s.w * i / n, x1 = s.w * (i + 1) / n;
+          var y0 = i % 2 ? 0 : ridge, y1 = i % 2 ? ridge : 0;
+          b.face([[x0, y0, 0], [x1, y1, 0], [x1, y1, s.d], [x0, y0, s.d]], i % 2 ? SHADE.front : SHADE.top);
+        }
+        return;
+      }
+
+      boxBody(b, s.w, t, s.d);
+
+      /* Paper cushioning is slit and expanded, so the face carries a
+         quilt of cells rather than being blank. */
+      if (s.pattern === 'honeycomb') {
+        var cols = 8, rows = 5, m = Math.min(s.w / cols, s.d / rows) * 0.22;
+        var cw = s.w / cols, cd = s.d / rows;
+        for (i = 0; i < cols; i++) {
+          for (j = 0; j < rows; j++) {
+            b.face([[i * cw + m, t, j * cd + m], [(i + 1) * cw - m, t, j * cd + m],
+                    [(i + 1) * cw - m, t, (j + 1) * cd - m], [i * cw + m, t, (j + 1) * cd - m]], SHADE.dark);
+          }
+        }
+      } else if (s.pattern === 'fold') {
+        b.poly([P(0, t, s.d * 0.5), P(s.w, t, s.d * 0.5)], CREASE);
+        b.poly([P(s.w * 0.1, t, s.d * 0.5), P(s.w * 0.45, t, s.d * 0.94)], CREASE);
+      }
+
+      if (s.cells) {
+        var cols = s.cells[0], rows = s.cells[1], i, j;
+        for (i = 1; i < cols; i++) b.poly([P(s.w * i / cols, t, 0), P(s.w * i / cols, t, s.d)], CREASE);
+        for (j = 1; j < rows; j++) b.poly([P(0, t, s.d * j / rows), P(s.w, t, s.d * j / rows)], CREASE);
+      }
+    },
+
+    /* Drawn cell by cell, far to near, instead of as whole intersecting
+       panels. Full panels have to be rendered as wireframe -- each one
+       shows both its near and its far edge -- and the crossings then read
+       as impossible triangles. A cell is a closed little box, so painting
+       them in order of increasing (x + z) lets each one cover the ones
+       behind it and the grid resolves into something solid. */
+    partition: function (b, s) {
+      var w = s.w, h = s.h, d = s.d, cols = s.cols || 3, rows = s.rows || 2;
+      var cw = w / cols, cd = d / rows, cells = [], i, j;
+
+      for (i = 0; i < cols; i++) {
+        for (j = 0; j < rows; j++) cells.push([i, j]);
+      }
+      cells.sort(function (a, c) { return (a[0] + a[1]) - (c[0] + c[1]); });
+
+      cells.forEach(function (c) {
+        var x0 = c[0] * cw, x1 = x0 + cw, z0 = c[1] * cd, z1 = z0 + cd;
+        b.face([[x0, h, z0], [x1, h, z0], [x1, 0, z0], [x0, 0, z0]], SHADE.dark);   // back, inside
+        b.face([[x0, h, z0], [x0, h, z1], [x0, 0, z1], [x0, 0, z0]], SHADE.dark);   // left, inside
+        b.face([[x1, h, z0], [x1, h, z1], [x1, 0, z1], [x1, 0, z0]], SHADE.right);  // right
+        b.face([[x0, h, z1], [x1, h, z1], [x1, 0, z1], [x0, 0, z1]], SHADE.front);  // front
+        b.face([[x0, h, z0], [x1, h, z0], [x1, h, z1], [x0, h, z1]], SHADE.top);    // rim
+        b.face([[x0 + cw * 0.06, h, z0 + cd * 0.06], [x1 - cw * 0.06, h, z0 + cd * 0.06],
+                [x1 - cw * 0.06, h, z1 - cd * 0.06], [x0 + cw * 0.06, h, z1 - cd * 0.06]], SHADE.dark);
+      });
+    },
+
+    corner: function (b, s) {
+      /* Two legs of one L. The second starts in z where the first ends,
+         so they meet at the corner instead of passing through each
+         other's volume. */
+      var a = s.w, t = s.t || a * 0.18, h = s.h;
+      b.face([[0, h, 0], [a, h, 0], [a, h, t], [0, h, t]], SHADE.top);
+      b.face([[0, h, t], [a, h, t], [a, 0, t], [0, 0, t]], SHADE.front);
+      b.face([[a, h, 0], [a, h, t], [a, 0, t], [a, 0, 0]], SHADE.right);
+      b.face([[0, h, t], [t, h, t], [t, h, a], [0, h, a]], SHADE.top);
+      b.face([[0, h, a], [t, h, a], [t, 0, a], [0, 0, a]], SHADE.front);
+      b.face([[t, h, t], [t, h, a], [t, 0, a], [t, 0, t]], SHADE.right);
+    }
+  };
+
+  root.isometric = function (spec) {
+    var b = new Builder();
+    var g = ISO[spec.k];
+    if (!g) return '';
+    g(b, spec);
+    return b.svg(spec.pad == null ? 0.5 : spec.pad);
+  };
+
+  var GEN = { carton: carton, tray: tray, tube: tube, pillow: pillow, pouch: pouch, sheet: sheet, display: display };
+
+  root.dieline = function (spec) {
+    var g = GEN[spec.t];
+    return g ? g(spec) : '';
+  };
+})(window);
+</script>
+<script>
+/* ============================================================
+   CONSTRUCTION CATALOGUE
+   ============================================================
+   Two independent axes, on purpose:
+
+   - cat  -- the construction family. This is the browse spine
+             (the strip at the top, and the Category filter).
+   - role -- what the pack has to DO: ship on its own, sell off a
+             shelf, or sit inside another pack. This is the Use
+             switch.
+
+   They are NOT one list. A roll-end mailer is a shipper AND the
+   box the customer opens; a tray is retail AND an inner. Folding
+   the two axes together -- which is what pack.ly's sidebar does --
+   is exactly why you cannot ask it "show me only the shipping
+   ones" and get an answer. */
+(function (root) {
+  'use strict';
+
+  var CATS = [
+    { k: 'shippers',    label: 'Shippers &amp; mailers',        blurb: 'One-piece boxes that fold flat and go straight to the courier.' },
+    { k: 'tuck',        label: 'Tuck-end cartons',              blurb: 'Folding cartons that close by tucking a flap into the body.' },
+    { k: 'lid-tray',    label: 'Lid &amp; tray boxes',          blurb: 'Two-piece constructions: a base, and a lid that lifts off it.' },
+    { k: 'hinged',      label: 'Hinged-lid boxes',              blurb: 'One piece, lid attached — it opens like a book and stays put.' },
+    { k: 'sleeves',     label: 'Sleeves, wraps &amp; folders',  blurb: 'Bands and wraps that hold something else together.' },
+    { k: 'hang-handle', label: 'Hanging &amp; handle boxes',    blurb: 'Cartons die-cut to hang on a hook or be carried by hand.' },
+    { k: 'tubes',       label: 'Tubes &amp; pillow packs',      blurb: 'Round and curved formats, with no square corners to crush.' },
+    { k: 'displays',    label: 'Displays &amp; shelf-ready',    blurb: 'Constructions that present the goods instead of hiding them.' },
+    { k: 'bags',        label: 'Bags, pouches &amp; envelopes', blurb: 'Flexible formats — paper and laminate rather than board.' },
+    { k: 'inners',      label: 'Inners &amp; protection',       blurb: 'Parts that never become a box: they hold, separate and cushion.' }
+  ];
+
+  var ROLES = {
+    shipping: { label: 'Shipping' },
+    product:  { label: 'Product' },
+    inner:    { label: 'Inner' }
+  };
+
+  var MATERIALS = {
+    corrugated:  'Corrugated board',
+    cartonboard: 'Cartonboard',
+    rigid:       'Rigid board',
+    flexible:    'Paper &amp; flexible'
+  };
+
+  var CLOSURES = {
+    tuck:     'Tuck flap',
+    lock:     'Lock bottom',
+    glued:    'Glued',
+    lid:      'Separate lid',
+    hinge:    'Hinged lid',
+    band:     'Sleeve / band',
+    tape:     'Tape or strip',
+    open:     'Open / none'
+  };
+
+  var ECO = {
+    fsc:       'FSC&reg; available',
+    recycled:  'Recycled content',
+    plasticfree: 'Plastic-free',
+    mono:      'Mono-material',
+    reusable:  'Reusable'
+  };
+
+  /* ---------- dieline spec shorthands ----------
+     Four panels in a w/d/w/d rhythm is the default body of a folding
+     carton, so the ends only ever differ in how they close. */
+  function body(w, d, h) { return { t: 'carton', panels: [w, d, w, d], h: h }; }
+
+  function box(w, d, h, top, bottom, extra) {
+    var s = body(w, d, h);
+    s.top = top; s.bottom = bottom; s.tab = 'right';
+    if (extra) for (var k in extra) s[k] = extra[k];
+    return s;
+  }
+
+  var TUCK_TOP  = ['tuck', 'dust', 'none', 'dust'];
+  var TUCK_BOT  = ['none', 'dust', 'tuck', 'dust'];   /* reverse: opposite end */
+  var TUCK_BOT2 = ['tuck', 'dust', 'none', 'dust'];   /* straight: same end */
+  var LOCK      = ['lock', 'lock', 'lock', 'lock'];
+  var AUTO      = ['auto', 'crash', 'auto', 'crash'];
+  var SEAL      = ['full', 'dust', 'full', 'dust'];
+  var SLOT      = ['slot', 'slot', 'slot', 'slot'];
+  var NONE      = ['none', 'none', 'none', 'none'];
+
+  /* Mailers are the same carton spec stood on its side: panels stack
+     top to bottom, side walls become left/right flaps. */
+  function mailer(panels, w, top, bottom, extra) {
+    var s = { t: 'carton', swap: true, panels: panels, h: w, top: top, bottom: bottom, topH: w * 0.26, bottomH: w * 0.26 };
+    if (extra) for (var k in extra) s[k] = extra[k];
+    return s;
+  }
+
+  var ITEMS = [
+    /* ---------------- Shippers & mailers ---------------- */
+    ['Regular slotted container', 'shippers', 'FEFCO 0201', ['shipping'], 'corrugated', 'tape',
+      'The default brown box. All four flaps meet in the middle and get taped — cheapest possible way to enclose a volume.',
+      ['fsc', 'recycled', 'mono'], box(3.4, 2.1, 3.4, SLOT, SLOT, { topH: 1.05, bottomH: 1.05 })],
+
+    ['Full overlap slotted box', 'shippers', 'FEFCO 0203', ['shipping'], 'corrugated', 'tape',
+      'Flaps overlap the full width, doubling the board over the top and bottom. For heavy or stacked loads.',
+      ['fsc', 'recycled', 'mono'], box(3.4, 2.1, 3, SLOT, SLOT, { topH: 1.9, bottomH: 1.9 })],
+
+    ['Half slotted container', 'shippers', 'FEFCO 0200', ['shipping', 'inner'], 'corrugated', 'open',
+      'An open-top box — used under a separate lid, or as the inner of a two-part pack.',
+      ['fsc', 'recycled'], box(3.4, 2.1, 3, NONE, SLOT, { bottomH: 1.05 })],
+
+    ['Roll end tuck front', 'shippers', 'FEFCO 0427', ['shipping', 'product'], 'corrugated', 'tuck',
+      'The classic mailer. Side walls roll up off the base, the lid tucks down the front — no tape, and the inside prints.',
+      ['fsc', 'recycled', 'plasticfree'], mailer([1.1, 4.2, 1.5, 4.2, 1.5], 5.4, ['none', 'dust', 'none', 'full', 'none'], ['none', 'dust', 'none', 'full', 'none'])],
+
+    ['Roll end tuck top with lock', 'shippers', 'FEFCO 0426', ['shipping', 'product'], 'corrugated', 'lock',
+      'Same rolled walls, but the lid locks into the side walls instead of tucking down the front. Survives a return trip.',
+      ['fsc', 'recycled', 'plasticfree', 'reusable'], mailer([1.2, 4.2, 1.5, 4.2, 1.5], 5.4, ['none', 'wing', 'none', 'full', 'none'], ['none', 'wing', 'none', 'full', 'none'])],
+
+    ['Crash-lock mailer', 'shippers', 'FEFCO 0713', ['shipping'], 'corrugated', 'lock',
+      'The base locks itself as you square the box up — no assembly step, so it suits high-volume packing benches.',
+      ['fsc', 'recycled'], box(3.2, 2, 4.4, SEAL, AUTO)],
+
+    ['E-commerce box with tear strip', 'shippers', null, ['shipping', 'product'], 'corrugated', 'tape',
+      'Peel-and-seal strip to close, tear strip to open, second strip for the return. The whole round trip in one blank.',
+      ['fsc', 'recycled', 'reusable'], mailer([0.9, 4.2, 1.4, 4.2, 1.4], 5.2, ['none', 'dust', 'none', 'full', 'none'], ['none', 'dust', 'none', 'full', 'none'],
+        { creases: [{ p: 1, x: 0.14 }, { p: 1, x: 0.26 }, { p: 0, x: 0.5 }] })],
+
+    ['Book wrap', 'shippers', 'FEFCO 0409', ['shipping'], 'corrugated', 'lock',
+      'Wraps to the height of what is inside, then locks. One blank fits a range of thicknesses, so you stock fewer sizes.',
+      ['fsc', 'recycled', 'mono'], mailer([1.3, 4.6, 1.2, 4.6, 1.2, 1.3], 5, ['none', 'wing', 'none', 'wing', 'none', 'none'], ['none', 'wing', 'none', 'wing', 'none', 'none'],
+        { creases: [{ p: 2, x: 0.33 }, { p: 2, x: 0.66 }, { p: 4, x: 0.33 }, { p: 4, x: 0.66 }] })],
+
+    ['One-piece folder', 'shippers', 'FEFCO 0410', ['shipping'], 'corrugated', 'tuck',
+      'Flat goods only — prints, frames, textiles. Folds around the item and tucks, with no wasted headroom.',
+      ['fsc', 'recycled'], mailer([1, 4.8, 0.8, 4.8, 0.8], 5.2, ['none', 'wing', 'none', 'wing', 'none'], ['none', 'wing', 'none', 'wing', 'none'])],
+
+    ['Die-cut postal box', 'shippers', null, ['shipping'], 'corrugated', 'lock',
+      'Self-locking postal format cut to a carrier size band, so it prices in the cheapest tier it fits.',
+      ['fsc', 'recycled'], box(3.6, 1.4, 3.2, SEAL, LOCK)],
+
+    /* ---------------- Tuck-end cartons ---------------- */
+    ['Reverse tuck end', 'tuck', 'ECMA A20.20', ['product'], 'cartonboard', 'tuck',
+      'Top and bottom flaps hinge off opposite panels. The cheapest die to cut, which is why most retail cartons are this.',
+      ['fsc', 'recycled'], box(3, 1.8, 5, TUCK_TOP, TUCK_BOT)],
+
+    ['Straight tuck end', 'tuck', 'ECMA A20.11', ['product'], 'cartonboard', 'tuck',
+      'Both flaps hinge off the back panel, so the front face has no visible seam. Worth the extra board for a clean print.',
+      ['fsc', 'recycled'], box(3, 1.8, 5, TUCK_TOP, TUCK_BOT2)],
+
+    ['Tuck top, snap-lock bottom', 'tuck', 'ECMA A57.20', ['product'], 'cartonboard', 'lock',
+      'Known as 1-2-3 bottom: three folds and the base holds. For anything with weight in it.',
+      ['fsc', 'recycled'], box(3, 1.8, 5, TUCK_TOP, LOCK)],
+
+    ['Tuck top, auto bottom', 'tuck', 'ECMA A50.20', ['product'], 'cartonboard', 'lock',
+      'Glued at the plant and shipped flat — the base forms as you open it. Fastest format to pack by hand.',
+      ['fsc', 'recycled'], box(3, 1.8, 5, TUCK_TOP, AUTO)],
+
+    ['Seal end carton', 'tuck', 'ECMA A10.10', ['product'], 'cartonboard', 'glued',
+      'Both ends glued shut on a filling line. Tamper-evident, and the only tuck-family format that runs fully automated.',
+      ['fsc', 'recycled'], box(3, 1.8, 5, SEAL, SEAL)],
+
+    ['Tuck end with window', 'tuck', null, ['product'], 'cartonboard', 'tuck',
+      'A die-cut aperture in the face panel. Skip the film and the carton stays a single recyclable material.',
+      ['fsc', 'plasticfree', 'mono'], box(3, 1.8, 5, TUCK_TOP, TUCK_BOT, { holes: [{ k: 'window', p: 0 }] })],
+
+    ['Slim tuck end', 'tuck', null, ['product'], 'cartonboard', 'tuck',
+      'A tall, narrow section for single items — a tube, a pen, a vial. Holds its shape without an insert.',
+      ['fsc', 'recycled'], box(2.2, 1, 6, TUCK_TOP, TUCK_BOT)],
+
+    ['Hexagonal tuck carton', 'tuck', null, ['product'], 'cartonboard', 'tuck',
+      'Six panels instead of four. Stands out on a shelf of rectangles and needs no insert to centre a round item.',
+      ['fsc'], { t: 'carton', panels: [2, 2, 2, 2, 2, 2], h: 4.6, top: ['tuck', 'dust', 'tuck', 'dust', 'tuck', 'dust'], bottom: ['lock', 'lock', 'lock', 'lock', 'lock', 'lock'], tab: 'right' }],
+
+    /* ---------------- Lid & tray boxes ---------------- */
+    ['Two-piece lid and base', 'lid-tray', 'FEFCO 0301', ['product', 'shipping'], 'corrugated', 'lid',
+      'A tray and a lid that drops over it. No hinge to fatigue, so it survives being opened and closed repeatedly.',
+      ['fsc', 'recycled', 'reusable'], { t: 'tray', w: 7, d: 5, wall: 1.3 }],
+
+    ['Telescopic full-height lid', 'lid-tray', 'FEFCO 0320', ['shipping', 'product'], 'corrugated', 'lid',
+      'The lid runs the full height of the base, doubling the board down every wall. For weight, or for a premium feel.',
+      ['fsc', 'recycled'], { t: 'tray', w: 6.6, d: 4.8, wall: 2.1 }],
+
+    ['Tray with locking corners', 'lid-tray', 'FEFCO 0422', ['product', 'inner'], 'corrugated', 'open',
+      'Corners lock without glue, so it ships flat and folds at the bench. Works as a base, an inner or a shelf tray.',
+      ['fsc', 'recycled', 'plasticfree'], { t: 'tray', w: 7, d: 5, wall: 1.2 }],
+
+    ['Tray with return flange', 'lid-tray', null, ['product'], 'cartonboard', 'open',
+      'The wall folds back on itself, giving a finished top edge with no raw board showing.',
+      ['fsc'], { t: 'tray', w: 7, d: 5, wall: 1.3, flange: 0.45 }],
+
+    ['Double-wall tray', 'lid-tray', null, ['product'], 'cartonboard', 'open',
+      'Every wall is two layers of board. Rigid enough to hold a shape under a sleeve.',
+      ['fsc', 'recycled'], { t: 'tray', w: 7, d: 5, wall: 1.7, flange: 0.8 }],
+
+    ['Drawer box', 'lid-tray', null, ['product'], 'cartonboard', 'band',
+      'A tray that slides out of a sleeve. The pull is the moment — it is the format gift sets keep coming back to.',
+      ['fsc'], { t: 'tray', w: 6.4, d: 4.6, wall: 1.1, flange: 0.35 }],
+
+    ['Rigid lid and base box', 'lid-tray', null, ['product'], 'rigid', 'lid',
+      'Greyboard wrapped in printed paper. Heavy in the hand and holds a sharp corner — the luxury default.',
+      ['fsc'], { t: 'tray', w: 7, d: 5, wall: 1.5 }],
+
+    ['Rigid magnetic-closure box', 'lid-tray', null, ['product'], 'rigid', 'hinge',
+      'Magnets in the flap pull the lid shut. Adds a metal component, so it is the least recyclable thing we make.',
+      [], { t: 'tray', w: 6.8, d: 4.8, wall: 1.4, flange: 0.5 }],
+
+    /* ---------------- Hinged-lid boxes ---------------- */
+    ['Rollover hinged lid', 'hinged', null, ['product'], 'cartonboard', 'hinge',
+      'The lid rolls over the front edge and tucks. One piece, no glue, and the whole inside face prints.',
+      ['fsc', 'recycled', 'plasticfree'], mailer([1.2, 4, 1.4, 4, 1.4], 5, ['none', 'dust', 'none', 'full', 'none'], ['none', 'dust', 'none', 'full', 'none'])],
+
+    ['Hinged lid with buttonhole lock', 'hinged', null, ['product'], 'cartonboard', 'hinge',
+      'A die-cut slot in the front wall takes a tab off the lid. Closes with a click you can feel.',
+      ['fsc', 'recycled'], mailer([1.3, 4, 1.4, 4, 1.4], 5, ['none', 'wing', 'none', 'full', 'none'], ['none', 'wing', 'none', 'full', 'none'])],
+
+    ['Hinged lid with hook lock', 'hinged', null, ['product'], 'cartonboard', 'hinge',
+      'Hooks on the lid catch the side walls. Holds under weight where a plain tuck would spring open.',
+      ['fsc', 'recycled'], mailer([1.4, 4, 1.5, 4, 1.5], 5, ['none', 'full', 'none', 'full', 'none'], ['none', 'full', 'none', 'full', 'none'])],
+
+    ['Flip-top carton', 'hinged', null, ['product'], 'cartonboard', 'hinge',
+      'A shallow hinged lid on a deep body, opened one-handed. Built for repeat use rather than one unboxing.',
+      ['fsc', 'reusable'], box(2.6, 1.4, 5.2, ['round', 'dust', 'none', 'dust'], SEAL)],
+
+    ['Rigid book-style box', 'hinged', null, ['product'], 'rigid', 'hinge',
+      'Opens on a spine like a hardback. The most expensive hinge we make, and the one people keep.',
+      ['fsc', 'reusable'], { t: 'tray', w: 6.6, d: 5, wall: 1.6, flange: 0.6 }],
+
+    /* ---------------- Sleeves, wraps & folders ---------------- */
+    ['Standard sleeve', 'sleeves', null, ['product'], 'cartonboard', 'band',
+      'A printed band around a plain tray. Change the sleeve, change the SKU — the tooling stays put.',
+      ['fsc', 'recycled'], box(3.4, 1.4, 2.6, NONE, NONE)],
+
+    ['Slim sleeve', 'sleeves', null, ['product'], 'cartonboard', 'band',
+      'A narrow band that shows most of what it wraps. Minimum board for a compliant label area.',
+      ['fsc', 'recycled', 'plasticfree'], box(3.4, 1.4, 1.4, NONE, NONE)],
+
+    ['Belly band', 'sleeves', null, ['product'], 'cartonboard', 'band',
+      'The lightest way to brand something that already has packaging — or to bundle two things into one.',
+      ['fsc', 'recycled', 'plasticfree', 'mono'], box(4, 1, 1, NONE, NONE)],
+
+    ['Folder with spine', 'sleeves', null, ['product'], 'cartonboard', 'tuck',
+      'Two covers and a squared spine. For documents, sample sets and press kits that need to shelve upright.',
+      ['fsc'], mailer([1.2, 4.6, 0.7, 4.6], 5.4, ['none', 'wing', 'none', 'none'], ['none', 'wing', 'none', 'none'])],
+
+    ['Flat folder with diagonal pocket', 'sleeves', null, ['product'], 'cartonboard', 'open',
+      'A single fold with an angled pocket glued inside. Cheapest format that still holds loose sheets.',
+      ['fsc', 'recycled'], { t: 'sheet', w: 7, h: 5, pattern: 'fold', n: 2 }],
+
+    ['Mailing folder', 'sleeves', null, ['shipping'], 'corrugated', 'tape',
+      'A folder rigid enough to post unprotected. Sits in the letter-rate band where a box would not.',
+      ['fsc', 'recycled'], mailer([1, 4.8, 0.6, 4.8], 5.2, ['none', 'wing', 'none', 'none'], ['none', 'wing', 'none', 'none'])],
+
+    /* ---------------- Hanging & handle boxes ---------------- */
+    ['Euro-hole hanging box', 'hang-handle', null, ['product'], 'cartonboard', 'tuck',
+      'The standard euro slot, die-cut into the back panel. Fits any hook rail without an adhesive hanger.',
+      ['fsc', 'recycled', 'plasticfree'], box(3, 1.6, 5, TUCK_TOP, LOCK, { holes: [{ k: 'euro', p: 0, y: 0.11, r: 0.1 }] })],
+
+    ['Hanging box with crash-lock bottom', 'hang-handle', null, ['product'], 'cartonboard', 'lock',
+      'Hangs on a hook and holds real weight, because the base locks rather than tucks.',
+      ['fsc', 'recycled'], box(3.2, 1.8, 5, TUCK_TOP, AUTO, { holes: [{ k: 'euro', p: 0, y: 0.11, r: 0.09 }] })],
+
+    ['Slim hanging box', 'hang-handle', null, ['product'], 'cartonboard', 'tuck',
+      'A narrow section for a hook rail where facings are tight — accessories, cables, small tools.',
+      ['fsc', 'recycled'], box(2.2, 1, 5.6, TUCK_TOP, TUCK_BOT, { holes: [{ k: 'euro', p: 0, y: 0.1, r: 0.12 }] })],
+
+    ['Handle box with tuck end', 'hang-handle', null, ['product'], 'cartonboard', 'tuck',
+      'Die-cut handles through both long panels. Carried out of the shop without a bag.',
+      ['fsc', 'plasticfree'], box(3.2, 2, 5, SEAL, LOCK, { holes: [{ k: 'handle', p: 0, y: 0.1 }, { k: 'handle', p: 2, y: 0.1 }] })],
+
+    ['Handle box with auto bottom', 'hang-handle', null, ['product'], 'cartonboard', 'lock',
+      'Same handles, glued base. For weight you would not trust to a tucked bottom — bottles, jars, hampers.',
+      ['fsc'], box(3.2, 2, 5.2, SEAL, AUTO, { holes: [{ k: 'handle', p: 0, y: 0.09 }, { k: 'handle', p: 2, y: 0.09 }] })],
+
+    ['Gable-top box', 'hang-handle', null, ['product'], 'cartonboard', 'tuck',
+      'The top folds into a peak with the handle cut through it. Reads as a gift without wrapping.',
+      ['fsc', 'plasticfree'], box(3, 1.8, 4.4, ['tuck', 'dust', 'tuck', 'dust'], LOCK, { holes: [{ k: 'handle', p: 0, y: 0.08 }] })],
+
+    /* ---------------- Tubes & pillow packs ---------------- */
+    ['Round tube with metal ends', 'tubes', null, ['shipping', 'product'], 'rigid', 'lid',
+      'A spiral-wound body with crimped ends. No corners to crush, and it rolls off a conveyor intact.',
+      ['recycled', 'reusable'], { t: 'tube', w: 8, h: 3.4, seg: 6 }],
+
+    ['Postal tube', 'tubes', null, ['shipping'], 'rigid', 'lid',
+      'Long format for rolled prints and textiles. Plug caps rather than metal, so it stays one material.',
+      ['recycled', 'mono'], { t: 'tube', w: 9.5, h: 2.6, seg: 8 }],
+
+    ['Pillow box', 'tubes', null, ['product'], 'cartonboard', 'tuck',
+      'Curved ends close on themselves with no separate flap. Flat to ship, three-dimensional on a shelf.',
+      ['fsc', 'recycled', 'plasticfree'], { t: 'pillow', w: 7, h: 4.4 }],
+
+    ['Bottle neck-lock box', 'tubes', null, ['product'], 'cartonboard', 'lock',
+      'An internal collar grips the neck so the bottle cannot move. No insert, no void fill.',
+      ['fsc', 'plasticfree'], box(2.4, 2.4, 6.2, ['tuck', 'dust', 'none', 'dust'], LOCK)],
+
+    ['Deluxe bellow box', 'tubes', null, ['product'], 'cartonboard', 'tuck',
+      'Side gussets expand as you fill it, so one blank covers a range of depths.',
+      ['fsc'], box(3.2, 1.2, 4.6, ['round', 'dust', 'none', 'dust'], SEAL, { creases: [{ p: 1, x: 0.5 }, { p: 3, x: 0.5 }] })],
+
+    /* ---------------- Displays & shelf-ready ---------------- */
+    ['Counter display unit', 'displays', null, ['product'], 'corrugated', 'open',
+      'Sits by the till with a printed header above it. Ships flat, folds up in under a minute.',
+      ['fsc', 'recycled'], { t: 'display', w: 5.4, h: 5, side: 2.2, head: 2.2, shelves: 2 }],
+
+    ['Shelf-ready case', 'displays', null, ['shipping', 'product'], 'corrugated', 'tape',
+      'Ships as a case, then a perforated front tears away and the base becomes the shelf tray. One pack, both jobs.',
+      ['fsc', 'recycled', 'mono'], { t: 'display', w: 6, h: 4, side: 2.4, head: 0, shelves: 0, foot: 1 }],
+
+    ['Floor display with shelves', 'displays', null, ['product'], 'corrugated', 'open',
+      'A free-standing unit with stepped shelves. Holds its own weight in stock without a metal frame.',
+      ['fsc', 'recycled'], { t: 'display', w: 4.8, h: 8.5, side: 2, head: 2.4, shelves: 4, foot: 1 }],
+
+    ['Countertop dispenser', 'displays', null, ['product'], 'corrugated', 'open',
+      'An open chute with a low front lip, so the top item is always the one in reach.',
+      ['fsc', 'recycled'], { t: 'display', w: 4.4, h: 4.2, side: 2.6, head: 1.6, shelves: 1 }],
+
+    /* ---------------- Bags, pouches & envelopes ---------------- */
+    ['Paper mailing bag', 'bags', null, ['shipping'], 'flexible', 'tape',
+      'A paper alternative to the poly mailer, with a peel strip. Right for soft goods that cannot be crushed.',
+      ['fsc', 'recycled', 'plasticfree', 'mono'], { t: 'carton', panels: [3.2, 1.2, 3.2, 1.2], h: 5.4, top: ['wing', 'wing', 'wing', 'wing'], bottom: ['crash', 'dust', 'crash', 'dust'], tab: 'right', topH: 0.7 }],
+
+    ['Carrier bag with twisted handles', 'bags', null, ['product'], 'flexible', 'open',
+      'Kraft body, paper handles glued inside the hem. The format people carry home and reuse.',
+      ['fsc', 'recycled', 'plasticfree', 'reusable'], { t: 'carton', panels: [3.2, 1.6, 3.2, 1.6], h: 6, top: ['wing', 'wing', 'wing', 'wing'], bottom: ['crash', 'dust', 'crash', 'dust'], tab: 'right', topH: 0.8, holes: [{ k: 'handle', p: 0, y: 0.06 }, { k: 'handle', p: 2, y: 0.06 }] }],
+
+    ['Flat-bottom pouch', 'bags', null, ['product'], 'flexible', 'glued',
+      'A gusset in the base lets it stand once filled. Coffee, granola, pet food — anything sold by weight.',
+      ['recycled', 'mono'], { t: 'pouch', w: 4.4, h: 6.2, gusset: 1 }],
+
+    ['Stand-up pouch with zipper', 'bags', null, ['product'], 'flexible', 'open',
+      'Reclosable, so the pack stays in the cupboard after opening. The zip is what stops it being single-use.',
+      ['reusable'], { t: 'pouch', w: 4.4, h: 6.2, gusset: 1, zip: 1 }],
+
+    ['Padded paper envelope', 'bags', null, ['shipping'], 'flexible', 'tape',
+      'Honeycomb paper lining instead of bubble film — one material, so it goes in the paper stream whole.',
+      ['fsc', 'recycled', 'plasticfree', 'mono'], { t: 'sheet', w: 7, h: 5, pattern: 'honeycomb', r: 0.3 }],
+
+    ['Flat paper envelope', 'bags', null, ['shipping'], 'flexible', 'tape',
+      'No padding, minimum weight. For documents and anything already boxed.',
+      ['fsc', 'recycled', 'plasticfree', 'mono'], { t: 'sheet', w: 7, h: 4.6, pattern: 'fold', n: 2 }],
+
+    /* ---------------- Inners & protection ---------------- */
+    ['Die-cut insert', 'inners', null, ['inner'], 'cartonboard', 'open',
+      'Cavities cut to the exact silhouette of the goods. Nothing moves, and the unboxing has an order to it.',
+      ['fsc', 'recycled', 'plasticfree'], { t: 'sheet', w: 7, h: 5, pattern: 'cavities', cols: 3, rows: 2 }],
+
+    ['Corrugated partition', 'inners', null, ['inner'], 'corrugated', 'open',
+      'Slotted strips that interlock into a grid. Keeps glass from touching glass without any cushioning at all.',
+      ['fsc', 'recycled', 'plasticfree', 'mono'], { t: 'sheet', w: 7, h: 4, pattern: 'slots', n: 5 }],
+
+    ['Corner protector', 'inners', null, ['inner'], 'corrugated', 'open',
+      'An L-profile that takes the impact where a box is weakest. Frames, panels, furniture.',
+      ['fsc', 'recycled', 'mono'], { t: 'sheet', w: 5, h: 5, pattern: 'corner' }],
+
+    ['Paper bubble wrap', 'inners', null, ['inner'], 'flexible', 'open',
+      'Slit and expanded kraft that cushions like bubble film. Recycles with the box instead of against it.',
+      ['fsc', 'recycled', 'plasticfree', 'mono'], { t: 'sheet', w: 7, h: 4.6, pattern: 'honeycomb' }],
+
+    ['Fanfold void fill', 'inners', null, ['inner'], 'flexible', 'open',
+      'Continuous concertina paper, torn to length at the bench. Fills the gap a standard box size leaves.',
+      ['fsc', 'recycled', 'plasticfree', 'mono'], { t: 'sheet', w: 7, h: 4.6, pattern: 'wave' }],
+
+    ['Bottle divider', 'inners', null, ['inner'], 'corrugated', 'open',
+      'A partition sized to bottle diameters, with the cells deep enough to reach the shoulder.',
+      ['fsc', 'recycled', 'plasticfree'], { t: 'sheet', w: 7, h: 4.4, pattern: 'slots', n: 4 }]
+  ];
+
+  /* The isometric view is DERIVED from the dieline spec, not authored
+     next to it. A second hand-written field per item would be 64 more
+     places to drift out of step with the blank it is supposed to depict;
+     here the folded dimensions fall out of the panel widths that already
+     define the flat one. */
+  function isoFor(item) {
+    var d = item.d, cat = item.cat, k = d.t, w, dep, h;
+
+    if (k === 'carton') {
+      if (d.swap) {
+        // stood on its side: the blank's height is the box's width, and
+        // the stacked panels give depth (lid) and height (back wall)
+        w = d.h; dep = d.panels[1]; h = d.panels[2];
+      } else {
+        w = d.panels[0]; dep = d.panels[1]; h = d.h;
+      }
+    }
+
+    var holes = (d.holes || []).map(function (f) {
+      return { k: f.k, y: f.k === 'euro' ? 0.86 : 0.9 };
+    });
+
+    if (cat === 'inners') {
+      if (d.pattern === 'slots') return { k: 'partition', w: d.w, h: d.h * 0.5, d: d.h * 0.85, cols: d.n || 4, rows: 2 };
+      if (d.pattern === 'corner') return { k: 'corner', w: d.w, h: d.h * 0.72 };
+      if (d.pattern === 'cavities') return { k: 'sheet', w: d.w, d: d.h, cells: [d.cols || 3, d.rows || 2] };
+      return { k: 'sheet', w: d.w, d: d.h, pattern: d.pattern };
+    }
+
+    if (cat === 'displays') {
+      return { k: 'display', w: d.w, h: d.h * 0.8, d: d.side, shelves: d.shelves, head: d.head };
+    }
+
+    /* Closure beats blank shape: a rigid book-style box and a magnetic
+       one are drawn from a tray blank, but what they ARE is a hinged
+       lid, and that is what should be standing open on the card. */
+    if (item.closure === 'hinge' && k === 'tray') {
+      return { k: 'lidbox', w: d.w, h: d.wall, d: d.d, tuck: 1, wings: 0, rolled: 1, angle: 1.35 };
+    }
+
+    if (k === 'pouch') return { k: 'pouch', w: d.w, h: d.h, d: d.w * 0.5, zip: d.zip };
+    if (k === 'tube') return { k: 'cyl', len: d.w, r: d.h * 0.5, rim: 1 };
+    if (k === 'pillow') return { k: 'pillow', w: d.w, d: d.h * 0.5 };
+    if (k === 'tray') return { k: 'tray', w: d.w, h: d.wall, d: d.d, flange: d.flange };
+    if (k === 'sheet') return { k: 'sheet', w: d.w, d: d.h, pattern: d.pattern };
+
+    if (cat === 'bags') return { k: 'bag', w: w, h: h, d: dep, handles: holes.some(function (f) { return f.k === 'handle'; }) };
+
+    // A band is open at BOTH ends. Open at one end only is a tray --
+    // testing the top alone turned the half slotted container into a
+    // see-through sleeve when it is really an open-top box.
+    var openTop = d.top && d.top.every(function (f) { return f === 'none'; });
+    var openBottom = d.bottom && d.bottom.every(function (f) { return f === 'none'; });
+    if (openTop && openBottom) return { k: 'sleeve', w: w, h: h, d: dep };
+    if (openTop) return { k: 'box', w: w, h: h, d: dep, top: d.top, bottom: d.bottom, holes: holes };
+
+    /* Every mailer-shaped construction is the same kind with different
+       hardware. Rolled walls + wings + a deep tuck is a 0427; a plain
+       hinged lid has none of them; a folder has a lid and nothing else. */
+    if (cat === 'hinged') {
+      var top = d.top || [];
+      return {
+        k: 'lidbox', w: w, h: h, d: dep,
+        tuck: 1,
+        wings: top.indexOf('wing') !== -1 ? 1 : 0,
+        rolled: top.indexOf('full') !== -1 ? 1 : 0,
+        lock: top.indexOf('full') !== -1 ? 1 : 0,
+        angle: 1.32
+      };
+    }
+    if (d.swap) {
+      var isFolder = cat === 'sleeves';
+      var isWrap = item.code === 'FEFCO 0409' || item.code === 'FEFCO 0410';
+      return {
+        k: 'lidbox', w: w, h: h, d: dep,
+        tuck: isFolder ? 0 : (isWrap ? 0 : 2),
+        wings: isFolder ? 0 : 1,
+        rolled: isFolder || isWrap ? 0 : 1,
+        lock: item.closure === 'lock' ? 1 : 0,
+        angle: isWrap ? 1.05 : 1.25
+      };
+    }
+
+    return { k: 'box', w: w, h: h, d: dep, top: d.top, bottom: d.bottom, holes: holes };
+  }
+
+  /* Which of the configurator's own products a construction lands on.
+     build-your-box.html gates half its later steps on data-product, so
+     handing it the construction without also handing it a product would
+     drop the visitor into a flow configured for a mailer box whatever
+     they picked. */
+  var PRODUCT_BY_NAME = {
+    'Paper mailing bag': 'paper-mailing-bag',
+    'Carrier bag with twisted handles': 'paper-bag',
+    'Flat-bottom pouch': 'paper-bag',
+    'Stand-up pouch with zipper': 'paper-bag',
+    'Padded paper envelope': 'padded-envelope',
+    'Flat paper envelope': 'cardboard-envelope',
+    'Mailing folder': 'cardboard-envelope'
+  };
+
+  var PRODUCT_BY_CAT = {
+    shippers: 'shipping-box', tuck: 'product-box', 'lid-tray': 'product-box',
+    hinged: 'product-box', sleeves: 'product-box', 'hang-handle': 'product-box',
+    tubes: 'product-box', displays: 'product-box', bags: 'paper-bag',
+    inners: 'packing-paper'
+  };
+
+  function productFor(item) {
+    if (PRODUCT_BY_NAME[item.name]) return PRODUCT_BY_NAME[item.name];
+    if (item.d.t === 'tube') return 'tube';
+    if (item.cat === 'shippers' && item.d.swap) return 'mailer-box';
+    if (item.material === 'rigid') return 'rigid-box';
+    return PRODUCT_BY_CAT[item.cat] || 'product-box';
+  }
+
+  /* The configurator's Type and Bottom steps ask the same question this
+     listing already answered, so the answers travel with the link. */
+  function typeFor(item) {
+    // both families are a box with a lid, whether the lid lifts off or hinges
+    if (item.cat === 'lid-tray') return item.name === 'Drawer box' ? 'drawer' : 'with-lid';
+    if (item.cat === 'hinged') return 'with-lid';
+    if (item.d.t === 'pillow') return 'pillow';
+    if (item.cat === 'hang-handle') {
+      var holes = item.d.holes || [];
+      if (holes.some(function (h) { return h.k === 'euro'; })) return 'hanging';
+      if (holes.some(function (h) { return h.k === 'handle'; })) return 'handle';
+      return 'gable';
+    }
+    return 'classic';
+  }
+
+  function bottomFor(item) {
+    var b = item.d.bottom || [];
+    if (b.indexOf('auto') !== -1 || b.indexOf('crash') !== -1) return 'Auto Lock';
+    if (b.indexOf('lock') !== -1) return 'Snap Lock';
+    return 'Reverse Tuck';
+  }
+
+  function slugify(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  /* Both drawings are already parametric, so entered dimensions are not a
+     filter -- every construction here can be die-cut to any size, which is
+     what the page promises. They re-proportion the drawings instead, so the
+     grid shows what a 400 x 300 x 80 version of each construction actually
+     looks like rather than a catalogue silhouette.
+
+     Normalised so the longest side is a fixed number of units: the drawing
+     has to keep filling its tile whether the box is 50mm or 800mm. */
+  function norm(dims) {
+    var m = Math.max(dims.w, dims.l, dims.h);
+    if (!(m > 0)) return null;
+    var k = 5 / m;
+    return { w: dims.w * k, l: dims.l * k, h: dims.h * k };
+  }
+
+  /* Each kind spends the three numbers differently -- a tube has a length
+     and a diameter, a flat part has no height to speak of -- so the mapping
+     is per kind rather than a blanket width/depth/height. */
+  function resizeIso(spec, dims) {
+    var n = norm(dims);
+    if (!n) return spec;
+    var o = {}, key;
+    for (key in spec) o[key] = spec[key];
+
+    switch (spec.k) {
+      case 'box': case 'lidbox': case 'sleeve': case 'bag': case 'display': case 'partition':
+        o.w = n.w; o.d = n.l; o.h = n.h; break;
+      case 'tray':
+        o.w = n.w; o.d = n.l; o.h = n.h;
+        if (o.flange) o.flange = Math.min(o.flange, Math.min(n.w, n.l) * 0.16);
+        break;
+      case 'pouch':
+        o.w = n.w; o.d = n.l; o.h = n.h; break;
+      case 'pillow':
+        o.w = n.w; o.d = n.l; o.t = n.h * 0.9; break;
+      case 'cyl':
+        o.r = Math.min(n.w, n.l) / 2; o.len = n.h; break;
+      case 'sheet':
+        o.w = n.w; o.d = n.l; o.t = Math.max(n.h * 0.12, 0.05); break;
+      case 'corner':
+        o.w = Math.max(n.w, n.l); o.h = n.h; break;
+    }
+    return o;
+  }
+
+  /* The blank follows too, for the families where the mapping is
+     unambiguous -- a carton's body really is [W, L, W, L] by H. The
+     schematic kinds (tube, pouch, displays, flat parts) keep their drawn
+     proportions, since their blanks are diagrams rather than scale plans. */
+  function resizeFlat(spec, dims) {
+    var n = norm(dims);
+    if (!n) return spec;
+    var o = {}, key;
+    for (key in spec) o[key] = spec[key];
+
+    if (spec.t === 'carton' && spec.panels && spec.panels.length === 4) {
+      o.panels = [n.w, n.l, n.w, n.l];
+      o.h = n.h;
+    } else if (spec.t === 'carton' && spec.swap && spec.panels) {
+      // [tuck, lid, back, base, front] by blank width
+      var p = spec.panels.slice();
+      p[1] = n.l; p[3] = n.l;
+      if (p.length > 2) p[2] = n.h;
+      if (p.length > 4) p[4] = n.h;
+      p[0] = Math.min(p[0], n.h * 0.9);
+      o.panels = p;
+      o.h = n.w;
+      o.topH = n.w * 0.26;
+      o.bottomH = n.w * 0.26;
+    } else if (spec.t === 'tray') {
+      o.w = n.w; o.d = n.l; o.wall = n.h;
+      if (o.flange) o.flange = Math.min(o.flange, n.h * 0.6);
+    } else {
+      return spec;
+    }
+    return o;
+  }
+
+  root.CX = {
+    resizeIso: resizeIso,
+    resizeFlat: resizeFlat,
+    isoFor: isoFor,
+    cats: CATS,
+    roles: ROLES,
+    materials: MATERIALS,
+    closures: CLOSURES,
+    eco: ECO,
+    items: ITEMS.map(function (row, i) {
+      var item = {
+        id: 'c' + i,
+        name: row[0], cat: row[1], code: row[2], roles: row[3],
+        material: row[4], closure: row[5], desc: row[6], eco: row[7], d: row[8]
+      };
+      item.slug = slugify(item.name);
+      item.product = productFor(item);
+      item.type = typeFor(item);
+      item.bottom = bottomFor(item);
+      return item;
+    })
+  };
+})(window);
+</script>
+<script>
+/* ============================================================
+   LISTING BEHAVIOUR
+   ============================================================
+   One state object drives everything: the Use switch (role), the
+   category strip, the filter pills and the view switcher all write
+   into it, and render() is the single place that reads it. */
+(function () {
+  'use strict';
+
+  var CX = window.CX;
+
+  var FILTERS = [
+    { key: 'material', label: 'Material',       map: CX.materials },
+    { key: 'closure',  label: 'How it closes',  map: CX.closures },
+    { key: 'eco',      label: 'Sustainability', map: CX.eco, multi: true }
+  ];
+
+  var state = {
+    dims: null,
+    role: 'all',
+    cats: [],
+    material: [],
+    closure: [],
+    eco: [],
+    sort: 'rec'
+  };
+
+  var grid = document.getElementById('grid');
+  var countLine = document.getElementById('countLine');
+  var catStrip = document.getElementById('catStrip');
+  var filterPills = document.getElementById('filterPills');
+  var activeChips = document.getElementById('activeChips');
+  var filtersBar = document.getElementById('filtersBar');
+  var emptyState = document.getElementById('emptyState');
+
+  function has(list, v) { return list.indexOf(v) !== -1; }
+
+  function toggle(list, v) {
+    var i = list.indexOf(v);
+    if (i === -1) list.push(v); else list.splice(i, 1);
+  }
+
+  /* A construction passes the Use switch if ANY of its roles match --
+     a roll-end mailer is both a shipper and the box the customer opens,
+     and it has to show up under either question. */
+  function matchesRole(item) {
+    return state.role === 'all' || has(item.roles, state.role);
+  }
+
+  function matchesRest(item, skip) {
+    if (skip !== 'cats' && state.cats.length && !has(state.cats, item.cat)) return false;
+    if (skip !== 'material' && state.material.length && !has(state.material, item.material)) return false;
+    if (skip !== 'closure' && state.closure.length && !has(state.closure, item.closure)) return false;
+    if (skip !== 'eco' && state.eco.length && !state.eco.every(function (t) { return has(item.eco, t); })) return false;
+    return true;
+  }
+
+  function matches(item) { return matchesRole(item) && matchesRest(item); }
+
+  /* ---------- category strip ---------- */
+  function buildCatStrip() {
+    catStrip.innerHTML = CX.cats.map(function (c) {
+      /* The tile draws the first construction in the family, so the
+         icon is always a real member of it rather than a stand-in. */
+      var first = CX.items.filter(function (i) { return i.cat === c.k; })[0];
+      return '<button type="button" class="thumb-item" data-cat="' + c.k + '" title="' + c.blurb + '">' +
+        '<span class="thumb-photo">' +
+          '<span class="cx-fig cx-fig-iso">' + art(first, 'iso') + '</span>' +
+          '<span class="cx-fig cx-fig-flat">' + art(first, 'flat') + '</span>' +
+        '</span>' +
+        '<span class="thumb-caption">' + c.label + '</span>' +
+        '</button>';
+    }).join('');
+
+    catStrip.addEventListener('click', function (e) {
+      var btn = e.target.closest('.thumb-item');
+      if (!btn) return;
+      toggle(state.cats, btn.dataset.cat);
+      render();
+    });
+  }
+
+  /* ---------- filter pills ---------- */
+  function buildFilters() {
+    filterPills.innerHTML = FILTERS.map(function (f) {
+      var opts = Object.keys(f.map).map(function (v) {
+        return '<label class="filter-checkbox"><input type="checkbox" data-filter="' + f.key + '" value="' + v + '">' +
+          '<span class="checkbox-box"></span>' + f.map[v] + '</label>';
+      }).join('');
+      return '<div class="filter-pill-wrap" data-label="' + f.label + '" data-key="' + f.key + '">' +
+        '<button class="filter-pill" type="button" aria-expanded="false">' + f.label +
+          '<span class="filter-count" hidden><span class="filter-count-num">0</span>' +
+          '<svg class="filter-count-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>' +
+        '</button>' +
+        '<div class="filter-panel"><p class="filter-panel-title">' + f.label + '</p>' +
+        '<div class="filter-panel-options">' + opts + '</div></div>' +
+      '</div>';
+    }).join('') +
+      '<div class="sort-pill-wrap" id="sortWrap">' +
+        '<button class="filter-pill" type="button" id="sortBtn" aria-expanded="false">Sort: <span id="sortLabel">Recommended</span>' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>' +
+        '<div class="sort-menu" id="sortMenu">' +
+          '<button class="sort-option active" type="button" data-sort="rec">Recommended</button>' +
+          '<button class="sort-option" type="button" data-sort="az">Name A&ndash;Z</button>' +
+          '<button class="sort-option" type="button" data-sort="family">Grouped by family</button>' +
+        '</div>' +
+      '</div>';
+
+    /* Bound to the document, not to filterPills: on mobile the real
+       .filter-panel-options node is MOVED into the bottom sheet, so it
+       stops being a descendant of the pill bar and a listener there
+       never sees the change. The checkbox ticked but nothing filtered. */
+    document.addEventListener('change', function (e) {
+      var input = e.target.closest('input[data-filter]');
+      if (!input) return;
+      toggle(state[input.dataset.filter], input.value);
+      render();
+    });
+  }
+
+  /* ---------- rendering ---------- */
+  /* Both drawings are built once per construction and reused. render()
+     runs on every filter keystroke, and regenerating 128 SVGs -- the
+     cylinder alone samples its outline 72 times -- for a change that
+     only reorders existing cards is work for nothing. */
+  var artCache = {};
+
+  function art(item, which) {
+    var d = state.dims;
+    // the cache key carries the dimensions, or entering a size would show
+    // the previous run's drawings back out of the cache
+    var key = item.id + which + (d ? d.w + 'x' + d.l + 'x' + d.h : '');
+    if (!artCache[key]) {
+      artCache[key] = which === 'iso'
+        ? window.isometric(d ? CX.resizeIso(CX.isoFor(item), d) : CX.isoFor(item))
+        : window.dieline(d ? CX.resizeFlat(item.d, d) : item.d);
+    }
+    return artCache[key];
+  }
+
+  /* The role chips always list every role the construction fills. Hiding
+     the active one was tried and reverted: on the Shipping tab a card that
+     also sells off a shelf was left showing nothing but "Product", which
+     reads as the filter being broken rather than as useful shorthand.
+     The category line does drop out once the listing is narrowed to a
+     single family, where it genuinely repeats the tile the visitor just
+     clicked. */
+  function card(item) {
+    var cat = CX.cats.filter(function (c) { return c.k === item.cat; })[0];
+    var showCat = state.cats.length !== 1;
+
+    var roles = item.roles.map(function (r) {
+      return '<span class="cx-role is-' + r + '">' + CX.roles[r].label + '</span>';
+    }).join('');
+
+    var meta = [
+      showCat ? cat.label.replace(/&amp;/g, '&') : '',
+      item.code || ''
+    ].filter(Boolean).join(' &middot; ');
+
+    /* The configurator is told WHAT was chosen, not just that something
+       was: name and family for the header it shows instead of the
+       Category and Product steps, product key for the flow those steps
+       would otherwise have set. Carried in the URL rather than in
+       storage so the link still works opened cold. */
+    var href = 'build-your-box.html?c=' + item.slug +
+      '&n=' + encodeURIComponent(item.name) +
+      '&f=' + encodeURIComponent(cat.label.replace(/&amp;/g, '&')) +
+      (item.code ? '&code=' + encodeURIComponent(item.code) : '') +
+      '&p=' + item.product +
+      '&t=' + item.type +
+      '&b=' + encodeURIComponent(item.bottom) +
+      /* Only when the visitor actually set a size. Passing the field's
+         resting value would silently override the configurator's own
+         default with a number nobody typed. */
+      (state.dims ? '&w=' + state.dims.w + '&l=' + state.dims.l + '&h=' + state.dims.h : '');
+
+    return '<a class="product-card" href="' + href + '" data-id="' + item.id + '" title="' + item.desc + '">' +
+      '<div class="product-card-media">' +
+        '<span class="cx-fig cx-fig-iso">' + art(item, 'iso') + '</span>' +
+        '<span class="cx-fig cx-fig-flat">' + art(item, 'flat') + '</span>' +
+        (roles ? '<span class="cx-roles">' + roles + '</span>' : '') +
+      '</div>' +
+      '<div class="product-card-info">' +
+        '<h3 class="product-card-name">' + item.name + '</h3>' +
+        '<p class="product-card-price">' + meta + '</p>' +
+      '</div>' +
+    '</a>';
+  }
+
+  function sortItems(list) {
+    if (state.sort === 'az') {
+      return list.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+    }
+    if (state.sort === 'family') {
+      var order = CX.cats.map(function (c) { return c.k; });
+      return list.slice().sort(function (a, b) {
+        var d = order.indexOf(a.cat) - order.indexOf(b.cat);
+        return d || a.name.localeCompare(b.name);
+      });
+    }
+    return list;
+  }
+
+  function chip(label, onClear) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'active-filter-chip';
+    b.innerHTML = label + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+    b.addEventListener('click', onClear);
+    return b;
+  }
+
+  function render() {
+    var shown = sortItems(CX.items.filter(matches));
+
+    grid.innerHTML = shown.map(card).join('');
+    emptyState.classList.toggle('show', shown.length === 0);
+
+    CX.cats.forEach(function (c) {
+      var n = CX.items.filter(function (i) {
+        return i.cat === c.k && matchesRole(i) && matchesRest(i, 'cats');
+      }).length;
+      var tile = catStrip.querySelector('[data-cat="' + c.k + '"]');
+      if (tile) {
+        tile.classList.toggle('active', has(state.cats, c.k));
+        tile.classList.toggle('cx-empty', n === 0 && !has(state.cats, c.k));
+      }
+    });
+    // Hiding tiles changes the track width, so the arrows and edge fades
+    // have to be recomputed or they keep promising content that has gone.
+    syncCarousel();
+
+    var roleWord = state.role === 'all' ? '' : ' ' + CX.roles[state.role].label.toLowerCase();
+    var d = state.dims;
+    countLine.innerHTML = '<strong>' + shown.length + '</strong>' + roleWord + ' construction' + (shown.length === 1 ? '' : 's') +
+      (state.cats.length || state.material.length || state.closure.length || state.eco.length ? ' match your filters' : '') +
+      (d ? ' — drawn at ' + d.w + ' \u00d7 ' + d.l + ' \u00d7 ' + d.h + ' cm'
+         : ' — all made to your dimensions');
+
+    /* pill counts */
+    FILTERS.forEach(function (f) {
+      var wrap = filterPills.querySelector('[data-key="' + f.key + '"]');
+      var badge = wrap.querySelector('.filter-count');
+      var n = state[f.key].length;
+      badge.hidden = n === 0;
+      badge.querySelector('.filter-count-num').textContent = n;
+    });
+
+    /* active chips */
+    activeChips.innerHTML = '';
+    state.cats.forEach(function (k) {
+      var c = CX.cats.filter(function (x) { return x.k === k; })[0];
+      activeChips.appendChild(chip(c.label, function () { toggle(state.cats, k); render(); }));
+    });
+    FILTERS.forEach(function (f) {
+      state[f.key].forEach(function (v) {
+        activeChips.appendChild(chip(f.map[v], function () {
+          toggle(state[f.key], v);
+          syncInputs();
+          render();
+        }));
+      });
+    });
+    if (activeChips.children.length > 1) {
+      activeChips.appendChild(chip('Clear all', clearAll));
+    }
+    filtersBar.classList.toggle('show-active-pills', activeChips.children.length > 0);
+  }
+
+  /* Same reason as the change listener above: while the bottom sheet is
+     open the inputs live outside filterPills, and clearing a chip has to
+     reach them there too. */
+  function syncInputs() {
+    document.querySelectorAll('input[data-filter]').forEach(function (input) {
+      input.checked = has(state[input.dataset.filter], input.value);
+    });
+  }
+
+  function clearAll() {
+    state.cats = []; state.material = []; state.closure = []; state.eco = [];
+    syncInputs();
+    render();
+  }
+
+  /* ---------- Use switch ---------- */
+  (function () {
+    var sw = document.getElementById('useSwitch');
+    var indicator = document.getElementById('useIndicator');
+
+    function move(el) {
+      indicator.style.width = el.offsetWidth + 'px';
+      indicator.style.transform = 'translateX(' + (el.offsetLeft - 4) + 'px)';
+    }
+
+    sw.addEventListener('click', function (e) {
+      var btn = e.target.closest('.toggle-option');
+      if (!btn) return;
+      sw.querySelectorAll('.toggle-option').forEach(function (o) { o.classList.remove('active'); });
+      btn.classList.add('active');
+      move(btn);
+      state.role = btn.dataset.role;
+      render();
+    });
+
+    /* The indicator is positioned from measured geometry, so it has to
+       wait for the web font -- ABC Favorit changes the label widths. */
+    function settle() { move(sw.querySelector('.toggle-option.active')); }
+    settle();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle);
+    window.addEventListener('resize', settle);
+  })();
+
+  /* ---------- filter panels (desktop dropdown) ---------- */
+  (function () {
+    function closeAll() {
+      document.querySelectorAll('.filter-panel.open').forEach(function (p) {
+        p.classList.remove('open');
+        p.parentNode.querySelector('.filter-pill').setAttribute('aria-expanded', 'false');
+      });
+      var sm = document.getElementById('sortMenu');
+      if (sm) {
+        sm.classList.remove('open');
+        document.getElementById('sortBtn').setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    filterPills.addEventListener('click', function (e) {
+      var clear = e.target.closest('.filter-count-clear');
+      if (clear) {
+        e.preventDefault();
+        e.stopPropagation();
+        var key = clear.closest('.filter-pill-wrap').dataset.key;
+        state[key] = [];
+        syncInputs();
+        render();
+        return;
+      }
+
+      var sortBtn = e.target.closest('#sortBtn');
+      if (sortBtn) {
+        e.stopPropagation();
+        var menu = document.getElementById('sortMenu');
+        var wasOpen = menu.classList.contains('open');
+        closeAll();
+        menu.classList.toggle('open', !wasOpen);
+        sortBtn.setAttribute('aria-expanded', String(!wasOpen));
+        return;
+      }
+
+      var opt = e.target.closest('.sort-option');
+      if (opt) {
+        document.querySelectorAll('.sort-option').forEach(function (o) { o.classList.remove('active'); });
+        opt.classList.add('active');
+        state.sort = opt.dataset.sort;
+        document.getElementById('sortLabel').textContent = opt.textContent;
+        closeAll();
+        render();
+        return;
+      }
+
+      var pill = e.target.closest('.filter-pill');
+      if (!pill || !pill.closest('.filter-pill-wrap')) return;
+      e.stopPropagation();
+
+      if (window.matchMedia('(max-width: 700px)').matches) {
+        openSheet(pill.closest('.filter-pill-wrap'));
+        return;
+      }
+
+      var panel = pill.parentNode.querySelector('.filter-panel');
+      var open = panel.classList.contains('open');
+      closeAll();
+      panel.classList.toggle('open', !open);
+      pill.setAttribute('aria-expanded', String(!open));
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.filter-pill-wrap') && !e.target.closest('.sort-pill-wrap')) closeAll();
+    });
+  })();
+
+  /* ---------- mobile filter sheet ----------
+     The panel's real .filter-panel-options node is MOVED into the sheet
+     and put back on close. Cloning would fork the checkbox state between
+     phone and desktop layouts. */
+  var sheet = document.getElementById('mobileSheet');
+  var sheetBody = document.getElementById('mobileSheetBody');
+  var sheetHome = null;
+
+  function openSheet(wrap) {
+    var options = wrap.querySelector('.filter-panel-options');
+    sheetHome = wrap.querySelector('.filter-panel');
+    document.getElementById('mobileSheetTitle').textContent = wrap.dataset.label;
+    sheetBody.appendChild(options);
+    sheet.classList.add('open');
+    document.body.classList.add('mobile-filter-sheet-locked');
+  }
+
+  function closeSheet() {
+    var options = sheetBody.querySelector('.filter-panel-options');
+    if (options && sheetHome) sheetHome.appendChild(options);
+    sheetHome = null;
+    sheet.classList.remove('open');
+    document.body.classList.remove('mobile-filter-sheet-locked');
+  }
+
+  document.getElementById('mobileSheetClose').addEventListener('click', closeSheet);
+  document.getElementById('mobileSheetOverlay').addEventListener('click', closeSheet);
+  document.getElementById('mobileSheetCta').addEventListener('click', closeSheet);
+
+  document.getElementById('emptyReset').addEventListener('click', clearAll);
+
+  /* ---------- dimensions ----------
+     Committed, not live. Typing applied on a debounce first, and a size
+     is three fields: on the way to 12 x 8 x 30 every intermediate number
+     -- 1, 12, 8, 3 -- redrew all 64 constructions, so the grid churned
+     through shapes nobody asked for and the one that was asked for
+     arrived last. The magnifier is the commit, and nothing below it moves
+     until it is pressed. */
+  (function () {
+    var inputs = ['dimW', 'dimL', 'dimH'].map(function (id) { return document.getElementById(id); });
+    var reset = document.getElementById('dimReset');
+    var go = document.getElementById('dimGo');
+    var defaults = inputs.map(function (i) { return i.value; });
+
+    function read() {
+      var v = inputs.map(function (i) { return parseFloat(i.value); });
+      if (v.some(function (x) { return !(x > 0); })) { return null; }
+      return { w: v[0], l: v[1], h: v[2] };
+    }
+
+    function pending() {
+      var d = read();
+      var c = state.dims;
+      if (!d && !c) return false;
+      if (!d || !c) return true;
+      return d.w !== c.w || d.l !== c.l || d.h !== c.h;
+    }
+
+    function apply() {
+      state.dims = read();
+      reset.classList.toggle('show', !!state.dims);
+      go.classList.remove('is-pending');
+      render();
+    }
+
+    /* The only thing typing does is mark the button: with no live redraw
+       there is otherwise nothing on screen to say the numbers in the
+       fields are not the numbers the drawings are using. */
+    inputs.forEach(function (input) {
+      input.addEventListener('input', function () {
+        go.classList.toggle('is-pending', pending());
+      });
+      /* Enter submits, as it would in any field sitting next to a
+         magnifier -- same commit, not a second behaviour. */
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); apply(); }
+      });
+    });
+
+    go.addEventListener('click', apply);
+
+    reset.addEventListener('click', function () {
+      inputs.forEach(function (i, n) { i.value = defaults[n]; });
+      state.dims = null;
+      reset.classList.remove('show');
+      go.classList.remove('is-pending');
+      render();
+    });
+  })();
+
+  /* ---------- category carousel arrows ---------- */
+  var syncCarousel = function () {};
+
+  (function () {
+    var carousel = document.getElementById('catCarousel');
+    var track = catStrip;
+
+    function sync() {
+      carousel.classList.toggle('has-overflow', track.scrollWidth > track.clientWidth + 1);
+      carousel.classList.toggle('at-start', track.scrollLeft <= 1);
+      carousel.classList.toggle('at-end', track.scrollLeft + track.clientWidth >= track.scrollWidth - 1);
+    }
+
+    carousel.querySelector('.prev').addEventListener('click', function () {
+      track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+    carousel.querySelector('.next').addEventListener('click', function () {
+      track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+    track.addEventListener('scroll', sync);
+    window.addEventListener('resize', sync);
+    syncCarousel = sync;
+    sync();
+  })();
+
+  /* ---------- announcement code copy ---------- */
+  var copyBtn = document.querySelector('.announcement-copy');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      if (navigator.clipboard) navigator.clipboard.writeText('BUILDIT');
+    });
+  }
+
+  buildCatStrip();
+  buildFilters();
+  render();
+})();
+</script>
+</body>
+</html>
