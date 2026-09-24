@@ -901,6 +901,12 @@ strona faktycznie ma taką treść):
   nie ma zdjęcia nigdzie** (ich gravatar zwraca 404, więc live pokazuje domyślną
   sylwetkę): dostają `.art-byline-avatar.is-initials` — inicjały na szarym kole, nigdy
   podstawiona cudza twarz ani stockowe zdjęcie (§2.5).
+  **Inicjały trzeba wyśrodkować optycznie, nie tylko flexem.** `align-items: center`
+  centruje *wiersz*, a wiersz rezerwuje miejsce na wydłużenia dolne, których wersaliki
+  nie mają — tusz liter ląduje wtedy 1,5px za wysoko (zmierzone na wyrenderowanych
+  pikselach przy 4× powiększeniu, nie na `getBoundingClientRect`, bo pudełko tekstu było
+  idealnie na środku). Koryguje to `padding-top: 2.5px`. Poniżej ±0,5px się nie zejdzie —
+  linia bazowa snapuje do pełnych pikseli.
 - **Bez bylinu title-row ma ciaśniejszy dół (`:has()`).** Z bylinem pod tytułem zostaje
   48px do hero, bez niego 24px — te same 48px czytają się bez bylinu jako większa dziura,
   bo nie ma krótkiej, jasnej linijki, która rozbija pustkę (zmierzone: geometrycznie oba

@@ -83,6 +83,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Optical centring: flex centres the LINE BOX, and a line box reserves room
+     for descenders that capital initials never use — so the ink lands 1.5px
+     high (measured on the rendered pixels at 4x). The top padding shrinks the
+     content box from the top, moving its centre down by half that. Anything
+     between 2.5 and 3.25px lands within half a pixel — the baseline snaps to
+     whole pixels, so that is the floor. 2.5px leaves the ink a hair high,
+     which reads better for capitals than a hair low. */
+  padding-top: 2.5px;
   background: var(--color-bg-muted-hover);
   color: var(--color-text-muted);
   font-size: 0.875rem;
