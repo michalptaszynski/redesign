@@ -848,10 +848,12 @@ to, czego nie potrzebujesz. Prefiks klas to `art-`; `.cs-hub-*`/`.cs-grid-*` na
 **Kręgosłup (zawsze w tej kolejności):**
 
 1. `.pkg-breadcrumb` — ten sam komponent co na `packaging.html`.
-2. `.art-title-row` — `.art-kicker` (typ treści, ten sam string co w breadcrumbie) + H1
-   + `.art-subheading`, opcjonalnie `.art-byline` (avatar + autor + data + czas czytania).
-   Sekcja w środku artykułu powtarza ten sam układ o poziom niżej: `h2.art-heading` jako
-   pigułka + `.art-statement` jako nagłówek (patrz zasady niżej).
+2. `.art-title-row` — H1 + `.art-subheading`, opcjonalnie `.art-byline` (avatar + autor +
+   data + czas czytania). **Bez pigułki z typem treści nad tytułem** — breadcrumb tuż nad
+   nią mówi dokładnie to samo („Packhelp / Case studies / …"), więc była powtórzeniem
+   (usunięta 2026-09-24, klasa `.art-kicker` skasowana z `article.css`). Pigułka zostaje
+   jako etykieta **sekcji** w środku artykułu (`h2.art-heading`) i jako kicker na kartach
+   „Read next" (`.art-related-kicker`) — tam nie duplikuje nawigacji.
 3. `.art-hero-media` — jedno zdjęcie albo wideo, 16:9 (4:3 poniżej 700px).
 4. `.art-layout` — grid `15rem 1fr minmax(0, 46rem)`: `.art-aside` (sticky) w kolumnie 1,
    `.art-main` w kolumnie 3. Środkowy `1fr` to świadomy oddech, nie kolumna na treść.
@@ -893,6 +895,12 @@ strona faktycznie ma taką treść):
   a `line-height: 1` zgniata wtedy wiersze (sprawdzone: obecne etykiety mieszczą się na
   360px). Odstęp nad sekcją to 64px (32px z `.art-col` + 32px z `.art-heading`) — te
   marginesy **nie** kolapsują, zmierzone.
+- **Byline ma avatar 40×40 po lewej od nazwiska.** Zdjęcia autorów żyją w
+  `assets/blog/authors/<imie-nazwisko>.png`, skadrowane do kwadratu wokół twarzy —
+  `object-fit: cover` na 40px kole inaczej pokazuje tors. **Dwoje z pięciu autorów bloga
+  nie ma zdjęcia nigdzie** (ich gravatar zwraca 404, więc live pokazuje domyślną
+  sylwetkę): dostają `.art-byline-avatar.is-initials` — inicjały na szarym kole, nigdy
+  podstawiona cudza twarz ani stockowe zdjęcie (§2.5).
 - **Bez bylinu title-row ma ciaśniejszy dół (`:has()`).** Z bylinem pod tytułem zostaje
   48px do hero, bez niego 24px — te same 48px czytają się bez bylinu jako większa dziura,
   bo nie ma krótkiej, jasnej linijki, która rozbija pustkę (zmierzone: geometrycznie oba

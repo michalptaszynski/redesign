@@ -30,20 +30,6 @@
   padding-bottom: var(--space-6);
 }
 
-/* Article-scoped eyebrow. Same tokens as .section-badge on marketing pages,
-   separate name because here it labels the content TYPE, not a section. */
-.art-kicker {
-  display: inline-block;
-  margin: 0 0 var(--space-3);
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-bg-muted-hover);
-  color: var(--type-eyebrow-color);
-  font-size: var(--type-eyebrow-size);
-  line-height: 1;
-  letter-spacing: var(--type-eyebrow-tracking);
-  border-radius: var(--radius-full);
-}
-
 .art-title {
   margin: 0 0 var(--space-2);
   max-width: 50rem;
@@ -75,8 +61,8 @@
 }
 
 .art-byline-avatar {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   border-radius: 50%;
   overflow: hidden;
@@ -88,6 +74,20 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Two of the five blog authors have no photo — their gravatar 404s, so the
+   live site shows a generic silhouette. Initials instead of inventing a face
+   (guideline §2.5: a missing asset is a visible gap, never a substitute). */
+.art-byline-avatar.is-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-muted-hover);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
 .art-byline-name {

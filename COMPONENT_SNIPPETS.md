@@ -861,7 +861,6 @@ Struktura pliku, w skrócie:
 <nav class="pkg-breadcrumb">…</nav>
 
 <section class="art-title-row reveal">
-  <p class="art-kicker">Case study</p>          <!-- typ treści -->
   <h1 class="art-title">…</h1>
   <p class="art-subheading">…</p>
   <div class="art-byline">…</div>               <!-- [blog] -->
