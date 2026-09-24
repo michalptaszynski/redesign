@@ -876,6 +876,8 @@ strona faktycznie ma taką treść):
 | `.art-callouts` (3 krótkie kafle bez ikon) | — | — | ✓ |
 | `.art-highlights` (liczby/wyniki; `.is-2x2` dla czterech) | gdy są realne dane | — | ✓ |
 | `.art-product-strip` (produkty użyte w artykule) | ✓ | opcjonalnie | ✓ |
+| `.art-editor-banner` (zaproszenie do edytora + makieta w perspektywie) | ✓ | — | — |
+| `.art-bestsellers` (karuzela produktów jak na HP) | ✓ | — | — |
 
 **Zasady, które łatwo złamać:**
 
@@ -891,12 +893,49 @@ strona faktycznie ma taką treść):
   a `line-height: 1` zgniata wtedy wiersze (sprawdzone: obecne etykiety mieszczą się na
   360px). Odstęp nad sekcją to 64px (32px z `.art-col` + 32px z `.art-heading`) — te
   marginesy **nie** kolapsują, zmierzone.
+- **Bez bylinu title-row ma ciaśniejszy dół (`:has()`).** Z bylinem pod tytułem zostaje
+  48px do hero, bez niego 24px — te same 48px czytają się bez bylinu jako większa dziura,
+  bo nie ma krótkiej, jasnej linijki, która rozbija pustkę (zmierzone: geometrycznie oba
+  miały 48px, różnica była optyczna). Robi to `.art-title-row:not(:has(.art-byline))`,
+  więc wyzwala się samo z obecności bylinu — nie trzeba nic oznaczać w markupie.
 - **Sekcja, która nie zaczyna się zdaniem, dostaje `.art-heading.is-plain`.** Nie każdy
   rozdział otwiera się prozą — bywa, że zaraz po nagłówku idzie lista, zdjęcie albo
   podtytuł. Pigułka bez zdania pod spodem wisi wtedy w powietrzu, więc taki H2 renderuje
   się jako zwykły nagłówek 1.5rem (`is-plain`). To wyjątek, nie furtka: przy przenoszeniu
   treści najpierw sprawdź, czy naprawdę nie da się podnieść pierwszego zdania sekcji.
   W 12 wpisach blogowych wyszły 3 takie przypadki na 65 nagłówków.
+- **Baner edytora (`.art-editor-banner`) na wpisach blogowych** stoi zaraz po treści
+  artykułu, przed „Read next" — czyta się jako „to teraz zrób własne", a nie jako kolejny
+  kafel w ogonie strony. Copy („The world's easiest way to design custom packaging" +
+  „Design now") jest wzięte z realnego `EditorBanner` z live'owych wpisów. Zamiast zdjęcia
+  osadza makietę edytora z HP: panel w `--color-bg-accent-subtle`, nagranie obrócone
+  `rotateX/rotateY 4deg` w `perspective: 1400px`, z wolną animacją „oddychania" po
+  wjechaniu w kadr (`.is-settled`).
+  **Odstępy w środku to jeden rytm 40px** (`--space-10`): krawędź → nagłówek → przycisk →
+  makieta → krawędź. Pierwotnie było 64/32/48/32 i górne 64px odstawało — cztery różne
+  wartości w karcie o czterech elementach nie dają żadnego rytmu, tylko wygląda na
+  przypadkowe.
+  **Szerokość: łam tekstu, nie cała strona.** Baner siedzi dokładnie na kolumnie
+  czytania (46rem), wyrównany do jej obu krawędzi — `max-width` + `margin-left: auto`,
+  bo łam jest **ostatnim** torem `.art-layout`, więc jego prawa krawędź to krawędź
+  kontenera minus rynna. Cap musi być `min(46rem, calc(100% - 15rem - 2 * var(--space-8)))`:
+  między ~900 a ~1040px grid ścieśnia ten tor poniżej 46rem (aside trzyma swoje 15rem),
+  a sztywne 46rem wyjeżdżało wtedy 139px w lewo poza tekst. Poniżej 900px łam idzie na
+  pełną szerokość, więc baner też — i **rynny mobilne muszą zostać na `--space-8`**, żeby
+  trzymać się paddingu `.art-layout` (16px rozjeżdżało je o pół rynny).
+  **Nagranie waży 9 MB i NIE ma `src` w markupie** — `article.js` przepisuje `data-src`
+  dopiero, gdy panel jest ekran od widoku, więc czytelnik, który nie dojedzie na dół
+  artykułu, nigdy go nie pobiera. Kopiując ten blok, zostaw `data-src` i `preload="none"`.
+- **Karuzela „Bestsellers" na wpisach blogowych** stoi między `.art-related` i
+  `.final-cta-section` — nie wyżej, bo to wyjście z artykułu do sklepu, nie część treści.
+  Używa kanonicznych klas `.scroll-carousel` / `.scroll-carousel-nav` / `.category-item`
+  (pkt 1.1 i 1.2), więc wygląda identycznie jak sekcja pod „Whatever you make, we pack
+  it." na HP, a strzałki obsługuje `article.js` bez drugiej implementacji. Styl siedzi w
+  `article.css` §5e; te same reguły są zdefiniowane inline na dziesięciu starszych
+  stronach marketingowych — nie usuwałem ich, bo część należy do innej sesji.
+  **Pamiętaj o `transform`:** sekcja jest full-bleed (`translateX(-50%)`), więc `.reveal`
+  musi mieć jawnie złożony transform, inaczej jedna z dwóch transformacji cicho wygrywa
+  (pkt 10.1). Case studies i inspirations karuzeli **nie** dostają — kończą na final-CTA.
 - **Kolumna tekstu ma luźniejszą interlinię niż reszta prototypu.** `.art-col` to
   `line-height: 1.5`, nie `1.32` — tamta wartość jest dostrojona do krótkiego copy w UI
   (podpisy, kafle, nawigacja) i w długim artykule wierszem robi się ciasno. Ta sama

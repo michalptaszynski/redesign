@@ -889,7 +889,71 @@ Struktura pliku, w skrócie:
 </div>
 
 <section class="art-related reveal">…</section>
+<section class="art-bestsellers reveal">…</section>   <!-- [blog] karuzela, patrz niżej -->
 <section class="final-cta-section reveal">…</section>
+```
+
+### Baner edytora (`.art-editor-banner`) — tylko wpisy blogowe
+
+Copy jest wzięte z realnego `EditorBanner` z live'owych wpisów. Zamiast zdjęcia osadza
+makietę edytora z HP. Stoi **po treści artykułu, przed `.art-related`**. Szerokość: łam
+tekstu, nie cała strona. Odstępy: 40px na krawędziach i wokół makiety, 16px między
+nagłówkiem a CTA (guideline §5.9).
+
+**`data-src` i `preload="none"` zostaw tak jak są** — nagranie waży 9 MB, a `article.js`
+podstawia `src` dopiero, gdy panel jest ekran od widoku.
+
+```html
+  <section class="art-editor-banner reveal">
+    <h2 class="art-editor-heading">The world&rsquo;s easiest way to design custom packaging</h2>
+    <a href="build-your-box.html" class="btn-pill lg">Design now<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+
+    <div class="art-editor-mock">
+      <div class="art-editor-screen">
+        <video data-src="assets/editor/editor-anim-web.mp4" muted loop playsinline preload="none"></video>
+      </div>
+    </div>
+  </section>
+```
+
+### Karuzela „Bestsellers" (`.art-bestsellers`) — tylko wpisy blogowe
+
+Ten sam komponent co `categories-section` na HP: full-bleed tor, nagłówek wyrównany do
+kontenera 1280px, karty 320px. Stoi **między `.art-related` i `.final-cta-section`**.
+Strzałki obsługuje `article.js` — nie dopisuj własnego JS-u. Klasy `.scroll-carousel`,
+`.scroll-carousel-nav`, `.category-item` są kanoniczne i muszą zostać.
+
+```html
+  <section class="art-bestsellers reveal">
+    <h2 class="art-bestsellers-heading">Bestsellers</h2>
+    <p class="art-bestsellers-subheading">The packaging our customers order most often &mdash; printed from 30 pieces.</p>
+
+    <div class="scroll-carousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+
+      <div class="art-bestsellers-track">
+        <a class="category-item" href="product_page.html">
+          <div class="category-thumb media-card-visual" style="--thumb-img: url('assets/packaging/mailer_box_one_color.png')"></div>
+          <h3 class="media-card-title">Custom Mailer Box</h3>
+          <p class="media-card-desc">Min. 30 pieces</p>
+        </a>
+
+        <a class="category-item" href="packaging.html">
+          <div class="category-thumb media-card-visual" style="--thumb-img: url('assets/packaging/Custom%20Recycled%20Poly%20Mailer.png')"></div>
+          <h3 class="media-card-title">Custom Recycled Poly Mailer</h3>
+          <p class="media-card-desc">Min. 100 pieces</p>
+        </a>
+
+        <!-- … kolejne karty produktów -->
+      </div>
+
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
 ```
 
 Trzy rzeczy, które trzeba zrobić ręcznie przy kopiowaniu:

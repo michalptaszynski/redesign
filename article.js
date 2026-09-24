@@ -59,7 +59,78 @@
     targets.forEach(function (el) { observer.observe(el); });
   })();
 
-  /* ---------- 3. Table-of-contents scroll-spy ------------------------------
+  /* ---------- 3. Horizontal card carousels ---------------------------------
+     Same behaviour as the marketing pages: arrows appear only when the track
+     actually overflows, and each one hides at its end of the scroll. Works on
+     any `.scroll-carousel > .nav.prev + <track> + .nav.next`. */
+  (function carousels() {
+    document.querySelectorAll('.scroll-carousel').forEach(function (carousel) {
+      var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
+      var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
+      var track = null;
+
+      for (var i = 0; i < carousel.children.length; i++) {
+        var child = carousel.children[i];
+        if (child !== prevBtn && child !== nextBtn) { track = child; break; }
+      }
+      if (!prevBtn || !nextBtn || !track) return;
+
+      function updateNavState() {
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        prevBtn.disabled = track.scrollLeft <= 0;
+        nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+      }
+
+      function checkOverflow() {
+        carousel.classList.toggle('has-overflow', track.scrollWidth > track.clientWidth + 1);
+        updateNavState();
+      }
+
+      prevBtn.addEventListener('click', function () {
+        track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function () {
+        track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      track.addEventListener('scroll', updateNavState);
+      window.addEventListener('resize', checkOverflow);
+
+      if (window.ResizeObserver) new ResizeObserver(checkOverflow).observe(track);
+      else checkOverflow();
+    });
+  })();
+
+  /* ---------- 4. Editor banner: load the recording only when needed -------
+     The mock sits at the very bottom of a long article and its recording is
+     ~9 MB, so the <video> ships without a src. It gets one — and starts the
+     breathing animation — once the panel is one screen away. */
+  (function editorBanner() {
+    var banner = document.querySelector('.art-editor-banner');
+    if (!banner) return;
+    var video = banner.querySelector('video[data-src]');
+
+    function start() {
+      if (video && !video.src) {
+        video.src = video.getAttribute('data-src');
+        var play = video.play();
+        if (play && play.catch) play.catch(function () {});
+      }
+      banner.classList.add('is-settled');
+    }
+
+    if (!('IntersectionObserver' in window)) { start(); return; }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { start(); observer.unobserve(banner); }
+      });
+    }, { threshold: 0, rootMargin: '0px 0px 100% 0px' });
+
+    observer.observe(banner);
+  })();
+
+  /* ---------- 5. Table-of-contents scroll-spy ------------------------------
      Marks the TOC link whose section is currently being read. Deliberately
      not an IntersectionObserver: with long sections nothing intersects the
      "current" band for most of the scroll, so we just pick the last heading

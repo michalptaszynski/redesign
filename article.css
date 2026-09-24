@@ -22,6 +22,14 @@
   padding: var(--space-4) var(--space-8) var(--space-12);
 }
 
+/* Without a byline the row ends on the subheading, and the same 48px below it
+   reads as a bigger void than it does under a byline — a byline is a short,
+   light line that breaks the space up, so the eye measures from it instead.
+   Case studies and inspirations have no byline, so they tighten to 24px. */
+.art-title-row:not(:has(.art-byline)) {
+  padding-bottom: var(--space-6);
+}
+
 /* Article-scoped eyebrow. Same tokens as .section-badge on marketing pages,
    separate name because here it labels the content TYPE, not a section. */
 .art-kicker {
@@ -722,6 +730,239 @@ p.art-media-caption {
   letter-spacing: -0.02em;
   color: var(--color-text-muted);
 }
+
+
+/* ---------- 5d. EDITOR BANNER ---------------------------------------------
+   The invitation to open the editor, taken from the live blog posts' own
+   EditorBanner (same copy). Instead of the live site's photo it embeds the
+   homepage's perspective mock of the editor: tinted panel, 3D-rotated screen
+   recording, slow breathing animation once it scrolls into view.
+
+   The 9 MB recording is NOT in the markup — article.js swaps data-src into
+   src when the panel comes close, so a reader who never reaches the bottom of
+   the article never downloads it.                                           */
+
+/* Sits on the reading column, not the full page. The reading column is the
+   LAST track of .art-layout, so its right edge is the container edge minus
+   the gutter — `margin-left: auto` + a 46rem cap lands the card exactly on
+   it without having to restate the grid. */
+.art-editor-banner {
+  /* 46rem is the column's cap, but between ~900 and ~1040px the grid squeezes
+     that track below its cap (the 15rem aside keeps its width), so the banner
+     has to shrink with it: container minus the aside minus both gutters. */
+  max-width: min(46rem, calc(100% - 15rem - 2 * var(--space-8)));
+  margin: var(--space-32) var(--space-8) 0 auto;
+  /* 40px rhythm on the card's edges and around the mock; the CTA hugs the
+   heading at 16px, see .art-editor-heading. */
+  padding: var(--space-10) var(--space-8);
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-2xl);
+  text-align: center;
+}
+
+/* Below 900px .art-layout collapses to one column and the text runs the full
+   width, so the banner has to follow it instead of hugging the right edge. */
+@media (max-width: 900px) {
+  .art-editor-banner {
+    max-width: none;
+    margin-left: var(--space-8);
+  }
+}
+
+.art-editor-heading {
+  /* The CTA is paired with the heading, so it sits close under it (16px) —
+     the 40px rhythm applies to the card's own edges and to the mock below. */
+  margin: 0 auto var(--space-4);
+  max-width: 34rem;
+  font-weight: 500;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+.art-editor-banner .btn-pill {
+  margin: 0 auto var(--space-10);
+}
+
+/* Perspective mock — same recipe as .statement-video-* on the homepage. */
+.art-editor-mock {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 640px;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-accent-subtle);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+}
+
+.art-editor-screen {
+  position: relative;
+  z-index: 1;
+  width: 77%;
+  aspect-ratio: 1792 / 1080;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  transform-style: preserve-3d;
+  transform: rotateX(4deg) rotateY(4deg);
+  will-change: transform;
+}
+
+.art-editor-screen video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.art-editor-banner.is-settled .art-editor-screen {
+  animation: art-editor-breathe 10s ease-in-out infinite;
+}
+
+@keyframes art-editor-breathe {
+  0%   { transform: rotateX(4deg)  rotateY(4deg); }
+  25%  { transform: rotateX(4deg)  rotateY(-4deg); }
+  50%  { transform: rotateX(-4deg) rotateY(-4deg); }
+  75%  { transform: rotateX(-4deg) rotateY(4deg); }
+  100% { transform: rotateX(4deg)  rotateY(4deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art-editor-banner.is-settled .art-editor-screen {
+    animation: none;
+    transform: rotateX(2deg) rotateY(2deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .art-editor-banner {
+    /* the side gutters stay at space-8 to line up with .art-layout's padding;
+       only the inner side padding gets tighter */
+    margin: var(--space-20) var(--space-8) 0;
+    padding: var(--space-10) var(--space-4);
+  }
+  .art-editor-screen { width: 92%; }
+}
+
+
+/* ---------- 5e. BESTSELLERS CAROUSEL --------------------------------------
+   The same horizontal card carousel the homepage uses under "Whatever you
+   make, we pack it." (guideline §1.1 + §1.2), dropped in above the final CTA
+   on blog posts. Full-bleed track, heading aligned to the 1280px container.
+
+   Class names are deliberately the canonical ones (.scroll-carousel,
+   .scroll-carousel-nav, .category-item, .category-thumb) so the shared arrow
+   logic in article.js works without a second implementation. Those rules live
+   inline on the ten marketing pages that predate this file; an article page
+   gets them from here instead.                                              */
+
+.art-bestsellers {
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-32) 0 var(--space-8);
+}
+
+/* .reveal's translateY has to be combined with the full-bleed translateX, or
+   one of the two transforms silently wins (guideline §10.1). */
+.art-bestsellers.reveal { transform: translateX(-50%) translateY(-16px); }
+.art-bestsellers.reveal.is-visible { transform: translateX(-50%) translateY(0); }
+
+.art-bestsellers-heading {
+  margin: 0 0 var(--space-1);
+  padding-left: calc((100vw - min(100vw, var(--max-w))) / 2 + 2rem);
+  font-weight: 500;
+  font-size: 2rem;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+.art-bestsellers-subheading {
+  margin: 0 0 var(--space-6);
+  padding-left: calc((100vw - min(100vw, var(--max-w))) / 2 + 2rem);
+  padding-right: calc((100vw - min(100vw, var(--max-w))) / 2 + 2rem);
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-muted);
+}
+
+.scroll-carousel { position: relative; }
+
+.scroll-carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.scroll-carousel-nav.prev { left: var(--space-4); }
+.scroll-carousel-nav.next { right: var(--space-4); }
+.scroll-carousel-nav svg { width: 20px; height: 20px; }
+.scroll-carousel-nav::after { content: ""; position: absolute; inset: -8px; }
+
+.scroll-carousel.has-overflow .scroll-carousel-nav { display: flex; }
+
+.scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+  transform: translateY(-50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Cards carry a caption below the photo, so 50% would land on the text —
+   pin the arrows to half the thumb height instead (guideline §1.2). */
+.art-bestsellers .scroll-carousel-nav { top: 160px; }
+
+.art-bestsellers-track {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  padding-left: calc((100vw - min(100vw, var(--max-w))) / 2 + 2rem);
+  padding-right: calc((100vw - min(100vw, var(--max-w))) / 2 + 2rem);
+}
+
+.category-item {
+  flex: 0 0 auto;
+  width: 320px;
+  text-decoration: none;
+}
+
+/* .media-card-visual (components.css) gives position/radius/overflow/
+   background — this only adds the height. */
+.category-thumb { height: 320px; }
+
+.category-thumb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--thumb-img);
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.category-item:hover .category-thumb::before { transform: scale(1.08); }
 
 
 /* ---------- 6. RELATED ARTICLES -------------------------------------------
