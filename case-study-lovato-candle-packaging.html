@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Case study: Lovato stayed on top of bumper growth and slashed their aver — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<!-- article layout (title row, sticky aside, reading column, optional blocks)
+     lives in article.css — see PAGE_BUILDING_GUIDELINE.md §5.9 -->
+<link rel="stylesheet" href="article.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- FINAL CTA (index.html pattern) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as every other page in the repo) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* page-specific: the photo revealed by the final-CTA deco square */
+  .final-deco-square::before {
+    background-image: url('https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/06/22144858/Case-study_Lovato-Candles.png');
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="case-studies.html">Case studies</a>
+    <span>/</span>
+    <span class="current">Lovato stayed on top of bumper gro</span>
+  </nav>
+
+  <section class="art-title-row reveal">
+    <p class="art-kicker">Case study</p>
+    <h1 class="art-title">Lovato stayed on top of bumper growth and slashed their average unit costs by 67% with Packhelp</h1>
+    <p class="art-subheading">The Irish D2C brand needed an A-Z packaging solution to match their rockstar growth. They never expected to halve their unit costs in the process.</p>
+  </section>
+
+  <div class="art-hero-media reveal">
+    <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2021/04/21153035/Custom-product-boxes-for-Lovato-Candles.jpg?fit=clip&amp;auto=format" alt="Lovato stayed on top of bumper growth and slashed their average unit c">
+  </div>
+
+  <div class="art-layout">
+    <aside class="art-aside">
+      <div class="art-meta">
+        <div>
+          <p class="art-meta-label">Industry</p>
+          <p class="art-meta-value">Scented Candles</p>
+        </div>
+        <div>
+          <p class="art-meta-label">Location</p>
+          <p class="art-meta-value">Cork, Ireland</p>
+        </div>
+        <div>
+          <p class="art-meta-label">Retail Model</p>
+          <p class="art-meta-value">Omnichannel</p>
+        </div>
+      </div>
+
+      <div class="art-toc-block">
+        <p class="art-toc-title">In this article</p>
+        <ul class="art-toc-list">
+          <li><a href="#packhelp-services-in-use">Packhelp services in use</a></li>
+          <li><a href="#highlights">Highlights</a></li>
+          <li><a href="#about-packhelp">About Packhelp</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="art-share-title">Share</p>
+        <div class="art-share">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpackhelp.com%2Fcase-study%2Flovato-candle-packaging%2F" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpackhelp.com%2Fcase-study%2Flovato-candle-packaging%2F" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpackhelp.com%2Fcase-study%2Flovato-candle-packaging%2F" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="art-main">
+    <div class="art-col art-intro">
+      <p class="art-lede">Lovato Candles needed an A-Z packaging solution to match their rockstar growth. And fast. Flexibility and comprehensive support in their supply chain were key for the Irish scented candle supplier to keep up with demand. Add in a production line split between </p>
+    </div>
+
+    <div class="art-col">
+      <div class="art-split-lists">
+          <div>
+            <p class="art-split-lists-label">Objectives</p>
+            <ul class="art-list">
+            <li>Streamline packaging</li>
+            <li>Cost-effective solution</li>
+            <li>Flexible and efficient fulfilment</li>
+            </ul>
+          </div>
+          <div>
+            <p class="art-split-lists-label">Results</p>
+            <ul class="art-list">
+            <li>Two box sizes to fit 26 products & 52 designs</li>
+            <li>Average unit costs reduced by 67%</li>
+            <li>On-demand fulfilment by Packhelp’s inhouse logistics hub</li>
+            </ul>
+          </div>
+      </div>
+    </div>
+
+    <div class="art-col">
+      <h3 class="art-subhead">An age-old tradition ripe for an omnichannel disruptor</h3>
+      <p>Since setting out in 2016, Lovato founder Jason Hamilton-Foott has turned a university side-hustle into an award-winning omnichannel brand, with a distribution network covering Ireland, the UK and Europe. Driven by the e-commerce boom, the producer of handmade candles and diffusers capped off its rise with a bumper 2020.</p>
+      <p>Lovato has been riding high on the back of a booming global scented candle market, which is expected to register <a href="https://www.marketresearchfuture.com/reports/scented-candles-market-2495">5.8% annual </a>growth over the next three years. The European market accounts for two-thirds of global sales, which puts the Ireland-based company in the box seat to continue its growth trajectory.</p>
+      <p>Lovato and other local EU suppliers, however, face increasing competition from low-priced imports, mainly from China. The market share of imports grew from <a href="https://www.cbi.eu/market-information/home-decoration-home-textiles/candles/market-potential">17% in 2015 to 20% in 2019</a>.</p>
+      <p>But an even bigger challenge may be one from within. Like other startups experiencing rapid growth, Lovato needs to stay on top of their growing business needs. This means maintaining an efficient supply chain, especially when it comes to product packaging.</p>
+      <div class="art-media-photo is-natural is-portrait">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/22133713/Lovato-Case-Study_client-info_3-image-500-x-1300.png?fit=clip&amp;auto=format" alt="">
+      </div>
+    </div>
+
+    <div class="art-col">
+      <h2 class="art-heading is-plain" id="packhelp-services-in-use">Packhelp services in use</h2>
+      <div class="art-callouts">
+        <div class="art-callout">
+          <p class="art-callout-label">Material</p>
+          <p class="art-callout-text">350gsm Arktika cardstock with custom wax seal.</p>
+        </div>
+        <div class="art-callout">
+          <p class="art-callout-label">Construction</p>
+          <p class="art-callout-text">Snap-lock enclosure and pre-glued seams for easy assembly.</p>
+        </div>
+        <div class="art-callout">
+          <p class="art-callout-label">Add-ons</p>
+          <p class="art-callout-text">Metallized cardboard with glossy UV Spot varnishing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="art-col">
+      <h3 class="art-subhead">Lovato’s packaging demand grew considerably in 2020 and this year it is projected to double.</h3>
+      <p>With the next online rush always just around the corner, a quick turnaround in packaging production and supply is essential for Lovato. This could mean a two or three week lead time from order placement and production to delivery.</p>
+      <p>The next challenge concerns the product itself. The quality of Lovato’s product boxes needed to match the high standards of their artisan candles, organic principles and a design brief that’s both minimalist and distinctive. In fact, their packaging is a product in itself with a gift range of <a href="https://lovatocandles.com/collections/clear-candle-with-luxury-box">Candles in Luxury Box</a>.</p>
+      <p>Being both a D2C brand and wholesaler, their <a href="https://packhelp.com/classic-product-box/">product boxes</a> also need to capture the eye of both high-street and online customers.</p>
+      <p>Lovato sells 13 different fragrances across multiple product types (e.g., candles and diffusers), all with different shapes and dimensions. They each come with black and white options. In terms of packaging, that works out to be 52 different designs.</p>
+      <p>With this amount of complexity, attention to detail and quality control was key.</p>
+      <div class="art-media-photo is-natural is-portrait">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/22142421/Lovato-Case-Study_challenge_2-image-500-x-1300-1.png?fit=clip&amp;auto=format" alt="">
+      </div>
+    </div>
+
+    <div class="art-col">
+      <h3 class="art-subhead">Lovato and Packhelp have, in many ways, grown together.</h3>
+      <p>The relationship between Lovato and Pakckhelp’s team of packaging engineers, account managers and logistics experts has evolved over the years. Such a close and hands-on collaboration ensures that Lovato always receives a custom packaging solution finely tuned to their needs.</p>
+      <p>For example, the Packhelp team delivered a signature product box with metallized cardstock and UV Spot varnishing in time for the holiday rush.</p>
+      <p>But first, let’s take a closer look at Lovato’s core packaging range delivered by Packhelp:</p>
+      <ul class="art-list">
+        <li>A custom <a href="https://packhelp.com/classic-product-box/">Product Box</a> in two different sizes and 52 designs for 13 products.</li>
+        <li>Constructed with a snap-lock enclosure and delivered flat with pre-glued seams for easy storage and quick assembly.</li>
+        <li>Made from premium 350gsm Arktika cardstock in black and white with a custom wax seal.</li>
+        <li>High-quality offset printing with white ink on black and black ink on white.</li>
+      </ul>
+      <p>But where Lovato may have gained the most was in process optimisation.</p>
+      <div class="art-media-photo is-natural is-portrait">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/22142425/Lovato-Case-Study_solution_3-image-500-x-1300-1.png?fit=clip&amp;auto=format" alt="">
+      </div>
+    </div>
+
+    <div class="art-col">
+      <h2 class="art-heading is-plain" id="highlights">Highlights</h2>
+      <p>The stakes were raised even higher by the fact that each design varies in small details, and each order needed to be split by design.</p>
+      <p>The team set up a quality-control system for each production batch, which involved three levels of checks between the DTP team, Lovato and the production team. With such a solid and well-oiled system, the reordering process was sped up without increasing the risk of mistakes.</p>
+      <p><strong>On the business side, Lovato reduced their average unit costs by 67% and consolidated their warehousing costs with a fully-customized Packhelp Plan.</strong></p>
+      <p>A Packhelp Plan does just that: it allows Lovato to plan out their supply needs for the year. This way they can lock in pricing, volume discounts, order flexibility and supply chain certainty.</p>
+      <p>Lovato also uses the services of Packhelp’s in-house storage and fulfilment hub.</p>
+      <p>By committing to an annual production cycle, they receive the maximum volume discounts associated with bulk orders while enjoying flexible ordering and payment terms over the year. This provides a huge pressure release on cash flow.</p>
+      <p>The order quantities are not fixed, so they can change their numbers just a few days in advance. This on-demand model is invaluable for any e-commerce outfit unsure when the next sales rush will hit.</p>
+      <p>67%</p>
+      <p>An annual order and payment plan meant Lovato could enjoy the volume discounts of bulk production without cash flow pressure. This brought down the unit price for their small candle box by 65% and by 69% for their larger diffuser box.</p>
+      <p>1</p>
+      <p>Packhelp’s in-house storage and fulfilment centre covered all their logistics needs, helping to consolidate costs and speed up turnaround times.</p>
+      <p>2</p>
+      <p>The Packhelp team streamlined Lovato’s packaging with two product box sizes to fit 13 different products in two different colours.</p>
+      <p>52</p>
+      <p>Highly complex production requirements called for a comprehensive quality management system to give Lovato peace of mind.</p>
+      <div class="art-highlights is-2x2">
+        <div class="art-highlight">
+          <p class="art-highlight-value">67%</p>
+          <p class="art-highlight-caption">Average reduction in unit price &mdash; An annual order and payment plan meant Lovato could enjoy the volume discounts of bulk production without cash flow pressure. This brought down the unit price for their small candle box by 65% and by 69% for their larger diffuser box.</p>
+        </div>
+        <div class="art-highlight">
+          <p class="art-highlight-value">1</p>
+          <p class="art-highlight-caption">Logistics provider &mdash; Packhelp’s in-house storage and fulfilment centre covered all their logistics needs, helping to consolidate costs and speed up turnaround times.</p>
+        </div>
+        <div class="art-highlight">
+          <p class="art-highlight-value">2</p>
+          <p class="art-highlight-caption">Custom product boxes &mdash; The Packhelp team streamlined Lovato’s packaging with two product box sizes to fit 13 different products in two different colours.</p>
+        </div>
+        <div class="art-highlight">
+          <p class="art-highlight-value">52</p>
+          <p class="art-highlight-caption">Designs &mdash; Highly complex production requirements called for a comprehensive quality management system to give Lovato peace of mind.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="art-col">
+      <p>Jason Hamilton-Foott founded <a href="https://lovatocandles.com/">Lovato Candles</a> in his home town of Bandon, County Cork, in 2016 while only 20 years old. In 2019, his wife Sarah joined him in running the business. Since then, this homegrown company has come on leaps and bounds with Lovato Candles sold in Ireland&#8217;s most renowned retailers and online across Europe.</p>
+      <p>Hand-made using only 100% natural wax and the finest blends of fragrance oils, Lovato Candles boasts a truly unique collection of products. Inspired by life in Ireland, Lovato Candles&#8217; collection consists of a variety of luxurious scented candles and diffusers that come in 14 gorgeous fragrances. <a href="https://lovatocandles.com/">→Learn more about Lovato.</a></p>
+      <div class="art-media-photo is-natural is-portrait">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/22143322/Lovato-Case-Study_-About_-400-x-600.png?fit=clip&amp;auto=format" alt="">
+      </div>
+    </div>
+
+    <div class="art-col">
+      <h2 class="art-heading" id="about-packhelp">About Packhelp</h2>
+      <p class="art-statement">Packhelp is a custom packaging provider which operates in more than 30 countries across Europe.</p>
+      <p>We believe in solutions developed through a collaborative process with our customers. We have worked with brands like Google, Uber, Bolt, L'oreal and Revolut, as well as thousands of small e-commerce companies.</p>
+    </div>
+
+    </div>
+  </div>
+
+  <section class="art-related reveal">
+    <h2 class="art-related-title">Read next</h2>
+
+    <div class="art-related-grid">
+      <a class="art-related-item" href="case-study-how-beztrosko-used-limited-edition-packaging-to-fair-boost-sales-by-almost-80.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2025/08/06115844/PackHelp0615-copy-2-683x1024.png" alt="How Beztrosko Used Custom Packaging to Boost Sales at a Fair by almost">
+        </div>
+        <p class="art-related-kicker">Case study</p>
+        <h3 class="media-card-title">How Beztrosko Used Custom Packaging to Boost Sales at a Fair by almost 80%: Special Packaging for Special Occasions</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="art-related-item" href="case-study-hot-stamped-packaging.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2025/01/04095358/ALH_0163-1-1024x627.png" alt="How Pao Gin elevated their brand with premium hot-stamped packaging">
+        </div>
+        <p class="art-related-kicker">Case study</p>
+        <h3 class="media-card-title">How Pao Gin elevated their brand with premium hot-stamped packaging</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Need packaging like <span class="final-deco-square"></span> this one?</h2>
+    <p class="final-cta-subheading">Tell us what you ship and we will get back with a quote.</p>
+    <div class="final-cta-buttons">
+      <a href="packaging.html" class="btn-pill lg">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="get-a-quote.html" class="btn-pill lg secondary">Get a quote<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="article.js"></script>
+
+</body>
+</html>

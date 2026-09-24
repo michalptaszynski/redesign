@@ -846,6 +846,68 @@ html:not(.theme-light) .lc-logos-content img { filter: invert(1); }
 
 ---
 
+## 5.9 Strona artykułu: blog / inspiration / case study
+
+**Tu nie ma snippetów do kopiowania — jest cały plik.** Wszystkie bloki artykułu żyją
+w renderowalnym szkielecie [`_article-template.html`](_article-template.html), a ich
+style w [`article.css`](article.css). Zamiast sklejać stronę z kawałków: skopiuj plik
+szablonu pod nową nazwą i usuń bloki, których nie potrzebujesz. Każdy blok ma nad sobą
+komentarz `[all] / [blog] / [insp] / [case]` mówiący, które typy treści go używają;
+tabela decyzyjna jest w `PAGE_BUILDING_GUIDELINE.md` §5.9.
+
+Struktura pliku, w skrócie:
+
+```html
+<nav class="pkg-breadcrumb">…</nav>
+
+<section class="art-title-row reveal">
+  <p class="art-kicker">Case study</p>          <!-- typ treści -->
+  <h1 class="art-title">…</h1>
+  <p class="art-subheading">…</p>
+  <div class="art-byline">…</div>               <!-- [blog] -->
+</section>
+
+<div class="art-hero-media reveal">…</div>
+
+<div class="art-layout">
+  <aside class="art-aside">                     <!-- sticky, top: var(--space-24) -->
+    <div class="art-meta">…</div>               <!-- [case] [insp] -->
+    <div class="art-toc-block">…</div>          <!-- znika poniżej 900px -->
+    <div>…art-share…</div>
+    <div class="art-aside-newsletter">…</div>   <!-- [blog] [insp] -->
+  </aside>
+
+  <div class="art-main reveal">
+    <div class="art-col art-intro"><p class="art-lede">…</p></div>
+    <div class="art-col">
+      <h2 class="art-heading" id="slug-nagłówka">Nazwa sekcji</h2>   <!-- pigułka -->
+      <p class="art-statement">Zdanie, które jest prawdziwym nagłówkiem.</p>  <!-- WYMAGANE -->
+      <p>…</p>
+    </div>
+    <div class="art-quote-break">…</div>        <!-- POZA .art-col: wycieka w lewo -->
+  </div>
+</div>
+
+<section class="art-related reveal">…</section>
+<section class="final-cta-section reveal">…</section>
+```
+
+Trzy rzeczy, które trzeba zrobić ręcznie przy kopiowaniu:
+
+1. **`.art-statement` zaraz po każdym `.art-heading`** — H2 to tylko pigułka z nazwą
+   sekcji, nagłówek niesie zdanie pod nią. Bez niego sekcja zaczyna się samą etykietą.
+2. **`id` nagłówków ↔ `href` w spisie treści** — `article.js` podświetla pozycję TOC przy
+   scrollu tylko wtedy, gdy oba slugi są identyczne.
+3. **Zdjęcie w `.final-deco-square::before`** — ustawiane per strona w inline `<style>`,
+   jedyna rzecz specyficzna dla strony w tym bloku.
+4. **URL-e share** — prawdziwe share-intenty do żywej strony na packhelp.com, nie `#`.
+
+`article.js` zastępuje inline'owy `<script>` z pinowaniem sticky-baru i `.reveal`, który
+na pozostałych stronach repo jest kopiowany od nowa — na stronach artykułu wystarczy
+`<script src="article.js"></script>` na końcu `<body>`.
+
+---
+
 ## Nawigacja i stopka — nie kopiuj stąd
 
 Nav (`.nav-row1`, `.sticky-bar`, `.quote-topbar`) **nigdy nie jest kopiowana inline** — każda strona dostaje tylko placeholder + `<script src="nav-header.js"></script>`, patrz `CLAUDE.md`. Markup nawigacji edytuje się wyłącznie w `nav-header.js`.

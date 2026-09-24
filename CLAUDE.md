@@ -18,6 +18,15 @@ layout specyficzny dla sekcji zostaje inline w `<style>` danej strony, dopóki n
 powtórzy się na więcej niż jednej stronie (wtedy dopiero awansuje do
 `components.css`).
 
+Jeden wyjątek od reguły "inline dopóki się nie powtórzy" jest już wyciągnięty:
+**strony z długim tekstem (blog, inspiration, case study) mają wspólny szablon** —
+`article.css` + `article.js` + renderowalny szkielet `_article-template.html`.
+Budując taki wpis, skopiuj szkielet i usuń zbędne bloki; nie klej strony od zera
+i nie duplikuj tych stylów inline. Tabela "który blok na którym typie treści" jest
+w `PAGE_BUILDING_GUIDELINE.md` §5.9, a realne treści do wypełnienia (tytuły, autorzy,
+daty, opisy, zdjęcia, moduły) w `CONTENT_MAP.md` / `content-map.json` — zanim
+wymyślisz copy dla wpisu, sprawdź, czy nie ma go tam gotowego.
+
 **Nawigacja to jeden komponent — `nav-header.js` — nigdy nie buduj jej od nowa
 inline na stronie.** Każda strona, która potrzebuje topbara, dostaje wyłącznie
 placeholder(y) + `<script src="nav-header.js"></script>`; markup i style

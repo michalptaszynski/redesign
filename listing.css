@@ -1,0 +1,159 @@
+/* ============================================================================
+   LISTING (HUB) TEMPLATE — shared layout for the pages that list articles:
+   case-studies.html, blog.html.
+
+   Same idea as article.css one level up: one skeleton, optional parts. A hub
+   is a title row + one featured entry + a grid of cards. Prefix: .hub-
+
+   Depends on: tokens.css, base.css, components.css (.media-card-visual,
+   .media-card-title, .media-card-desc, .btn-pill).
+   Content for these pages comes from CONTENT_MAP.md / content-map.json — real
+   titles, images and dates pulled from packhelp.com, not invented.
+   ========================================================================= */
+
+
+/* ---------- 1. PAGE HEADER ------------------------------------------------
+   Stacked H1 + subheading + optional CTA, canonical 4/8/12 rhythm.          */
+
+.hub-title-row {
+  padding: var(--space-4) var(--space-8) var(--space-12);
+}
+
+.hub-title {
+  margin: 0 0 var(--space-2);
+  max-width: 42rem;
+  font-weight: 500;
+  font-size: clamp(2rem, 3.6vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+.hub-title-desc {
+  max-width: 34rem;
+  margin: 0 0 var(--space-6);
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-muted);
+}
+
+
+/* ---------- 2. FEATURED ENTRY ---------------------------------------------
+   Photo tile left, text column right. No card background, no text-on-photo
+   overlay. The whole thing is one link — a featured entry that isn't
+   clickable is the commonest bug in this pattern.                           */
+
+.hub-featured {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-10);
+  align-items: center;
+  padding: 0 var(--space-8);
+  text-decoration: none;
+}
+
+.hub-featured-image {
+  height: 410px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--color-bg-muted);
+}
+
+.hub-featured-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.hub-featured:hover .hub-featured-image img {
+  transform: scale(1.04);
+}
+
+.hub-featured-heading {
+  margin: 0 0 var(--space-3);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  line-height: 1.16;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+}
+
+.hub-featured-meta {
+  margin: 0 0 var(--space-4);
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+.hub-featured-desc {
+  margin: 0;
+  max-width: 30rem;
+  font-size: 1.0625rem;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 800px) {
+  .hub-featured { grid-template-columns: 1fr; }
+  .hub-featured-image { height: 260px; }
+}
+
+
+/* ---------- 3. CARD GRID ---------------------------------------------------
+   Same card recipe as the homepage's .category-item — photo tile with the
+   caption below it — laid out as a static grid instead of a scroller.       */
+
+.hub-grid-section {
+  padding: var(--space-40) var(--space-8) 0;
+}
+
+.hub-grid-heading {
+  margin: 0 0 var(--space-6);
+  font-weight: 500;
+  font-size: 2rem;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8) var(--space-6);
+}
+
+.hub-card {
+  display: block;
+  text-decoration: none;
+}
+
+/* .media-card-visual (components.css) already carries position/radius/
+   overflow/background — this only adds the hub's aspect ratio. */
+.hub-card-thumb {
+  aspect-ratio: 4 / 3;
+}
+
+.hub-card:hover .hub-card-thumb img {
+  transform: scale(1.08);
+}
+
+/* Marks a card that leaves the prototype for the live site. The prototype
+   only holds a handful of real article pages; the rest of the catalogue is
+   linked out rather than faked with href="#" (CLAUDE.md: no dead links). */
+.hub-card-ext::after,
+.hub-featured-ext::after {
+  content: " ↗";
+}
+
+@media (max-width: 900px) {
+  .hub-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .hub-grid { grid-template-columns: 1fr; }
+  .hub-grid-section { padding-top: var(--space-20); }
+}

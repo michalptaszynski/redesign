@@ -1,0 +1,821 @@
+/* ============================================================================
+   ARTICLE TEMPLATE — shared layout for every long-form content page:
+   blog post, inspiration, case study.
+
+   One skeleton, optional blocks. A case study is NOT a different template —
+   it is this template with four extra blocks turned on (.art-split-lists,
+   .art-callouts, .art-highlights, .art-product-strip). See
+   PAGE_BUILDING_GUIDELINE.md §5.9 for the "which type gets which block" table
+   and _article-template.html for the copy-paste skeleton.
+
+   Depends on: tokens.css, base.css, components.css (.btn-pill, .media-card-*).
+   Prefix: .art-  (the hub page case-studies.html keeps its own .cs-hub-* /
+   .cs-grid-* classes — those are listing classes, not article classes.)
+   ========================================================================= */
+
+
+/* ---------- 1. TITLE ROW ---------------------------------------------------
+   kicker (content type) + H1 + subheading + optional byline.
+   Sits below .pkg-breadcrumb, which every article page reuses as-is.        */
+
+.art-title-row {
+  padding: var(--space-4) var(--space-8) var(--space-12);
+}
+
+/* Article-scoped eyebrow. Same tokens as .section-badge on marketing pages,
+   separate name because here it labels the content TYPE, not a section. */
+.art-kicker {
+  display: inline-block;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-muted-hover);
+  color: var(--type-eyebrow-color);
+  font-size: var(--type-eyebrow-size);
+  line-height: 1;
+  letter-spacing: var(--type-eyebrow-tracking);
+  border-radius: var(--radius-full);
+}
+
+.art-title {
+  margin: 0 0 var(--space-2);
+  max-width: 50rem;
+  font-weight: 500;
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+.art-subheading {
+  max-width: 42rem;
+  margin: 0;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-muted);
+}
+
+/* Byline: avatar + author + date + read time. Blog only, in practice. */
+.art-byline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 0;
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+.art-byline-avatar {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-bg-muted);
+}
+
+.art-byline-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.art-byline-name {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.art-byline-sep {
+  color: var(--color-border-hover);
+}
+
+
+/* ---------- 2. HERO MEDIA -------------------------------------------------- */
+
+.art-hero-media {
+  margin: 0 var(--space-8);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.art-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-bg-muted);
+}
+
+@media (max-width: 700px) {
+  .art-hero-media { aspect-ratio: 4 / 3; }
+}
+
+/* Stand-in for a photo we don't have yet. Guideline §2.5: a missing asset is
+   a visible gap, never a random substitute image. */
+.ph-media {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: 100%;
+  min-height: 12rem;
+  background: var(--color-bg-muted);
+  color: var(--color-border-hover);
+}
+
+.ph-media svg {
+  width: 15%;
+  max-width: 56px;
+  min-width: 28px;
+}
+
+.ph-media-label {
+  font-size: 0.75rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+
+/* ---------- 3. LAYOUT ------------------------------------------------------
+   Left aside (sticky) + reading column pushed right. The middle 1fr track is
+   deliberate breathing space, not a content column.
+
+   Sticky note: .art-aside is the grid ITEM, so its containing block is the
+   grid area, which spans the full row height — sticky works even with
+   align-items: start. Do NOT move position:sticky onto a wrapper inside the
+   aside: with align-items:start that wrapper's parent collapses to content
+   height and the sticky stops travelling (see guideline §10 / memory
+   "CSS grid/sticky gotchas").                                               */
+
+.art-layout {
+  display: grid;
+  grid-template-columns: 15rem 1fr minmax(0, 46rem);
+  align-items: start;
+  padding: var(--space-12) var(--space-8) 0;
+}
+
+.art-aside {
+  grid-column: 1;
+  position: sticky;
+  top: var(--space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.art-main { grid-column: 3; }
+
+
+/* ---------- 3a. ASIDE MODULES ---------------------------------------------
+   Each one is optional; the aside holds whichever of them the page has data
+   for, in this order: meta → table of contents → share → newsletter.        */
+
+/* Meta list (Industry / Product / Founder / HQ …) — case study, inspiration */
+.art-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.art-meta-label {
+  margin: 0 0 var(--space-1);
+  font-size: 0.6875rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.art-meta-value {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+/* Table of contents — blog, long inspiration. JS in the page adds .is-active
+   to the link whose section is currently on screen. */
+.art-toc-title {
+  margin: 0 0 var(--space-4);
+  font-size: 0.6875rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.art-toc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: art-toc;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.art-toc-list a {
+  display: flex;
+  gap: var(--space-2);
+  text-decoration: none;
+  font-size: 0.875rem;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+}
+
+.art-toc-list a::before {
+  counter-increment: art-toc;
+  content: counter(art-toc) ".";
+  flex: 0 0 auto;
+  color: var(--color-border-hover);
+  transition: color 0.15s ease;
+}
+
+.art-toc-list a:hover,
+.art-toc-list a.is-active {
+  color: var(--color-text-primary);
+}
+
+.art-toc-list a.is-active::before {
+  color: var(--color-accent);
+}
+
+/* Share row */
+.art-share-title {
+  margin: 0 0 var(--space-3);
+  font-size: 0.6875rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.art-share {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.art-share a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 50%;
+  color: var(--color-text-primary);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.art-share a:hover {
+  border-color: var(--color-text-primary);
+  background: var(--color-bg-muted);
+}
+
+.art-share svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Newsletter box — blog, inspiration (case studies end on the final CTA
+   instead, so they don't ask twice). */
+.art-aside-newsletter {
+  padding: var(--space-5);
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-lg);
+}
+
+.art-aside-newsletter-title {
+  margin: 0 0 var(--space-2);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.art-aside-newsletter-copy {
+  margin: 0 0 var(--space-4);
+  font-size: 0.8125rem;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+.art-aside-newsletter form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* The shared newsletter input's default background is the same muted grey as
+   this box, which makes the field disappear inside it — give it a surface. */
+.art-aside-newsletter .footer-newsletter-input {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-default);
+}
+
+.art-aside-newsletter .footer-newsletter-input:hover {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-hover);
+}
+
+
+/* ---------- 4. READING COLUMN — BASE BLOCKS -------------------------------
+   Every article type uses these. .art-col is the paragraph group; blocks
+   stack with a single rhythm rule instead of per-element margins.           */
+
+.art-col + .art-col { margin-top: var(--space-8); }
+.art-intro + .art-col { margin-top: var(--space-20); }
+
+.art-lede {
+  margin: 0 0 var(--space-4);
+  font-weight: 500;
+  font-size: 2rem;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+
+/* Section label — the same pill as .section-badge on the marketing pages
+   (guideline §4). Inside an article the h2 only NAMES the section; the line
+   right after it carries the actual headline, see .art-heading +
+   .art-statement below. It stays an <h2> so the document outline and the
+   table of contents still work. */
+.art-heading {
+  display: inline-block;
+  /* Adds to .art-col's own 32px (these margins do not collapse — measured),
+     so a section opening with a label gets 64px of air while plain paragraph
+     groups keep their 32px rhythm. No extra class needed on the group. */
+  margin: var(--space-8) 0 var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-muted-hover);
+  color: var(--type-eyebrow-color);
+  font-weight: 400;
+  font-size: var(--type-eyebrow-size);
+  line-height: 1;
+  letter-spacing: var(--type-eyebrow-tracking);
+  border-radius: var(--radius-full);
+  scroll-margin-top: var(--space-24);
+}
+
+.art-subhead {
+  margin: var(--space-6) 0 var(--space-3);
+  font-weight: 500;
+  font-size: 1.0625rem;
+  line-height: 1.24;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+/* Body copy is set on the GROUP and inherited — deliberately not on
+   `.art-col p`. A descendant selector there scores (0,1,1), which outranks
+   every single-class rule inside the nested blocks (0,1,0), so it silently
+   flattened .art-highlight-value, .art-callout-label and friends to 17px on
+   both original case-study pages (guideline §10.5, the same trap). Inherited
+   values lose to any matching rule, so each block now keeps its own type. */
+.art-col {
+  font-size: 1.0625rem;
+  letter-spacing: -0.02em;
+  /* Looser than the 1.32 used everywhere else in the prototype: that value is
+     tuned for short UI copy, and a long article needs more air between lines
+     to stay readable. Inherited, so lists follow the paragraphs. */
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.art-col > p { margin: 0 0 var(--space-4); }
+
+.art-col > p:last-child,
+.art-lede:last-child,
+.art-statement:last-child { margin-bottom: 0; }
+
+/* Inline links only — scoped to text, so it can't reach a card that wraps
+   its own <p> (.art-product-card), which would come out underlined. */
+.art-col p a:not(.btn-pill),
+.art-col li a:not(.btn-pill) {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--color-border-hover);
+  transition: text-decoration-color 0.15s ease;
+}
+
+.art-col p a:not(.btn-pill):hover,
+.art-col li a:not(.btn-pill):hover {
+  text-decoration-color: var(--color-text-primary);
+}
+
+/* Fallback for a section that genuinely has no opening sentence — one that
+   starts on a list, an image or a sub-heading. The pill only works when a
+   headline follows it, so here the h2 stays a plain heading instead. */
+.art-heading.is-plain {
+  display: block;
+  margin: var(--space-8) 0 var(--space-4);
+  padding: 0;
+  background: none;
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+/* The statement directly after a section label IS that section's headline,
+   so it takes the type the label used to carry. Every .art-heading needs one
+   — without it the section opens on a lone pill. A second .art-statement
+   further down the same section stays a mid-flow emphasis line at 20px. */
+.art-heading + .art-statement {
+  font-size: 1.5rem;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+}
+
+/* One louder sentence inside a paragraph group. */
+.art-statement {
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.32;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+}
+
+/* Short quote in the flow of the text (not the full-width pull quote).
+   Tag-qualified so it ties with `.art-col > p` and wins on source order. */
+p.art-blockquote {
+  margin: var(--space-8) 0;
+  padding: var(--space-3) 0 var(--space-3) var(--space-6);
+  border-left: 2px solid var(--color-border-default);
+  font-size: 1.0625rem;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+/* Bulleted list inside the reading column. */
+.art-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Type is inherited on purpose — a list reads at the size of the text it sits
+   in, so in the reading column it matches the paragraphs around it instead of
+   dropping to a smaller size. */
+.art-list li {
+  position: relative;
+  padding-left: var(--space-4);
+}
+
+.art-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* A list in the flow of the article needs the same breathing room under it as
+   a paragraph, or the next paragraph sticks to the last bullet. */
+.art-col > .art-list { margin-bottom: var(--space-4); }
+
+/* Inside the Objectives/Results tiles the list IS the content and the tiles
+   are dense, so there it keeps the compact size. */
+.art-split-lists .art-list li {
+  font-size: 0.9375rem;
+  line-height: 1.32;
+}
+
+/* The light outline matters most for the screenshots and flat graphics that
+   blog posts are full of: without it, anything on a white background bleeds
+   into the page and stops reading as an image. `box-sizing: border-box`
+   (base.css) keeps the 1px inside the aspect ratio. */
+.art-media-photo {
+  aspect-ratio: 3 / 2;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: var(--space-8) 0;
+}
+
+/* Screenshots, diagrams, before/after figures: anything where cropping to 3:2
+   would cut off content. Keeps the file's own proportions instead. */
+.art-media-photo.is-natural { aspect-ratio: auto; }
+.art-media-photo.is-natural .art-photo { height: auto; }
+
+/* Case-study photography is mostly shot portrait (70 of 96 images on the live
+   case studies). A 2:3 frame forced into a 3:2 one gets sliced through the
+   middle and reads as two photos stuck together, so a portrait keeps its own
+   ratio and sits in a narrower, centred column instead of towering over the
+   reading width. */
+.art-media-photo.is-portrait {
+  max-width: 26rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+p.art-media-caption {
+  margin: calc(-1 * var(--space-6)) 0 var(--space-8);
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-muted);
+}
+
+.art-video-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: var(--space-8) 0;
+  background: var(--color-bg-muted);
+}
+
+.art-video-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Pull quote — bleeds ~160px left of the reading column, stays left-aligned. */
+.art-quote-break {
+  width: calc(100% + var(--space-40));
+  margin: var(--space-16) 0 var(--space-16) calc(-1 * var(--space-40));
+  text-align: left;
+}
+
+.art-quote {
+  margin: 0;
+  max-width: 46rem;
+  font-weight: 500;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.24;
+  letter-spacing: -0.04em;
+  color: var(--color-text-primary);
+}
+
+.art-quote-attribution {
+  margin: var(--space-6) 0 0;
+  font-size: 0.875rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+
+/* ---------- 5. OPTIONAL BLOCKS --------------------------------------------
+   Turn on only where the page actually has the data. Practically: case
+   studies. Never invent numbers to fill .art-highlights.                    */
+
+/* 5a. Two short lists side by side — Objectives / Results, Challenge /
+   Solution. Card treatment on purpose: as bare lists in the flow they read as
+   more body copy and disappear into it. Same surface, radius and gap as
+   .art-callouts below, so the two panel blocks read as one family. */
+.art-split-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.art-split-lists > div {
+  padding: var(--space-6);
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-lg);
+}
+
+.art-split-lists-label {
+  margin: 0 0 var(--space-4);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+/* 5b. Short text callouts, no icons — usually three, sometimes two.
+   auto-fit, not repeat(3, 1fr): the reading column is capped at 46rem so at
+   most three tracks ever fit, and a block with only two tiles collapses the
+   empty track and fills the width instead of leaving a hole on the right. */
+.art-callouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+
+.art-callout {
+  padding: var(--space-5);
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-lg);
+}
+
+.art-callout-label {
+  margin: 0 0 var(--space-1);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.art-callout-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-muted);
+}
+
+/* 5c. Quantified results. Only with real numbers — never invent a stat to
+   fill the row. Default is a 3-up; .is-2x2 is for exactly four figures.
+   Same panel treatment as .art-split-lists / .art-callouts: as bare figures
+   under a hairline they read as body copy and sink into the article. */
+.art-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+
+.art-highlights.is-2x2 { grid-template-columns: repeat(2, 1fr); }
+
+.art-highlight {
+  padding: var(--space-6);
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-lg);
+}
+
+.art-highlight-value {
+  margin: 0 0 var(--space-2);
+  font-weight: 500;
+  font-size: 2.5rem;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+.art-highlight-caption {
+  margin: 0;
+  font-size: 0.875rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-muted);
+}
+
+/* 5d. Products used in this project — small card row inside the reading
+   column, linking into the shop. */
+.art-product-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+
+.art-product-card {
+  display: block;
+  text-decoration: none;
+}
+
+.art-product-thumb {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg-muted);
+}
+
+.art-product-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.art-product-card:hover .art-product-thumb img {
+  transform: scale(1.04);
+}
+
+.art-product-name {
+  margin: var(--space-3) 0 0;
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: -0.02em;
+  line-height: 1.24;
+  color: var(--color-text-primary);
+}
+
+.art-product-meta {
+  margin: var(--space-1) 0 0;
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+
+/* ---------- 6. RELATED ARTICLES -------------------------------------------
+   Full-width row below the reading column, above the final CTA. Uses the
+   shared .media-card-* atoms from components.css for the card internals.
+
+   auto-fit, not repeat(3, 1fr): with only two sibling articles to point at,
+   the empty tracks collapse and the two cards split the row instead of
+   leaving a hole where a third card would be.                               */
+
+.art-related {
+  padding: var(--space-32) var(--space-8) 0;
+}
+
+.art-related-title {
+  margin: 0 0 var(--space-8);
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.art-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-8);
+}
+
+.art-related-item {
+  display: block;
+  text-decoration: none;
+}
+
+.art-related-item .media-card-visual {
+  aspect-ratio: 3 / 2;
+}
+
+.art-related-item:hover .media-card-visual img {
+  transform: scale(1.04);
+}
+
+.art-related-kicker {
+  margin: var(--space-4) 0 0;
+  font-size: 0.6875rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.art-related-item .media-card-title {
+  margin-top: var(--space-1);
+}
+
+
+/* ---------- 7. RESPONSIVE --------------------------------------------------
+   900px: the aside stops being a column and becomes a normal block above the
+   text — it also stops being sticky (a sticky block in normal flow would sit
+   on top of the article on mobile).                                         */
+
+/* The pull quote's 160px left bleed only clears the sticky aside while the
+   middle track is wide enough. Below ~1240px it would run under the aside,
+   so the bleed is dropped before that can happen. */
+@media (max-width: 1200px) {
+  .art-quote-break {
+    width: 100%;
+    margin: var(--space-16) 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .art-layout { grid-template-columns: 1fr; }
+  .art-aside {
+    grid-column: 1;
+    position: static;
+    margin-bottom: var(--space-8);
+  }
+  .art-main { grid-column: 1; }
+  .art-quote-break { width: 100%; margin: var(--space-8) 0; }
+  .art-related { padding-top: var(--space-20); }
+  /* The table of contents duplicates the article's own headings once it is no
+     longer a sticky companion — hide it rather than stack it. */
+  .art-toc-block { display: none; }
+}
+
+@media (max-width: 700px) {
+  .art-split-lists { grid-template-columns: 1fr; }
+  .art-callouts { grid-template-columns: 1fr; }
+  /* .is-2x2 must be repeated here: the modifier scores (0,2,0) and a media
+     query adds nothing to specificity, so a bare .art-highlights rule would
+     lose to it and leave four 155px cards on a phone. */
+  .art-highlights,
+  .art-highlights.is-2x2 { grid-template-columns: 1fr; }
+  .art-product-strip { grid-template-columns: repeat(2, 1fr); }
+  .art-related-grid { grid-template-columns: 1fr; }
+  .art-lede { font-size: 1.625rem; }
+}

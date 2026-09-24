@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Case study: Oase — Packhelp</title>
+<title>Case study: How the merging of Packhelp's quality and Inuru's tech led t — Packhelp</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="components.css">
+<!-- article layout (title row, sticky aside, reading column, optional blocks)
+     lives in article.css — see PAGE_BUILDING_GUIDELINE.md §5.9 -->
+<link rel="stylesheet" href="article.css">
 <style>
   /* top nav (sticky bar + nav-wrapper) styles live in components.css */
   /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
@@ -129,196 +132,7 @@
     .sticky-bar { display: none; }
   }
 
-  /* ---------- CASE STUDY TITLE ---------- */
-  .cs-title-row {
-    padding: var(--space-4) var(--space-8) var(--space-12);
-  }
-
-  .cs-title {
-    margin: 0 0 var(--space-2);
-    max-width: 46rem;
-    font-weight: 500;
-    font-size: clamp(2.25rem, 3.6vw, 3rem);
-    line-height: 1.08;
-    letter-spacing: -0.05em;
-    color: var(--color-text-primary);
-  }
-
-  .cs-subheading {
-    max-width: 42rem;
-    margin: 0;
-    font-size: 0.9375rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-muted);
-  }
-
-  /* ---------- PHOTOS / VIDEO ---------- */
-  .cs-photo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background: var(--color-bg-muted);
-  }
-
-  .cs-hero-media {
-    margin: 0 var(--space-8);
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-  }
-
-  @media (max-width: 700px) {
-    .cs-hero-media { aspect-ratio: 4 / 3; }
-  }
-
-  .cs-video-wrap {
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin: var(--space-8) 0;
-  }
-
-  .cs-video-wrap iframe {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-
-  /* ---------- MAIN LAYOUT ----------
-     Grid for the whole page body: meta sidebar (column 1), a flexible empty
-     gutter (column 2) that absorbs leftover space, and .cs-main (column 3,
-     capped at a readable width) right-flush against the container edge —
-     same position as the hero image above it. .cs-main is a SINGLE grid
-     item wrapping every section — its internal spacing is then sized only
-     by its own content, not by the sidebar's height (two separate grid
-     items sharing a row would size that row to the taller of the two,
-     pushing later content down even when the sidebar is shorter). Sana/
-     Polestar reference: the left side stays blank once the meta list ends,
-     it isn't sticky. */
-  .cs-layout {
-    display: grid;
-    grid-template-columns: 15rem 1fr minmax(0, 46rem);
-    align-items: start;
-    padding: var(--space-12) var(--space-8) 0;
-  }
-
-  .cs-aside {
-    grid-column: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-  }
-
-  /* Everything after the sidebar is ONE grid item (column 3) — keeping it a
-     single box means its internal vertical rhythm (margins between .cs-col
-     children) is sized purely by its own content, never by the sidebar's
-     height. Two separate grid items sharing a row would size that row to
-     the taller of the two regardless of align-items, pushing later content
-     down to match the sidebar even when the sidebar is shorter. */
-  .cs-main { grid-column: 3; }
-
-  .cs-meta-label {
-    margin: 0 0 var(--space-1);
-    font-size: 0.6875rem;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-  }
-
-  .cs-meta-value {
-    margin: 0;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-  }
-
-  .cs-col + .cs-col { margin-top: var(--space-8); }
-  .cs-intro + .cs-col { margin-top: var(--space-20); }
-
-  .cs-col p.cs-lede {
-    margin: 0 0 var(--space-4);
-    font-weight: 500;
-    font-size: 2rem;
-    line-height: 1.08;
-    letter-spacing: -0.05em;
-    color: var(--color-text-primary);
-  }
-
-  .cs-col p.cs-lede:last-child { margin-bottom: 0; }
-
-  .cs-heading {
-    margin: 0 0 var(--space-4);
-    font-weight: 500;
-    font-size: 1.5rem;
-    line-height: 1.16;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-  }
-
-  .cs-col p {
-    margin: 0 0 var(--space-4);
-    font-size: 1.0625rem;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-secondary);
-  }
-
-  .cs-col p:last-child { margin-bottom: 0; }
-
-  .cs-blockquote {
-    margin: var(--space-8) 0;
-    padding: var(--space-3) 0 var(--space-3) var(--space-6);
-    border-left: 2px solid var(--color-border-default);
-    font-size: 1.0625rem;
-    font-style: italic;
-    letter-spacing: -0.02em;
-    line-height: 1.32;
-    color: var(--color-text-primary);
-  }
-
-  .cs-media-photo {
-    aspect-ratio: 3 / 2;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin: var(--space-8) 0;
-  }
-
-  /* ---------- PULL QUOTE (bleeds ~160px left of the reading column, left-aligned) ---------- */
-  .cs-quote-break {
-    width: calc(100% + var(--space-40));
-    margin: var(--space-16) 0 var(--space-16) calc(-1 * var(--space-40));
-    text-align: left;
-  }
-
-  .cs-quote {
-    margin: 0;
-    max-width: 46rem;
-    font-weight: 500;
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
-    line-height: 1.24;
-    letter-spacing: -0.04em;
-    color: var(--color-text-primary);
-  }
-
-  .cs-quote-attribution {
-    margin: var(--space-6) 0 0;
-    font-size: 0.875rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
-  }
-
-  @media (max-width: 900px) {
-    .cs-layout { grid-template-columns: 1fr; }
-    .cs-aside { grid-column: 1; margin-bottom: var(--space-8); }
-    .cs-main { grid-column: 1; }
-    .cs-quote-break { width: 100%; margin: var(--space-8) 0; }
-  }
-
-  /* ---------- FINAL CTA (index.html pattern, minus the deco-square wordplay) ---------- */
+  /* ---------- FINAL CTA (index.html pattern) ---------- */
   .final-cta-section {
     padding: var(--space-40) var(--space-8) var(--space-32);
     text-align: center;
@@ -355,9 +169,7 @@
     .final-cta-buttons { flex-direction: column; align-items: stretch; }
   }
 
-  /* ---------- FINAL-CTA DECO SQUARE (index.html pattern — every closing
-     CTA heading gets one inline tilted photo that pops in on reveal and
-     pushes the surrounding words apart; see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  /* ---------- FINAL-CTA DECO SQUARE (see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
   .final-deco-square {
     display: inline-block;
     position: relative;
@@ -381,7 +193,6 @@
     width: 64px;
     height: 64px;
     background-color: var(--gray-300);
-    background-image: url('assets/case-study/oase/OASE-Product-Shot-01-1024x675.jpg');
     background-size: cover;
     background-position: center;
     border-radius: var(--radius-sm);
@@ -404,7 +215,7 @@
     transform: translate(-50%, -50%) rotate(0deg) scale(1);
   }
 
-  /* ---------- FOOTER (duplicated per-page, same as industries.html/packaging.html) ---------- */
+  /* ---------- FOOTER (duplicated per-page, same as every other page in the repo) ---------- */
   .site-footer {
     position: relative;
     margin-top: var(--space-16);
@@ -547,6 +358,11 @@
     .footer-newsletter { flex-direction: column; align-items: stretch; }
     .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
   }
+
+  /* page-specific: the photo revealed by the final-CTA deco square */
+  .final-deco-square::before {
+    background-image: url('https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2017/02/28135441/Case-Study_4.png');
+  }
 </style>
 </head>
 <body>
@@ -568,114 +384,129 @@
     <span>/</span>
     <a href="case-studies.html">Case studies</a>
     <span>/</span>
-    <span class="current">Oase</span>
+    <span class="current">How the merging of Packhelp&#x27;s qual</span>
   </nav>
 
-  <section class="cs-title-row reveal">
-    <h1 class="cs-title">Designer Packaging: Oase</h1>
-    <p class="cs-subheading">Ever come across packaging that could be described as sexy? We have.</p>
+  <section class="art-title-row reveal">
+    <p class="art-kicker">Case study</p>
+    <h1 class="art-title">How the merging of Packhelp&#x27;s quality and Inuru&#x27;s tech led to a futuristic redesign of champagne house Cattier.</h1>
+    <p class="art-subheading">Packhelp worked with Inuru to produce a unique label that offers several ways for Cattier customers to interact with the iconic bottle.</p>
   </section>
 
-  <div class="cs-hero-media reveal">
-    <img class="cs-photo" src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
+  <div class="art-hero-media reveal">
+    <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2017/02/28135357/Case-Study_1.png?fit=clip&amp;auto=format" alt="How the merging of Packhelp&#x27;s quality and Inuru&#x27;s tech led to a futuri">
   </div>
 
-  <div class="cs-layout reveal">
-    <aside class="cs-aside">
-      <div>
-        <p class="cs-meta-label">Industry</p>
-        <p class="cs-meta-value">Health &amp; Beauty</p>
+  <div class="art-layout">
+    <aside class="art-aside">
+      <div class="art-meta">
+        <div>
+          <p class="art-meta-label">Industry</p>
+          <p class="art-meta-value">BEVERAGES</p>
+        </div>
+        <div>
+          <p class="art-meta-label">Location</p>
+          <p class="art-meta-value">FRANCE</p>
+        </div>
       </div>
-      <div>
-        <p class="cs-meta-label">Product</p>
-        <p class="cs-meta-value">Vegan hair vitamins</p>
+
+      <div class="art-toc-block">
+        <p class="art-toc-title">In this article</p>
+        <ul class="art-toc-list">
+          <li><a href="#highlights">Highlights</a></li>
+        </ul>
       </div>
+
       <div>
-        <p class="cs-meta-label">Founder</p>
-        <p class="cs-meta-value">Justin Regteschot</p>
-      </div>
-      <div>
-        <p class="cs-meta-label">Headquarters</p>
-        <p class="cs-meta-value">The Netherlands</p>
+        <p class="art-share-title">Share</p>
+        <div class="art-share">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpackhelp.com%2Fcase-study%2Fcattier-label-redesign%2F" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpackhelp.com%2Fcase-study%2Fcattier-label-redesign%2F" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpackhelp.com%2Fcase-study%2Fcattier-label-redesign%2F" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+        </div>
       </div>
     </aside>
 
-    <div class="cs-main">
-    <div class="cs-col cs-intro">
-      <p class="cs-lede">Meet OASE, a hair vitamins brand from The Netherlands, who created their own luxurious, custom packaging with the help of Packhelp.</p>
+    <div class="art-main">
+    <div class="art-col art-intro">
+      <p class="art-lede">Inuru was looking for a competent printing partner to help them deliver luminescent bottle labels for Cattier. As a tech company, Packhelp understands the intricacies of integrating the newest technology with all kinds of packaging. Collaborating with Inuru me</p>
     </div>
 
-    <div class="cs-col">
-      <h2 class="cs-heading">The Oase story</h2>
-      <p>OASE is a revolutionary, vegan hair supplement. Providing all the essential nutrients for healthier, longer and better-looking hair.</p>
-      <p>After running another e-commerce store for hair supplies, Oase founder Justin Regteschot noticed that people were mostly interested in finding solutions for hair loss, dandruff and damaged hair. He founded Oase Hair supplements to answer the call.</p>
-      <p class="cs-blockquote">&ldquo;I wanted to make the perfect supplement that would eliminate all these problems.&rdquo;</p>
-      <p>Oase&rsquo;s vitamins come in the form of soft, chewable blackcurrant flavour gummy sweets, that don&rsquo;t get stuck to your teeth. They&rsquo;re made of 100% natural ingredients.</p>
-      <p>Such a unique product needed to have packaging that helped them stand out. OASE turned to Packhelp.</p>
-    </div>
-
-    <div class="cs-col">
-      <h2 class="cs-heading">Designer packaging</h2>
-      <p>When Oase came to Packhelp, they were looking for packaging that encapsulated their brand image. As an online brand, this was crucial. The packaging they designed would be their first physical point of contact with customers.</p>
-      <p>Oase&rsquo;s unique product demanded some special attention. Packhelp sales and production teams were on hand to provide Oase with what they needed.</p>
-      <p>The collaboration of the two companies led to amazing results. A luxury rigid box showcasing Oase hair vitamins as a classy, desirable product.</p>
-
-      <div class="cs-media-photo">
-        <img class="cs-photo" src="assets/case-study/oase/OASE-Setting-3-1024x683.jpg" alt="OASE rigid boxes and bottle styled together">
+    <div class="art-col">
+      <p>Cattier was looking to elevate their champagne bottles with new, innovative packaging. The aim was simple – integrate a novel experience for customers enjoying the celebratory drink.</p>
+      <p>The champagne house turned to Inuru, pioneers of smart packaging, who have developed patented ELF technology – self-powered OLED films that activate and light up through interaction and on which you can print easily.</p>
+      <p>Cattier needed to improve the labels’ quality. Packhelp’s experience with technology and packaging came into play to <a href="https://hypebeast.com/2023/1/packhelp-inuru-cattier-bottle-launch?fbclid=PAAaaUCqVq_F05A3WAOLcr0I6rvLOC5hx3GR9QinbfH0GH0GdrZr0tFEoYeNo">produce innovative labels</a>, adhering to the quality standard that 400 years of Cattier history called for.</p>
+      <div class="art-media-photo is-natural is-portrait">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2017/02/28135411/Case-Study_2.png?fit=clip&amp;auto=format" alt="">
       </div>
     </div>
 
-    <div class="cs-col">
-      <h2 class="cs-heading">Luxury packaging that&rsquo;s made-for-purpose</h2>
-      <p>Oase needed to design two types of high-end packaging; product packaging and shipping packaging.</p>
-    </div>
-
-    <div class="cs-quote-break">
-      <p class="cs-quote">&ldquo;I was lucky to find Packhelp, who made the perfect packaging for our bottles.&rdquo;</p>
-      <p class="cs-quote-attribution">Justin Regteschot, Founder, OASE</p>
-    </div>
-
-    <div class="cs-col">
-      <p>For shipping packaging, they opted for Packhelp&rsquo;s Eco White Mailer Boxes with a simple and minimalist design. The brand&rsquo;s logo is showcased on the top of the box in black water-based ink.</p>
-
-      <div class="cs-media-photo">
-        <img class="cs-photo" src="assets/case-study/oase/OASE-Product-Shot-02-1024x683.jpg" alt="Three OASE hair vitamin boxes">
+    <div class="art-col">
+      <p>The new Cattier label offers several ways for the customer to interact with the champagne bottle, bringing an exciting differentiation factor to Cattier’s heritage product. The company’s logo lights up against an all-black label as the drink is being poured into the glass, adding impressively to the futuristic look of the bottle.</p>
+      <p>Self-powered visual interface technologies such as light-up labels enable brands to create a completely new customer experience. Thanks to Inuru&#8217;s technology, customers are able to interact with products manually or through their smartphones, bringing product visual communication to an exciting new experiential realm.</p>
+      <div class="art-media-photo is-natural is-portrait">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2017/02/28135450/Case-Study_3.png?fit=clip&amp;auto=format" alt="">
       </div>
-
-      <p>Upon opening the box, you find the brand&rsquo;s Instagram handle printed on the inside. It&rsquo;s a smart thing to do, persuading people to share their unboxing experience on social media.</p>
-      <p>Oase also include a thank you card for every customer. Small details that add to the overall customer experience.</p>
-      <p>Everything within the box is well designed - it&rsquo;s modern, with mellow tone colours. It&rsquo;s simplistic but effective.</p>
     </div>
 
-    <div class="cs-col">
-      <h2 class="cs-heading">Promoting the unboxing experience</h2>
-      <p>So good was the final product, that Packhelp even made a promotional video specifically to show off OASE and its packaging. Check out the unboxing video below:</p>
-
-      <div class="cs-video-wrap">
-        <iframe src="https://www.youtube.com/embed/_tSmGVPnrNY" title="OASE unboxing video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    <div class="art-col">
+      <h2 class="art-heading is-plain" id="highlights">Highlights</h2>
+      <p>The successful merging of Packhelp quality and Inuru technology proves that even a luxury heritage champagne brand can benefit from breakthrough technologies when they are suitably adapted to go with the brand’s visual identity.</p>
+      <p>The future of OLED printing looks very promising. Creating thin, bendable, water-resistant labels with an electrical layer is only the first step. These lights are already able to be printed into different shapes, and there is no doubt that this technology will continue to progress with even more exciting developments in the packaging industry.</p>
+      <p>Paper-thin, bendable, water-resistant labels.</p>
+      <p>A novel experience for customers enjoying the celebratory drink.</p>
+      <p>Adhering to the quality standard of 400 years of Cattier's history.</p>
+      <div class="art-highlights">
+        <div class="art-highlight">
+          <p class="art-highlight-value"></p>
+          <p class="art-highlight-caption">Illuminated labels &mdash; Paper-thin, bendable, water-resistant labels.</p>
+        </div>
+        <div class="art-highlight">
+          <p class="art-highlight-value"></p>
+          <p class="art-highlight-caption">Interactive experience &mdash; A novel experience for customers enjoying the celebratory drink.</p>
+        </div>
+        <div class="art-highlight">
+          <p class="art-highlight-value"></p>
+          <p class="art-highlight-caption">Refreshed visual identity &mdash; Adhering to the quality standard of 400 years of Cattier's history.</p>
+        </div>
       </div>
-
-      <p>The hair vitamins come perfectly packed in tailor-made soft pink rigid boxes. Made from sturdy rigid cardboard. They are perfect to showcase products in a very elegant light.</p>
-      <p>Chalk paper lamination finishes were added to give it that soft and elegant feel to touch. In the soft pink colour, the box is soft, delicate, elegant, and strong &mdash; just like healthy hair should be.</p>
-
-      <div class="cs-media-photo">
-        <img class="cs-photo" src="assets/case-study/oase/OASE-Product-Shot-01-1024x675.jpg" alt="Close-up of OASE bottle and embossed box">
-      </div>
-
-      <p>When it came to the design, Oase stays faithful to its branding by keeping it simple. The signature pink is on show, as is the brand&rsquo;s logo &mdash; front and centre. Printed with embossing, giving it a soft texture.</p>
-      <p>Oase elegantly added their unique product&rsquo;s features, with symbols representing vegan, halal, and Swiss technological manufacturing. Inside, the bottle is secured with a custom insert.</p>
     </div>
 
-    <div class="cs-col">
-      <h2 class="cs-heading">Conclusion</h2>
-      <p>Packhelp&rsquo;s collaboration with Oase resulted in some classy, sophisticated packaging that did exactly what Oase had hoped for. A unique design, for a unique product.</p>
+    <div class="art-quote-break">
+      <p class="art-quote">&ldquo;Together, we created a product that not only adheres to the quality in line with over 400 years of Cattier tradition, but also offers a completely new experience to customers interacting with their favourite brands. Illuminated labels are just the first step, and we’re looking forward to introducing even more ways to interact with packaging.&rdquo;</p>
+      <p class="art-quote-attribution">Marcin Ratajczak, CEO of Inuru</p>
     </div>
+
     </div>
   </div>
 
+  <section class="art-related reveal">
+    <h2 class="art-related-title">Read next</h2>
+
+    <div class="art-related-grid">
+      <a class="art-related-item" href="case-study-insulated-shipping-boxes-psi-bufet-case-study.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/04/06094319/Plus-case-study-opengraph-Psi-Bufet.png" alt="Developing insulated shipping boxes">
+        </div>
+        <p class="art-related-kicker">Case study</p>
+        <h3 class="media-card-title">Developing insulated shipping boxes</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="art-related-item" href="case-study-raylo-packaging-optimization.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/04/06094325/Plus-case-study-opengraph-Raylo.png" alt="How the telecom start-up Raylo decreased their packaging costs by 11%">
+        </div>
+        <p class="art-related-kicker">Case study</p>
+        <h3 class="media-card-title">How the telecom start-up Raylo decreased their packaging costs by 11%</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+    </div>
+  </section>
+
   <section class="final-cta-section reveal">
-    <h2 class="final-cta-heading">Need packaging similar <span class="final-deco-square"></span> to Oase?</h2>
-    <p class="final-cta-subheading">Order custom rigid boxes for your brand.</p>
+    <h2 class="final-cta-heading">Need packaging like <span class="final-deco-square"></span> this one?</h2>
+    <p class="final-cta-subheading">Tell us what you ship and we will get back with a quote.</p>
     <div class="final-cta-buttons">
       <a href="packaging.html" class="btn-pill lg">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
       <a href="get-a-quote.html" class="btn-pill lg secondary">Get a quote<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
@@ -771,41 +602,7 @@
 
 </div>
 
-<script>
-  (function () {
-    var navRow1 = document.querySelector('.nav-row1');
-    var stickyBar = document.getElementById('stickyBar');
-    if (!navRow1 || !stickyBar) return;
-
-    function onScroll() {
-      var rect = navRow1.getBoundingClientRect();
-      var pinned = rect.bottom <= 0;
-      stickyBar.classList.toggle('is-pinned', pinned);
-
-      var minTop = 12;
-      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
-      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    onScroll();
-  })();
-
-  (function () {
-    var targets = document.querySelectorAll('.reveal');
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    targets.forEach(function (el) { observer.observe(el); });
-  })();
-</script>
+<script src="article.js"></script>
 
 </body>
 </html>

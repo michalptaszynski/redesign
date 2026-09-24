@@ -21,9 +21,15 @@ konsoliduje/upraszcza).
 | `packaging.html` | `/packaging/` | Katalog/shop kategorii opakowań |
 | `sample-packs.html` | `/packaging/samples/`, `/app/sample-packs/` | Wybór próbek, cart-flow |
 | `deals.html` | `/deals/` | Karuzela/strona promocji |
-| `case-studies.html` | `/case-studies/` | Lista case studies |
-| `case-study-hemp-juice.html` | `/case-study/hemp-juice-dietary-supplement-packaging/` | Pojedynczy case study |
-| `case-study-oase.html` | `/inspiration/oase-hair-vitamins/` | Pojedynczy case study |
+| `case-studies.html` | `/case-studies/` | Lista case studies — od 2026-09-23 komplet 24 realnych wpisów + Oase, na wspólnym `listing.css` (guideline §5.11); wyróżniony wpis wreszcie klikalny |
+| `blog.html` | `/blog/` | Listing bloga (2026-09-23): wyróżniony najnowszy wpis + 11 kart. Tytuły, autorzy, daty i zdjęcia z `CONTENT_MAP.md`; karty bez lokalnej strony linkują na packhelp.com |
+| `case-study-hemp-juice.html` | `/case-study/hemp-juice-dietary-supplement-packaging/` | Case study. Od 2026-09-23 na wspólnym szablonie artykułu (`article.css`, patrz guideline §5.9) |
+| `inspiration-oase.html` | `/inspiration/oase-hair-vitamins/` | Inspiration (dawniej `case-study-oase.html` — nazwa pliku wyrównana do live URL-a). Ten sam szablon artykułu |
+| `blog-mailer-box-personalisation.html` | `/blog/new-level-of-mailer-box-personalisation/` | Pierwszy wpis blogowy w repo (2026-09-23). Copy, zdjęcia i autor zaadaptowane z live wpisu; trzeci typ treści na tym samym szablonie artykułu |
+| `case-study-<slug>.html` (24 plików) | `/case-study/<slug>/` | Komplet case studies jako pełne strony na szablonie artykułu. Moduły z live'a przełożone na bloki: Challenge/Solution → `.art-split-lists`, „Services in use" → `.art-callouts`, liczby → `.art-highlights`, opinia klienta → `.art-quote-break` (2026-09-24) |
+| `blog-<slug>.html` (12 plików) | `/blog/<slug>/` | Wszystkie wpisy z listingu bloga jako pełne strony na szablonie artykułu. Treść (akapity, nagłówki, listy, zdjęcia, linki wewnętrzne) przeniesiona 1:1 z żywych wpisów; zdjęcia linkowane z CDN Packhelpa, nie kopiowane do `assets/` (2026-09-23) |
+| `CONTENT_MAP.md` + `content-map.json` | — | **Nie strona**, tylko mapa realnych treści z live'a (12 wpisów blogowych, 12 inspiration, komplet 24 case studies) — tytuły, autorzy, daty, opisy, zdjęcia i moduły każdego wpisu. Punkt wyjścia do listingów i kolejnych artykułów (2026-09-23) |
+| `_article-template.html` | — | **Nie strona**, tylko renderowalny szkielet szablonu artykułu ze wszystkimi blokami i komentarzami, które typy ich używają. Kopiuj go, budując nowy wpis/case study |
 | `contact.html` | `/contact/` | Kontakt |
 | `get-a-quote.html` | `/packhelp-brief-v2/` | "Brief"/wycena — na live sajcie to formularz brief, nie osobny "get a quote" |
 | `build-your-box.html` | — | **New concept**, patrz sekcja 3 |
@@ -82,7 +88,7 @@ podanym URL zamiast wymyślać od zera.
 ### Inne planned
 - Packaging Ideas / Inspirations — `/packaging-ideas/`
 - Design Showcase / Packaging Templates — `/design-showcase/`
-- Blog — `/blog/`
+- Blog — `/blog/` (lista wpisów; pojedynczy wpis ma już szablon, patrz `blog-mailer-box-personalisation.html`)
 - Help Center — `/help/` (+ podstrony typu return policy)
 - Sustainability Hub — `/sustainability-2/`, Progress Reports, Supply Chain,
   Eco Badge

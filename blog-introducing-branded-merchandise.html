@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Introducing Branded Merchandise at Packhelp — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<!-- article layout (title row, sticky aside, reading column, optional blocks)
+     lives in article.css — see PAGE_BUILDING_GUIDELINE.md §5.9 -->
+<link rel="stylesheet" href="article.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- FINAL CTA (index.html pattern) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as every other page in the repo) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* page-specific: the photo revealed by the final-CTA deco square */
+  .final-deco-square::before {
+    background-image: url('https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/20171508/Packhelp_Edit_2026-08-20_1x.jpg');
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="blog.html">Blog</a>
+    <span>/</span>
+    <span class="current">Introducing Branded Merchandise at Pac</span>
+  </nav>
+
+  <section class="art-title-row reveal">
+    <p class="art-kicker">Blog</p>
+    <h1 class="art-title">Introducing Branded Merchandise at Packhelp</h1>
+    <p class="art-subheading">Branded merchandise is now on Packhelp: over 100 customisable products across clothing, tech, drinkware and more. Packaging and what is inside, in one place.</p>
+    <div class="art-byline">
+      <span class="art-byline-name">Konrad Kwiatkowski</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>20 August 2026</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>5 min read</span>
+    </div>
+  </section>
+
+  <div class="art-hero-media reveal">
+    <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/20171508/Packhelp_Edit_2026-08-20_1x.jpg" alt="Introducing Branded Merchandise at Packhelp">
+  </div>
+
+  <div class="art-layout">
+    <aside class="art-aside">
+      <div class="art-toc-block">
+        <p class="art-toc-title">In this article</p>
+        <ul class="art-toc-list">
+          <li><a href="#we-started-with-one-box">We started with one box</a></li>
+          <li><a href="#from-custom-boxes-to-packaging-systems">From custom boxes to packaging systems</a></li>
+          <li><a href="#what-happens-after-the-box-opens">What happens after the box opens?</a></li>
+          <li><a href="#introducing-branded-merchandise-on-packhelp">Introducing branded merchandise on Packhelp</a></li>
+          <li><a href="#from-five-pieces-to-five-markets">From five pieces to five markets</a></li>
+          <li><a href="#merchandise-people-actually-want-to-keep">Merchandise people actually want to keep</a></li>
+          <li><a href="#ten-years-later-the-idea-is-still-the-same">Ten years later, the idea is still the same</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="art-share-title">Share</p>
+        <div class="art-share">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fintroducing-branded-merchandise%2F" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpackhelp.com%2Fblog%2Fintroducing-branded-merchandise%2F" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fintroducing-branded-merchandise%2F" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+        </div>
+      </div>
+
+      <div class="art-aside-newsletter">
+        <p class="art-aside-newsletter-title">Packaging insights, monthly</p>
+        <p class="art-aside-newsletter-copy">Join the newsletter and get 15% off your first order.</p>
+        <form>
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md">Sign up</button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="art-main">
+    <div class="art-col art-intro">
+      <p class="art-lede">For the past 10 years, Packhelp has helped brands create the unboxing experience they deserve. Our customers build great brands. Our job has always been to make sure the packaging keeps up.</p>
+      <p>Over that decade, more than 100,000 brands around the world have packed their products with Packhelp. We have worked with businesses shipping their very first orders and with international companies managing complex packaging operations across multiple markets.</p>
+      <p>A lot has changed since we started. And today, we are taking another step.</p>
+      <p><strong><a href="https://packhelp.com/merchandise/">Branded merchandise</a> is now available on Packhelp.</strong></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/20171845/Zrzut-ekranu-2026-08-20-o-17.18.01-1024x500.png" alt="">
+      </div>
+      <p>More than 100 customisable products across <a href="https://packhelp.com/merchandise/clothing/">clothing</a>, <a href="https://packhelp.com/merchandise/tech-accessories/">tech accessories</a>, <a href="https://packhelp.com/merchandise/drinkware/">drinkware</a>, <a href="https://packhelp.com/merchandise/office-supplies/">office</a>, <a href="https://packhelp.com/merchandise/travel-accessories/">travel</a>, <a href="https://packhelp.com/merchandise/home-accessories/">home</a> and more.</p>
+      <p>For us, this is not a move away from packaging. It is a natural extension of what Packhelp has always been about. Creating the physical experience of a brand.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="we-started-with-one-box">We started with one box</h2>
+      <p class="art-statement">When Packhelp started 10 years ago, the idea was relatively simple.</p>
+      <p>We wanted to give smaller brands access to something that, until then, was mostly reserved for much bigger companies: beautifully designed, custom packaging without enormous minimum order quantities, complicated sourcing processes or months of back and forth with suppliers.</p>
+      <p>We started with one type of box in four variants. Today, Packhelp offers more than 300 products.</p>
+      <p>That growth was never really about adding more boxes to a catalogue. It happened because our customers kept asking us to solve more of the packaging problem.</p>
+      <p>First, it was about getting a logo onto a box. Then it was different materials, formats, inserts, tapes, bags and accessories.</p>
+      <p>Then custom constructions. Then sourcing, warehousing, logistics and payment terms. The needs became bigger because our customers became bigger too.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="from-custom-boxes-to-packaging-systems">From custom boxes to packaging systems</h2>
+      <p class="art-statement">Packhelp today looks very different from the company we started in 2016.</p>
+      <p>We still make it easy for a small brand to design packaging online and order it in quantities that make sense for their business.</p>
+      <p>That part of Packhelp remains extremely important to us.</p>
+      <p>But today we also work with large companies on a completely different scale.</p>
+      <p>Our packaging experts develop dedicated constructions, rethink existing packaging systems and source products across our manufacturing network. We help companies reduce unit costs, consolidate suppliers, improve packing processes and create packaging setups that can scale across markets. We provide warehousing, flexible payment options and operational support for companies where packaging is no longer simply something they buy.</p>
+      <p>Sometimes our work goes even further. Projects such as InPost InStore show how far the expertise built around packaging, production, sourcing and logistics can be applied when you start looking at the entire physical journey of a brand.</p>
+      <p>That evolution taught us something important. The box is only one part of the experience.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="what-happens-after-the-box-opens">What happens after the box opens?</h2>
+      <p class="art-statement">For years, we have talked about unboxing.</p>
+      <p>And for good reason.</p>
+      <p>For an e-commerce brand, the package is often the first physical interaction a customer has with the company. It turns something previously seen only on a screen into something tangible.</p>
+      <p>But there is an obvious point we kept coming back to. The experience does not end when someone opens the box. In many ways, that is where it starts.</p>
+      <p>A product gets used.</p>
+      <ul class="art-list">
+        <li>A tote bag gets carried around the city.</li>
+        <li>A bottle ends up on someone’s desk.</li>
+        <li>A hoodie becomes part of the office uniform.</li>
+        <li>A welcome kit arrives before somebody’s first day at work.</li>
+        <li>A PR package lands on a creator’s doorstep.</li>
+      </ul>
+      <p>Those things live much longer than the moment of delivery. And they all carry the brand with them.</p>
+      <p><strong>The box was never meant to be empty.</strong></p>
+      <p>That idea became the starting point for the next chapter of Packhelp.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/20172431/Packhelp_Edit_2026-08-14_1x-1-1-819x1024.jpg" alt="">
+      </div>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="introducing-branded-merchandise-on-packhelp">Introducing branded merchandise on Packhelp</h2>
+      <p class="art-statement">From now on, you can order branded <a href="https://packhelp.com/merchandise/">merchandise</a> directly through Packhelp.</p>
+      <p>We are starting with more than 100 fully customisable products across categories including: clothing, tech accessories, drinkware, office products, travel accessories and more.</p>
+      <p>And this is only the beginning. We approached merchandise in the same way we approached packaging from day one.</p>
+      <p><strong>It should be easy to create when your needs are simple. And capable of becoming much more sophisticated when your business requires it.</strong></p>
+      <p>That means many products can be customised directly in our online editor and ordered in small quantities. You can create the merchandise, create the packaging around it and place everything together through Packhelp.</p>
+      <p>One place instead of a growing list of suppliers. But just as with packaging, the platform is only one part of the offer.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="from-five-pieces-to-five-markets">From five pieces to five markets</h2>
+      <p class="art-statement">A startup ordering merchandise for its first company event has very different requirements from an international organisation running employee programmes across several countries.</p>
+      <p>We want to serve both.</p>
+      <p>For smaller projects, this means making branded products easier to access. You can choose a product, customise it, see your design and order the quantity you actually need.</p>
+      <p>For larger companies, merchandise quickly becomes an operational challenge.</p>
+      <ul class="art-list">
+        <li>Different teams need different products.</li>
+        <li>Employees are spread across markets.</li>
+        <li>Stock needs to be managed.</li>
+        <li>New joiners need kits throughout the year.</li>
+        <li>Products need to arrive consistently branded, packed correctly and on time.</li>
+      </ul>
+      <p>This is where the experience we have built over the last decade becomes particularly valuable.</p>
+      <p>We can help HR and People teams create scalable merchandise programmes for employees.</p>
+      <p>We can support technology companies and large organisations with sourcing, production, packaging, storage and distribution.</p>
+      <p>And we can work with marketing and creative agencies producing PR drops, influencer mailers and campaign kits where the merchandise and the packaging need to feel like one idea, not two separate purchase orders.</p>
+      <p>The goal is not simply to sell more products. It is to remove complexity from creating physical brand experiences.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="merchandise-people-actually-want-to-keep">Merchandise people actually want to keep</h2>
+      <p class="art-statement">There was one more thing we wanted to get right before launching the category.</p>
+      <p>Quality.</p>
+      <p>There is already enough promotional merchandise in the world that nobody really wants.</p>
+      <ul class="art-list">
+        <li>The T-shirt that stays at the bottom of a drawer.</li>
+        <li>The bottle nobody uses.</li>
+        <li>The giveaway that becomes waste a few days after an event.</li>
+      </ul>
+      <p>That is not what we want Packhelp merchandise to become.</p>
+      <p>We have focused on products and materials that feel good, work well and are made to stay with people for longer.</p>
+      <p>Because branded merchandise only works when somebody actually wants to wear it, use it or keep it.</p>
+      <p><strong>A logo alone does not make a good product. The product needs to be good first.</strong></p>
+      <p>We took the same approach internally.</p>
+      <p>To celebrate Packhelp’s 10th anniversary, we created a completely new range of official Packhelp merchandise using the products and customisation options we are now offering to customers.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/20172131/MO_5930-1024x683.jpg" alt="">
+      </div>
+      <p>We wanted to use it ourselves before asking other brands to put their names on it. And we are pretty happy with how it turned out!</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="ten-years-later-the-idea-is-still-the-same">Ten years later, the idea is still the same</h2>
+      <p class="art-statement">Packhelp has changed enormously over the past decade.</p>
+      <p>From one box in four variants to hundreds of packaging products.</p>
+      <p>From helping small businesses access custom packaging to designing and optimising packaging systems for some of Europe’s largest companies.</p>
+      <p>Now, from packaging to merchandise.</p>
+      <p>But the underlying idea has not changed very much. We want to make it easier for great brands to become physical.</p>
+      <ul class="art-list">
+        <li>Sometimes that means a box.</li>
+        <li>Sometimes it is an employee welcome kit.</li>
+        <li>Sometimes it is a creative influencer mailer, with custom packaging and branded merchandise inside.</li>
+      </ul>
+      <p>Increasingly, it is all of those things together. Packaging and merchandise working as one, creating a complete physical brand experience.</p>
+      <p><strong>One place. One order. One complete brand experience. Packaging and what is inside. </strong></p>
+      <p><strong>Now all in Packhelp.</strong></p>
+    </div>
+    </div>
+  </div>
+
+  <section class="art-related reveal">
+    <h2 class="art-related-title">Read next</h2>
+
+    <div class="art-related-grid">
+      <a class="art-related-item" href="blog-packhelp-x-inpost-together-were-revolutionising-e-commerce-packaging-standards.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/01/28152751/7c076786f1eec60e21b4c948ec29f82d4616ca2b-768x512.jpg" alt="Packhelp x InPost: Together, we’re revolutionising e-commerce packagin">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">Packhelp x InPost: Together, we’re revolutionising e-commerce packaging standards</h3>
+        <p class="media-card-desc">10 min read</p>
+      </a>
+
+      <a class="art-related-item" href="blog-holiday-gift-guide-unique-gifts-from-packhelps-clients.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2024/08/28144413/Group-4274-768x471.png" alt="Holiday Gift Guide: Unique Gifts from Packhelp’s Clients">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">Holiday Gift Guide: Unique Gifts from Packhelp’s Clients</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Ready to put this <span class="final-deco-square"></span> into a box?</h2>
+    <p class="final-cta-subheading">Start with a size and a print mode &mdash; the rest follows.</p>
+    <div class="final-cta-buttons">
+      <a href="build-your-box.html" class="btn-pill lg">Build your box<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="packaging.html" class="btn-pill lg secondary">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="article.js"></script>
+
+</body>
+</html>

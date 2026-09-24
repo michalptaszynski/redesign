@@ -503,7 +503,7 @@ to powinien być świadomy wybór przy tworzeniu strony):
   assetów danej strony (na HP to cykl 5 zdjęć przez `@keyframes`, na stronach z jednym
   bohaterem/produktem wystarczy jedno statyczne zdjęcie tego produktu/case study).
   **Pułapka, w którą łatwo wpaść (błąd popełniony 2026-07-30 na
-  `case-study-oase.html`/`case-studies.html`):** całkowity odstęp lewo-prawo od zdjęcia
+  `inspiration-oase.html`/`case-studies.html`):** całkowity odstęp lewo-prawo od zdjęcia
   do sąsiednich słów to margines `.final-deco-square` (`--space-2`, 8px) **PLUS**
   dosłowna spacja w tekście HTML — obie części razem, tak jak w oryginale na HP
   (`the <span class="final-deco-square"></span> box`, nie `the<span
@@ -831,6 +831,150 @@ osobna rzecz, a nie ciąg dalszy zdania po lewej. **Poniżej 1100px wróć do r�
 **Czego tu nie ma:** szarego kafla z CTA (`.impressum-kit-card`) — jego copy siedzi teraz
 inline w lewej kolumnie. Jeśli prosisz o "stronę z danymi firmy/regulaminem/adresami",
 kopiuj ten wzorzec, nie stary stack `title-row + kit-card + facts-grid`.
+### 5.9 Strona z długim tekstem: blog / inspiration / case study (wzorzec: `_article-template.html`)
+
+Te trzy typy treści to **jeden szablon**, nie trzy. Na live sajcie są to trzy osobne
+templatki WordPressa z osobnymi namespace'ami (`blog-post__*`, `inspiration-single-*`,
+`content-*`/`display-*`) i dlatego wyglądają podobnie, ale nie tak samo. W repo jest
+odwrotnie: wspólny kręgosłup w `article.css` + `article.js`, a różnice między typami
+sprowadzają się do tego, **które bloki są włączone**. Case study to nie inny layout —
+to ten sam layout z czterema dodatkowymi blokami.
+
+**Nie buduj takiej strony od zera.** Skopiuj `_article-template.html` (renderowalny
+szkielet ze wszystkimi blokami i komentarzami `[all] / [blog] / [insp] / [case]`) i usuń
+to, czego nie potrzebujesz. Prefiks klas to `art-`; `.cs-hub-*`/`.cs-grid-*` na
+`case-studies.html` to klasy listingu, nie artykułu — nie mieszaj ich.
+
+**Kręgosłup (zawsze w tej kolejności):**
+
+1. `.pkg-breadcrumb` — ten sam komponent co na `packaging.html`.
+2. `.art-title-row` — `.art-kicker` (typ treści, ten sam string co w breadcrumbie) + H1
+   + `.art-subheading`, opcjonalnie `.art-byline` (avatar + autor + data + czas czytania).
+   Sekcja w środku artykułu powtarza ten sam układ o poziom niżej: `h2.art-heading` jako
+   pigułka + `.art-statement` jako nagłówek (patrz zasady niżej).
+3. `.art-hero-media` — jedno zdjęcie albo wideo, 16:9 (4:3 poniżej 700px).
+4. `.art-layout` — grid `15rem 1fr minmax(0, 46rem)`: `.art-aside` (sticky) w kolumnie 1,
+   `.art-main` w kolumnie 3. Środkowy `1fr` to świadomy oddech, nie kolumna na treść.
+5. `.art-related` — 2–3 sąsiednie artykuły (grid `auto-fit`, więc dwie karty wypełniają
+   wiersz zamiast zostawiać dziurę po trzeciej).
+6. `.final-cta-section` + stopka — standardowe, jak wszędzie.
+
+**Który blok na którym typie** (reguła jest o danych, nie o typie: blok wchodzi wtedy, gdy
+strona faktycznie ma taką treść):
+
+| Blok | blog | inspiration | case study |
+|---|---|---|---|
+| `.art-byline` (autor, data, czas czytania) | ✓ | — | — |
+| `.art-meta` w aside (Industry / Product / Founder / HQ) | — | ✓ | ✓ |
+| `.art-toc-block` w aside (spis treści) | ✓ | ✓ | ✓ |
+| `.art-share` w aside | ✓ | ✓ | ✓ |
+| `.art-aside-newsletter` | ✓ | ✓ | — (kończy się na final-CTA, nie pyta dwa razy) |
+| `.art-lede`, `.art-col`, `.art-heading`, `.art-subhead`, `.art-media-photo`, `.art-video-wrap`, `.art-list` | ✓ | ✓ | ✓ |
+| `.art-blockquote` (krótki cytat w akapicie) | ✓ | ✓ | ✓ |
+| `.art-quote-break` (duży cytat z wyciekiem w lewo) | rzadko | ✓ | ✓ |
+| `.art-split-lists` (dwa kafle: Objectives / Results) | — | — | ✓ |
+| `.art-callouts` (3 krótkie kafle bez ikon) | — | — | ✓ |
+| `.art-highlights` (liczby/wyniki; `.is-2x2` dla czterech) | gdy są realne dane | — | ✓ |
+| `.art-product-strip` (produkty użyte w artykule) | ✓ | opcjonalnie | ✓ |
+
+**Zasady, które łatwo złamać:**
+
+- **Nagłówek sekcji to badge, a nie duży tekst.** `h2.art-heading` renderuje się jako ta
+  sama pigułka co `.section-badge` na stronach marketingowych (pkt 4) — w artykule H2 tylko
+  **nazywa** sekcję ("The challenge", "Designer packaging"), a prawdziwym nagłówkiem jest
+  zdanie tuż pod nią: `.art-heading + .art-statement` dostaje typografię 1.5rem/500, którą
+  wcześniej miał H2. Dlatego **każdy `.art-heading` musi mieć bezpośrednio po sobie
+  `.art-statement`** — bez niego sekcja otwiera się samą pigułką i traci hierarchię.
+  Kolejny `.art-statement` niżej w tej samej sekcji zostaje zwykłym mocniejszym zdaniem
+  (1.25rem). H2 zostaje H2 (outline dokumentu i spis treści działają dalej), zmienia się
+  tylko wygląd. Trzymaj etykiety krótkie — przy ~40 znakach pigułka zaczyna się zawijać,
+  a `line-height: 1` zgniata wtedy wiersze (sprawdzone: obecne etykiety mieszczą się na
+  360px). Odstęp nad sekcją to 64px (32px z `.art-col` + 32px z `.art-heading`) — te
+  marginesy **nie** kolapsują, zmierzone.
+- **Sekcja, która nie zaczyna się zdaniem, dostaje `.art-heading.is-plain`.** Nie każdy
+  rozdział otwiera się prozą — bywa, że zaraz po nagłówku idzie lista, zdjęcie albo
+  podtytuł. Pigułka bez zdania pod spodem wisi wtedy w powietrzu, więc taki H2 renderuje
+  się jako zwykły nagłówek 1.5rem (`is-plain`). To wyjątek, nie furtka: przy przenoszeniu
+  treści najpierw sprawdź, czy naprawdę nie da się podnieść pierwszego zdania sekcji.
+  W 12 wpisach blogowych wyszły 3 takie przypadki na 65 nagłówków.
+- **Kolumna tekstu ma luźniejszą interlinię niż reszta prototypu.** `.art-col` to
+  `line-height: 1.5`, nie `1.32` — tamta wartość jest dostrojona do krótkiego copy w UI
+  (podpisy, kafle, nawigacja) i w długim artykule wierszem robi się ciasno. Ta sama
+  interlinia idzie na `.art-blockquote`, bo to też proza w tym samym toku. Kafle
+  (`.art-callout-text`, `.art-highlight-caption`, listy w `.art-split-lists`) i aside
+  zostają na 1.32 — tam tekst jest krótki i gęsty z założenia.
+- **Nie ufaj nazwom pól w CMS-ie przy przenoszeniu treści.** Moduł cytatu na live
+  (`content-csn`) ma pola `--title` i `--subtitle`, ale **18 z 21 case studies trzyma cytat
+  w `--title`, a osobę w `--subtitle` — reszta odwrotnie**. Mapowanie po nazwie pola dało
+  21 stron, z których większość miała zamienione cytat z autorem (złapane 2026-09-24 na
+  advent-calendar). Rozpoznawaj po kształcie danych, nie po etykiecie: cytat to zawsze
+  dłuższy z dwóch tekstów. Jeśli krótsze pole nie jest osobą, tylko etykietą sekcji
+  („Working with Packhelp", „Sord's opinion"), pomiń atrybucję zamiast podpisywać nią cytat.
+- **`.art-list` dziedziczy typografię z otoczenia, nie ma własnego rozmiaru.** Lista ma
+  czytać się jak akapity, w których stoi — w kolumnie tekstu wychodzi 17px, w gęstych
+  kaflach `.art-split-lists` zostaje jawnie ustawione 15px. Kropka to `currentColor`, więc
+  zawsze ma kolor tekstu obok (wcześniej była niebieskim akcentem). Wcięcie to
+  `--space-4`, nie `--space-6` — 10px odstępu kropka-tekst zamiast 18px. Lista w toku
+  artykułu ma też `margin-bottom: var(--space-4)`, inaczej następny akapit przykleja się
+  do ostatniego punktu (poprawione 2026-09-24).
+- **Siatki kafli same dopasowują liczbę kolumn** (`repeat(auto-fit, minmax(13rem, 1fr))`
+  w `.art-callouts` i `.art-highlights`). Kolumna tekstu ma sufit 46rem, więc więcej niż
+  trzy tory i tak się nie zmieszczą, a blok z dwoma kaflami zwija pusty tor i wypełnia
+  szerokość, zamiast zostawiać dziurę po prawej (poprawione 2026-09-24 — 2 z 21 bloków
+  callouts na case studies mają tylko dwa kafle). Modyfikator `.is-2x2` dla czterech liczb
+  nadal wygrywa, bo ma wyższą specyficzność.
+- **`.art-highlights` tylko z prawdziwymi liczbami.** Nie wymyślaj statystyki, żeby
+  wypełnić wiersz — to ten sam odruch, co podstawianie przypadkowego zdjęcia (§2.5).
+- **Spis treści musi się zgadzać z `id` nagłówków.** Każdy `<h2 class="art-heading">`
+  dostaje `id` = slug swojego tekstu, a `.art-toc-list a` ten sam slug w `href`.
+  `article.js` sam podświetla aktualną pozycję (`.is-active`) przy scrollu. Poniżej 900px
+  spis treści **znika** (`display: none`) zamiast się stackować — inaczej duplikuje
+  nagłówki, które i tak są 200px niżej.
+- **Sticky siedzi na `.art-aside`, nie na wrapperze w środku.** `.art-layout` ma
+  `align-items: start`, więc gdyby `position: sticky` przenieść na dziecko aside'a, jego
+  rodzic skurczyłby się do wysokości treści i sticky przestałby mieć gdzie jechać
+  (patrz pkt 10 i pamięć "CSS grid/sticky gotchas").
+- **`.art-quote-break` stoi poza `.art-col`**, bo wycieka 160px w lewo
+  (`width: calc(100% + var(--space-40))`). Poniżej 1200px wyciek jest wyłączany — przy
+  węższym środkowym torze cytat wjeżdżałby pod sticky aside (zmierzone: 100px zachodzenia
+  przy 1100px).
+- **Typografia bloków jedzie z dziedziczenia, nie z `.art-col p`.** Selektor potomka
+  `.art-col p` ma specyficzność (0,1,1) i **bije każdą jednoklasową regułę w blokach**
+  (0,1,0) — na obu oryginalnych case studies spłaszczał `.art-highlight-value` z 40px do
+  17px (§10.5, ten sam mechanizm). Dlatego body copy siedzi na `.art-col`, a `.art-col > p`
+  ustawia wyłącznie marginesy. Dodając nowy blok tekstowy do `.art-col` **nie** opisuj go
+  selektorem potomka przez `p`.
+- **`.art-split-lists`, `.art-callouts` i `.art-highlights` to kafle, nie listy w
+  tekście.** Wszystkie trzy mają to samo tło (`--color-bg-muted`), promień `lg` i odstęp
+  `--space-4` — mają się czytać jako jedna rodzina paneli. Objectives/Results jako gołe
+  listy w flow, a liczby pod samą kreską `border-top`, zlewały się z body copy i ginęły
+  (oba poprawione 2026-09-23 na prośbę użytkownika); jeśli dokładasz kolejny blok typu
+  "dwie/trzy rzeczy obok siebie", daj mu ten sam kafel, a nie czwarty wariant.
+  **Modyfikator `.is-2x2` powtórz w media query 700px** — ma specyficzność (0,2,0),
+  a media query nic nie dodaje, więc goła reguła `.art-highlights` by z nim przegrała
+  i zostawiła cztery 155-pikselowe kafle na telefonie.
+- **`.art-media-photo` przycina do 3:2.** Dla zrzutów ekranu, diagramów i figur
+  "before/after" użyj `.art-media-photo.is-natural` — inaczej ucina im podpisy przy
+  krawędziach. Oba warianty mają **jasnoszary kontur** (`1px solid
+  var(--color-border-default)`): wpisy blogowe są pełne grafik i zrzutów na białym tle,
+  które bez konturu zlewają się ze stroną i przestają czytać się jako obraz. Na zwykłym
+  zdjęciu kontur i tak jest niewidoczny, więc nie trzeba go wyłączać per przypadek.
+  Hero (`.art-hero-media`) i wideo konturu **nie** dostają — hero jest pełnoekranowe i
+  zawsze kadrowane, a embed jest ciemny.
+- **Zdjęcie pionowe nie mieści się w kadrze 3:2 — sprawdź proporcje, nie zgaduj.**
+  Fotografia w case studies jest w większości pionowa (70 z 96 zdjęć na live). Wrzucone w
+  `.art-media-photo` bez modyfikatora zostaje przecięte przez środek i wygląda jak dwa
+  zdjęcia sklejone razem (złapane 2026-09-24 na Sordzie). Pionowe dostają
+  `.is-natural.is-portrait` — własne proporcje plus węższa, wycentrowana kolumna (26rem),
+  żeby nie górowały nad tekstem. Proporcje da się poznać bez pobierania pliku: imgix
+  oddaje je pod `<url>?fm=json` (`PixelWidth`/`PixelHeight`).
+- **Linki share to prawdziwe share-intent URL-e** do żywej strony na packhelp.com
+  (`target="_blank" rel="noopener"`), nie `href="#"` — patrz zasada o martwych linkach
+  w `CLAUDE.md`.
+
+**Czego ten szablon świadomie nie ma:** ciemnej sekcji, karuzeli w treści artykułu ani
+drugiego CTA w środku tekstu. Jedno wyjście na końcu (`.final-cta-section`) plus
+opcjonalny `.art-product-strip` w miejscu, gdzie artykuł faktycznie mówi o produkcie.
 
 ---
 
@@ -1040,6 +1184,33 @@ Mapowanie jest per rodzaj bryły — tuba ma długość i średnicę, płaska cz
   dołożyć `#siteSettingsBtn` i jego open/close sama (tak jak `index.html`).
 
 
+### 5.11 Listing treści / hub artykułów (wzorzec: `case-studies.html`, `blog.html`)
+
+Strona-katalog artykułów. Te same trzy części na obu hubach, style w `listing.css`,
+prefiks `hub-`:
+
+1. `.hub-title-row` — H1 + opis + jedno CTA (rytm 4/8/12 jak w innych nagłówkach stron).
+2. `.hub-featured` — jeden wyróżniony wpis: zdjęcie w lewej kolumnie, tekst w prawej.
+   **Całość jest linkiem** (`<a class="hub-featured">`), nie kontenerem z linkiem w środku —
+   niewklikiwalny wyróżniony wpis to najczęstszy błąd tego wzorca i siedział na
+   `case-studies.html` do 2026-09-23.
+3. `.hub-grid-section` → `.hub-grid` — siatka 3/2/1 kolumn z kartami `.hub-card`
+   (miniatura 4:3 na `.media-card-visual` + `.media-card-title` + `.media-card-desc`).
+
+**Treść bierz z `CONTENT_MAP.md` / `content-map.json`, nie wymyślaj.** Są tam prawdziwe
+tytuły, opisy, daty, autorzy i URL-e zdjęć z packhelp.com: 12 wpisów blogowych,
+12 inspiration i komplet 24 case studies.
+
+**Karty wychodzące na live:** prototyp ma tylko kilka realnych stron artykułów, więc reszta
+katalogu linkuje na packhelp.com — `target="_blank" rel="noopener"` plus `.hub-card-ext`
+w linii meta (dokleja „↗"). To świadoma decyzja zamiast `href="#"` (`CLAUDE.md`: żadnych
+martwych linków). Gdy dany wpis powstanie lokalnie, podmień `href` na plik i usuń marker.
+
+**Czego tu nie ma:** chipsów kategorii nad siatką. Live blog ma ich 11, ale nie mamy
+przypisania kategorii do pojedynczych wpisów, więc filtr nie miałby czego filtrować — a chip,
+który nic nie robi, jest tym samym co martwy link. Dwie kategorie z live'a są zresztą
+zaśmiecone (polskie „Marketing & sprzedaż" na angielskim sajcie, martwe „Covid-19 Updates").
+
 ### 5.12 Przekazanie wyboru do konfiguratora (`build-your-construction.html` → `build-your-box.html`)
 
 Konstrukcja wybrana na listingu JEST odpowiedzią na pierwsze kroki konfiguratora, więc
@@ -1189,6 +1360,8 @@ wizualny bez przerwy?" — pierwsza dostaje `space-40` z góry, druga `space-8` 
 | "Lista, gdzie klik zmienia zdjęcie/kartę obok" | Wzorzec split (pkt 5.7): jeden panel medialny, pozycje niosą `data-img` / `data-card`. Przełączanie na klik i fokus, **nie na hover**. |
 | "Przełącznik trybu jasnego na ciemnej stronie" | Lokalne tokeny w `html:not(.theme-light)` zamiast `:root` + klasa nakładana w `<head>` przed pierwszym malowaniem (pkt 5.7). |
 | "Strona z danymi firmy / rejestrowymi / adresami" | Wzorzec `impressum.html` (pkt 5.8): header strony + jeden wiersz dwukolumnowy — H2 (`2rem`) + opis + jedno CTA po lewej, lista `label/wartość` po prawej. Bez zdjęć, bez szarego kafla, podział `1fr / 0.72fr` z powrotem do równego poniżej 1100px. |
+| "Strona z listą artykułów / hub" | Wzorzec `listing.css` (pkt 5.11): title-row + klikalny `.hub-featured` + `.hub-grid` z kartami. Treść z `CONTENT_MAP.md`, linki wychodzące na live zamiast `href="#"`. |
+| "Wpis na bloga / inspiration / case study" | Wzorzec `_article-template.html` (pkt 5.9): breadcrumb → title-row (+byline na blogu) → hero 16:9 → `.art-layout` (sticky aside: meta/TOC/share/newsletter + kolumna tekstu 46rem) → `.art-related` → final-CTA. Trzy typy to jeden szablon; case study włącza dodatkowo `.art-split-lists`, `.art-callouts`, `.art-highlights`. Kopiuj plik szablonu, nie buduj od zera. |
 | "Sekcja linkująca do kilku produktów/podstron" (np. "pokaż najczęściej sprzedawane produkty", "dodaj sekcję linkującą do X, Y, Z") | `.media-card` (pkt 3.1) — ale najpierw sprawdź checklistę: jeśli pozycje mają realne zdjęcia → karty w `.scroll-carousel` (dużo pozycji) albo statycznym gridzie (mało); jeśli to strony bez sensownego zdjęcia (np. regulaminy, polityki) → zwykła tekstowa lista linków, nie karty. Bez badge, chyba że ktoś wprost o niego poprosi. |
 
 ---
@@ -1256,6 +1429,28 @@ pomiarem `dy` w kilku klatkach, nie wzrokiem.
 Przy `content-box` `width: 0` zostawia dwa paddingi i obramowanie — pigułki
 były widoczne jako kikuty, zanim wystartowała animacja. Animuj `padding`
 razem z `width` (i dodaj opóźnienia do obu).
+
+### 10.10 Procentowy `threshold` w IntersectionObserver jest nieosiągalny dla wysokiego elementu
+
+`.reveal` startuje z `opacity: 0` i czeka, aż observer doda `.is-visible`. Observer w całym
+repo używa `{ threshold: 0.1 }` — czyli „odpal, gdy widać 10% elementu". Dla sekcji
+wysokiej na 2–3 ekrany to działa. **Ale gdy element jest wyższy niż 10 ekranów, 10% jego
+wysokości nigdy nie zmieści się w viewporcie i callback nie odpali nigdy** — element
+zostaje `opacity: 0` na zawsze, bez błędu w konsoli, bez żadnego sygnału.
+
+Złapane 2026-09-24 na `blog-board-game-packaging.html`: `.art-main` miał 9961px, 10% = 996px
+przy oknie 900px. Cała treść artykułu była w HTML-u i po prostu nigdy się nie pojawiała.
+Krótsze wpisy z tym samym kodem działały, więc bug wyglądał na losowy.
+
+Dwie zasady na przyszłość:
+- **`threshold: 0` + `rootMargin`**, nigdy procent, jeśli element może urosnąć. Opóźnienie
+  „aż wjedzie porządnie na ekran" załatw `rootMargin: '0px 0px -80px 0px'` — to ta sama
+  intencja, ale wyrażona w pikselach, więc nie skaluje się z wysokością elementu.
+  Poprawione w `article.js`; **inline'owe kopie tego observera na pozostałych stronach repo
+  nadal mają `0.1`** i ten sam utajony problem.
+- **Nie chowaj treści czytelnej za animacją.** Body artykułu nie ma już `.reveal` —
+  nagłówek, hero, „Read next" i final-CTA owszem, ale sam tekst pokazuje się od razu, więc
+  nawet przy wyłączonym/zepsutym JS strona jest do przeczytania.
 
 ### 10.9 `object-fit: cover` w kadrze o innej proporcji niż plik
 

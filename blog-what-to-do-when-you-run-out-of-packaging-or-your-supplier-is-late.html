@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What to Do When You Run Out of Packaging or Your Supplier Is Late — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<!-- article layout (title row, sticky aside, reading column, optional blocks)
+     lives in article.css — see PAGE_BUILDING_GUIDELINE.md §5.9 -->
+<link rel="stylesheet" href="article.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- FINAL CTA (index.html pattern) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as every other page in the repo) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* page-specific: the photo revealed by the final-CTA deco square */
+  .final-deco-square::before {
+    background-image: url('https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/25121310/Co-zrobic-gdy-zabraknie-opakowan-albo-dostawca-nie-zdazy-1024x627.png');
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="blog.html">Blog</a>
+    <span>/</span>
+    <span class="current">What to Do When You Run Out of Packagi</span>
+  </nav>
+
+  <section class="art-title-row reveal">
+    <p class="art-kicker">Blog</p>
+    <h1 class="art-title">What to Do When You Run Out of Packaging or Your Supplier Is Late</h1>
+    <p class="art-subheading">Out of packaging or your supplier is late for Q4? Switch to standard sizes and simpler print, brand plain boxes with stickers and tape, and keep a buffer.</p>
+    <div class="art-byline">
+      <span class="art-byline-name">Sylwia Rozalska</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>25 August 2026</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>5 min read</span>
+    </div>
+  </section>
+
+  <div class="art-hero-media reveal">
+    <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/25121310/Co-zrobic-gdy-zabraknie-opakowan-albo-dostawca-nie-zdazy-1024x627.png" alt="What to Do When You Run Out of Packaging or Your Supplier Is Late">
+  </div>
+
+  <div class="art-layout">
+    <aside class="art-aside">
+      <div class="art-toc-block">
+        <p class="art-toc-title">In this article</p>
+        <ul class="art-toc-list">
+          <li><a href="#what-to-do-when-you-run-out-of-packaging">What to do when you run out of packaging?</a></li>
+          <li><a href="#what-to-do-when-your-packaging-supplier-is-late">What to do when your packaging supplier is late?</a></li>
+          <li><a href="#how-to-prevent-packaging-shortages-for-black-friday-and-chri">How to prevent packaging shortages for Black Friday and Christmas?</a></li>
+          <li><a href="#how-to-prepare-your-supply-chain-for-the-peak-season">How to prepare your supply chain for the peak season?</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="art-share-title">Share</p>
+        <div class="art-share">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fwhat-to-do-when-you-run-out-of-packaging-or-your-supplier-is-late%2F" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpackhelp.com%2Fblog%2Fwhat-to-do-when-you-run-out-of-packaging-or-your-supplier-is-late%2F" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fwhat-to-do-when-you-run-out-of-packaging-or-your-supplier-is-late%2F" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+        </div>
+      </div>
+
+      <div class="art-aside-newsletter">
+        <p class="art-aside-newsletter-title">Packaging insights, monthly</p>
+        <p class="art-aside-newsletter-copy">Join the newsletter and get 15% off your first order.</p>
+        <form>
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md">Sign up</button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="art-main">
+    <div class="art-col art-intro">
+      <p><strong>In short:</strong> Running out of boxes right before Black Friday calls for quick, practical moves. Switch to plain stock boxes and add simple branding like stickers or tape. At Packhelp, we produce plain unprinted boxes in just 7 days, or you can order digitally printed custom boxes starting from just 30 pieces to bridge the gap.</p>
+      <p>Q4 is the last moment you want to see empty shelves in your warehouse. Missing boxes mean delayed shipments, frustrated customers, and lost revenue during your most profitable weeks of the year. Let’s fix the emergency first with quick, workable steps, then build a solid strategy so your fulfillment line does not stall again.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="what-to-do-when-you-run-out-of-packaging">What to do when you run out of packaging?</h2>
+      <p class="art-statement">Your first move is to secure plain, standard-sized boxes from any available stock so your fulfillment line keeps moving today.</p>
+      <p>Avoid waiting weeks for a complex custom print run if orders are already piling up on your loading dock. Customers care far more about getting their holiday gifts on time than about a beautifully printed box that shows up three days late.</p>
+      <p>You can still keep your brand visible without full custom printing. Switch to blank cardboard and apply <a href="https://packhelp.com/packaging/packaging-accessories/labels/">custom labels</a> with your logo or a short thank-you note. Applying a sticker takes seconds on the packing line and instantly turns a generic carton into a recognizable package.</p>
+      <p>Another fast alternative is using <a href="https://packhelp.com/packaging/packaging-accessories/tapes/">branded packing tape</a> on those neutral boxes. It gives your parcel a professional look right away while also keeping the contents secure.</p>
+      <p>Once you have emergency supplies in hand, organize your pending shipments strategically. Prioritize high-value orders or those with guaranteed express delivery dates. Use the last of your custom boxes for premium products, and ship standard items in the emergency branded plain boxes. If your catalog includes items that do not strictly need rigid corrugated cardboard, move them to other formats from our catalog, such as mailer bags or paper envelopes. That way you can reserve your rigid boxes for fragile or heavy goods.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2026/08/25120543/Co-zrobic-gdy-zabraknie-opakowan-albo-dostawca-nie-zdazy-3.png?w=1024" alt="Plain kraft box branded in an emergency with printed FRAGILE tape and packing tape">
+      </div>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="what-to-do-when-your-packaging-supplier-is-late">What to do when your packaging supplier is late?</h2>
+      <p class="art-statement">Start by contacting your vendor and clarifying exactly what part of the order they can deliver right now.</p>
+      <p>Often, a delay affects only a specific custom size or a complex finish, while standard items might already be sitting on their warehouse floor. Ask for a partial shipment of whatever is completed today and verify that this partner still fits your needs using this <a href="https://packhelp.com/blog/how-to-choose-a-packaging-supplier-for-q4/">guide to choosing a packaging supplier for Q4</a>.</p>
+      <p>If your custom design is creating the production bottleneck, simplify the request. Switching to <a href="https://packhelp.com/packaging/boxes/shipping-boxes/">standard shipping boxes</a> can drastically cut production time compared to manufacturing custom tooling and cutting dies. At Packhelp, standard plain boxes have a production time of 7 days, and we deliver within the European Union in 3 to 5 business days.</p>
+      <p>You can also reduce print complexity to speed things up. Full CMYK digital printing on mailer boxes and product boxes is fast because it does not require physical printing plates. We offer this digital print option starting from just 30 pieces. Ordering a small emergency batch of 30 or 50 digitally printed boxes helps you cover this week’s orders while you wait for your main offset or flexographic bulk order to arrive. For our Eco and Eco White boxes, we offer fast single-color digital printing, while Eco Color boxes use UV printing.</p>
+      <p>Ask your supplier about express shipping or a split delivery. Have them send a pallet of ready boxes via priority courier to keep your warehouse running, and let the rest of the bulk order follow via standard freight once it is completed.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2026/08/25120724/Co-zrobic-gdy-zabraknie-opakowan-albo-dostawca-nie-zdazy-2.png?w=1024" alt="Plain white shipping boxes in standard sizes, available off the shelf">
+      </div>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="how-to-prevent-packaging-shortages-for-black-friday-and-chri">How to prevent packaging shortages for Black Friday and Christmas?</h2>
+      <p class="art-statement">To prevent shortages, calculate your Q4 packaging needs based on historical sales data and then add a mandatory safety buffer of at least 15 to 20 percent.</p>
+      <p>Relying on guesswork leads straight to stockouts when the orders start spiking. Support this planning with a dedicated <a href="https://packhelp.com/blog/q4-packaging-checklist/">Q4 packaging checklist</a> and turn it into a recurring process for every peak season.</p>
+      <p>Begin with last year’s numbers. Check the exact volume shipped between mid-November and late December. Treat Black Friday and Christmas as two separate peaks with different requirements. Black Friday usually needs standard, durable transit packaging for high-volume electronics or apparel. Christmas shipments often require specialized <a href="https://packhelp.com/packaging/?use-case=christmas&amp;i=1">holiday packaging options</a> with festive designs and a more thoughtful unboxing experience.</p>
+      <p>Focus your forecasting effort on your bestsellers. If three specific box sizes cover 80 percent of your total shipments, overstock those particular dimensions. Having too many standard boxes is a manageable inconvenience; running out of your most used size can freeze your entire operation.</p>
+      <p>Place your peak season orders months in advance. Our production takes place entirely in Europe, and we supply packaging made from FSC and ISEGA certified materials. Getting your order into the production queue early helps ensure you have physical stock in your warehouse long before carrier networks get congested in November.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="how-to-prepare-your-supply-chain-for-the-peak-season">How to prepare your supply chain for the peak season?</h2>
+      <p class="art-statement">Prepare your supply chain by mapping out a clear timeline with your primary supplier early in Q3 and keeping an active relationship with a backup vendor.</p>
+      <p>Relying on a single source for all your packaging materials is a major risk during the holiday rush. If one factory faces a delay, you want a second supplier ready to print your designs quickly.</p>
+      <p>Approve your print proofs and designs as early as you can. At Packhelp, you can use our online editor with a 3D preview to finalize your design without endless email chains and revisions. Approving the design in September means your boxes can be printed and shipped before factory floors hit maximum capacity.</p>
+      <p>Track your inventory levels weekly, not monthly. Set strict reorder points in your warehouse management system. When a specific box size drops below a three-week supply, trigger an automatic reorder. Do not wait until the pallets look empty or the picker flags a shortage.</p>
+      <p>It also helps to split large volume orders into manageable batches. Ask your supplier to deliver the first 30 percent of your packaging in October and the remaining 70 percent in early November. This keeps your warehouse from overflowing while still guaranteeing enough stock to start the Black Friday rush. Stay in close contact with your account manager to track these deliveries across the 8 European markets we ship to. Consolidating your supplies—ordering boxes, mailers, paper tubes, tissue paper fillers, and stickers from one provider—makes tracking inbound freight far easier to manage.</p>
+    </div>
+    </div>
+  </div>
+
+  <section class="art-related reveal">
+    <h2 class="art-related-title">Read next</h2>
+
+    <div class="art-related-grid">
+      <a class="art-related-item" href="blog-how-to-choose-a-packaging-supplier-for-q4.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/25094145/Jak_wybrac_dostawce_opakowan_Q4_wp-768x470.jpg" alt="How to Choose a Packaging Supplier for Q4">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">How to Choose a Packaging Supplier for Q4</h3>
+        <p class="media-card-desc">6 min read</p>
+      </a>
+
+      <a class="art-related-item" href="blog-q4-packaging-checklist.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/24125053/Checklista-opakowan-na-Q4-2026_-jak-przygotowac-sklep-na-sezon-768x470.png" alt="Q4 2026 Packaging Checklist: How to Get Your Store Ready for Peak Seas">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">Q4 2026 Packaging Checklist: How to Get Your Store Ready for Peak Season</h3>
+        <p class="media-card-desc">4 min read</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Ready to put this <span class="final-deco-square"></span> into a box?</h2>
+    <p class="final-cta-subheading">Start with a size and a print mode &mdash; the rest follows.</p>
+    <div class="final-cta-buttons">
+      <a href="build-your-box.html" class="btn-pill lg">Build your box<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="packaging.html" class="btn-pill lg secondary">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="article.js"></script>
+
+</body>
+</html>

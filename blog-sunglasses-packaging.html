@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ideas for sunglasses packaging and other tricky retail items — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<!-- article layout (title row, sticky aside, reading column, optional blocks)
+     lives in article.css — see PAGE_BUILDING_GUIDELINE.md §5.9 -->
+<link rel="stylesheet" href="article.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- FINAL CTA (index.html pattern) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as every other page in the repo) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* page-specific: the photo revealed by the final-CTA deco square */
+  .final-deco-square::before {
+    background-image: url('https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/05/26152200/abe-sara-sunglasses-packaging.jpg');
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="blog.html">Blog</a>
+    <span>/</span>
+    <span class="current">Ideas for sunglasses packaging and oth</span>
+  </nav>
+
+  <section class="art-title-row reveal">
+    <p class="art-kicker">Blog</p>
+    <h1 class="art-title">Ideas for sunglasses packaging and other tricky retail items</h1>
+    <p class="art-subheading">What’s the best form of sunglasses packaging? We put all the solutions on the market to the test and take you through your options.</p>
+    <div class="art-byline">
+      <span class="art-byline-name">Adam Fabirkiewicz</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>6 June 2023</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>5 min read</span>
+    </div>
+  </section>
+
+  <div class="art-hero-media reveal">
+    <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/05/26152200/abe-sara-sunglasses-packaging.jpg" alt="Ideas for sunglasses packaging and other tricky retail items">
+  </div>
+
+  <div class="art-layout">
+    <aside class="art-aside">
+      <div class="art-toc-block">
+        <p class="art-toc-title">In this article</p>
+        <ul class="art-toc-list">
+          <li><a href="#pillow-boxes-sunglasses-packaging-for-low-to-mid-priced-item">Pillow boxes: sunglasses packaging for low to mid-priced items</a></li>
+          <li><a href="#what-else-are-pillow-boxes-good-for">What else are pillow boxes good for?</a></li>
+          <li><a href="#other-ideas-for-sunglasses-packaging-and-small-retail-items">Other ideas for sunglasses packaging and small retail items</a></li>
+          <li><a href="#cardstock-product-boxes-and-rigid-boxes">Cardstock product boxes and rigid boxes</a></li>
+          <li><a href="#cardboard-tubes">Cardboard tubes</a></li>
+          <li><a href="#what-about-shipping">What about shipping?</a></li>
+          <li><a href="#so-whats-the-best-form-of-sunglasses-packaging">So, what’s the best form of sunglasses packaging?</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="art-share-title">Share</p>
+        <div class="art-share">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fsunglasses-packaging%2F" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpackhelp.com%2Fblog%2Fsunglasses-packaging%2F" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fsunglasses-packaging%2F" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+        </div>
+      </div>
+
+      <div class="art-aside-newsletter">
+        <p class="art-aside-newsletter-title">Packaging insights, monthly</p>
+        <p class="art-aside-newsletter-copy">Join the newsletter and get 15% off your first order.</p>
+        <form>
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md">Sign up</button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="art-main">
+    <div class="art-col art-intro">
+      <p class="art-lede">Sunglasses packaging can be a tricky business. Sunglasses have such a unique shape and sold at all different price points that often an out-of-the-box solution is required</p>
+      <p>The same goes for other compact retail items with irregular shapes, like hair accessories, jewellery, gloves, scarves, socks and the list goes on.</p>
+      <p>We called on the help of Packhelp’s packaging experts to put all the packaging solutions to the test, from pillow boxes to rigid boxes and cardboard tubes.</p>
+      <p>We’ll also take you through all your options, including materials, printing options, finishes and other types of packaging to pair with your product packaging.</p>
+      <p>So, which packaging solution will come out on top?</p>
+      <p>First up, let’s take a look at the newest (and arguably the most unique) piece of product packaging to land at Packhelp: Pillow Boxes.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="pillow-boxes-sunglasses-packaging-for-low-to-mid-priced-item">Pillow boxes: sunglasses packaging for low to mid-priced items</h2>
+      <p class="art-statement">Sunglasses packaging for Peaches Eyewear (<a href="https://www.pinterest.com/pin/450360031473648900/">source</a>)</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/26165947/Peaches-eyewear-packaging.jpg" alt="Peaches eyewear packaging">
+      </div>
+      <p>It all starts with the unique gondola-like shape of pillow boxes. The curves wrap nicely around a pair of sunglasses or other rounded retail items. Add in the option of custom sizing and you’ll be able to make your pillow boxes fit your sunglasses like a glove.</p>
+      <p>They are also super easy to assemble. They are often designed with one pre-glued seam and easy fold closures. They’re delivered flat, meaning you can save on space in delivery and storage.</p>
+      <p>And how to fold it?</p>
+      <p>Just squeeze the seams to pop open the box and fold in the bottom and top flaps.</p>
+      <p>That’s it. Pop and fold.</p>
+      <h3 class="art-subhead">Materials</h3>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/03/19090921/plus-pillow-box-kv-hover-2%402x.jpg" alt="kraft pillow boxes packhelp">
+      </div>
+      <p>Pillow boxes are mainly made from light cardstock so that they can fit every curve of your product.</p>
+      <p>For example, Packhelp’s <a href="https://packhelp.com/packaging/">pillow boxes</a> are made from either Kraft and White GC1 cardstock with a grammage range of 300 to 400gsm.</p>
+      <p>Kraft provides the perfect minimalist and organic look, along with an earthy natural texture.</p>
+      <p>The white option is best for full-colour branding.</p>
+      <p>Cardstock is also a relatively cheaper material compared to, say, the heavier solid board in rigid boxes. This makes them an affordable packaging solution for sunglasses and other items in the low to mid-price range.</p>
+      <p>You can also add finishes to your pillow boxes to match your brand and product’s positioning in the market. This includes everything from matt, gloss or soft-touch finishes to hot stamping and embossing/debossing.</p>
+      <p>Just keep in mind that each extra finish will push the unit costs up. So, paying extra for hot stamping may be overkill for a pair of children’s sunglasses, underwear or socks.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/26132741/pillow-box-slider-cropped.jpg" alt="branded pillow boxes for sunglasses packaging">
+      </div>
+      <h3 class="art-subhead">Printing</h3>
+      <p>There are so many printing options these days that you can have your boxes custom printed, regardless of the price points of your products.</p>
+      <p>Digital printing is an ultra-flexible method where you can achieve top quality results with a quick turnaround.</p>
+      <p>For larger order quantities, <a href="https://packhelp.com/what-is-offset-printing/">high-volume offset printing</a> is the most cost-effective solution with the highest printing results. You can print on every inch of the surface (even inside) in vivid CMYK or Pantone.</p>
+      <p><a href="https://packhelp.com/packaging/"></a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/03/19090927/desktop-plus-pillow-box-square-1%402x.png" alt="pillow boxesmwith print">
+      </div>
+      <h3 class="art-subhead">Sustainability</h3>
+      <p>Chances are that sustainability is already a key issue for your brand, just as it is for your customer.</p>
+      <p>It’s important to ask your packaging supplier key questions. Look into the eco properties of the materials, printing and manufacturing options available.</p>
+      <p>Just to give you an idea. Packhelp’s pillow boxes are <a href="https://packhelp.com/eco-properties/manufacturing/local-fabrication/">locally produced</a> to minimise the carbon footprint generated from transportation.</p>
+      <p>The cardstock is made from a mix of FSC <a href="https://packhelp.com/eco-properties/materials/certified-wood/">certified</a> and<a href="https://packhelp.com/eco-properties/recyclability/recycled-materials/"> recycled</a> pulp.</p>
+      <p>The boxes are printed with either <a href="https://packhelp.com/eco-properties/materials/water-based-ink/">water-based</a> or <a href="https://packhelp.com/eco-properties/materials/solvent-based-ink/">solvent-based ink</a>, rather than petroleum-based inks.</p>
+      <p><a href="https://packhelp.com/packaging/"></a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2020/09/05091237/Banner-focused-on-plus-products-eng-2-1024x506-1-1024x506.png" alt="elegant packaging from Packhelp">
+      </div>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="what-else-are-pillow-boxes-good-for">What else are pillow boxes good for?</h2>
+      <p class="art-statement">Over the years, pillow boxes have become a favourite of fashion & apparel brands.</p>
+      <p>They work well as product boxes for in-store display. For e-commerce brands, they add a little extra excitement to the unboxing experience.</p>
+      <p>They are great for gloves, scarves, socks, ties and other small garments.</p>
+      <p>Pillow boxes also work well as <a href="https://packhelp.com/boxes-for-jewellery/">boxes for jewellery</a> to showcase necklaces, earrings, bracelets, rings and the like. You may have also seen them around private events and conferences. A lot of party and event planners use them as<a href="https://packhelp.com/invitation-boxes/"> invitation boxes</a> or to present corporate and guest gifts.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="other-ideas-for-sunglasses-packaging-and-small-retail-items">Other ideas for sunglasses packaging and small retail items</h2>
+      <p class="art-statement">Sunglasses packaging for Vincent Chase (<a href="https://www.behance.net/gallery/42339387/Packaging-for-Lenskartcom">source</a>)</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/26153816/Vincent-Chase-sunglasses-packaging.jpg" alt="Vincent Chase sunglasses packaging">
+      </div>
+      <p>There are three other main types of boxes that work well as sunglasses packaging and general retail packaging. Let’s have a quick look at product <a href="https://packhelp.com/packaging/boxes/?type=with-lid&amp;i=1">boxes with lids</a>, <a href="https://packhelp.com/packaging/boxes/?type=magnetic-boxes&amp;i=1">magnetic boxes</a> and the good old paper cans.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="cardstock-product-boxes-and-rigid-boxes">Cardstock product boxes and rigid boxes</h2>
+      <p class="art-statement">These are your classic product boxes with lids.</p>
+      <p>The lid adds a certain level of class and anticipation to the unboxing experience.</p>
+      <p>After spotting your display box in-store or removing the shipping packaging at home, what’s the first question that will pop into your customer's mind?</p>
+      <p>What’s inside?</p>
+      <p>They pop the lid and all that excitement is transferred to your sunglasses, jewellery, watch, tie or whatever product your pack inside.</p>
+      <p>It's like a bit of Christmas magic wrapped up into every delivery.</p>
+      <p>That’s the theory at least.</p>
+      <p>Sunglasses packaging for Acne Studios (<a href="https://www.pinterest.com/pin/124623114666733030/">source</a>)</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/26155411/acne-studios-sunglasses-packaging.jpg" alt="acne studios sunglasses packaging">
+      </div>
+      <p>Boxes with magnetic enclosures achieve a similar effect. Except they trigger one more of the senses when opened: sound.</p>
+      <p>There's something special and memorable with the click of a magnetic box.</p>
+      <h3 class="art-subhead">Materials</h3>
+      <p>You can usually choose between cardstock or heavier solid board, like with Packhelp’s <a href="https://packhelp.com/two-piece-product-box/">Two Piece Product Box</a> and <a href="https://packhelp.com/rigid-box-with-lid/">Rigid Box with Lid</a>.</p>
+      <p>Your choice will come down to your branding and budget. The lighter cardstock suits low to mid-priced items, while the heavier and more expensive solid board is your go-to for high-end luxury goods.</p>
+      <p>You can also add inserts or partitions to secure your sunglasses and other items.</p>
+      <p>For the cardstock product boxes, you’ll likely be restricted to cardboard inserts, whereas you can add custom foam partitions for the rigid boxes – even with a velvet coating if you want.</p>
+      <h3 class="art-subhead">Printing</h3>
+      <p>Sunglasses packaging for VISIO (<a href="https://www.pinterest.com/pin/305541155950805024/">source</a>)</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/26154746/VISIO-sunglasses-packaging.jpg" alt="VISIO sunglasses packaging">
+      </div>
+      <p>Your printing options will be largely determined by the material you select and your order quantities.</p>
+      <p>Your cardstock boxes can be printed by either high quality digital or offset printing. With both methods, you can usually print inside and outside your boxes.</p>
+      <p>Offset printing is also usually used for rigid boxes. The method is just a little different, where designs are printed on a paper sheet and applied to a heavier core stock.</p>
+      <h3 class="art-subhead">Sustainability</h3>
+      <p>The eco properties of these boxes are quite similar to that of pillow boxes.</p>
+      <p>It’s the add-ons that you need to be careful about.</p>
+      <p>Certain foils, fillers and PP foam inserts will limit the recycling and biodegradable properties of the box.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="cardboard-tubes">Cardboard tubes</h2>
+      <p class="art-statement">Sunglasses packaging for Monokel Eyewear (<a href="https://www.pinterest.com/pin/51861833182343574/">source</a>)</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/26160028/Monokel-Eyewear-packaging.jpg" alt="Monokel Eyewear packaging">
+      </div>
+      <p><a href="https://packhelp.com/packaging/tubes/">Cardboard tubes (or paper cans)</a> have long been a favourite packaging solution among sunglasses brands, as well as the fashion and apparel industry in general.</p>
+      <p>Like the pillow box, the shape naturally lends itself to rounded retail items, including sunglasses, socks and other fashion accessories.</p>
+      <p>They’re a fun form of sunglasses packaging and make your product stand out in store.</p>
+      <p>Again, it depends on your branding. They’re perfect for sport sunglasses or low-to-mid priced items. On the other hand, they may not be the perfect home for a pair of Guccis.</p>
+      <h3 class="art-subhead">Materials</h3>
+      <p>The material used for cardboard tubes usually consists of a 3-layer construction. A cardboard core provides rigidity to the structure. It is spirally glued and shaped before being wrapped with label paper.</p>
+      <p>Packhelp’s paper cans are given an extra coating to make your colours pop.</p>
+      <p>The lids can be made out of metal, plastic or paper. It depends on the look you’re after.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2019/10/06151158/bhane_Tube_Packaging.jpg" alt="clothing in tube packaging from bhane">
+      </div>
+      <h3 class="art-subhead">Printing</h3>
+      <p>The printing process is very similar to rigid boxes where all the printing and colouring takes place on the outer label paper.</p>
+      <p>And like all the other sunglasses packaging ideas here, the printing method will be determined by your order quantities. Digital printing for small orders and high-volume offset printing for larger orders.</p>
+      <h3 class="art-subhead">Sustainability</h3>
+      <p>The sustainability rating of your cardboard tubes will come down to the type of lid you choose (e.g., paper vs. plastic) and the finishes you select.</p>
+      <p>At a base level, the cardboard should be recyclable and biodegradable.</p>
+      <p>But the best thing about tubes is that they can be easily reused for several other purposes.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="what-about-shipping">What about shipping?</h2>
+      <p class="art-statement"><a href="https://packhelp.com/packaging/boxes/"></a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/01/29120615/plus-mailer-box-kv-hover-1%403x.png" alt="Corrugated cardboard classic mailer box with sample design">
+      </div>
+      <p>While pillow boxes and other small card boxes are not recommended for shipping, you can easily combine them with sturdy shipping packaging, like the <a href="https://packhelp.com/packaging/boxes/">Mailer Box</a>, the <a href="https://packhelp.com/packaging/">Expandable Kraft Mailer</a> or the <a href="https://packhelp.com/shipping-boxes/">Shipping Box</a>.</p>
+      <p>That means that your goods will arrive to your customer intact, while adding another layer to the unboxing experience.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="so-whats-the-best-form-of-sunglasses-packaging">So, what’s the best form of sunglasses packaging?</h2>
+      <p class="art-statement">The short answer is ...</p>
+      <p>it depends.</p>
+      <p>It depends on several factors, from your branding and product positioning to your budget and storage facilities.</p>
+      <p>After all, certain shaped packaging is much easier to store and ship. You also need to keep in mind assembly.</p>
+      <p>But for value for money, you can’t go past the Pillow Box.</p>
+    </div>
+    </div>
+  </div>
+
+  <section class="art-related reveal">
+    <h2 class="art-related-title">Read next</h2>
+
+    <div class="art-related-grid">
+      <a class="art-related-item" href="blog-instant-quote-on-custom-packaging.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2020/02/25151103/OASE-Setting-3-2.jpg" alt="Get an instant quote on your custom packaging">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">Get an instant quote on your custom packaging</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="art-related-item" href="blog-packhelp-wallet.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2020/03/31140355/wallet_header1.png" alt="The Packhelp Wallet – The New Way To Save On Your Packaging Supplies">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">The Packhelp Wallet – The New Way To Save On Your Packaging Supplies</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Ready to put this <span class="final-deco-square"></span> into a box?</h2>
+    <p class="final-cta-subheading">Start with a size and a print mode &mdash; the rest follows.</p>
+    <div class="final-cta-buttons">
+      <a href="build-your-box.html" class="btn-pill lg">Build your box<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="packaging.html" class="btn-pill lg secondary">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="article.js"></script>
+
+</body>
+</html>

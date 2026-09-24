@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How To Design Great Board Game Packaging — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<!-- article layout (title row, sticky aside, reading column, optional blocks)
+     lives in article.css — see PAGE_BUILDING_GUIDELINE.md §5.9 -->
+<link rel="stylesheet" href="article.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- FINAL CTA (index.html pattern) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as every other page in the repo) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* page-specific: the photo revealed by the final-CTA deco square */
+  .final-deco-square::before {
+    background-image: url('https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/05/18171117/Board-game-boxes-e1621351081201.jpeg');
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="blog.html">Blog</a>
+    <span>/</span>
+    <span class="current">How To Design Great Board Game Packagi</span>
+  </nav>
+
+  <section class="art-title-row reveal">
+    <p class="art-kicker">Blog</p>
+    <h1 class="art-title">How To Design Great Board Game Packaging</h1>
+    <p class="art-subheading">Designing your own board game packaging can be a fun process, but there&#x27;s more to it than meets the eye. Find out what you need to know...</p>
+    <div class="art-byline">
+      <span class="art-byline-name">Karolina Bednarczyk</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>1 October 2023</span>
+      <span class="art-byline-sep">&middot;</span>
+      <span>5 min read</span>
+    </div>
+  </section>
+
+  <div class="art-hero-media reveal">
+    <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/05/18171117/Board-game-boxes-e1621351081201.jpeg" alt="How To Design Great Board Game Packaging">
+  </div>
+
+  <div class="art-layout">
+    <aside class="art-aside">
+      <div class="art-toc-block">
+        <p class="art-toc-title">In this article</p>
+        <ul class="art-toc-list">
+          <li><a href="#the-basics-of-boardgame-packaging">The basics of boardgame packaging</a></li>
+          <li><a href="#choosing-the-right-board-game-box">Choosing the right board game box</a></li>
+          <li><a href="#choosing-the-right-board-game-packaging-design">Choosing the right board game packaging design</a></li>
+          <li><a href="#making-your-boardgame-packaging-informative">Making your boardgame packaging informative</a></li>
+          <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="art-share-title">Share</p>
+        <div class="art-share">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fboard-game-packaging%2F" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpackhelp.com%2Fblog%2Fboard-game-packaging%2F" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpackhelp.com%2Fblog%2Fboard-game-packaging%2F" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+        </div>
+      </div>
+
+      <div class="art-aside-newsletter">
+        <p class="art-aside-newsletter-title">Packaging insights, monthly</p>
+        <p class="art-aside-newsletter-copy">Join the newsletter and get 15% off your first order.</p>
+        <form>
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md">Sign up</button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="art-main">
+    <div class="art-col art-intro">
+      <p>If you were asked who <em>Uncle Milburn Pennybanks</em> is would you know? Unless you’ve got a mind for fun facts, the answer is, probably not. And yet his face is recognisable the world over. This is all down to great board game packaging. To you and me, he is more commonly known as ‘The Monopoly man.’</p>
+      <p>When it comes to a board game; <strong>packaging is everything</strong>. The entire brand of a board game rests upon its (usually) colourful box and unique design. And in Monopoly's case, on a well-known game character.</p>
+      <p>Monopoly's red and white logo and fictional brand ambassador, have become a huge part of the overall image of the Monopoly brand. It is <strong>integral that a game's packaging helps to create that brand</strong>.</p>
+      <p>On that note, let’s discuss how to design a great board game box...</p>
+      <p>Source: <a href="https://boardgamegeek.com/image/277600/monopoly">Board Game Geek</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28122809/Monopoly-Classic.jpeg" alt="Monopoly Classic">
+      </div>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28122649/Monopoly-Man-.jpeg" alt="Monopoly Man">
+      </div>
+      <p>Source: <a href="https://www.pinterest.co.uk/luckyluie7250/monopoly-man/">Pinterest</a></p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="the-basics-of-boardgame-packaging">The basics of boardgame packaging</h2>
+      <p class="art-statement">When it comes to board game packaging, essentially you need to be assessing three main criteria:</p>
+      <h3 class="art-subhead">Appropriate box style:</h3>
+      <p>The box is usually as small and compact as possible, while still being able to hold all of the contents of the game and the board itself. After all, why have an unnecessarily big box if it can be made smaller? However, some box styles will suit better to particular types of game; like Jenga for instance, where the box reflects the tower of bricks.</p>
+      <h3 class="art-subhead">Attractive/ unique design:</h3>
+      <p>The design and motif have to be as attractive or unique as possible to entice the game player in. Whether on a bookshelf at home, or on the shelf of a toy store; if the box looks dull, people's gaze will pass over the game.</p>
+      <h3 class="art-subhead">Be Informative:</h3>
+      <p>The board game box has to convey a certain amount of information about the game. A catchy tagline, a recommended age and the number of players needed, for instance. It also has to convey information about the theme of the game itself.</p>
+      <p>Once it has ticked those 3 boxes, your board game packaging can pretty much take on any form.</p>
+      <p>And yet, most seem to adhere to two very basic box styles: games that come in <strong>cardboard <a href="https://packhelp.com/packaging/boxes/?type=with-lid&amp;i=1">boxes with lids</a>,</strong> and games that come in <a href="https://packhelp.com/small-cardboard-boxes/">small cardboard boxes</a> with fold ins.</p>
+      <p>The second option is perfect for travelling editions of games. Usually containing a set of cards as opposed to a full board. More on that later.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading is-plain" id="choosing-the-right-board-game-box">Choosing the right board game box</h2>
+      <h3 class="art-subhead">Two-piece product boxes</h3>
+      <p><a href="https://packhelp.com/inspiration/slopes-and-town-packaging/">Slopes and town:</a> Two-piece product box</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28123306/Slopes-and-town-two-piece-product-box-1024x682.jpeg" alt="Slopes and town two piece product box">
+      </div>
+      <p>Cluedo, Monopoly, Scrabble; a lot of the classic board games have used the same simple packaging set-up for years. A, usually, rectangular box, with a thin cardboard lid.This is perhaps the most well-known set-up for a board game box.</p>
+      <p>The classic games are all packaged in <strong>cardboard boxes with lids.</strong></p>
+      <p>These boxes are <a href="https://packhelp.com/two-piece-product-box/">(two-piece) product boxes with lids.</a> A base box containing your board, instructions and game pieces. With a lid, that has the name of game and your main design, printed onto it.</p>
+      <p>The cardstock material of these boxes makes them fairly light- and cheaper than more heavy-duty boxes. These boxes are also great for children’s games, where the card is softer and lighter for little hands.</p>
+      <h3 class="art-subhead">Two-Piece Rigid boxes</h3>
+      <p>Some games, however, have fancier packaging, as a way to distinguish them. The games that want to give off an air of elitism. Sophisticated games, for sophisticated players. Which of course, need sophisticated packaging to match.</p>
+      <p>In this category, we put ‘Trivial pursuit’, ‘Articulate’ and ‘Who Wants to be a Millionaire?’ Games that require intelligence on the part of the player, in order to win. These games are often packaged in a more durable, heavyweight box. Something which (quite literally) adds weight to the game itself.</p>
+      <p>Furthermore, games that require knowledge rather than luck or cunning, often arrive in square boxes as opposed to rectangular boxes. A further way to distinguish them.</p>
+      <p><a href="https://packhelp.com/packaging/boxes/"></a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2019/06/06152205/rigid-boxes-packhelp-kvb-e1622199541549-1024x719.jpg" alt="Rigid box - custom packaging - Packhelp">
+      </div>
+      <p>This <a href="https://packhelp.com/types-of-cardboard/">variety of cardboard boxes</a> with lids are usually <a href="https://packhelp.com/rigid-box-with-print/">Custom rigid boxes</a>.</p>
+      <p>If you want your board game to really stand out, then the two-piece (box and lid) rigid box, is a good choice.</p>
+      <p>It’s made of thicker card than with the two-piece product box, and it shows. This box is elegant and more durable. It’s made from premium quality cardboard and more likely to still look the part even after the game has been played time and time again.</p>
+      <p>The rigid box with a lid is also a popular model for ‘board’ games that are entirely card-based. Those that do not require a board at all, in the case of ‘Cards against humanity.’</p>
+      <p>In the case of ‘Trivial pursuit’, ‘Who Wants to be a millionaire’ and most question-based games that also require a board, there is usually secondary packaging inside the main box. A two-piece rigid rigid box for instance, that holds the question cards. Packed inside a larger (main) rigid box that holds the board and the playing pieces.</p>
+      <p>If you’re designing your own board game packaging, these are all important factors to consider.</p>
+      <p><strong>Read <a href="https://packhelp.com/how-to-choose-the-right-box-for-your-product/">how to choose the right box for your product</a></strong></p>
+      <h3 class="art-subhead">Mailer boxes</h3>
+      <p>The world of board games is changing. More and more games are being created in bitesize, travel versions. Almost as if their creators have realised most people have more time to play games when travelling or on holiday! People don’t want to have to drag large, heavy board games on holiday with them.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2019/06/06153033/full-color-mailer-boxes-packhelp-st-300x300.png" alt="Full Color Mailer Box - custom packaging - Packhelp">
+      </div>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/01/29120005/plus-mailer-box-kv-default%403x-300x300.png" alt="mailer box">
+      </div>
+      <p>Think card-based games like ‘Uno,’ ‘Monopoly Deal’ or the ‘Cards Against Humanity’ add-on packs. Even simpler, think of the box for a deck of cards. These are all perfect for gaming on the go and there’s a reason they’re all becoming very popular in recent years.</p>
+      <p>This kind of game packaging is where <strong>mailer boxes come into their own</strong>. If you’re looking to design your own board game packaging, this is another option to consider. The board game without the board. Remember our first rule when it comes to game packaging- it should be of minimal size.</p>
+      <p><a href="https://packhelp.com/packaging/boxes/">Custom mailer boxes</a> are perfect here. A one-piece box with no need for a separate lid. After all, when you’re travelling you need as few pieces to carry as possible.</p>
+      <p><a href="https://packhelp.com/mailer-box-full-color/"><strong>Design your own full-colour mailer boxes now</strong></a></p>
+      <h3 class="art-subhead">Special boxes</h3>
+      <p>These are <a href="https://packhelp.com/packaging/boxes/?customisation=custom&amp;i=1">custom boxes</a> for unusual games. Bespoke designs for those games that cater to a niche market or niche gaming idea. Often ‘special edition’ versions of popular games are complement by special packaging.</p>
+      <p>Monopoly creators Hasbro are the masters when it comes to creating special edition versions of their game. With hundreds of variations on the original, including your favourite movie franchise, or TV show, different places and even a cheater’s edition.</p>
+      <p>When it comes to packaging though they tend to keep the original box shape and instead focus on elaborate designs to set each edition apart. Not always though. When they do mix it up a little with their Monopoly packaging, Hasbro cause such a stir that these boxes become collector’s editions.</p>
+      <p>Take a look at this Special edition Monopoly Box from Singapore.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/18165101/Monopoly-box-.png" alt="Monopoly box ">
+      </div>
+      <p>source:<a href="https://www.carousell.sg/p/monopoly-1075380308/"> Carousel </a></p>
+      <p>If you’re creating your own game packaging though, it doesn’t have to be as popular as Monopoly to warrant a special box.</p>
+      <p>Packhelp create all kinds of one-off, unique designs for customers. And with our online editor, you can even add your own design to your packaging.</p>
+      <p>Your special box doesn’t have to be anything too elaborate to stand out either.</p>
+      <p>Take Chop Stix as an example. A simple stacking game where players use (you guessed it) chopsticks to stack pieces (that look like dried noodles) on top of each other. Think of it like the opposite of Jenga, where instead of removing pieces from the stack, you’re adding them.</p>
+      <p>The makers have created a game that resembles the set-up of simple oriental cuisine. So with their packaging, they haven’t just chosen any old game box. Instead, they’ve gone one step further and continued the Chinese food theme. Presenting their game in a small takeaway food carton, the kind synonymous with eating noodles.</p>
+      <p>source: <a href="https://picclick.co.uk/Chop-Stix-Paul-Lamond-Oriental-Stacking-Game-Complete-174729881926.html">Chop Stix game packaging</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/18164950/Chop-Stix-game.png" alt="Board game packaging Chop Stix">
+      </div>
+      <p>The makers of Lord of the fries ‘takeout’ edition, also opted for something similar.</p>
+      <p>Source: <a href="https://boardgamegeek.com/geeklist/65358/creative-game-box-design-unusual-game-boxes-design">Board game geek</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/18164946/Lord-of-the-Fries-packaging-.png" alt="game packaging">
+      </div>
+      <p>It’s important to note that these aren't hugely complex box designs; just original in their packaging style.</p>
+      <p><strong><a href="https://packhelp.com/how-to-create-a-box-using-online-box-editor/">Learn how to design your own box with Packhelp's online editor</a></strong></p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="choosing-the-right-board-game-packaging-design">Choosing the right board game packaging design</h2>
+      <p class="art-statement">Your board game box is an extension of your brand.</p>
+      <p>It’s your chance to show off your company logo on your packaging. A chance to draw the potential game player in. It needs to be informative but also eye-catching. To a lesser extent, it should reflect the experience of playing the game itself.</p>
+      <p>For instance, a fun-filled family game will no doubt feature an image of a classic 2.4 children family, laughing during gameplay. Do you want your game to fit this kind of stereotype? Maybe you want the exact opposite?</p>
+      <p>Your packaging needs to be well thought out, but that doesn’t mean it has to be complicated. You don’t have to be a great graphic designer to come up with a great <a href="https://packhelp.com/packaging-ideas/">packaging idea</a>. Some board game packaging designs are incredibly elaborate and colourful. Take Azul for instance:</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/18164942/Azul-board-game-packaging-.png" alt="game packaging">
+      </div>
+      <p>source: <a href="https://www.hillscards.co.uk/board-card-games-c74/next-move-games-azul-board-game-p51348">hillscards</a></p>
+      <p>An elaborate design suits to Azul’s packaging because the game itself is about players collected pieces to decorate a beautiful Moorish palace. Not all games are set up this way, not all games warrant such elaborate packaging design.</p>
+      <h3 class="art-subhead">Logos and unique board game branding</h3>
+      <p>When discussing the Monopoly man, we are talking about Monopoly's image- its brand. An image it has created for itself through its packaging.</p>
+      <p>There have been hundreds, in fact, thousands of versions of monopoly, printed in different languages and depicting many different places; but a few aspects always remain the same.</p>
+      <p>The logo is integral of a board game's branding. It is what the Nike logo is to training shoes, or what the golden arches of Mcdonald's are to fast food.</p>
+      <p>In classic games, the board game logo is even a sign of assurance to the game player, that although there may be new editions, the game itself hasn't lost its classic values.</p>
+      <p>Monopoly's logo hasn't changed in decades. Despite the fact that the imagery on the box, changes depending on the edition, the red and white logo is ever-present.</p>
+      <p><strong>Read: <a href="https://packhelp.com/designing-packaging-with-logo-2/">Why your brand needs to use packaging with a logo </a></strong></p>
+      <p>Source: <a href="https://www.google.com/search?q=scrabble+box&amp;rlz=1C5CHFA_enPL944&amp;ei=xauwYPapKfDnrgSU2rawAw&amp;oq=scrabble+box&amp;gs_lcp=Cgdnd3Mtd2l6EAMyAggAMgIIADICCAAyAggAMgIIADICCAAyAggAOgcIABBHELADOgcIABCwAxBDOgUIABCRAjoFCC4QkQJQohJYwhZgrRxoAXACeACAAaQBiAGLBJIBAzIuM5gBAKABAaoBB2d3cy13aXrIAQrAAQE&amp;sclient=gws-wiz&amp;ved=0ahUKEwi2oKTI_OvwAhXws4sKHRStDTYQ4dUDCA4&amp;uact=5">Google images </a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28112011/Screenshot-2021-05-28-at-11.12.29-e1622193678751-1024x373.png" alt="Monopoly Classic">
+      </div>
+      <p>The same can be said for scrabble. Here the cover and even font of the game have changed over the years, but the colours have remained consistent. To give the game player a sense of a timeless, classic game.</p>
+      <p>For many games, the images on the packaging can be updated, but the games' branding remains the same.</p>
+      <p>At other times, however, a game's branding can be so effective that as time moves on, its own image can be what holds it back. A game company wanting to ensure a classic game gets a new audience, might want to distance themselves from the game's older branding and update this from something more modern.</p>
+      <p>Take Trivial Pursuit for instance, whose classic gold, italic font is synonymous with the game's packaging.</p>
+      <p>However, the game's packaging designers must have decided that the classic font would no longer cut it in the 21st century. New editions of the game feature a much more futuristic, 21st-century font, to attract a new audience of game players.</p>
+      <p>Source: <a href="https://www.amazon.com/Hasbro-Gaming-Trivial-Pursuit-Game/dp/B01N4MXCK4">Amazon</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28114104/Trivial-Pursuit-classic-289x300.jpg" alt="Trivial Pursuit classic">
+      </div>
+      <p>Source: <a href="https://www.amazon.com/Trivial-Pursuit-Master-Trivia-Exclusive/dp/B003EYUTW8/ref=pd_lpo_21_img_0/141-6788876-5169811?_encoding=UTF8&amp;pd_rd_i=B003EYUTW8&amp;pd_rd_r=ac52ff41-5df5-47ce-9cbb-c8848b82d1e5&amp;pd_rd_w=zldkD&amp;pd_rd_wg=1uEqm&amp;pf_rd_p=a0d6e967-6561-454c-84f8-2ce2c92b79a6&amp;pf_rd_r=AYNGNZ2AXNSMTN0ZEEET&amp;psc=1&amp;refRID=AYNGNZ2AXNSMTN0ZEEET">Amazon</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28114117/Trivial-Pursuit-new-addition--300x300.jpg" alt="Trivial Pursuit new addition">
+      </div>
+      <h3 class="art-subhead">Boardgame characters and branding</h3>
+      <p>We already discussed the monopoly man, who is perhaps the most well-known board game character- even if not always by name. However, there are several others that help to add to a game's overall packaging.</p>
+      <p>Let's take the example of Cluedo, the murder mystery game whose classic characters are the murder suspects. The game's concept is so familiar that its characters are even commonly referenced through running jokes throughout popular culture- 'It was Colonel Mustard in the drawing-room with a candlestick!'</p>
+      <p>This of course has to do with people's experience of playing the game itself, but it also has a lot to do with how well the game has been branded over the years.</p>
+      <p>Compare, for instance, these two images of an original edition of Cluedo and a modern edition. See how the role of the game's characters has evolved in the game's branding.</p>
+      <p>From barely featuring in the vintage version's packaging, to being the centre-focus of the box on new editions. Indeed the characters' physical attributes and 'personalities' have also evolved through the decades.</p>
+      <p>Source: <a href="https://www.amazon.co.uk/CLUEDO-ORIGINAL-VINTAGE-EDITION/dp/B005SR7DTQ">Amazon</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28120041/Cluedo-vintage-.jpeg" alt="Cluedo vintage board game packaging">
+      </div>
+      <p>Source: <a href="https://www.amazon.com/Cluedo-Classic-Mystery-Game-Toys/dp/B01J3KRZ8C">Amazon</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28120632/Cluedo-new-edition-300x205.jpg" alt="Cluedo New Edition">
+      </div>
+      <h3 class="art-subhead">Materials</h3>
+      <p>It’s also worth thinking about the materials you’ll use when it comes to designing your board game packaging.</p>
+      <p>For instance, what better way for your board game packaging to stand out in 2021 than to create a box made from sustainable cardboard? With questions from the game printed on recycled card.</p>
+      <p>Maybe instead of going full-colour like Azul, you’ll choose a more organic, kraft look for your box? Most board game boxes are colourful, maybe you’ll stand out by being different?</p>
+      <p>And maybe you don’t need a box for your game at all. Packaging of some sort sure, but that doesn’t have to mean a box. The game ‘Who’s in the bag?’ wouldn’t work very well if it was presented in a box instead.</p>
+      <p>Whereas the game,’ Bang the Bullet!’ has cards and game pieces that come in a bullet-shaped container as opposed to a regular game box.</p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/18164937/Bang-the-Bullet-packaging-.png" alt="Bang the Bullet Game packaging ">
+      </div>
+      <p>Image: <a href="https://boardgamegeek.com/geeklist/65358/creative-game-box-design-unusual-game-boxes-design">Board Game Geek </a></p>
+      <p>You need to think about what makes your game stand out, and then design your packaging around those unique aspects.</p>
+      <p><strong>Read <a href="https://packhelp.com/packaging-design/">Packaging Design: The forgotten Marketing Medium</a> to learn more </strong></p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading is-plain" id="making-your-boardgame-packaging-informative">Making your boardgame packaging informative</h2>
+      <h3 class="art-subhead">Tagline</h3>
+      <p>Most board games come with a catchy tagline. Something that describes the experience of playing the game itself. A slogan that both sells and informs the reader about the game in one sentence.</p>
+      <p>In fact, some board game taglines are so ingrained in the minds of gamers that you can tell the game from the tagline alone. For instance, which game comes to mind when you read the tagline, the <em>“Skill Game Where You Are the Doctor?” </em></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/18172724/Operation-Game-1024x538.jpeg" alt="operation box">
+      </div>
+      <p>image source:<a href="https://spectrum.ieee.org/tech-history/space-age/hasbros-classic-game-operation-was-sparked-by-a-grad-students-electric-idea"> Spectrum</a></p>
+      <p>Let’s take the example of Cards Against Humanity, which we touched upon earlier.</p>
+      <p>Cards Against Humanity is a self-styled, “Party game for horrible people.” It involves players completing sentences laid out on the ‘question’ cards, by placing down appropriate (or very inappropriate) answer cards.</p>
+      <p>Already from the tagline, you know you’re not getting a ‘fun-game for all the family.’ Nor do you get any pictures. Because how do you depict a ‘horrible person’ without causing offence?</p>
+      <p>Equally how dull would the game look if the pictures showed players just laying down cards? It would be counteractive to include images. It’s better left up to the imagination.</p>
+      <p>Furthermore, your board game packaging should convey information about the topic your game covers. A quiz game will often have a teaser question on the box. Whereas you can expect a game about the wild west to feature an image of a cowboy or a sheriff's badge. This is all part of the game's branding. Its overall image has to be conveyed in a few pictures, or choice words.</p>
+      <p>Source: <a href="https://www.nike.com/pl/t/buty-meskie-air-force-1-07-ktGJCV/CT2302-100">Nike</a></p>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/28130615/Nike-Shoes.jpeg" alt="Nike Shoes">
+      </div>
+      <p>Just as a Nike sportswear advert will no doubt feature someone taking part in a physical sporting activity, so must a game's box advertise what it is selling- the game itself. Board games, unless they're new or particularly related to a tv show or popular current theme, don't often get advertised as much as many other products do. So the box itself becomes the advertising.</p>
+      <p><strong>Learn more about marketing strategies to implement into your packaging- <a href="https://packhelp.com/marketing-tactics-packaging/">here </a></strong></p>
+      <h3 class="art-subhead">Packaging your design to suit your game’s image</h3>
+      <div class="art-media-photo is-natural">
+        <img class="art-photo" src="https://static.cdn.packhelp.com/wp-content/uploads/2021/05/18165750/Cards-against-humanity-box--1024x468.jpeg" alt="Cards against humanity box">
+      </div>
+      <p>image source: <a href="https://store.cardsagainsthumanity.com/">Cards Against Humanity </a></p>
+      <p>Cards against humanity is an entire game that’s based around black and white cards. It’s text-only. Instead of using pictures, the packaging reflects the game’s style by also being text only.</p>
+      <p>The unique black and white layout of the CAH box is reflective of playing the game itself. Of laying down those distinctive cards. All you need to know about the game is conveyed by the packaging. Between the tagline and the box, it’s quite literally there in black and white.</p>
+      <p>The point here is that you need to make sure that whatever does or does not feature on your packaging, is there because it adds something to your game’s or brand’s image.</p>
+      <p>Cards against humanity’s box is not a complicated design by any means. In fact, it’s remarkably simple. It’s just a rigid box, like those discussed above, with the addition of some printed text. But it’s well thought out and that’s enough.</p>
+    </div>
+    <div class="art-col">
+      <h2 class="art-heading" id="conclusion">Conclusion</h2>
+      <p class="art-statement">When it comes to designing board game packaging there is a lot to consider.</p>
+      <p>Remember our three board game box criteria.</p>
+      <p>Choose the right box style for your game. When it comes to design, think about the kind of design that will suit the theme of your game.</p>
+      <p>Finally, think of a catchy tagline that not only sells but also informs the player about your game. Something that tells the reader exactly what to expect before they've even opened the box.</p>
+      <p><strong>Start designing your own boxes now- <a href="https://packhelp.com/packaging/">Click here to get started</a></strong></p>
+      <p>source: <a href="https://www.nbcnews.com/shopping/wellness/best-board-games-play-quarantine-n1231447">NBC news- Board games</a></p>
+    </div>
+    </div>
+  </div>
+
+  <section class="art-related reveal">
+    <h2 class="art-related-title">Read next</h2>
+
+    <div class="art-related-grid">
+      <a class="art-related-item" href="blog-sunglasses-packaging.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2021/05/26152200/abe-sara-sunglasses-packaging.jpg" alt="Ideas for sunglasses packaging and other tricky retail items">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">Ideas for sunglasses packaging and other tricky retail items</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="art-related-item" href="blog-instant-quote-on-custom-packaging.html">
+        <div class="media-card-visual">
+          <img src="https://packhelp-landing-assets.s3.eu-central-1.amazonaws.com/wp-content/uploads/2020/02/25151103/OASE-Setting-3-2.jpg" alt="Get an instant quote on your custom packaging">
+        </div>
+        <p class="art-related-kicker">Blog</p>
+        <h3 class="media-card-title">Get an instant quote on your custom packaging</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Ready to put this <span class="final-deco-square"></span> into a box?</h2>
+    <p class="final-cta-subheading">Start with a size and a print mode &mdash; the rest follows.</p>
+    <div class="final-cta-buttons">
+      <a href="build-your-box.html" class="btn-pill lg">Build your box<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="packaging.html" class="btn-pill lg secondary">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="article.js"></script>
+
+</body>
+</html>
