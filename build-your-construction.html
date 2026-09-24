@@ -3912,7 +3912,12 @@
 
     function move(el) {
       indicator.style.width = el.offsetWidth + 'px';
-      indicator.style.transform = 'translateX(' + (el.offsetLeft - 4) + 'px)';
+      /* offsetLeft already counts .toggle-switch's own 4px of tray
+         padding, and .toggle-indicator sits at left: 0 -- subtracting it
+         again pulled the pill 4px left of its tab, so the gap on the left
+         of the strip looked tighter than the one on the right. Every other
+         switch in the repo passes offsetLeft straight through. */
+      indicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
     }
 
     sw.addEventListener('click', function (e) {

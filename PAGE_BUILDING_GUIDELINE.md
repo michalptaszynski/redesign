@@ -1223,3 +1223,14 @@ znikała krawędź otwartego wieka. Do renderów produktowych używaj `contain`.
 Przy zdjęciach użytych raz w kadrze pionowym i raz w poziomym każde
 wystąpienie potrzebuje własnego `object-position` — środek pionowego pliku
 wypada w poziomym kadrze na niczym.
+
+### 10.10 Wskaźnik segment taba: `offsetLeft` już zawiera padding tacki
+
+`.toggle-indicator` leży na `left: 0` wewnątrz `.toggle-switch`, a
+`offsetLeft` aktywnej opcji jest liczony **od krawędzi tacki, z jej 4px
+paddingiem w środku**. Odejmowanie tych 4px („żeby skompensować padding")
+przesuwa białą pigułkę o 4px w lewo od własnego taba: odstęp po lewej
+stronie paska robi się ciaśniejszy niż po prawej i taby czytają się jako
+nierówne. Każdy przełącznik w repo przekazuje `offsetLeft` wprost — jeśli
+piszesz nowy, zrób tak samo i sprawdź pomiarem, że lewa i prawa krawędź
+tacki mają po tyle samo.
