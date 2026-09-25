@@ -821,7 +821,6 @@ p.art-media-caption {
   padding: var(--space-10) var(--space-8);
   background: var(--color-bg-muted);
   border-radius: var(--radius-2xl);
-  text-align: center;
 }
 
 /* Below 900px .art-layout collapses to one column and the text runs the full
@@ -833,20 +832,22 @@ p.art-media-caption {
   }
 }
 
+/* Same type as .art-bestsellers-heading — both are section headings inside an
+   article, so they read as one level, not two. */
 .art-editor-heading {
   /* The CTA is paired with the heading, so it sits close under it (16px) —
      the 40px rhythm applies to the card's own edges and to the mock below. */
-  margin: 0 auto var(--space-4);
+  margin: 0 0 var(--space-4);
   max-width: 34rem;
   font-weight: 500;
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: 2rem;
   line-height: 1.08;
   letter-spacing: -0.05em;
   color: var(--color-text-primary);
 }
 
 .art-editor-banner .btn-pill {
-  margin: 0 auto var(--space-10);
+  margin: 0 0 var(--space-10);
 }
 
 /* Perspective mock — same recipe as .statement-video-* on the homepage. */
