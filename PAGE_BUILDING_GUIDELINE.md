@@ -949,13 +949,13 @@ strona faktycznie ma taką treść):
   wpisem blogowym, jak pod case study. To ten sam akordeon co na `q4-packaging.html`
   (a tam trafił z „Why Packhelp" na HP): `.faq-item` / `.faq-question` / `.faq-chevron` /
   `.faq-answer`, toggle w `article.js`. **Bez formularza** — na q4 obok akordeonu stoi
-  karta briefu i dlatego blok jest tam lewostronny; tutaj druga kolumna odpada, więc cały
-  blok jest wyśrodkowany na stronie (`max-width: 46rem` + `margin: auto`). **Ale badge i
-  nagłówek startują od lewej krawędzi akordeonu, nie są wyśrodkowane w swojej linii** —
-  dlatego siedzą w `.art-faq-head` o tej samej szerokości co `.faq-accordions`. Wyśrodkowany
-  nagłówek nad wyrównaną do lewej listą czyta się jak dwie osobne decyzje. Z tego samego
-  powodu pytania w kaflach też zostają przy lewej — wyśrodkowany tekst z szewronem
-  przyklejonym do prawej wygląda na błąd.
+  karta briefu. **Układ bierzemy ze strony głównej („Why Packhelp"): dwie równe kolumny,
+  badge i nagłówek po lewej, akordeon po prawej**, `gap: var(--space-16)`,
+  `align-items: start`. Poniżej 800px kolumny idą w stos — ten sam breakpoint co na HP.
+  Nagłówek zostaje na 2rem (jak `.art-bestsellers-heading` i `.art-editor-heading`), a nie
+  3rem jak na HP: w artykule to jedna z kilku sekcji równorzędnych, nie deklaracja strony.
+  Pytania w kaflach wyrównane do lewej — wyśrodkowany tekst z szewronem przyklejonym do
+  prawej wygląda na błąd.
   Animację wysokości robi `grid-template-rows: 0fr → 1fr`, więc nic nie trzeba mierzyć
   w JS.
 - **Karuzela „Bestsellers" na wpisach blogowych** stoi między `.art-related` i

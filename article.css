@@ -1038,15 +1038,15 @@ p.art-media-caption {
    centred heading over a left-aligned list looks like two separate decisions.
    Toggle logic lives in article.js.                                          */
 
+/* Two columns like the homepage's "Why Packhelp": heading on the left,
+   accordion on the right. On q4 the right column is a brief form, here it is
+   the questions themselves. */
 .art-faq {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: var(--space-16);
   padding: var(--space-32) var(--space-8) 0;
-}
-
-/* Same width and centring as .faq-accordions, so the heading starts exactly
-   where the first question does. */
-.art-faq-head {
-  max-width: 46rem;
-  margin: 0 auto;
 }
 
 .art-faq-badge {
@@ -1074,8 +1074,6 @@ p.art-media-caption {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-width: 46rem;
-  margin: var(--space-8) auto 0;
 }
 
 .faq-item {
@@ -1214,6 +1212,13 @@ p.art-media-caption {
   .art-quote-break {
     width: 100%;
     margin: var(--space-16) 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .art-faq {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
   }
 }
 
