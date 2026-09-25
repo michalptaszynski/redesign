@@ -39,6 +39,56 @@
 }
 
 
+/* Category chips under the page title. Real filters, not decoration: each
+   card carries data-cats, and the chip hides the ones that don't match.
+   Categories come from the live posts' JSON-LD (articleSection) — the post
+   pages don't expose them any other way. */
+.hub-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hub-chip {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-muted);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hub-chip:hover {
+  background: var(--color-bg-muted-hover);
+  color: var(--color-text-primary);
+}
+
+.hub-chip.is-active {
+  background: var(--color-text-primary);
+  color: var(--color-bg-surface);
+}
+
+/* Shown when a category has no mirrored posts in the prototype. */
+.hub-empty {
+  display: none;
+  margin: var(--space-8) 0 0;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+.hub-grid-section.is-empty .hub-empty { display: block; }
+.hub-grid-section.is-empty .hub-grid { display: none; }
+
+
 /* ---------- 2. FEATURED ENTRY ---------------------------------------------
    Photo tile left, text column right. No card background, no text-on-photo
    overlay. The whole thing is one link — a featured entry that isn't
@@ -101,6 +151,171 @@
   .hub-featured { grid-template-columns: 1fr; }
   .hub-featured-image { height: 260px; }
 }
+
+
+/* ---------- 2b. ENTRY LIST ------------------------------------------------
+   Alternative to the card grid: one row per entry, thumbnail left, text
+   right, hairline between rows. Used by blog.html; case-studies.html keeps
+   the grid, where a wall of brand photography is the point.               */
+
+/* No horizontal padding of its own: .hub-grid-section already supplies the
+   32px gutter, and adding a second one inset the rows 32px further than the
+   page heading above them. */
+.hub-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* .hub-grid-section reserves 160px above itself for its own heading; a list
+   has none — the chips are its heading — so it starts right under them. */
+.hub-grid-section:has(.hub-list) {
+  padding-top: var(--space-8);
+}
+
+.hub-list-item {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: var(--space-10);
+  align-items: start;
+  padding: var(--space-10) 0;
+  text-decoration: none;
+}
+
+.hub-list-item + .hub-list-item {
+  border-top: 1px solid var(--color-border-default);
+}
+
+.hub-list-thumb {
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg-muted);
+}
+
+.hub-list-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.hub-list-item:hover .hub-list-thumb img { transform: scale(1.04); }
+
+.hub-list-meta {
+  margin: 0 0 var(--space-2);
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+.hub-list-sep { color: var(--color-border-hover); }
+
+.hub-list-title {
+  margin: 0 0 var(--space-3);
+  font-weight: 500;
+  font-size: 1.75rem;
+  line-height: 1.16;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+}
+
+.hub-list-item:hover .hub-list-title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hub-list-desc {
+  margin: 0 0 var(--space-4);
+  max-width: 44rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+}
+
+.hub-list-author {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 900px) {
+  .hub-list-item { grid-template-columns: 10rem minmax(0, 1fr); gap: var(--space-6); }
+  .hub-list-title { font-size: 1.375rem; }
+}
+
+@media (max-width: 600px) {
+  .hub-list-item { grid-template-columns: 1fr; gap: var(--space-4); }
+  .hub-list-thumb { aspect-ratio: 16 / 9; }
+}
+
+/* ---------- 2c. PAGINATION -------------------------------------------------
+   Circular page numbers under the list. The current page is a white disc with
+   a hairline ring; the others are plain numerals that pick up a grey disc on
+   hover. Ellipsis is a single dot, not three, so it stays on the numerals'
+   optical line. Rendered by the script in blog.html, which also re-paginates
+   whenever a category chip changes the set.                                 */
+
+.hub-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-16) var(--space-8) 0;
+}
+
+.hub-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: none;
+  font: inherit;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hub-page:hover {
+  background: var(--color-bg-muted);
+  color: var(--color-text-primary);
+}
+
+.hub-page.is-current {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-default);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  color: var(--color-text-primary);
+}
+
+.hub-page[disabled] {
+  opacity: .35;
+  pointer-events: none;
+}
+
+.hub-page svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hub-page-gap {
+  width: 20px;
+  text-align: center;
+  color: var(--color-border-hover);
+  user-select: none;
+}
+
+/* A single page means nothing to page through. */
+.hub-pagination:empty { display: none; }
 
 
 /* ---------- 3. CARD GRID ---------------------------------------------------

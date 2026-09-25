@@ -56,7 +56,14 @@ listing bloga miał powstać):
 - Quarterly updates
 
 Dwie z nich są zaśmiecone (`Marketing & sprzedaż` po polsku na angielskim sajcie,
-`Covid-19 Updates` martwe od lat) — przy budowie listingu bym je pominął, nie kopiował.
+`Covid-19 Updates` martwe od lat), ale `blog.html` pokazuje pełną jedenastkę — tak jak live.
+
+**Kategoria pojedynczego wpisu siedzi w jego JSON-LD (`articleSection`)**, nie w
+breadcrumbie, nie w klasach `<body>` i nie w linku do `/category/`. Z naszych 12 wpisów:
+Discover insights about e-commerce — 4, Marketing Tips — 2, Packhelp news — 2,
+Packaging Design — 2, Marketing & sprzedaż — 1. Osiem wpisów ma dodatkowo workowe „Other",
+którego nie ma na liście chipów, więc go ignorujemy. Pięć kategorii (Covid-19 Updates,
+Customer Stories, Podcast, Pro, Quarterly updates) nie ma u nas żadnego wpisu.
 
 ---
 

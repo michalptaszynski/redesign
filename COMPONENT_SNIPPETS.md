@@ -889,6 +889,7 @@ Struktura pliku, w skrócie:
 
 <section class="art-related reveal">…</section>
 <section class="art-bestsellers reveal">…</section>   <!-- [blog] karuzela, patrz niżej -->
+<section class="art-faq reveal">…</section>           <!-- [all] akordeon FAQ, bez formularza -->
 <section class="final-cta-section reveal">…</section>
 ```
 

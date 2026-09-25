@@ -1028,6 +1028,118 @@ p.art-media-caption {
 .category-item:hover .category-thumb::before { transform: scale(1.08); }
 
 
+/* ---------- 5f. FAQ --------------------------------------------------------
+   The same accordion as q4-packaging.html (which in turn took it from the
+   homepage's "Why Packhelp"), minus the brief form that sits beside it there.
+   Without the second column the whole block is centred on the page, but the
+   badge and heading line up with the LEFT edge of the accordion column — a
+   centred heading over a left-aligned list looks like two separate decisions.
+   Toggle logic lives in article.js.                                          */
+
+.art-faq {
+  padding: var(--space-32) var(--space-8) 0;
+}
+
+/* Same width and centring as .faq-accordions, so the heading starts exactly
+   where the first question does. */
+.art-faq-head {
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.art-faq-badge {
+  display: inline-block;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-muted-hover);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  border-radius: var(--radius-full);
+}
+
+.art-faq-heading {
+  margin: 0;
+  font-weight: 500;
+  font-size: 2rem;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  color: var(--color-text-primary);
+}
+
+.faq-accordions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 46rem;
+  margin: var(--space-8) auto 0;
+}
+
+.faq-item {
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+  overflow: hidden;
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-5) var(--space-6);
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq-chevron {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.25s ease;
+}
+
+.faq-item.open .faq-chevron { transform: rotate(180deg); }
+
+/* grid-template-rows 0fr → 1fr animates to the answer's natural height
+   without having to measure it in JS. */
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease;
+}
+
+.faq-answer-inner { overflow: hidden; }
+
+.faq-answer p {
+  margin: 0;
+  padding: 0 var(--space-6) var(--space-5);
+  font-size: 0.8125rem;
+  letter-spacing: -0.02em;
+  line-height: 1.32;
+  color: var(--color-text-primary);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.faq-item.open .faq-answer { grid-template-rows: 1fr; }
+
+.faq-item.open .faq-answer p {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.15s;
+}
+
+
 /* ---------- 6. RELATED ARTICLES -------------------------------------------
    Full-width row below the reading column, above the final CTA. Uses the
    shared .media-card-* atoms from components.css for the card internals.
@@ -1036,14 +1148,21 @@ p.art-media-caption {
    the empty tracks collapse and the two cards split the row instead of
    leaving a hole where a third card would be.                               */
 
+/* Sits at the end of the article, in the reading column — it belongs to the
+   text, not to the promo blocks below it. Same width trick as
+   .art-editor-banner: the column is the LAST grid track, so a 46rem cap plus
+   `margin-left: auto` lands it on the text. */
 .art-related {
-  padding: var(--space-32) var(--space-8) 0;
+  max-width: min(46rem, calc(100% - 15rem - 2 * var(--space-8)));
+  margin: var(--space-16) var(--space-8) 0 auto;
+  padding: var(--space-10) 0 0;
+  border-top: 1px solid var(--color-border-default);
 }
 
 .art-related-title {
-  margin: 0 0 var(--space-8);
+  margin: 0 0 var(--space-6);
   font-weight: 500;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   line-height: 1.16;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
@@ -1051,8 +1170,8 @@ p.art-media-caption {
 
 .art-related-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-  gap: var(--space-8);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-6);
 }
 
 .art-related-item {
@@ -1061,7 +1180,7 @@ p.art-media-caption {
 }
 
 .art-related-item .media-card-visual {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 9;
 }
 
 .art-related-item:hover .media-card-visual img {
@@ -1097,6 +1216,10 @@ p.art-media-caption {
 }
 
 @media (max-width: 900px) {
+  .art-related {
+    max-width: none;
+    margin-left: var(--space-8);
+  }
   .art-layout { grid-template-columns: 1fr; }
   .art-aside {
     grid-column: 1;
@@ -1105,7 +1228,6 @@ p.art-media-caption {
   }
   .art-main { grid-column: 1; }
   .art-quote-break { width: 100%; margin: var(--space-8) 0; }
-  .art-related { padding-top: var(--space-20); }
   /* The table of contents duplicates the article's own headings once it is no
      longer a sticky companion — hide it rather than stack it. */
   .art-toc-block { display: none; }

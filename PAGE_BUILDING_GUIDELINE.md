@@ -857,8 +857,11 @@ to, czego nie potrzebujesz. Prefiks klas to `art-`; `.cs-hub-*`/`.cs-grid-*` na
 3. `.art-hero-media` — jedno zdjęcie albo wideo, 16:9 (4:3 poniżej 700px).
 4. `.art-layout` — grid `15rem 1fr minmax(0, 46rem)`: `.art-aside` (sticky) w kolumnie 1,
    `.art-main` w kolumnie 3. Środkowy `1fr` to świadomy oddech, nie kolumna na treść.
-5. `.art-related` — 2–3 sąsiednie artykuły (grid `auto-fit`, więc dwie karty wypełniają
-   wiersz zamiast zostawiać dziurę po trzeciej).
+5. `.art-related` — 2–3 sąsiednie artykuły. **Stoi tuż po `.art-layout`, w łamie tekstu**
+   (46rem, ten sam trik szerokości co `.art-editor-banner`), oddzielony włosową kreską —
+   należy do artykułu, nie do bloków promocyjnych pod nim. Grid `auto-fit`, więc dwie
+   karty wypełniają wiersz zamiast zostawiać dziurę po trzeciej; miniatury 16:9, nagłówek
+   1.25rem — celowo mniejszy niż sekcje pełnoszerokościowe niżej.
 6. `.final-cta-section` + stopka — standardowe, jak wszędzie.
 
 **Który blok na którym typie** (reguła jest o danych, nie o typie: blok wchodzi wtedy, gdy
@@ -880,6 +883,7 @@ strona faktycznie ma taką treść):
 | `.art-product-strip` (produkty użyte w artykule) | ✓ | opcjonalnie | ✓ |
 | `.art-editor-banner` (zaproszenie do edytora + makieta w perspektywie) | ✓ | — | — |
 | `.art-bestsellers` (karuzela produktów jak na HP) | ✓ | — | — |
+| `.art-faq` (akordeon FAQ jak na q4) | ✓ | ✓ | ✓ |
 
 **Zasady, które łatwo złamać:**
 
@@ -940,6 +944,20 @@ strona faktycznie ma taką treść):
   **Nagranie waży 9 MB i NIE ma `src` w markupie** — `article.js` przepisuje `data-src`
   dopiero, gdy panel jest ekran od widoku, więc czytelnik, który nie dojedzie na dół
   artykułu, nigdy go nie pobiera. Kopiując ten blok, zostaw `data-src` i `preload="none"`.
+- **FAQ (`.art-faq`) stoi tuż nad `.final-cta-section`** i jest **na każdym typie
+  artykułu** — pytania o terminy, magazynowanie i pliki graficzne pasują tak samo pod
+  wpisem blogowym, jak pod case study. To ten sam akordeon co na `q4-packaging.html`
+  (a tam trafił z „Why Packhelp" na HP): `.faq-item` / `.faq-question` / `.faq-chevron` /
+  `.faq-answer`, toggle w `article.js`. **Bez formularza** — na q4 obok akordeonu stoi
+  karta briefu i dlatego blok jest tam lewostronny; tutaj druga kolumna odpada, więc cały
+  blok jest wyśrodkowany na stronie (`max-width: 46rem` + `margin: auto`). **Ale badge i
+  nagłówek startują od lewej krawędzi akordeonu, nie są wyśrodkowane w swojej linii** —
+  dlatego siedzą w `.art-faq-head` o tej samej szerokości co `.faq-accordions`. Wyśrodkowany
+  nagłówek nad wyrównaną do lewej listą czyta się jak dwie osobne decyzje. Z tego samego
+  powodu pytania w kaflach też zostają przy lewej — wyśrodkowany tekst z szewronem
+  przyklejonym do prawej wygląda na błąd.
+  Animację wysokości robi `grid-template-rows: 0fr → 1fr`, więc nic nie trzeba mierzyć
+  w JS.
 - **Karuzela „Bestsellers" na wpisach blogowych** stoi między `.art-related` i
   `.final-cta-section` — nie wyżej, bo to wyjście z artykułu do sklepu, nie część treści.
   Używa kanonicznych klas `.scroll-carousel` / `.scroll-carousel-nav` / `.category-item`
@@ -1253,12 +1271,38 @@ Strona-katalog artykułów. Te same trzy części na obu hubach, style w `listin
 prefiks `hub-`:
 
 1. `.hub-title-row` — H1 + opis + jedno CTA (rytm 4/8/12 jak w innych nagłówkach stron).
-2. `.hub-featured` — jeden wyróżniony wpis: zdjęcie w lewej kolumnie, tekst w prawej.
+2. `.hub-featured` — jeden wyróżniony wpis (tylko w wariancie z siatką): zdjęcie w lewej kolumnie, tekst w prawej.
    **Całość jest linkiem** (`<a class="hub-featured">`), nie kontenerem z linkiem w środku —
    niewklikiwalny wyróżniony wpis to najczęstszy błąd tego wzorca i siedział na
    `case-studies.html` do 2026-09-23.
-3. `.hub-grid-section` → `.hub-grid` — siatka 3/2/1 kolumn z kartami `.hub-card`
-   (miniatura 4:3 na `.media-card-visual` + `.media-card-title` + `.media-card-desc`).
+3. Katalog w jednym z dwóch wariantów:
+   - **`.hub-grid`** — siatka 3/2/1 kolumn z kartami `.hub-card` (miniatura 4:3 na
+     `.media-card-visual` + `.media-card-title` + `.media-card-desc`). Używa jej
+     `case-studies.html`, gdzie ściana zdjęć marek jest sensem strony.
+   - **`.hub-list`** — jeden wiersz na wpis: miniatura 3:2 po lewej (15rem), po prawej
+     data · czas czytania, tytuł 1.75rem, opis i autor; między wierszami włosowa kreska.
+     Używa jej `blog.html`, gdzie tytuł i opis niosą więcej niż zdjęcie. Poniżej 900px
+     miniatura schodzi do 10rem, poniżej 600px wiersz składa się do jednej kolumny.
+     **`.hub-grid-section:has(.hub-list)` ma mniejszy górny padding** (32px zamiast 160px):
+     te 160px jest zarezerwowane na własny nagłówek sekcji, a lista go nie ma — jej
+     nagłówkiem są chipsy nad nią.
+
+   **Wariant listy nie ma wyróżnionego wpisu** (`.hub-featured`) — pierwszy wiersz i tak
+   jest najnowszy, a wyróżnienie duplikowałoby go.
+
+   **`.hub-list` nie ma własnego paddingu bocznego** — `.hub-grid-section` już daje rynnę
+   32px, a druga wcinała wiersze o kolejne 32px względem nagłówka strony. Kontener wyglądał
+   wtedy równo, więc rozjazd widać było dopiero na wierszach.
+
+4. `.hub-pagination` — kółkowe numery stron pod listą. Bieżąca to biały krążek z włosową
+   obwódką, pozostałe to gołe cyfry łapiące szary krążek na hover, przeskok oznacza
+   **jedna kropka**, nie wielokropek. **Strzałek nie wygaszamy — na pierwszej stronie
+   lewej po prostu nie ma**, na ostatniej nie ma prawej. Paginacja i chipsy siedzą w
+   jednym skrypcie, bo dzielą ten sam stan „które wiersze są widoczne"; rozbite na dwa
+   rozjeżdżają się przy pierwszej zmianie. Zmiana kategorii wraca na stronę 1 i przelicza
+   liczbę stron, a przy jednej stronie pasek w ogóle się nie renderuje (`:empty`).
+   Rozmiar strony to `PER_PAGE` w `blog.html` — przy 12 zmirrorowanych wpisach i 4 na
+   stronę wychodzą 3 strony; wielokropek włącza się dopiero powyżej 7 stron.
 
 **Treść bierz z `CONTENT_MAP.md` / `content-map.json`, nie wymyślaj.** Są tam prawdziwe
 tytuły, opisy, daty, autorzy i URL-e zdjęć z packhelp.com: 12 wpisów blogowych,
@@ -1269,10 +1313,16 @@ katalogu linkuje na packhelp.com — `target="_blank" rel="noopener"` plus `.hub
 w linii meta (dokleja „↗"). To świadoma decyzja zamiast `href="#"` (`CLAUDE.md`: żadnych
 martwych linków). Gdy dany wpis powstanie lokalnie, podmień `href` na plik i usuń marker.
 
-**Czego tu nie ma:** chipsów kategorii nad siatką. Live blog ma ich 11, ale nie mamy
-przypisania kategorii do pojedynczych wpisów, więc filtr nie miałby czego filtrować — a chip,
-który nic nie robi, jest tym samym co martwy link. Dwie kategorie z live'a są zresztą
-zaśmiecone (polskie „Marketing & sprzedaż" na angielskim sajcie, martwe „Covid-19 Updates").
+**Chipsy kategorii (`.hub-chips`) na `blog.html`** to prawdziwy filtr, nie dekoracja:
+każda karta niesie `data-cats`, a klik chipa chowa niepasujące. Przypisanie kategorii do
+wpisu bierze się z **JSON-LD live'owego wpisu (`articleSection`)** — strony wpisów nie
+wystawiają go nigdzie indziej (ani w breadcrumbie, ani w klasach `<body>`, ani linkiem do
+`/category/`), a przeczesywanie listingów kategorii łapie tylko pierwszą stronę wyników.
+Pięć z jedenastu kategorii nie ma w prototypie żadnego wpisu (Covid-19 Updates, Customer
+Stories, Podcast, Pro, Quarterly updates) — chip zostaje, ale pokazuje `.hub-empty` zamiast
+pustej siatki. Nagłówek strony to realny H1 z live'a („Read inspiring stories about"),
+a nie wymyślone copy; tam gdzie live ma własny tytuł, używaj jego — `case-studies.html`
+dostał z tego samego powodu „Case Studies by Packhelp".
 
 ### 5.12 Przekazanie wyboru do konfiguratora (`build-your-construction.html` → `build-your-box.html`)
 

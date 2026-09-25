@@ -130,7 +130,18 @@
     observer.observe(banner);
   })();
 
-  /* ---------- 5. Table of contents: timeline rail -------------------------
+  /* ---------- 5. FAQ accordion --------------------------------------------
+     One line of state; the open/closed height is animated in CSS by moving
+     grid-template-rows from 0fr to 1fr, so nothing has to be measured here. */
+  (function faq() {
+    document.querySelectorAll('.faq-item').forEach(function (item) {
+      var q = item.querySelector('.faq-question');
+      if (!q) return;
+      q.addEventListener('click', function () { item.classList.toggle('open'); });
+    });
+  })();
+
+  /* ---------- 6. Table of contents: timeline rail -------------------------
      The rail fills as the article is read: the fill travels from the current
      section's dot to the next one in step with how far through that section
      the reader is, and every dot it passes stays lit. Deliberately not an
