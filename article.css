@@ -22,11 +22,12 @@
   padding: var(--space-4) var(--space-8) var(--space-12);
 }
 
-/* Without a byline the row ends on the subheading, and the same 48px below it
+/* Explicit class instead of :not(:has(.art-byline)) — see listing.css.
+   Without a byline the row ends on the subheading, and the same 48px below it
    reads as a bigger void than it does under a byline — a byline is a short,
    light line that breaks the space up, so the eye measures from it instead.
    Case studies and inspirations have no byline, so they tighten to 24px. */
-.art-title-row:not(:has(.art-byline)) {
+.art-title-row.is-no-byline {
   padding-bottom: var(--space-6);
 }
 
@@ -226,8 +227,8 @@
 
 /* A table of contents with a single entry is not a table of contents — it is
    a lone dot on a rail with nothing to travel along. Five case studies have
-   exactly one h2, so the block hides itself rather than needing a flag. */
-.art-toc-block:not(:has(.art-toc-list li:nth-child(2))) { display: none; }
+   exactly one h2. Flagged in the markup, not with :has() — see listing.css. */
+.art-toc-block.is-single { display: none; }
 
 /* A timeline rail instead of numbers: a hairline down the left, one dot per
    section, and a fill that travels with the reading position — when it

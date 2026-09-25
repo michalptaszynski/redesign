@@ -167,9 +167,18 @@
 }
 
 /* .hub-grid-section reserves 160px above itself for its own heading; a list
-   has none — the chips are its heading — so it starts right under them. */
-.hub-grid-section:has(.hub-list) {
-  padding-top: var(--space-8);
+   has none — the chips are its heading — so it starts right under them.
+   Target is 56px from the chips to the first thumbnail, the same distance
+   deals.html leaves between its subheading and the carousel: 48px of
+   .hub-title-row padding + 8px here, with the first row's own top padding
+   zeroed out below.
+
+   Explicit class, NOT `:has(.hub-list)` — a browser without :has() silently
+   falls back to the 160px heading reserve and the list drops 150px down the
+   page (reported 2026-09-25). Anything that changes layout this much has to
+   work without a selector the visitor's browser may not know. */
+.hub-grid-section.is-list {
+  padding-top: var(--space-2);
 }
 
 .hub-list-item {
@@ -184,6 +193,9 @@
 .hub-list-item + .hub-list-item {
   border-top: 1px solid var(--color-border-default);
 }
+
+/* No divider above the first row, so its top padding is just dead space. */
+.hub-list-item:first-child { padding-top: 0; }
 
 .hub-list-thumb {
   aspect-ratio: 3 / 2;

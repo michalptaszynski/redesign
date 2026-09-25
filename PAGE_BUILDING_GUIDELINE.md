@@ -914,8 +914,8 @@ strona faktycznie ma taką treść):
 - **Bez bylinu title-row ma ciaśniejszy dół (`:has()`).** Z bylinem pod tytułem zostaje
   48px do hero, bez niego 24px — te same 48px czytają się bez bylinu jako większa dziura,
   bo nie ma krótkiej, jasnej linijki, która rozbija pustkę (zmierzone: geometrycznie oba
-  miały 48px, różnica była optyczna). Robi to `.art-title-row:not(:has(.art-byline))`,
-  więc wyzwala się samo z obecności bylinu — nie trzeba nic oznaczać w markupie.
+  miały 48px, różnica była optyczna). Robi to klasa `.art-title-row.is-no-byline` nakładana w markupie — **nie**
+  `:not(:has(.art-byline))`, patrz pkt 10.11.
 - **Sekcja, która nie zaczyna się zdaniem, dostaje `.art-heading.is-plain`.** Nie każdy
   rozdział otwiera się prozą — bywa, że zaraz po nagłówku idzie lista, zdjęcie albo
   podtytuł. Pigułka bez zdania pod spodem wisi wtedy w powietrzu, więc taki H2 renderuje
@@ -1009,7 +1009,7 @@ strona faktycznie ma taką treść):
   dostaje `id` = slug swojego tekstu, a `.art-toc-list a` ten sam slug w `href`.
   Poniżej 900px spis treści **znika** (`display: none`) zamiast się stackować — inaczej
   duplikuje nagłówki, które i tak są 200px niżej. **Przy jednym nagłówku znika też na
-  desktopie** (`:not(:has(li:nth-child(2)))`) — spis treści z jedną pozycją to samotna
+  desktopie** (klasa `.art-toc-block.is-single`) — spis treści z jedną pozycją to samotna
   kropka na szynie, po której nie ma się jak przesuwać (dotyczy 5 case studies).
 - **Sticky siedzi na `.art-aside`, nie na wrapperze w środku.** `.art-layout` ma
   `align-items: start`, więc gdyby `position: sticky` przenieść na dziecko aside'a, jego
@@ -1283,7 +1283,7 @@ prefiks `hub-`:
      data · czas czytania, tytuł 1.75rem, opis i autor; między wierszami włosowa kreska.
      Używa jej `blog.html`, gdzie tytuł i opis niosą więcej niż zdjęcie. Poniżej 900px
      miniatura schodzi do 10rem, poniżej 600px wiersz składa się do jednej kolumny.
-     **`.hub-grid-section:has(.hub-list)` ma mniejszy górny padding** (32px zamiast 160px):
+     **`.hub-grid-section.is-list` ma mniejszy górny padding** (32px zamiast 160px):
      te 160px jest zarezerwowane na własny nagłówek sekcji, a lista go nie ma — jej
      nagłówkiem są chipsy nad nią.
 
@@ -1542,6 +1542,24 @@ pomiarem `dy` w kilku klatkach, nie wzrokiem.
 Przy `content-box` `width: 0` zostawia dwa paddingi i obramowanie — pigułki
 były widoczne jako kikuty, zanim wystartowała animacja. Animuj `padding`
 razem z `width` (i dodaj opóźnienia do obu).
+
+### 10.11 `:has()` nie może decydować o layoucie
+
+`:has()` jest wygodny — pozwala ostylować rodzica na podstawie tego, co ma w środku, bez
+dokładania klas w markupie. Ale gdy przeglądarka go nie zna, reguła nie wchodzi **po cichu**:
+nie ma błędu w konsoli, nie ma fallbacku, jest po prostu inny layout.
+
+Złapane 2026-09-25 na `blog.html`: odstęp między chipsami a pierwszym wpisem ustawiała
+reguła `.hub-grid-section:has(.hub-list) { padding-top: 8px }`. W Chromium dawała
+zamierzone 56px, ale u użytkownika reguła nie zadziałała i sekcja wróciła do 160px rezerwy
+na własny nagłówek — **208px dziury**. Mierzyłem to trzy razy w Chromium i za każdym razem
+wychodziło poprawnie, bo problem w ogóle nie istnieje w przeglądarce, w której testuję.
+
+Zasada: **`:has()` wolno użyć do efektu kosmetycznego** (kolor, cień, drobna korekta), ale
+**nigdy do czegoś, co przesuwa układ strony** — tam idzie jawna klasa w markupie. Te same
+trzy reguły były wtedy przepisane na `.is-list`, `.is-no-byline` i `.is-single`.
+Gdy testujesz w jednej przeglądarce, traktuj każdy `:has()` w CSS-ie jak niesprawdzone
+założenie.
 
 ### 10.10 Procentowy `threshold` w IntersectionObserver jest nieosiągalny dla wysokiego elementu
 
