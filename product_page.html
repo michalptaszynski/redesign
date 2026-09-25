@@ -246,45 +246,15 @@
      Positioned 24px from the gallery's top-left per spec -- the source
      app puts it bottom-center in its own toolbar row, but this page has no
      such row, and the ask was specifically top-left/24px here. */
+  /* Same .toggle-switch component used for Standard/Custom size etc., just
+     positioned over the photo and one shade darker (Gray200 vs. the
+     component's default Gray100) so it reads against a photo background. */
   .pp-gallery-view-switcher {
     position: absolute;
     top: var(--space-6);
     left: var(--space-6);
     z-index: 5;
-    display: flex;
-    align-items: center;
-    height: 36px;
-    gap: 4px;
-    padding: 4px;
-    border-radius: var(--radius-full);
-    background: rgba(0, 0, 0, .04);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-  }
-
-  .pp-gallery-view-switcher .pp-view-option {
-    display: flex;
-    height: 28px;
-    align-items: center;
-    justify-content: center;
-    padding: 0 12px;
-    border: none;
-    border-radius: var(--radius-full);
-    background: transparent;
-    font-size: 13px;
-    line-height: 1.32;
-    letter-spacing: -0.26px;
-    color: var(--gray-600);
-    cursor: pointer;
-    transition: color .15s ease;
-  }
-
-  .pp-gallery-view-switcher .pp-view-option:hover { color: var(--color-text-primary); }
-
-  .pp-gallery-view-switcher .pp-view-option.active {
-    background: linear-gradient(180deg, #fff 0%, var(--gray-100) 100%);
-    color: var(--color-text-primary);
-    box-shadow: 0 2px 2px rgba(0, 0, 0, .08);
+    background: var(--gray-200);
   }
 
   .pp-gallery-thumbs {
@@ -694,6 +664,209 @@
     height: 18px;
     color: var(--color-text-muted);
     pointer-events: none;
+  }
+
+  /* ---------- Size: standard/custom toggle + trigger + drawer -- drawer
+     layout follows the Figma "Custom Mailer Box" size panel (node 8382:42919)
+     as a single right-hand column, no preview pane -- the page's own gallery
+     already shows the box, so the drawer doesn't repeat it. ---------- */
+  /* align-self: the parent .pp-step is a flex column (stretch by default),
+     which would otherwise stretch this inline-flex pill to the full field
+     width like every other toggle-switch on the page avoids. */
+  .pp-size-mode-toggle { align-self: flex-start; margin-bottom: var(--space-3); }
+
+  .pp-size-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-page);
+    font: inherit;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    text-align: left;
+  }
+  .pp-size-trigger:hover { border-color: var(--color-border-hover); }
+  .pp-size-trigger:focus-visible { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-focus-ring); }
+  .pp-size-trigger .pp-select-chevron { position: static; transform: none; flex: none; margin-left: var(--space-2); }
+
+  .pp-dimension-fields { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .pp-dimension-field { display: flex; flex-direction: column; gap: var(--space-1); flex: 1; min-width: 90px; }
+  .pp-dimension-field > span:first-child { font-size: 12px; color: var(--color-text-muted); }
+  .pp-dimension-input {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-page);
+  }
+  .pp-dimension-input input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 15px;
+    color: var(--color-text-primary);
+    outline: none;
+  }
+  .pp-dimension-input input::-webkit-inner-spin-button,
+  .pp-dimension-input input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .pp-dimension-input span { font-size: 13px; color: var(--color-text-muted); flex: none; }
+  .pp-size-custom-note { margin: var(--space-2) 0 0; font-size: 12px; color: var(--color-text-muted); }
+
+  /* smaller inputs used inside the drawer's Custom size card (32px, per Figma) */
+  .pp-dimension-fields-sm .pp-dimension-input { height: 32px; padding: 0 var(--space-2); border-color: var(--color-border-default); }
+  .pp-dimension-fields-sm .pp-dimension-input input { font-size: 13px; }
+  .pp-dimension-fields-sm .pp-dimension-input span { font-size: 13px; }
+  .pp-dimension-fields-sm .pp-dimension-field > span:first-child { font-size: 13px; color: var(--color-text-primary); }
+
+  .pp-size-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1002;
+    background: rgba(0, 6, 26, .4);
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+  .pp-size-drawer-backdrop[hidden] { display: none; }
+  .pp-size-drawer-backdrop.open { opacity: 1; }
+
+  .pp-size-drawer {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: min(524px, 92vw);
+    max-width: 100%;
+    background: var(--color-bg-page);
+    box-shadow: -12px 0 40px rgba(0, 0, 0, .15);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.32, .72, 0, 1);
+  }
+  .pp-size-drawer-backdrop.open .pp-size-drawer { transform: translateX(0); }
+
+  .pp-size-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    padding: var(--space-10) var(--space-10) var(--space-6);
+  }
+  .pp-size-drawer-header h3 {
+    margin: 0;
+    font-size: 40px;
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 1.08;
+    color: var(--color-text-primary);
+  }
+  .pp-size-drawer-close {
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    flex: none;
+    border: none; border-radius: 50%;
+    background: var(--color-bg-page);
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+  .pp-size-drawer-close:hover { background: var(--gray-100); }
+  .pp-size-drawer-close svg { width: 24px; height: 24px; }
+
+  .pp-size-drawer-rows {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: 0 var(--space-10) var(--space-6);
+  }
+
+  .pp-size-drawer-custom-card {
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .pp-size-drawer-custom-card.active { border-color: var(--color-accent); }
+  .pp-size-drawer-custom-head { display: flex; flex-direction: column; }
+  .pp-size-drawer-custom-title { font-size: 15px; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-size-drawer-custom-sub { font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-secondary); }
+
+  #ppSizeDrawerStandardRows { display: flex; flex-direction: column; gap: var(--space-2); }
+
+  .pp-size-drawer-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    padding: var(--space-4);
+    cursor: pointer;
+    font: inherit;
+    flex: none;
+  }
+  .pp-size-drawer-row:hover { border-color: var(--color-border-hover); }
+  .pp-size-drawer-row.active { border-color: var(--color-accent); }
+
+  .pp-size-row-main { display: flex; align-items: center; gap: var(--space-2); }
+  .pp-size-row-code { flex: none; color: var(--color-text-primary); font-size: 15px; letter-spacing: -0.02em; }
+  .pp-size-row-dims { flex: 1 1 auto; color: var(--color-text-secondary); font-size: 15px; letter-spacing: -0.02em; }
+  .pp-size-row-price { flex: none; color: var(--color-text-secondary); font-size: 15px; letter-spacing: -0.02em; }
+
+  .pp-size-row-detail {
+    margin-top: var(--space-1);
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  .pp-size-drawer-footer {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-10);
+    border-top: 1px solid var(--color-border-default);
+    background: var(--color-bg-page);
+  }
+  .pp-size-drawer-delivery { display: flex; flex-direction: column; gap: var(--space-1); font-size: 13px; }
+  .pp-size-drawer-delivery span { color: var(--color-text-secondary); }
+  .pp-size-drawer-delivery a {
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,6,26,.25);
+    padding-bottom: 1px;
+  }
+  .pp-size-drawer-price-group { display: flex; align-items: baseline; gap: var(--space-2); margin-left: auto; }
+  .pp-size-drawer-price-label { font-size: 15px; letter-spacing: -0.02em; color: var(--color-text-secondary); white-space: nowrap; }
+  .pp-size-drawer-price-value { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; color: var(--color-text-primary); }
+
+  @media (max-width: 900px) {
+    .pp-size-drawer { width: 100vw; }
+    .pp-size-drawer-header { padding: var(--space-6) var(--space-5) var(--space-4); }
+    .pp-size-drawer-header h3 { font-size: 28px; }
+    .pp-size-drawer-rows { padding: 0 var(--space-5) var(--space-4); }
+    .pp-size-drawer-footer { flex-wrap: wrap; padding: var(--space-3) var(--space-5); }
+    .pp-size-drawer-price-group { margin-left: 0; }
   }
 
   /* ---------- Chip -- uniform option card, copied from the actual
@@ -2323,10 +2496,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
         </button>
 
-        <div class="pp-gallery-view-switcher" id="ppGalleryViewSwitch">
-          <button type="button" class="pp-view-option active" data-value="gallery">Gallery</button>
-          <button type="button" class="pp-view-option" data-value="3d">3D view</button>
-          <button type="button" class="pp-view-option" data-value="2d">2D view</button>
+        <div class="toggle-switch pp-gallery-view-switcher" id="ppGalleryViewSwitch">
+          <div class="toggle-indicator" id="ppGalleryViewIndicator"></div>
+          <button type="button" class="toggle-option pp-view-option active" data-value="gallery">Gallery</button>
+          <button type="button" class="toggle-option pp-view-option" data-value="3d">3D view</button>
+          <button type="button" class="toggle-option pp-view-option" data-value="2d">2D view</button>
         </div>
       </div>
     </div>
@@ -2505,16 +2679,81 @@
 
     <section class="pp-step" id="ppStepSize">
       <h3 class="pp-field-label">Size</h3>
-      <div class="pp-select-wrap">
-        <select class="pp-select" id="ppSizeSelect">
-          <option value="F23 (9.2 × 9.2 × 5 cm)">F23 — 9.2 × 9.2 × 5 cm</option>
-          <option value="F33 (11.8 × 14 × 8 cm)">F33 — 11.8 × 14 × 8 cm</option>
-          <option value="F45 (23.1 × 14 × 8 cm)">F45 — 23.1 × 14 × 8 cm</option>
-          <option value="F56 (26 × 20 × 10.5 cm)">F56 — 26 × 20 × 10.5 cm</option>
-          <option value="F71 (35 × 26 × 10 cm)">F71 — 35 × 26 × 10 cm</option>
-          <option value="F79 (36.4 × 31.4 × 12.5 cm)">F79 — 36.4 × 31.4 × 12.5 cm</option>
-        </select>
-        <svg class="pp-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+
+      <div class="toggle-switch pp-size-mode-toggle" id="ppSizeModeToggle">
+        <div class="toggle-indicator" id="ppSizeModeIndicator"></div>
+        <button type="button" class="toggle-option active" data-target="standard">Standard size</button>
+        <button type="button" class="toggle-option" data-target="custom">Custom size</button>
+      </div>
+
+      <div class="pp-select-wrap" id="ppSizeStandardPanel">
+        <button type="button" class="pp-size-trigger" id="ppSizeTrigger">
+          <span id="ppSizeTriggerValue">F23 — 9.2 × 9.2 × 5 cm</span>
+          <svg class="pp-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="pp-size-custom" id="ppSizeCustomPanel" hidden>
+        <div class="pp-dimension-fields">
+          <label class="pp-dimension-field">
+            <span>Width</span>
+            <div class="pp-dimension-input"><input type="number" min="1" id="ppCustomWidth" value="20"><span>cm</span></div>
+          </label>
+          <label class="pp-dimension-field">
+            <span>Length</span>
+            <div class="pp-dimension-input"><input type="number" min="1" id="ppCustomLength" value="20"><span>cm</span></div>
+          </label>
+          <label class="pp-dimension-field">
+            <span>Height</span>
+            <div class="pp-dimension-input"><input type="number" min="1" id="ppCustomHeight" value="10"><span>cm</span></div>
+          </label>
+        </div>
+        <p class="pp-size-custom-note">Custom sizes may affect price and minimum order quantity.</p>
+      </div>
+
+      <div class="pp-size-drawer-backdrop" id="ppSizeDrawerBackdrop" hidden>
+        <div class="pp-size-drawer" id="ppSizeDrawer" role="dialog" aria-label="Choose a size">
+          <div class="pp-size-drawer-header">
+            <h3>Size</h3>
+            <button type="button" class="pp-size-drawer-close" id="ppSizeDrawerClose" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+          <div class="pp-size-drawer-rows" id="ppSizeDrawerRows">
+            <div class="pp-size-drawer-custom-card" id="ppSizeDrawerCustomCard">
+              <div class="pp-size-drawer-custom-head">
+                <span class="pp-size-drawer-custom-title">Custom size</span>
+                <span class="pp-size-drawer-custom-sub">External dimensions &bull; Min. 1000 pieces</span>
+              </div>
+              <div class="pp-dimension-fields pp-dimension-fields-sm">
+                <label class="pp-dimension-field">
+                  <span>Width</span>
+                  <div class="pp-dimension-input"><input type="number" min="1" id="ppDrawerCustomWidth"><span>cm</span></div>
+                </label>
+                <label class="pp-dimension-field">
+                  <span>Length</span>
+                  <div class="pp-dimension-input"><input type="number" min="1" id="ppDrawerCustomLength"><span>cm</span></div>
+                </label>
+                <label class="pp-dimension-field">
+                  <span>Height</span>
+                  <div class="pp-dimension-input"><input type="number" min="1" id="ppDrawerCustomHeight"><span>cm</span></div>
+                </label>
+              </div>
+            </div>
+            <div id="ppSizeDrawerStandardRows"></div>
+          </div>
+          <div class="pp-size-drawer-footer">
+            <div class="pp-size-drawer-delivery">
+              <span>Delivery</span>
+              <a href="#" id="ppSizeDrawerDeliveryDate">20 April</a>
+            </div>
+            <div class="pp-size-drawer-price-group">
+              <span class="pp-size-drawer-price-label" id="ppSizeDrawerQty">Netto / 500 pieces</span>
+              <span class="pp-size-drawer-price-value" id="ppSizeDrawerPrice">€233.70</span>
+            </div>
+            <button type="button" class="btn-pill md" id="ppSizeDrawerSave">Save size</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -3531,18 +3770,29 @@
   })();
 
   // ---------- Gallery / 3D view / 2D view switcher -- visual control only,
-  // no 3D/2D content behind it. Each option sets its own active-state
-  // background directly (no separate sliding indicator), matching the real
-  // Build_your_box app's own switcher. ----------
+  // no 3D/2D content behind it. Uses the shared .toggle-switch sliding
+  // indicator, same as Standard/Custom size and the spec tabs. ----------
   (function () {
     var switchEl = document.getElementById('ppGalleryViewSwitch');
-    if (!switchEl) { return; }
+    var indicator = document.getElementById('ppGalleryViewIndicator');
+    if (!switchEl || !indicator) { return; }
+
+    function moveIndicator(el) {
+      indicator.style.width = el.offsetWidth + 'px';
+      indicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    }
 
     switchEl.querySelectorAll('.pp-view-option').forEach(function (option) {
       option.addEventListener('click', function () {
         switchEl.querySelectorAll('.pp-view-option').forEach(function (o) { o.classList.remove('active'); });
         option.classList.add('active');
+        moveIndicator(option);
       });
+    });
+
+    moveIndicator(switchEl.querySelector('.pp-view-option.active'));
+    window.addEventListener('resize', function () {
+      moveIndicator(switchEl.querySelector('.pp-view-option.active'));
     });
   })();
 
@@ -3627,14 +3877,48 @@
       return last.unit;
     }
 
-    function setPrice(qty, total) {
-      var label = 'Netto / ' + qty + ' pieces';
-      var value = '€' + total;
+    // currentSizeMultiplier: applied on top of the quantity-tier price so the
+    // Size drawer (built later, its own IIFE) can scale the total without
+    // this module knowing anything about sizes -- it just remembers the last
+    // qty/base-total pair and re-renders through the same two labels/values.
+    var currentSizeMultiplier = 1;
+    var lastQty = null, lastBaseTotal = null;
+
+    function renderPrice() {
+      var displayTotal = (lastBaseTotal * currentSizeMultiplier).toFixed(2);
+      var label = 'Netto / ' + lastQty + ' pieces';
+      var value = '€' + displayTotal;
       ctaLabel.textContent = label;
       ctaValue.textContent = value;
       stickyLabel.textContent = label;
       stickyValue.textContent = value;
     }
+
+    function setPrice(qty, total) {
+      lastQty = qty;
+      lastBaseTotal = Number(total);
+      renderPrice();
+    }
+
+    window.ppApplySizeMultiplier = function (mult) {
+      currentSizeMultiplier = mult;
+      if (lastQty != null && lastBaseTotal != null) { renderPrice(); }
+    };
+
+    window.ppGetCurrentQtyTotal = function () {
+      return { qty: lastQty, total: lastBaseTotal };
+    };
+
+    // Seed lastQty/lastBaseTotal from whatever the CTA is already showing at
+    // load -- selectTier() itself only runs on a user click, so without this
+    // the Size drawer would have nothing to scale until the user touches the
+    // quantity picker first.
+    (function seedPriceState() {
+      var qtyMatch = /(\d+)/.exec(ctaLabel.textContent);
+      var totalMatch = /([\d.]+)/.exec(ctaValue.textContent.replace(',', '.'));
+      if (qtyMatch) { lastQty = Number(qtyMatch[1]); }
+      if (totalMatch) { lastBaseTotal = Number(totalMatch[1]); }
+    })();
 
     function updateInputDisplay(qty, unit, total) {
       inputValueEl.textContent = qty;
@@ -4120,6 +4404,188 @@
       track.addEventListener('scroll', updateNavState, { passive: true });
       window.addEventListener('resize', checkOverflow);
       checkOverflow();
+    });
+  })();
+
+  // ---------- Size: standard/custom toggle + side drawer, modeled on the
+  // real "Standard size" list at packhelp.com/p/custom-mailer-box/custom/.
+  // Prices are the real per-size prices from that page's own quote panel,
+  // expressed as a ratio to F23 so they scale with whatever quantity tier
+  // is currently selected (via window.ppApplySizeMultiplier, wired into the
+  // quantity picker's own setPrice/setPrice-derived total above). ----------
+  (function () {
+    var modeToggle = document.getElementById('ppSizeModeToggle');
+    if (!modeToggle) { return; }
+
+    var modeIndicator = document.getElementById('ppSizeModeIndicator');
+    var standardPanel = document.getElementById('ppSizeStandardPanel');
+    var customPanel = document.getElementById('ppSizeCustomPanel');
+    var modeOptions = modeToggle.querySelectorAll('.toggle-option');
+
+    function moveModeIndicator(el) {
+      modeIndicator.style.width = el.offsetWidth + 'px';
+      modeIndicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    }
+
+    modeOptions.forEach(function (option) {
+      option.addEventListener('click', function () {
+        if (option.classList.contains('active')) { return; }
+        modeOptions.forEach(function (o) { o.classList.remove('active'); });
+        option.classList.add('active');
+        moveModeIndicator(option);
+        var target = option.getAttribute('data-target');
+        standardPanel.hidden = target !== 'standard';
+        customPanel.hidden = target !== 'custom';
+      });
+    });
+
+    moveModeIndicator(modeToggle.querySelector('.toggle-option.active'));
+    window.addEventListener('resize', function () {
+      moveModeIndicator(modeToggle.querySelector('.toggle-option.active'));
+    });
+
+    // Real standard sizes (dims/inside dims cm, weight kg) with a real CDN
+    // wireframe illustration each; price is a ratio to F23 taken from the
+    // live site's own price list, so it rides on top of whatever quantity
+    // is currently selected rather than a fixed absolute number.
+    var SIZES = [
+      { code: 'F23', w: 9.2, l: 9.2, h: 5, iw: 7.9, il: 8.7, ih: 4.5, ratio: 1.000, img: 'https://cdn-pim.packhelp.com/assets/4012b6c9-a585-4edc-8581-090decd56de7/5103-1280-x-800-f-23' },
+      { code: 'F33', w: 11.8, l: 14, h: 8, iw: 10.2, il: 13.5, ih: 7.5, ratio: 1.604, img: 'https://cdn-pim.packhelp.com/assets/0c79e293-e168-4c01-8576-51ab5e326c9f/6089-1280-x-800-f-33' },
+      { code: 'F44', w: 20.7, l: 15.6, h: 9.1, iw: 19.6, il: 15.1, ih: 8.6, ratio: 1.635, img: 'https://cdn-pim.packhelp.com/assets/4163e941-d012-42dd-8730-da0dcbd7218c/6913-1280-x-800-f-44' },
+      { code: 'F45', w: 23.1, l: 14, h: 8, iw: 22, il: 13.5, ih: 7.5, ratio: 1.406, img: 'https://cdn-pim.packhelp.com/assets/3942ae66-0b49-4679-b98f-975bcbba11cd/6288-1280-x-800-f-45' },
+      { code: 'F46', w: 24.5, l: 19.4, h: 2.2, iw: 22.9, il: 19, ih: 1.8, ratio: 1.271, img: 'https://cdn-pim.packhelp.com/assets/573394c5-2a7d-4972-a071-a6896cde7329/20667-1280-x-800-f-46' },
+      { code: 'F52', w: 26.5, l: 19.5, h: 6, iw: 24.9, il: 19, ih: 5.5, ratio: 1.552, img: 'https://cdn-pim.packhelp.com/assets/0bb22607-5caf-42fe-a45d-e1a4749c05cf/7145-1280-x-800-f-52-2' },
+      { code: 'F56', w: 26, l: 20, h: 10.5, iw: 24.5, il: 19.5, ih: 10, ratio: 2.271, img: 'https://cdn-pim.packhelp.com/assets/e3cbdb3d-eef4-47e8-aeaf-ea4e3b413e01/7442-1280-x-800-f-56' },
+      { code: 'F59', w: 32, l: 18.2, h: 9, iw: 30.5, il: 17.7, ih: 8.5, ratio: 2.260, img: 'https://cdn-pim.packhelp.com/assets/4998b52a-6257-4698-b195-87a6f38ecb6b/7530-1280-x-800-f-59' },
+      { code: 'F62', w: 30.2, l: 23.3, h: 8.8, iw: 28.9, il: 22.8, ih: 8.3, ratio: 2.271, img: 'https://cdn-pim.packhelp.com/assets/1c6a3bf0-a2d6-49b4-9143-e1dbc7d92214/8155-1280-x-800-f-62' },
+      { code: 'F65', w: 35, l: 25, h: 5, iw: 34.5, il: 24.5, ih: 4.5, ratio: 2.240, img: 'https://cdn-pim.packhelp.com/assets/878207c2-93dd-4fde-abc3-79284b700f91/44283-1280-x-800-f-65' },
+      { code: 'F71', w: 35, l: 26, h: 10, iw: 33.7, il: 25.5, ih: 9.5, ratio: 2.740, img: 'https://cdn-pim.packhelp.com/assets/1ab27c9b-3115-4a69-82d5-aaba8e03130c/8160-1280-x-800-f-71' },
+      { code: 'F79', w: 36.4, l: 31.4, h: 12.5, iw: 34.7, il: 30.9, ih: 12, ratio: 3.156, img: 'https://cdn-pim.packhelp.com/assets/47b1857a-79eb-46eb-b144-39d66756a0d1/9630-1280-x-800-f-79' },
+      { code: 'F93', w: 44, l: 33.9, h: 15.9, iw: 42.6, il: 33.4, ih: 15.4, ratio: 3.448, img: 'https://cdn-pim.packhelp.com/assets/09620617-2fea-4e7f-b01e-e6ac8560e36e/10343-1280-x-800-f-93' },
+      { code: 'F112', w: 42.5, l: 52, h: 18, iw: 40, il: 51.1, ih: 17.4, ratio: 4.115, img: 'https://cdn-pim.packhelp.com/assets/17c88603-551b-4ae9-bf46-6ff8face2dac/11745-1280-x-800-f-112' }
+    ];
+
+    var currentSize = SIZES[0];
+    var pendingSize = currentSize;
+    var pendingCustom = null;
+
+    var trigger = document.getElementById('ppSizeTrigger');
+    var triggerValue = document.getElementById('ppSizeTriggerValue');
+    var backdrop = document.getElementById('ppSizeDrawerBackdrop');
+    var closeBtn = document.getElementById('ppSizeDrawerClose');
+    var standardRowsWrap = document.getElementById('ppSizeDrawerStandardRows');
+    var customCard = document.getElementById('ppSizeDrawerCustomCard');
+    var footerQty = document.getElementById('ppSizeDrawerQty');
+    var footerPrice = document.getElementById('ppSizeDrawerPrice');
+    var saveBtn = document.getElementById('ppSizeDrawerSave');
+    var drawerCustomWidth = document.getElementById('ppDrawerCustomWidth');
+    var drawerCustomLength = document.getElementById('ppDrawerCustomLength');
+    var drawerCustomHeight = document.getElementById('ppDrawerCustomHeight');
+
+    function fmtDims(size) { return size.w + ' × ' + size.l + ' × ' + size.h + ' cm'; }
+
+    function currentQtyTotal() {
+      var base = window.ppGetCurrentQtyTotal ? window.ppGetCurrentQtyTotal() : null;
+      if (!base || base.qty == null || base.total == null) { return { qty: 500, total: 233.70 }; }
+      return base;
+    }
+
+    function unitPriceForRatio(ratio) {
+      var base = currentQtyTotal();
+      return (base.total / base.qty) * ratio;
+    }
+
+    function renderRows() {
+      standardRowsWrap.innerHTML = '';
+      customCard.classList.toggle('active', !!pendingCustom);
+      SIZES.forEach(function (size) {
+        var isActive = !pendingCustom && size.code === pendingSize.code;
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'pp-size-drawer-row' + (isActive ? ' active' : '');
+        row.setAttribute('data-code', size.code);
+        var unit = unitPriceForRatio(size.ratio);
+        var html =
+          '<span class="pp-size-row-main">' +
+            '<span class="pp-size-row-code">' + size.code + '</span>' +
+            '<span class="pp-size-row-dims">' + fmtDims(size) + '</span>' +
+            '<span class="pp-size-row-price">€' + unit.toFixed(2) + '/piece</span>' +
+          '</span>';
+        if (isActive) {
+          html += '<span class="pp-size-row-detail">Inside dimensions: ' + size.iw + ' × ' + size.il + ' × ' + size.ih + ' cm</span>';
+        }
+        row.innerHTML = html;
+        row.addEventListener('click', function () { selectPending(size); });
+        standardRowsWrap.appendChild(row);
+      });
+    }
+
+    function updateFooter() {
+      var base = currentQtyTotal();
+      var ratio = pendingCustom ? currentSize.ratio : pendingSize.ratio;
+      var total = unitPriceForRatio(ratio) * base.qty;
+      footerQty.textContent = 'Netto / ' + base.qty + ' pieces';
+      footerPrice.textContent = '€' + total.toFixed(2);
+    }
+
+    function selectPending(size) {
+      pendingSize = size;
+      pendingCustom = null;
+      drawerCustomWidth.value = '';
+      drawerCustomLength.value = '';
+      drawerCustomHeight.value = '';
+      renderRows();
+      updateFooter();
+    }
+
+    function onCustomInput() {
+      var w = Number(drawerCustomWidth.value);
+      var l = Number(drawerCustomLength.value);
+      var h = Number(drawerCustomHeight.value);
+      if (w > 0 && l > 0 && h > 0) {
+        pendingCustom = { w: w, l: l, h: h };
+      } else {
+        pendingCustom = null;
+      }
+      renderRows();
+      updateFooter();
+    }
+
+    function openDrawer() {
+      pendingSize = currentSize;
+      pendingCustom = null;
+      drawerCustomWidth.value = '';
+      drawerCustomLength.value = '';
+      drawerCustomHeight.value = '';
+      renderRows();
+      updateFooter();
+      backdrop.hidden = false;
+      requestAnimationFrame(function () { backdrop.classList.add('open'); });
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+      setTimeout(function () { backdrop.hidden = true; }, 250);
+    }
+
+    trigger.addEventListener('click', openDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', function (e) { if (e.target === backdrop) { closeDrawer(); } });
+    [drawerCustomWidth, drawerCustomLength, drawerCustomHeight].forEach(function (input) {
+      input.addEventListener('input', onCustomInput);
+    });
+
+    saveBtn.addEventListener('click', function () {
+      if (pendingCustom) {
+        triggerValue.textContent = 'Custom — ' + pendingCustom.w + ' × ' + pendingCustom.l + ' × ' + pendingCustom.h + ' cm';
+      } else {
+        currentSize = pendingSize;
+        triggerValue.textContent = currentSize.code + ' — ' + fmtDims(currentSize);
+        if (window.ppApplySizeMultiplier) { window.ppApplySizeMultiplier(currentSize.ratio); }
+      }
+      closeDrawer();
     });
   })();
 </script>
